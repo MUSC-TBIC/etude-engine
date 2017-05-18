@@ -59,7 +59,7 @@ def extract_annotations( ingest_file ,
                                            begin_attribute = 'begin' ,
                                            end_attribute = 'end' ,
                                            default_score = 'FP' )
-        
+
 
 def norm_summary( score_summary ):
     score_types = score_summary.keys()
@@ -76,10 +76,38 @@ def norm_summary( score_summary ):
     return score_summary
 
 
+def print_score_summary( score_card , file_list , args ):
+    ## TODO - refactor score printing to a separate function
+    ## TODO - add scores grouped by type
+    ## TODO - allow tab, column, arbitrary separators in print
+    print( '\n{}\t{}\t{}\t{}\t{}\n'.format( '#########' ,
+                                            'TP' ,
+                                            'FP' ,
+                                            'TN' ,
+                                            'FN' ) )
+    ##
+    score_summary = norm_summary( score_card[ 'Score' ].value_counts() )
+    print( 'aggregate\t{}\t{}\t{}\t{}\n'.format( score_summary[ 'TP' ] ,
+                                                 score_summary[ 'FP' ] ,
+                                                 score_summary[ 'TN' ] ,
+                                                 score_summary[ 'FN' ] ) )
+    ##
+    if( args.verbose ):
+        for filename in file_list:
+            this_file = ( score_card[ 'File' ] == filename )
+            score_summary = norm_summary( score_card[ this_file ][ 'Score' ].value_counts() )
+            print( '{}\t{}\t{}\t{}\t{}'.format( filename ,
+                                                score_summary[ 'TP' ] ,
+                                                score_summary[ 'FP' ] ,
+                                                score_summary[ 'TN' ] ,
+                                                score_summary[ 'FN' ] ) )
+
+
+
 def score_ref_set( gold_folder , test_folder ,
+                   args ,
                    file_prefix = '/' ,
-                   file_suffix = '.xml' ,
-                   verbose = False ):
+                   file_suffix = '.xml' ):
     """
     Score the test folder against the gold folder.
     """
@@ -90,18 +118,6 @@ def score_ref_set( gold_folder , test_folder ,
                                                          file_prefix +
                                                          '*' +
                                                          file_suffix )])
-    tests = set([os.path.basename(x) for x in glob.glob( test_folder +
-                                                         file_prefix +
-                                                         '*' +
-                                                         file_suffix )])
-    ## TODO - refactor score printing to a separate function
-    ## TODO - add scores grouped by type
-    ## TODO - allow tab, column, arbitrary separators in print
-    print( '\n{}\t{}\t{}\t{}\t{}\n'.format( 'Filename' ,
-                                            'TP' ,
-                                            'FP' ,
-                                            'TN' ,
-                                            'FN' ) )
     for gold_filename in sorted( golds ):
         ## TODO - parameterize this (optional) substitution
         test_filename = re.sub( 'xml$' , r'txt' , gold_filename )
@@ -123,24 +139,9 @@ def score_ref_set( gold_folder , test_folder ,
             if( test_start not in gold_ss.keys() ):
                 score_card.loc[ score_card.shape[ 0 ] ] = \
                   [ gold_filename , gold_start , '' , '' , 'FP' ]
-        if( verbose ):
-            ## TODO - make this per file
-            this_file = ( score_card[ 'File' ] == gold_filename )
-            score_summary = norm_summary( score_card[ this_file ][ 'Score' ].value_counts() )
-            print( '{}\t{}\t{}\t{}\t{}'.format( gold_filename ,
-                                                score_summary[ 'TP' ] ,
-                                                score_summary[ 'FP' ] ,
-                                                score_summary[ 'TN' ] ,
-                                                score_summary[ 'FN' ] ) )
     ##
-    score_summary = norm_summary( score_card[ 'Score' ].value_counts() )
-    if( verbose ):
-        print( '' )
-    print( 'aggregate\t{}\t{}\t{}\t{}\n'.format( score_summary[ 'TP' ] ,
-                                                 score_summary[ 'FP' ] ,
-                                                 score_summary[ 'TN' ] ,
-                                                 score_summary[ 'FN' ] ) )
-            
+    print_score_summary( score_card , sorted( golds ) , args )
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser( description = """
@@ -166,6 +167,6 @@ unstructured data extraction.
     
     args = parser.parse_args()
     
-    score_ref_set( os.path.abspath( args.gold_dir ) ,
-                   os.path.abspath( args.test_dir ) ,
-                   verbose = args.verbose )
+    score_ref_set( gold_folder = os.path.abspath( args.gold_dir ) ,
+                   test_folder = os.path.abspath( args.test_dir ) ,
+                   args = args )
