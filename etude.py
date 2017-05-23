@@ -80,17 +80,21 @@ def print_score_summary( score_card , file_list , args ):
     ## TODO - refactor score printing to a separate function
     ## TODO - add scores grouped by type
     ## TODO - allow tab, column, arbitrary separators in print
-    print( '\n{}\t{}\t{}\t{}\t{}\n'.format( '#########' ,
-                                            'TP' ,
-                                            'FP' ,
-                                            'TN' ,
-                                            'FN' ) )
+    print( '\n{}{}{}{}{}{}{}{}{}'.format( '#########' , args.delim ,
+                                          'TP' , args.delim ,
+                                          'FP' , args.delim ,
+                                          'TN' , args.delim ,
+                                          'FN' ) )
     ##
     score_summary = norm_summary( score_card[ 'Score' ].value_counts() )
-    print( 'aggregate\t{}\t{}\t{}\t{}\n'.format( score_summary[ 'TP' ] ,
-                                                 score_summary[ 'FP' ] ,
-                                                 score_summary[ 'TN' ] ,
-                                                 score_summary[ 'FN' ] ) )
+    print( 'aggregate{}{}{}{}{}{}{}{}'.format( args.delim ,
+                                               score_summary[ 'TP' ] ,
+                                               args.delim ,
+                                               score_summary[ 'FP' ] ,
+                                               args.delim ,
+                                               score_summary[ 'TN' ] ,
+                                               args.delim ,
+                                               score_summary[ 'FN' ] ) )
     ##
     if( args.verbose ):
         for filename in file_list:
@@ -165,6 +169,10 @@ unstructured data extraction.
     parser.add_argument("test_dir",
                         help="Directory containing reference set to score")
     
+    parser.add_argument("-d", dest = 'delim' , nargs = '?' ,
+                        default = '\t' ,
+                        help="Delimiter used in all output streams" )
+
     args = parser.parse_args()
     
     score_ref_set( gold_folder = os.path.abspath( args.gold_dir ) ,
