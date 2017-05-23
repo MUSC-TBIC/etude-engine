@@ -60,7 +60,6 @@ def extract_annotations( ingest_file ,
                                            end_attribute = 'end' ,
                                            default_score = 'FP' )
 
-
 def norm_summary( score_summary ):
     score_types = score_summary.keys()
     ## First, we want to make sure that all score types are represented
@@ -79,33 +78,25 @@ def norm_summary( score_summary ):
 def print_score_summary( score_card , file_list , args ):
     ## TODO - refactor score printing to a separate function
     ## TODO - add scores grouped by type
-    ## TODO - allow tab, column, arbitrary separators in print
-    print( '\n{}{}{}{}{}{}{}{}{}'.format( '#########' , args.delim ,
-                                          'TP' , args.delim ,
-                                          'FP' , args.delim ,
-                                          'TN' , args.delim ,
-                                          'FN' ) )
+    metric_list = [ 'TP' , 'FP' , 'TN' , 'FN' ]
+    print( '{}{}{}'.format( '\n#########' ,
+                            args.delim ,
+                            args.delim.join( '{}'.format( m ) for m in metric_list ) ) )
     ##
     score_summary = norm_summary( score_card[ 'Score' ].value_counts() )
-    print( 'aggregate{}{}{}{}{}{}{}{}'.format( args.delim ,
-                                               score_summary[ 'TP' ] ,
-                                               args.delim ,
-                                               score_summary[ 'FP' ] ,
-                                               args.delim ,
-                                               score_summary[ 'TN' ] ,
-                                               args.delim ,
-                                               score_summary[ 'FN' ] ) )
+    metrics = [ 'aggregate' ]
+    for metric in metric_list:
+        metrics.append( score_summary[ metric ] )
+    print( args.delim.join( '{}'.format( m ) for m in metrics ) )
     ##
     if( args.verbose ):
         for filename in file_list:
             this_file = ( score_card[ 'File' ] == filename )
             score_summary = norm_summary( score_card[ this_file ][ 'Score' ].value_counts() )
-            print( '{}\t{}\t{}\t{}\t{}'.format( filename ,
-                                                score_summary[ 'TP' ] ,
-                                                score_summary[ 'FP' ] ,
-                                                score_summary[ 'TN' ] ,
-                                                score_summary[ 'FN' ] ) )
-
+            metrics = [ filename ]
+            for metric in metric_list:
+                metrics.append( score_summary[ metric ] )
+            print( args.delim.join( '{}'.format( m ) for m in metrics ) )
 
 
 def score_ref_set( gold_folder , test_folder ,
