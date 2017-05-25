@@ -221,7 +221,16 @@ unstructured data extraction.
                         dest = 'test_config' ,
                         default = 'CAS_XMI.conf' ,
                         help="Configuration file that describes the test format" )
-    
+
+    parser.add_argument("--file-prefix", nargs = '?' ,
+                        dest = 'file_prefix' ,
+                        default = '/' ,
+                        help="Prefix used for filename matching" )
+    parser.add_argument("--file-suffix", nargs = '?' ,
+                        dest = 'file_suffix' ,
+                        default = '.xml' ,
+                        help="Suffix used for filename matching" )
+
     args = parser.parse_args()
     ## Extract and process the two input file configs
     gold_patterns = process_config( config_file = args.gold_config )
@@ -231,4 +240,6 @@ unstructured data extraction.
                    gold_folder = os.path.abspath( args.gold_dir ) ,
                    test_config = test_patterns ,
                    test_folder = os.path.abspath( args.test_dir ) ,
-                   args = args )
+                   args = args ,
+                   file_prefix = args.file_prefix ,
+                   file_suffix = args.file_suffix )
