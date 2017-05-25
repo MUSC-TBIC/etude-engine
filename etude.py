@@ -27,8 +27,10 @@ def extract_annotations_kernel( ingest_file ,
     ##
     tree = ET.parse( ingest_file )
     root = tree.getroot()
+    ## TODO - allow arbitrary namespaces either read from file or as argument
+    namespaces = { 'custom' : 'http:///webanno/custom.ecore' }
     ##
-    for annot in root.findall( annotation_path ):
+    for annot in root.findall( annotation_path , namespaces ):
         if( begin_attribute != None ):
             begin_pos = annot.get( begin_attribute )
         if( end_attribute != None ):
