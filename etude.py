@@ -1,6 +1,7 @@
 from __future__ import print_function
 
 import argparse
+import ConfigParser
 
 import glob
 import os
@@ -12,7 +13,6 @@ import xml.etree.ElementTree as ET
 
 import numpy as np
 import pandas as pd
-
 
 def extract_annotations_kernel( ingest_file ,
                                 tag_name ,
@@ -41,25 +41,22 @@ def extract_annotations_kernel( ingest_file ,
         if( begin_pos in strict_starts.keys() ):
             strict_starts[ begin_pos ].append( new_entry )
         else:
-            strict_starts[ begin_pos ] = ( new_entry )
+            strict_starts[ begin_pos ] = [ new_entry ]
         ##print( '\t{}\t{}\t{}'.format( begin_pos , end_pos , raw_text ) )
     ## 
     return strict_starts
 
 def extract_annotations( ingest_file ,
-                         type = 'i2b2_2016_track-1' ):
-    if( type == 'i2b2_2016_track-1' ):
-        return extract_annotations_kernel( ingest_file ,
-                                           tag_name = './TAGS/DATE' ,
-                                           begin_attribute = 'start' ,
-                                           end_attribute = 'end' ,
-                                           text_attribute = 'text' )
-    elif( type == 'CAS XMI' ):
-        return extract_annotations_kernel( ingest_file ,
-                                           tag_name = './/org.apache.uima.tutorial.DateAnnot' ,
-                                           begin_attribute = 'begin' ,
-                                           end_attribute = 'end' ,
-                                           default_score = 'FP' )
+                         patterns ):
+    annotations = {}
+    for pattern in patterns:
+        annotations.update( 
+            extract_annotations_kernel( ingest_file ,
+                                        tag_name = pattern[ 'xpath' ] ,
+                                        begin_attribute = pattern[ 'begin_attr' ] ,
+                                        end_attribute = pattern[ 'end_attr' ] ) )
+    return annotations
+
 
 def accuracy( tp , fp , tn , fn ):
     if( tp + fp + tn + fn > 0 ):
@@ -164,7 +161,8 @@ def print_score_summary( score_card , file_list , args ):
             print( args.delim.join( '{}'.format( m ) for m in metrics ) )
 
 
-def score_ref_set( gold_folder , test_folder ,
+def score_ref_set( gold_config , gold_folder ,
+                   test_config , test_folder ,
                    args ,
                    file_prefix = '/' ,
                    file_suffix = '.xml' ):
@@ -184,10 +182,10 @@ def score_ref_set( gold_folder , test_folder ,
         ## TODO - refactor into separate fuction
         gold_ss = extract_annotations( '{}/{}'.format( gold_folder ,
                                                        gold_filename ) ,
-                                       type = 'i2b2_2016_track-1' )
+                                       patterns = gold_config )
         test_ss = extract_annotations( '{}/{}'.format( test_folder ,
                                                        test_filename ) ,
-                                       type = 'CAS XMI' )
+                                       patterns = test_config )
         for gold_start in gold_ss.keys():
             if( gold_start in test_ss.keys() ):
                 score_card.loc[ score_card.shape[ 0 ] ] = \
@@ -202,6 +200,22 @@ def score_ref_set( gold_folder , test_folder ,
     ##
     print_score_summary( score_card , sorted( golds ) , args )
 
+    
+def process_config( config_file ):
+    config = ConfigParser.ConfigParser()
+    config.read( config_file )
+    annotations = []
+    for sect in config.sections():
+        if( config.has_option( sect , 'XPath' ) and
+            config.has_option( sect , 'Begin Attr' ) and
+            config.has_option( sect , 'End Attr' ) ):
+            annotations.append( dict( xpath = config.get( sect , 'XPath' ) ,
+                                   begin_attr = config.get( sect ,
+                                                            'Begin Attr' ) ,
+                                   end_attr = config.get( sect ,
+                                                          'End Attr' ) ) )
+    ##
+    return annotations
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser( description = """
@@ -241,8 +255,22 @@ unstructured data extraction.
                         default = '\t' ,
                         help="Delimiter used in all output streams" )
 
-    args = parser.parse_args()
+    parser.add_argument("--gold-config", nargs = '?' ,
+                        dest = 'gold_config' ,
+                        default = 'i2b2_2016_track-1.conf' ,
+                        help="Configuration file that describes the gold format" )
+    parser.add_argument("--test-config", nargs = '?' ,
+                        dest = 'test_config' ,
+                        default = 'CAS_XMI.conf' ,
+                        help="Configuration file that describes the test format" )
     
-    score_ref_set( gold_folder = os.path.abspath( args.gold_dir ) ,
+    args = parser.parse_args()
+    ## Extract and process the two input file configs
+    gold_patterns = process_config( config_file = args.gold_config )
+    test_patterns = process_config( config_file = args.test_config )
+    
+    score_ref_set( gold_config = gold_patterns ,
+                   gold_folder = os.path.abspath( args.gold_dir ) ,
+                   test_config = test_patterns ,
                    test_folder = os.path.abspath( args.test_dir ) ,
                    args = args )
