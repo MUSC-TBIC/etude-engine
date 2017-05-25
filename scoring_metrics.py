@@ -87,7 +87,9 @@ def norm_summary( score_summary , row_name , args ):
     return metrics
 
 
-def print_score_summary( score_card , file_list , args ):
+def print_score_summary( score_card , file_list ,
+                         gold_config , test_config ,
+                         args ):
     ## TODO - refactor score printing to a separate function
     ## TODO - add scores grouped by type
     print( '{}{}{}'.format( '\n#########' ,
@@ -98,10 +100,17 @@ def print_score_summary( score_card , file_list , args ):
                             'aggregate' , args )
     print( args.delim.join( '{}'.format( m ) for m in metrics ) )
     ##
-    if( args.verbose ):
+    if( args.by_file ):
         for filename in file_list:
             this_file = ( score_card[ 'File' ] == filename )
             metrics = norm_summary( score_card[ this_file ][ 'Score' ].value_counts() ,
                                     filename , args )
+            print( args.delim.join( '{}'.format( m ) for m in metrics ) )
+
+    if( args.by_type ):
+        for pattern in gold_config:
+            this_type = ( score_card[ 'Type' ] == pattern[ 'type' ] )
+            metrics = norm_summary( score_card[ this_type ][ 'Score' ].value_counts() ,
+                                    pattern[ 'display_name' ] , args )
             print( args.delim.join( '{}'.format( m ) for m in metrics ) )
 

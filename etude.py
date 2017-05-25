@@ -17,6 +17,7 @@ import pandas as pd
 import scoring_metrics
 
 def extract_annotations_kernel( ingest_file ,
+                                annotation_path ,
                                 tag_name ,
                                 begin_attribute = None ,
                                 end_attribute = None ,
@@ -27,7 +28,7 @@ def extract_annotations_kernel( ingest_file ,
     tree = ET.parse( ingest_file )
     root = tree.getroot()
     ##
-    for annot in root.findall( tag_name ):
+    for annot in root.findall( annotation_path ):
         if( begin_attribute != None ):
             begin_pos = annot.get( begin_attribute )
         if( end_attribute != None ):
@@ -38,7 +39,7 @@ def extract_annotations_kernel( ingest_file ,
             raw_text = annot.get( text_attribute )
         new_entry = dict( end_pos = end_pos ,
                           raw_text = raw_text ,
-                          type = 'Dates and Times' ,
+                          type = tag_name ,
                           score = default_score )
         if( begin_pos in strict_starts.keys() ):
             strict_starts[ begin_pos ].append( new_entry )
@@ -54,7 +55,8 @@ def extract_annotations( ingest_file ,
     for pattern in patterns:
         annotations.update( 
             extract_annotations_kernel( ingest_file ,
-                                        tag_name = pattern[ 'xpath' ] ,
+                                        annotation_path = pattern[ 'xpath' ] ,
+                                        tag_name = pattern[ 'type' ] ,
                                         begin_attribute = pattern[ 'begin_attr' ] ,
                                         end_attribute = pattern[ 'end_attr' ] ) )
     return annotations
@@ -71,6 +73,7 @@ def score_ref_set( gold_config , gold_folder ,
     score_card = pd.DataFrame( columns = [ 'File' ,
                                            'Start' , 'End' ,
                                            'Type' , 'Score' ] )
+    confusion_matrix = {}
     golds = set([os.path.basename(x) for x in glob.glob( gold_folder +
                                                          file_prefix +
                                                          '*' +
@@ -86,18 +89,61 @@ def score_ref_set( gold_config , gold_folder ,
                                                        test_filename ) ,
                                        patterns = test_config )
         for gold_start in gold_ss.keys():
+            ## grab type and end position
+            gold_type = gold_ss[ gold_start ][ 0 ][ 'type' ]
+            gold_end = gold_ss[ gold_start ][ 0 ][ 'end_pos' ]
+            ##print( '{}'.format( gold_type ) )
+            ## Loop through all the gold start positions looking for matches
             if( gold_start in test_ss.keys() ):
-                score_card.loc[ score_card.shape[ 0 ] ] = \
-                  [ gold_filename , gold_start , '' , '' , 'TP' ]
+                ## grab type and end position
+                test_type = test_ss[ gold_start ][ 0 ][ 'type' ]
+                test_end = test_ss[ gold_start ][ 0 ][ 'end_pos' ]
+                ##print( '{}\t{}'.format( gold_type , test_type ) )
+                ## If the types match...
+                if( gold_type == test_type ):
+                    ## ... and the end positions match, then we have a
+                    ##     perfect match
+                    if( gold_end == test_end ):
+                        score_card.loc[ score_card.shape[ 0 ] ] = \
+                          [ gold_filename , gold_start , gold_end ,
+                                gold_type , 'TP' ]
+                    elif( gold_end < test_end ):
+                        ## If the gold end position is prior to the system
+                        ## determined end position, we consider this a
+                        ## 'fully contained' match and also count it
+                        ## as a win (until we score strict vs. lenient matches)
+                        score_card.loc[ score_card.shape[ 0 ] ] = \
+                          [ gold_filename , gold_start , gold_end ,
+                                gold_type , 'TP' ]
+                    else:
+                        ## otherwise, we missed some data that needs
+                        ## to be captured.  For now, this is also
+                        ## a win but will not always count.
+                        score_card.loc[ score_card.shape[ 0 ] ] = \
+                          [ gold_filename , gold_start , gold_end ,
+                                gold_type , 'TP' ]
+                else:
+                    score_card.loc[ score_card.shape[ 0 ] ] = \
+                          [ gold_filename , gold_start , gold_end ,
+                                gold_type , 'FN' ]
+                    score_card.loc[ score_card.shape[ 0 ] ] = \
+                          [ gold_filename , gold_start , test_end ,
+                                test_type , 'FP' ]
             else:
                 score_card.loc[ score_card.shape[ 0 ] ] = \
-                  [ gold_filename , gold_start , '' , '' , 'FN' ]
+                  [ gold_filename , gold_start , gold_end , gold_type , 'FN' ]
         for test_start in test_ss.keys():
             if( test_start not in gold_ss.keys() ):
+                ## grab type and end position
+                test_type = test_ss[ test_start ][ 0 ][ 'type' ]
+                test_end = test_ss[ test_start ][ 0 ][ 'end_pos' ]
                 score_card.loc[ score_card.shape[ 0 ] ] = \
-                  [ gold_filename , gold_start , '' , '' , 'FP' ]
+                  [ gold_filename , test_start , test_end , test_type , 'FP' ]
     ##
-    scoring_metrics.print_score_summary( score_card , sorted( golds ) , args )
+    scoring_metrics.print_score_summary( score_card ,
+                                         sorted( golds ) ,
+                                         gold_config , test_config ,
+                                         args )
 
     
 def process_config( config_file ):
@@ -108,11 +154,15 @@ def process_config( config_file ):
         if( config.has_option( sect , 'XPath' ) and
             config.has_option( sect , 'Begin Attr' ) and
             config.has_option( sect , 'End Attr' ) ):
-            annotations.append( dict( xpath = config.get( sect , 'XPath' ) ,
-                                   begin_attr = config.get( sect ,
-                                                            'Begin Attr' ) ,
-                                   end_attr = config.get( sect ,
-                                                          'End Attr' ) ) )
+            display_name = '{} ({})'.format( sect.strip() ,
+                                             config.get( sect , 'Short Name' ) )
+            annotations.append( dict( type = sect.strip() ,
+                                      xpath = config.get( sect , 'XPath' ) ,
+                                      display_name = display_name ,
+                                      begin_attr = config.get( sect ,
+                                                               'Begin Attr' ) ,
+                                      end_attr = config.get( sect ,
+                                                             'End Attr' ) ) )
     ##
     return annotations
 
@@ -154,6 +204,14 @@ unstructured data extraction.
                         dest = 'delim' ,
                         default = '\t' ,
                         help="Delimiter used in all output streams" )
+
+    parser.add_argument( '--by-file' , dest = 'by_file' ,
+                         help = "Print metrics by file" ,
+                         action = "store_true" )
+    
+    parser.add_argument( '--by-type' , dest = 'by_type' ,
+                         help = "Print metrics by annotation type" ,
+                         action = "store_true" )
 
     parser.add_argument("--gold-config", nargs = '?' ,
                         dest = 'gold_config' ,
