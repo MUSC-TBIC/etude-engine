@@ -1,6 +1,7 @@
 from __future__ import print_function
 
 import argparse
+import ConfigParser
 
 import glob
 import os
@@ -13,8 +14,10 @@ import xml.etree.ElementTree as ET
 import numpy as np
 import pandas as pd
 
+import scoring_metrics
 
 def extract_annotations_kernel( ingest_file ,
+                                annotation_path ,
                                 tag_name ,
                                 begin_attribute = None ,
                                 end_attribute = None ,
@@ -25,7 +28,7 @@ def extract_annotations_kernel( ingest_file ,
     tree = ET.parse( ingest_file )
     root = tree.getroot()
     ##
-    for annot in root.findall( tag_name ):
+    for annot in root.findall( annotation_path ):
         if( begin_attribute != None ):
             begin_pos = annot.get( begin_attribute )
         if( end_attribute != None ):
@@ -36,135 +39,31 @@ def extract_annotations_kernel( ingest_file ,
             raw_text = annot.get( text_attribute )
         new_entry = dict( end_pos = end_pos ,
                           raw_text = raw_text ,
-                          type = 'Dates and Times' ,
+                          type = tag_name ,
                           score = default_score )
         if( begin_pos in strict_starts.keys() ):
             strict_starts[ begin_pos ].append( new_entry )
         else:
-            strict_starts[ begin_pos ] = ( new_entry )
+            strict_starts[ begin_pos ] = [ new_entry ]
         ##print( '\t{}\t{}\t{}'.format( begin_pos , end_pos , raw_text ) )
     ## 
     return strict_starts
 
 def extract_annotations( ingest_file ,
-                         type = 'i2b2_2016_track-1' ):
-    if( type == 'i2b2_2016_track-1' ):
-        return extract_annotations_kernel( ingest_file ,
-                                           tag_name = './TAGS/DATE' ,
-                                           begin_attribute = 'start' ,
-                                           end_attribute = 'end' ,
-                                           text_attribute = 'text' )
-    elif( type == 'CAS XMI' ):
-        return extract_annotations_kernel( ingest_file ,
-                                           tag_name = './/org.apache.uima.tutorial.DateAnnot' ,
-                                           begin_attribute = 'begin' ,
-                                           end_attribute = 'end' ,
-                                           default_score = 'FP' )
-
-def accuracy( tp , fp , tn , fn ):
-    if( tp + fp + tn + fn > 0 ):
-        return ( tp + tn ) / float( tp + fp + tn + fn )
-    else:
-        return 0.0
+                         patterns ):
+    annotations = {}
+    for pattern in patterns:
+        annotations.update( 
+            extract_annotations_kernel( ingest_file ,
+                                        annotation_path = pattern[ 'xpath' ] ,
+                                        tag_name = pattern[ 'type' ] ,
+                                        begin_attribute = pattern[ 'begin_attr' ] ,
+                                        end_attribute = pattern[ 'end_attr' ] ) )
+    return annotations
 
 
-def precision( tp , fp ):
-    if( fp + tp > 0 ):
-        return tp / float( fp + tp )
-    else:
-        return 0.0
-
-
-def recall( tp , fn ):
-    if( fn + tp > 0 ):
-        return tp / float( fn + tp )
-    else:
-        return 0.0
-
-
-def specificity( tn , fn ):
-    if( tn + fn > 0 ):
-        return tn / float( tn + fn )
-    else:
-        return 0.0
-
-
-def f_score( p , r , beta = 1 ):
-    if( p + r > 0 ):
-        return ( 1 + beta**2 ) * ( ( p * r ) / ( p + r ) )
-    else:
-        return 0.0
-
-
-def norm_summary( score_summary , row_name , args ):
-    ## Source for definitions:
-    ## -- https://en.wikipedia.org/wiki/Precision_and_recall#Definition_.28classification_context.29
-    ##
-    score_types = score_summary.keys()
-    ## First, we want to make sure that all score types are represented
-    ## in the summary series.
-    if( 'TP' not in score_types ):
-        score_summary[ 'TP' ] = 0.0
-    if( 'FP' not in score_types ):
-        score_summary[ 'FP' ] = 0.0
-    if( 'TN' not in score_types ):
-        score_summary[ 'TN' ] = 0.0
-    if( 'FN' not in score_types ):
-        score_summary[ 'FN' ] = 0.0
-    ## True Positive Rate (TPR), Sensitivity, Recall, Probability of Detection
-    if( 'Recall' in args.metrics_list or
-        'F1' in args.metrics_list ):
-        score_summary[ 'Recall' ] = recall( tp = score_summary[ 'TP' ] ,
-                                            fn = score_summary[ 'FN' ] )
-    if( 'Sensitivity' in args.metrics_list ):
-        score_summary[ 'Sensitivity' ] = recall( tp = score_summary[ 'TP' ] ,
-                                                 fn = score_summary[ 'FN' ] )
-    ## Positive Predictive Value (PPV), Precision
-    if( 'Precision' in args.metrics_list or
-        'F1' in args.metrics_list ):
-        score_summary[ 'Precision' ] = precision( tp = score_summary[ 'TP' ] ,
-                                                  fp = score_summary[ 'FP' ] )
-    ## True Negative Rate (TNR), Specificity (SPC) 
-    if( 'Specificity' in args.metrics_list ):
-        score_summary[ 'Specificity' ] = specificity( tn = score_summary[ 'TN' ] ,
-                                                      fn = score_summary[ 'FN' ] )
-    ## Accuracy
-    if( 'Accuracy' in args.metrics_list ):
-        score_summary[ 'Accuracy' ] = accuracy( tp = score_summary[ 'TP' ] ,
-                                                fp = score_summary[ 'FP' ] ,
-                                                tn = score_summary[ 'TN' ] ,
-                                                fn = score_summary[ 'FN' ] )
-    ##
-    if( 'F1' in args.metrics_list ):
-        score_summary[ 'F1' ] = f_score( p = score_summary[ 'Precision' ] ,
-                                         r = score_summary[ 'Recall' ] )
-    ##
-    metrics = [ row_name ]
-    for metric in args.metrics_list:
-        metrics.append( score_summary[ metric ] )
-    return metrics
-
-
-def print_score_summary( score_card , file_list , args ):
-    ## TODO - refactor score printing to a separate function
-    ## TODO - add scores grouped by type
-    print( '{}{}{}'.format( '\n#########' ,
-                            args.delim ,
-                            args.delim.join( '{}'.format( m ) for m in args.metrics_list ) ) )
-    ##
-    metrics = norm_summary( score_card[ 'Score' ].value_counts() ,
-                            'aggregate' , args )
-    print( args.delim.join( '{}'.format( m ) for m in metrics ) )
-    ##
-    if( args.verbose ):
-        for filename in file_list:
-            this_file = ( score_card[ 'File' ] == filename )
-            metrics = norm_summary( score_card[ this_file ][ 'Score' ].value_counts() ,
-                                    filename , args )
-            print( args.delim.join( '{}'.format( m ) for m in metrics ) )
-
-
-def score_ref_set( gold_folder , test_folder ,
+def score_ref_set( gold_config , gold_folder ,
+                   test_config , test_folder ,
                    args ,
                    file_prefix = '/' ,
                    file_suffix = '.xml' ):
@@ -174,6 +73,7 @@ def score_ref_set( gold_folder , test_folder ,
     score_card = pd.DataFrame( columns = [ 'File' ,
                                            'Start' , 'End' ,
                                            'Type' , 'Score' ] )
+    confusion_matrix = {}
     golds = set([os.path.basename(x) for x in glob.glob( gold_folder +
                                                          file_prefix +
                                                          '*' +
@@ -184,24 +84,87 @@ def score_ref_set( gold_folder , test_folder ,
         ## TODO - refactor into separate fuction
         gold_ss = extract_annotations( '{}/{}'.format( gold_folder ,
                                                        gold_filename ) ,
-                                       type = 'i2b2_2016_track-1' )
+                                       patterns = gold_config )
         test_ss = extract_annotations( '{}/{}'.format( test_folder ,
                                                        test_filename ) ,
-                                       type = 'CAS XMI' )
+                                       patterns = test_config )
         for gold_start in gold_ss.keys():
+            ## grab type and end position
+            gold_type = gold_ss[ gold_start ][ 0 ][ 'type' ]
+            gold_end = gold_ss[ gold_start ][ 0 ][ 'end_pos' ]
+            ##print( '{}'.format( gold_type ) )
+            ## Loop through all the gold start positions looking for matches
             if( gold_start in test_ss.keys() ):
-                score_card.loc[ score_card.shape[ 0 ] ] = \
-                  [ gold_filename , gold_start , '' , '' , 'TP' ]
+                ## grab type and end position
+                test_type = test_ss[ gold_start ][ 0 ][ 'type' ]
+                test_end = test_ss[ gold_start ][ 0 ][ 'end_pos' ]
+                ##print( '{}\t{}'.format( gold_type , test_type ) )
+                ## If the types match...
+                if( gold_type == test_type ):
+                    ## ... and the end positions match, then we have a
+                    ##     perfect match
+                    if( gold_end == test_end ):
+                        score_card.loc[ score_card.shape[ 0 ] ] = \
+                          [ gold_filename , gold_start , gold_end ,
+                                gold_type , 'TP' ]
+                    elif( gold_end < test_end ):
+                        ## If the gold end position is prior to the system
+                        ## determined end position, we consider this a
+                        ## 'fully contained' match and also count it
+                        ## as a win (until we score strict vs. lenient matches)
+                        score_card.loc[ score_card.shape[ 0 ] ] = \
+                          [ gold_filename , gold_start , gold_end ,
+                                gold_type , 'TP' ]
+                    else:
+                        ## otherwise, we missed some data that needs
+                        ## to be captured.  For now, this is also
+                        ## a win but will not always count.
+                        score_card.loc[ score_card.shape[ 0 ] ] = \
+                          [ gold_filename , gold_start , gold_end ,
+                                gold_type , 'TP' ]
+                else:
+                    score_card.loc[ score_card.shape[ 0 ] ] = \
+                          [ gold_filename , gold_start , gold_end ,
+                                gold_type , 'FN' ]
+                    score_card.loc[ score_card.shape[ 0 ] ] = \
+                          [ gold_filename , gold_start , test_end ,
+                                test_type , 'FP' ]
             else:
                 score_card.loc[ score_card.shape[ 0 ] ] = \
-                  [ gold_filename , gold_start , '' , '' , 'FN' ]
+                  [ gold_filename , gold_start , gold_end , gold_type , 'FN' ]
         for test_start in test_ss.keys():
             if( test_start not in gold_ss.keys() ):
+                ## grab type and end position
+                test_type = test_ss[ test_start ][ 0 ][ 'type' ]
+                test_end = test_ss[ test_start ][ 0 ][ 'end_pos' ]
                 score_card.loc[ score_card.shape[ 0 ] ] = \
-                  [ gold_filename , gold_start , '' , '' , 'FP' ]
+                  [ gold_filename , test_start , test_end , test_type , 'FP' ]
     ##
-    print_score_summary( score_card , sorted( golds ) , args )
+    scoring_metrics.print_score_summary( score_card ,
+                                         sorted( golds ) ,
+                                         gold_config , test_config ,
+                                         args )
 
+    
+def process_config( config_file ):
+    config = ConfigParser.ConfigParser()
+    config.read( config_file )
+    annotations = []
+    for sect in config.sections():
+        if( config.has_option( sect , 'XPath' ) and
+            config.has_option( sect , 'Begin Attr' ) and
+            config.has_option( sect , 'End Attr' ) ):
+            display_name = '{} ({})'.format( sect.strip() ,
+                                             config.get( sect , 'Short Name' ) )
+            annotations.append( dict( type = sect.strip() ,
+                                      xpath = config.get( sect , 'XPath' ) ,
+                                      display_name = display_name ,
+                                      begin_attr = config.get( sect ,
+                                                               'Begin Attr' ) ,
+                                      end_attr = config.get( sect ,
+                                                             'End Attr' ) ) )
+    ##
+    return annotations
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser( description = """
@@ -225,6 +188,7 @@ unstructured data extraction.
     parser.add_argument("test_dir",
                         help="Directory containing reference set to score")
 
+    ## TODO - add special hook for include all metrics
     parser.add_argument( "-m" , "--metrics" , nargs = '+' ,
                          dest = 'metrics_list' ,
                          default = [ 'TP' , 'FP' , 'TN' , 'FN' ] ,
@@ -241,8 +205,30 @@ unstructured data extraction.
                         default = '\t' ,
                         help="Delimiter used in all output streams" )
 
-    args = parser.parse_args()
+    parser.add_argument( '--by-file' , dest = 'by_file' ,
+                         help = "Print metrics by file" ,
+                         action = "store_true" )
     
-    score_ref_set( gold_folder = os.path.abspath( args.gold_dir ) ,
+    parser.add_argument( '--by-type' , dest = 'by_type' ,
+                         help = "Print metrics by annotation type" ,
+                         action = "store_true" )
+
+    parser.add_argument("--gold-config", nargs = '?' ,
+                        dest = 'gold_config' ,
+                        default = 'i2b2_2016_track-1.conf' ,
+                        help="Configuration file that describes the gold format" )
+    parser.add_argument("--test-config", nargs = '?' ,
+                        dest = 'test_config' ,
+                        default = 'CAS_XMI.conf' ,
+                        help="Configuration file that describes the test format" )
+    
+    args = parser.parse_args()
+    ## Extract and process the two input file configs
+    gold_patterns = process_config( config_file = args.gold_config )
+    test_patterns = process_config( config_file = args.test_config )
+    
+    score_ref_set( gold_config = gold_patterns ,
+                   gold_folder = os.path.abspath( args.gold_dir ) ,
+                   test_config = test_patterns ,
                    test_folder = os.path.abspath( args.test_dir ) ,
                    args = args )
