@@ -15,54 +15,41 @@ import numpy as np
 import pandas as pd
 
 import scoring_metrics
+import text_extraction
 
-def extract_annotations_kernel( ingest_file ,
-                                annotation_path ,
-                                tag_name ,
-                                begin_attribute = None ,
-                                end_attribute = None ,
-                                text_attribute = None ,
-                                default_score = 'FN' ):
-    strict_starts = {}
+def count_ref_set( test_config , test_folder ,
+                   args ,
+                   file_prefix = '/' ,
+                   file_suffix = '.xml' ):
+    """
+    Count annotation occurrences in the test folder
+    """
+    type_counts = pd.DataFrame( columns = [ 'File' ,
+                                           'Start' , 'End' ,
+                                           'Type' , 'Score' ] )
+    confusion_matrix = {}
+    tests = set([os.path.basename(x) for x in glob.glob( test_folder +
+                                                         file_prefix +
+                                                         '*' +
+                                                         file_suffix )])
+    for test_filename in sorted( tests ):
+        ## TODO - refactor into separate fuction
+        test_ss = \
+          text_extraction.extract_annotations( '{}/{}'.format( test_folder ,
+                                                               test_filename ) ,
+                                               patterns = test_config )
+        for test_start in test_ss.keys():
+            ## grab type and end position
+            test_type = test_ss[ test_start ][ 0 ][ 'type' ]
+            test_end = test_ss[ test_start ][ 0 ][ 'end_pos' ]
+            type_counts.loc[ type_counts.shape[ 0 ] ] = \
+              [ test_filename , test_start , test_end ,
+                test_type , None ]
     ##
-    tree = ET.parse( ingest_file )
-    root = tree.getroot()
-    ## TODO - allow arbitrary namespaces either read from file or as argument
-    namespaces = { 'custom' : 'http:///webanno/custom.ecore' ,
-                   'type2' : 'http:///com/clinacuity/deid/uima/core/type.ecore' }
-    ##
-    for annot in root.findall( annotation_path , namespaces ):
-        if( begin_attribute != None ):
-            begin_pos = annot.get( begin_attribute )
-        if( end_attribute != None ):
-            end_pos = annot.get( end_attribute )
-        if( text_attribute == None ):
-            raw_text = annot.text
-        else:
-            raw_text = annot.get( text_attribute )
-        new_entry = dict( end_pos = end_pos ,
-                          raw_text = raw_text ,
-                          type = tag_name ,
-                          score = default_score )
-        if( begin_pos in strict_starts.keys() ):
-            strict_starts[ begin_pos ].append( new_entry )
-        else:
-            strict_starts[ begin_pos ] = [ new_entry ]
-        ##print( '\t{}\t{}\t{}'.format( begin_pos , end_pos , raw_text ) )
-    ## 
-    return strict_starts
-
-def extract_annotations( ingest_file ,
-                         patterns ):
-    annotations = {}
-    for pattern in patterns:
-        annotations.update( 
-            extract_annotations_kernel( ingest_file ,
-                                        annotation_path = pattern[ 'xpath' ] ,
-                                        tag_name = pattern[ 'type' ] ,
-                                        begin_attribute = pattern[ 'begin_attr' ] ,
-                                        end_attribute = pattern[ 'end_attr' ] ) )
-    return annotations
+    scoring_metrics.print_counts_summary( type_counts ,
+                                          sorted( tests ) ,
+                                          test_config ,
+                                          args )
 
 
 def score_ref_set( gold_config , gold_folder ,
@@ -85,12 +72,14 @@ def score_ref_set( gold_config , gold_folder ,
         ## TODO - parameterize this (optional) substitution
         test_filename = re.sub( 'xml$' , r'txt' , gold_filename )
         ## TODO - refactor into separate fuction
-        gold_ss = extract_annotations( '{}/{}'.format( gold_folder ,
-                                                       gold_filename ) ,
-                                       patterns = gold_config )
-        test_ss = extract_annotations( '{}/{}'.format( test_folder ,
-                                                       test_filename ) ,
-                                       patterns = test_config )
+        gold_ss = \
+          text_extraction.extract_annotations( '{}/{}'.format( gold_folder ,
+                                                               gold_filename ) ,
+                                               patterns = gold_config )
+        test_ss = \
+          text_extraction.extract_annotations( '{}/{}'.format( test_folder ,
+                                                               test_filename ) ,
+                                               patterns = test_config )
         for gold_start in gold_ss.keys():
             ## grab type and end position
             gold_type = gold_ss[ gold_start ][ 0 ][ 'type' ]
@@ -162,6 +151,8 @@ def process_config( config_file ):
             annotations.append( dict( type = sect.strip() ,
                                       xpath = config.get( sect , 'XPath' ) ,
                                       display_name = display_name ,
+                                      short_name = config.get( sect ,
+                                                               'Short Name' ) ,
                                       begin_attr = config.get( sect ,
                                                                'Begin Attr' ) ,
                                       end_attr = config.get( sect ,
@@ -234,15 +225,27 @@ unstructured data extraction.
                         default = '.xml' ,
                         help="Suffix used for filename matching" )
 
+    parser.add_argument( '-c' , '--count-types' ,
+                         dest = 'count_types' ,
+                         help = "Count pattern types in each test file" ,
+                         action = "store_true" )
+
     args = parser.parse_args()
     ## Extract and process the two input file configs
     gold_patterns = process_config( config_file = args.gold_config )
     test_patterns = process_config( config_file = args.test_config )
-    
-    score_ref_set( gold_config = gold_patterns ,
-                   gold_folder = os.path.abspath( args.gold_dir ) ,
-                   test_config = test_patterns ,
-                   test_folder = os.path.abspath( args.test_dir ) ,
-                   args = args ,
-                   file_prefix = args.file_prefix ,
-                   file_suffix = args.file_suffix )
+
+    if( args.count_types ):
+        count_ref_set( test_config = test_patterns ,
+                       test_folder = os.path.abspath( args.test_dir ) ,
+                       args = args ,
+                       file_prefix = args.file_prefix ,
+                       file_suffix = args.file_suffix )
+    else:
+        score_ref_set( gold_config = gold_patterns ,
+                       gold_folder = os.path.abspath( args.gold_dir ) ,
+                       test_config = test_patterns ,
+                       test_folder = os.path.abspath( args.test_dir ) ,
+                       args = args ,
+                       file_prefix = args.file_prefix ,
+                       file_suffix = args.file_suffix )
