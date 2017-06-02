@@ -125,19 +125,31 @@ def print_counts_summary( type_counts , file_list ,
                             args.delim ,
                             args.delim.join( '{}'.format( t ) for t in pattern_types ) ) )
     ##
-    for filename in file_list:
-        this_file = ( type_counts[ 'File' ] == filename )
-        file_type_counts = type_counts[ this_file ][ 'Type' ].value_counts()
-        type_matches = []
-        for pattern in test_config:
-            if( pattern[ 'type' ] in file_type_counts.keys() ):
-                type_matches.append( file_type_counts[ pattern[ 'type' ] ] )
-            else:
-                type_matches.append( 0 )
-        print( '{}{}{}'.format( filename ,
-                                args.delim ,
-                                args.delim.join( '{}'.format( m ) for m in type_matches ) ) )
-        
+    aggregate_type_counts = type_counts[ 'Type' ].value_counts()
+    type_matches = []
+    for pattern in test_config:
+        if( pattern[ 'type' ] in aggregate_type_counts.keys() ):
+            type_matches.append( aggregate_type_counts[ pattern[ 'type' ] ] )
+        else:
+            type_matches.append( 0 )
+    print( '{}{}{}'.format( 'aggregate' ,
+                            args.delim ,
+                            args.delim.join( '{}'.format( m ) for m in type_matches ) ) )
+    ##
+    if( args.by_file ):
+        for filename in file_list:
+            this_file = ( type_counts[ 'File' ] == filename )
+            file_type_counts = type_counts[ this_file ][ 'Type' ].value_counts()
+            type_matches = []
+            for pattern in test_config:
+                if( pattern[ 'type' ] in file_type_counts.keys() ):
+                    type_matches.append( file_type_counts[ pattern[ 'type' ] ] )
+                else:
+                    type_matches.append( 0 )
+            print( '{}{}{}'.format( filename ,
+                                    args.delim ,
+                                    args.delim.join( '{}'.format( m ) for m in type_matches ) ) )
+    
     # print( args.delim.join( '{}'.format( m ) for m in metrics ) )
     # ##
     # if( args.by_file ):
