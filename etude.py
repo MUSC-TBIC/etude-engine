@@ -67,19 +67,30 @@ def score_ref_set( gold_config , gold_folder ,
     golds = set([os.path.basename(x) for x in glob.glob( gold_folder +
                                                          file_prefix +
                                                          '*' +
-                                                         file_suffix )])
+                                                         file_suffix[ 0 ] )])
     for gold_filename in sorted( golds ):
-        ## TODO - parameterize this (optional) substitution
-        test_filename = re.sub( 'xml$' , r'txt' , gold_filename )
+        if( len( args.file_suffix ) == 1 ):
+            test_filename = gold_filename
+        else:
+            test_filename = re.sub( args.file_suffix[ 0 ].lstrip() + '$' ,
+                                    args.file_suffix[ 1 ].lstrip() ,
+                                    gold_filename )
+            ##test_filename = re.sub( '.sentences.xmi$' , r'' , gold_filename )
         ## TODO - refactor into separate fuction
         gold_ss = \
           text_extraction.extract_annotations( '{}/{}'.format( gold_folder ,
                                                                gold_filename ) ,
                                                patterns = gold_config )
-        test_ss = \
-          text_extraction.extract_annotations( '{}/{}'.format( test_folder ,
-                                                               test_filename ) ,
-                                               patterns = test_config )
+        if( os.path.exists( '{}/{}'.format( test_folder ,
+                                            test_filename ) ) ):
+            test_ss = \
+              text_extraction.extract_annotations( '{}/{}'.format( test_folder ,
+                                                                   test_filename ) ,
+                                                   patterns = test_config )
+        else:
+            ## TODO - log on missing test file
+            test_ss = {}
+        ##
         for gold_start in gold_ss.keys():
             ## grab type and end position
             gold_type = gold_ss[ gold_start ][ 0 ][ 'type' ]
@@ -194,7 +205,7 @@ unstructured data extraction.
                                      'F1' ] ,
                          help = "List of metrics to return, in order" )
 
-    parser.add_argument("-d", nargs = '?' ,
+    parser.add_argument("-d", 
                         dest = 'delim' ,
                         default = '\t' ,
                         help="Delimiter used in all output streams" )
@@ -207,30 +218,34 @@ unstructured data extraction.
                          help = "Print metrics by annotation type" ,
                          action = "store_true" )
 
-    parser.add_argument("--gold-config", nargs = '?' ,
+    parser.add_argument("--gold-config", 
                         dest = 'gold_config' ,
                         default = 'config/i2b2_2016_track-1.conf' ,
                         help="Configuration file that describes the gold format" )
-    parser.add_argument("--test-config", nargs = '?' ,
+    parser.add_argument("--test-config", 
                         dest = 'test_config' ,
                         default = 'config/CAS_XMI.conf' ,
                         help="Configuration file that describes the test format" )
 
-    parser.add_argument("--file-prefix", nargs = '?' ,
+    parser.add_argument("--file-prefix", 
                         dest = 'file_prefix' ,
                         default = '/' ,
                         help="Prefix used for filename matching" )
-    parser.add_argument("--file-suffix", nargs = '?' ,
+    ## TODO - lstrip hack added to handle suffixes with dashes
+    ##   https://stackoverflow.com/questions/16174992/cant-get-argparse-to-read-quoted-string-with-dashes-in-it
+    parser.add_argument("--file-suffix", nargs = '+' ,
                         dest = 'file_suffix' ,
                         default = '.xml' ,
-                        help="Suffix used for filename matching" )
-
+                        help="Suffix used for filename matching.  You can provide a second argument if the test file suffixes don't match the gold file suffixes. The span of the gold filename that matches the file suffix will be replaced with the contents of the second suffix string.  This replacement is useful when the gold and test differ in terms of file endings (e.g., '001.txt' -> '001.xmi')" )
+    
     parser.add_argument( '-c' , '--count-types' ,
                          dest = 'count_types' ,
                          help = "Count pattern types in each test file" ,
                          action = "store_true" )
 
     args = parser.parse_args()
+    if( args.verbose ):
+        print( '{}'.format( args ) )
     ## Extract and process the two input file configs
     gold_patterns = process_config( config_file = args.gold_config )
     test_patterns = process_config( config_file = args.test_config )
@@ -240,7 +255,7 @@ unstructured data extraction.
                        test_folder = os.path.abspath( args.test_dir ) ,
                        args = args ,
                        file_prefix = args.file_prefix ,
-                       file_suffix = args.file_suffix )
+                       file_suffix = args.file_suffix[ len( args.file_suffix ) - 1 ].lstrip() )
     else:
         score_ref_set( gold_config = gold_patterns ,
                        gold_folder = os.path.abspath( args.gold_dir ) ,
