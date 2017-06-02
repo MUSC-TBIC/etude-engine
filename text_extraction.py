@@ -13,7 +13,8 @@ def extract_annotations_kernel( ingest_file ,
     root = tree.getroot()
     ## TODO - allow arbitrary namespaces either read from file or as argument
     namespaces = { 'custom' : 'http:///webanno/custom.ecore' ,
-                   'type2' : 'http:///com/clinacuity/deid/uima/core/type.ecore' }
+                   'type2' : 'http:///com/clinacuity/deid/uima/core/type.ecore'  ,
+                   'type4' : 'http:///de/tudarmstadt/ukp/dkpro/core/api/segmentation/type.ecore' }
     ##
     for annot in root.findall( annotation_path , namespaces ):
         if( begin_attribute != None ):

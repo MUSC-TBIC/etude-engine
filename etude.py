@@ -209,11 +209,11 @@ unstructured data extraction.
 
     parser.add_argument("--gold-config", nargs = '?' ,
                         dest = 'gold_config' ,
-                        default = 'i2b2_2016_track-1.conf' ,
+                        default = 'config/i2b2_2016_track-1.conf' ,
                         help="Configuration file that describes the gold format" )
     parser.add_argument("--test-config", nargs = '?' ,
                         dest = 'test_config' ,
-                        default = 'CAS_XMI.conf' ,
+                        default = 'config/CAS_XMI.conf' ,
                         help="Configuration file that describes the test format" )
 
     parser.add_argument("--file-prefix", nargs = '?' ,
