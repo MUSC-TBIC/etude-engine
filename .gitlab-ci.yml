@@ -9,8 +9,7 @@ services:
   - docker:dind
 
 before_script:
-  - docker ps -a
-  - docker rm 31d8f647cbf7 a6b7de14a6d3 c389be6d836a 939139cfe694 ec1f3a427dd6
+  - docker info
 
 test:
   stage: test
