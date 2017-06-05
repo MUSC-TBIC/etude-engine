@@ -12,7 +12,6 @@ import re
 import xml.etree.ElementTree as ET
 
 import numpy as np
-import pandas as pd
 
 import scoring_metrics
 
@@ -70,9 +69,8 @@ def score_ref_set( gold_config , gold_folder ,
     """
     Score the test folder against the gold folder.
     """
-    score_card = pd.DataFrame( columns = [ 'File' ,
-                                           'Start' , 'End' ,
-                                           'Type' , 'Score' ] )
+    score_card = scoring_metrics.new_score_card()
+    
     confusion_matrix = {}
     golds = set([os.path.basename(x) for x in glob.glob( gold_folder +
                                                          file_prefix +
