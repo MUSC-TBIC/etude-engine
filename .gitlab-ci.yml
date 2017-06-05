@@ -9,7 +9,7 @@ services:
   - docker:dind
 
 before_script:
-  - docker info
+  - docker ps -a
 
 test:
   stage: test
