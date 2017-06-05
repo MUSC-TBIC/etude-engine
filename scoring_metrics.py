@@ -128,6 +128,42 @@ def print_score_summary( score_card , file_list ,
         for pattern in gold_config:
             this_type = ( score_card[ 'Type' ] == pattern[ 'type' ] )
             metrics = norm_summary( score_card[ this_type ][ 'Score' ].value_counts() ,
-                                    pattern[ 'display_name' ] , args )
+                                    pattern[ 'type' ] , args )
             print( args.delim.join( '{}'.format( m ) for m in metrics ) )
+
+
+def print_counts_summary( type_counts , file_list ,
+                          test_config ,
+                          args ):
+    pattern_types = []
+    for pattern in test_config:
+        pattern_types.append( pattern[ 'short_name' ] )
+    print( '{}{}{}'.format( '\n#########' ,
+                            args.delim ,
+                            args.delim.join( '{}'.format( t ) for t in pattern_types ) ) )
+    ##
+    aggregate_type_counts = type_counts[ 'Type' ].value_counts()
+    type_matches = []
+    for pattern in test_config:
+        if( pattern[ 'type' ] in aggregate_type_counts.keys() ):
+            type_matches.append( aggregate_type_counts[ pattern[ 'type' ] ] )
+        else:
+            type_matches.append( 0 )
+    print( '{}{}{}'.format( 'aggregate' ,
+                            args.delim ,
+                            args.delim.join( '{}'.format( m ) for m in type_matches ) ) )
+    ##
+    if( args.by_file ):
+        for filename in file_list:
+            this_file = ( type_counts[ 'File' ] == filename )
+            file_type_counts = type_counts[ this_file ][ 'Type' ].value_counts()
+            type_matches = []
+            for pattern in test_config:
+                if( pattern[ 'type' ] in file_type_counts.keys() ):
+                    type_matches.append( file_type_counts[ pattern[ 'type' ] ] )
+                else:
+                    type_matches.append( 0 )
+            print( '{}{}{}'.format( filename ,
+                                    args.delim ,
+                                    args.delim.join( '{}'.format( m ) for m in type_matches ) ) )
 
