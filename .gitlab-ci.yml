@@ -1,8 +1,19 @@
-image: python:3.6
+image: docker:latest
+
+# When using dind, it's wise to use the overlayfs driver for
+# improved performance.
+variables:
+  DOCKER_DRIVER: overlay
+
+services:
+  - docker:dind
 
 before_script:
-  - pip install -r requirements.txt
+  - docker info
 
 test:
+  stage: test
   script:
-  - python -m pytest tests
+  - cp tests/Dockerfile.tests ./
+  - docker build -t pytest-image .
+  - docker run pytest-image /usr/local/bin/python -m pytest /home/etude/tests
