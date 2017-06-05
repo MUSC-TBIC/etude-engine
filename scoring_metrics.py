@@ -45,7 +45,7 @@ def f_score( p , r , beta = 1 ):
         return 0.0
 
 
-def add_missing_types( score_summary ):
+def add_missing_fields( score_summary ):
     score_types = score_summary.keys()
     if( 'TP' not in score_types ):
         score_summary[ 'TP' ] = 0.0
