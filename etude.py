@@ -149,7 +149,8 @@ def score_ref_set( gold_config , gold_folder ,
                                          args )
 
     
-def process_config( config_file ):
+def process_config( config_file ,
+                    score_key ):
     config = ConfigParser.ConfigParser()
     config.read( config_file )
     annotations = []
@@ -159,7 +160,13 @@ def process_config( config_file ):
             config.has_option( sect , 'End Attr' ) ):
             display_name = '{} ({})'.format( sect.strip() ,
                                              config.get( sect , 'Short Name' ) )
-            annotations.append( dict( type = sect.strip() ,
+            if( score_key == 'Long Name' or
+                score_key == 'Section' ):
+                key_value = sect.strip()
+            else:
+                key_value = config.get( sect , score_key )
+            annotations.append( dict( type = key_value ,
+                                      long_name = sect.strip() ,
                                       xpath = config.get( sect , 'XPath' ) ,
                                       display_name = display_name ,
                                       short_name = config.get( sect ,
@@ -227,6 +234,11 @@ unstructured data extraction.
                         default = 'config/CAS_XMI.conf' ,
                         help="Configuration file that describes the test format" )
 
+    parser.add_argument("--score-key", 
+                        dest = 'score_key' ,
+                        default = 'Short Name' ,
+                        help="Configuration file key used as the join key for matching patterns in scoring" )
+
     parser.add_argument("--file-prefix", 
                         dest = 'file_prefix' ,
                         default = '/' ,
@@ -247,8 +259,10 @@ unstructured data extraction.
     if( args.verbose ):
         print( '{}'.format( args ) )
     ## Extract and process the two input file configs
-    gold_patterns = process_config( config_file = args.gold_config )
-    test_patterns = process_config( config_file = args.test_config )
+    gold_patterns = process_config( config_file = args.gold_config ,
+                                    score_key = args.score_key )
+    test_patterns = process_config( config_file = args.test_config ,
+                                    score_key = args.score_key )
 
     if( args.count_types ):
         count_ref_set( test_config = test_patterns ,

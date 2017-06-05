@@ -111,7 +111,7 @@ def print_score_summary( score_card , file_list ,
         for pattern in gold_config:
             this_type = ( score_card[ 'Type' ] == pattern[ 'type' ] )
             metrics = norm_summary( score_card[ this_type ][ 'Score' ].value_counts() ,
-                                    pattern[ 'display_name' ] , args )
+                                    pattern[ 'type' ] , args )
             print( args.delim.join( '{}'.format( m ) for m in metrics ) )
 
 
