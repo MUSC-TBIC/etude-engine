@@ -6,20 +6,25 @@ import scoring_metrics
 ## Test helper functions
 #############################################
 
-
-def test_add_missing_types():
+def add_missing_fields( test_type ):
     score_card = scoring_metrics.new_score_card()
     new_types = score_card.keys()
-    assert 'TP' not in new_types
-    assert 'FP' not in new_types
-    assert 'TN' not in new_types
-    assert 'FN' not in new_types
-    score_summary = scoring_metrics.add_missing_types( score_card )
+    assert test_type not in new_types
+    score_summary = scoring_metrics.add_missing_fields( score_card )
     score_types = score_summary.keys()
-    assert 'TP' in score_types
-    assert 'FP' in score_types
-    assert 'TN' in score_types
-    assert 'FN' in score_types
+    assert test_type in score_types
+
+def test_add_missing_fields_TP():
+    add_missing_fields( 'TP' )
+
+def test_add_missing_fields_FP():
+    add_missing_fields( 'FP' )
+
+def test_add_missing_fields_TN():
+    add_missing_fields( 'TN' )
+
+def test_add_missing_fields_FN():
+    add_missing_fields( 'FN' )
 
 
 ## TODO - test_norm_summary variants
