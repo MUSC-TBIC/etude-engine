@@ -2,6 +2,7 @@ from __future__ import print_function
 
 import argparse
 import ConfigParser
+import progressbar
 
 import glob
 import os
@@ -15,7 +16,7 @@ import numpy as np
 
 import scoring_metrics
 import text_extraction
-
+    
 def count_ref_set( test_config , test_folder ,
                    args ,
                    file_prefix = '/' ,
@@ -50,6 +51,32 @@ def count_ref_set( test_config , test_folder ,
                                           test_config ,
                                           args )
 
+def collect_files( gold_folder , test_folder ,
+                   file_prefix , file_suffix ):
+    file_mapping = {}
+    match_count = 0
+    ##
+    golds = set([os.path.basename(x) for x in glob.glob( gold_folder +
+                                                         file_prefix +
+                                                         '*' +
+                                                         file_suffix[ 0 ] )])
+    for gold_filename in sorted( golds ):
+        if( len( file_suffix ) == 1 ):
+            test_filename = gold_filename
+        else:
+            test_filename = re.sub( file_suffix[ 0 ].lstrip() + '$' ,
+                                    file_suffix[ 1 ].lstrip() ,
+                                    gold_filename )
+        if( os.path.exists( '{}/{}'.format( test_folder ,
+                                            test_filename ) ) ):
+            match_count += 1
+            file_mapping[ gold_filename ] = test_filename
+        else:
+            ## TODO - log on missing test file
+            file_mapping[ gold_filename ] = None
+    ##
+    return( match_count , file_mapping )
+
 
 def score_ref_set( gold_config , gold_folder ,
                    test_config , test_folder ,
@@ -62,32 +89,32 @@ def score_ref_set( gold_config , gold_folder ,
     score_card = scoring_metrics.new_score_card()
     
     confusion_matrix = {}
-    golds = set([os.path.basename(x) for x in glob.glob( gold_folder +
-                                                         file_prefix +
-                                                         '*' +
-                                                         file_suffix[ 0 ] )])
-    for gold_filename in sorted( golds ):
-        if( len( args.file_suffix ) == 1 ):
-            test_filename = gold_filename
+    match_count , file_mapping = collect_files( gold_folder , test_folder ,
+                                                file_prefix , file_suffix )
+    ##
+    if( match_count == 0 ):
+        ## Empty dictionaries evaluate to False so testing bool can tell us if any gold
+        ## documents exist
+        if( bool( file_mapping ) ):
+            print( 'ERROR:  No documents found in test directory:  {}'.format( test_folder ) )
         else:
-            test_filename = re.sub( args.file_suffix[ 0 ].lstrip() + '$' ,
-                                    args.file_suffix[ 1 ].lstrip() ,
-                                    gold_filename )
-            ##test_filename = re.sub( '.sentences.xmi$' , r'' , gold_filename )
-        ## TODO - refactor into separate fuction
+            print( 'ERROR:  No documents found in gold directory:  {}'.format( gold_folder ) )
+        return( None )
+    ##
+    progress = progressbar.ProgressBar( max_value = match_count )
+    for gold_filename in progress( sorted( file_mapping.keys() ) ):
         gold_ss = \
           text_extraction.extract_annotations( '{}/{}'.format( gold_folder ,
                                                                gold_filename ) ,
                                                patterns = gold_config )
-        if( os.path.exists( '{}/{}'.format( test_folder ,
-                                            test_filename ) ) ):
+        test_filename = file_mapping[ gold_filename ]
+        if( test_filename == None ):
+            test_ss = {}
+        else:
             test_ss = \
               text_extraction.extract_annotations( '{}/{}'.format( test_folder ,
                                                                    test_filename ) ,
                                                    patterns = test_config )
-        else:
-            ## TODO - log on missing test file
-            test_ss = {}
         ##
         for gold_start in gold_ss.keys():
             ## grab type and end position
@@ -142,7 +169,7 @@ def score_ref_set( gold_config , gold_folder ,
                   [ gold_filename , test_start , test_end , test_type , 'FP' ]
     ##
     scoring_metrics.print_score_summary( score_card ,
-                                         sorted( golds ) ,
+                                         sorted( file_mapping.keys() ) ,
                                          gold_config , test_config ,
                                          args )
 
