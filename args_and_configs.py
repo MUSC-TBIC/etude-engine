@@ -81,9 +81,9 @@ unstructured data extraction.
     return parser
 
 
-def get_arguments():
+def get_arguments( command_line_args ):
     parser = initialize_arg_parser()
-    args = parser.parse_args()
+    args = parser.parse_args( command_line_args )
     ##
     if( args.verbose ):
         print( '{}'.format( args ) )

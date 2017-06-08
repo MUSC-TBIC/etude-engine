@@ -3,6 +3,7 @@ from __future__ import print_function
 import progressbar
 
 import glob
+import sys
 import os
 ## TODO - use warnings
 import warnings
@@ -15,7 +16,11 @@ import numpy as np
 import args_and_configs
 import scoring_metrics
 import text_extraction
-    
+
+#############################################
+## helper functions
+#############################################
+
 def count_ref_set( test_config , test_folder ,
                    args ,
                    file_prefix = '/' ,
@@ -174,7 +179,7 @@ def score_ref_set( gold_config , gold_folder ,
 
 if __name__ == "__main__":
     ##
-    args = args_and_configs.get_arguments()
+    args = args_and_configs.get_arguments( sys.argv[ 1: ] )
     ## Extract and process the two input file configs
     gold_patterns = args_and_configs.process_config( config_file = args.gold_config ,
                                                      score_key = args.score_key )
