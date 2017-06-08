@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<NGRID_deId>
+<TEXT><![CDATA[
+
+Redacted
+
+]]></TEXT>
+<TAGS>
+<DATE id="P0" start="87" end="97" TYPE="DATE" comment=""/>
+<AGE id="P1" start="143" end="145" TYPE="AGE" comment=""/>
+<NAME id="P2" start="248" end="257" TYPE="PATIENT" comment=""/>
+<AGE id="P3" start="263" end="265" TYPE="AGE" comment=""/>
+<NAME id="P4" start="764" end="778" TYPE="DOCTOR" comment=""/>
+<NAME id="P5" start="796" end="805" TYPE="PATIENT" comment=""/>
+<NAME id="P6" start="936" end="945" TYPE="PATIENT" comment=""/>
+<AGE id="P7" start="1295" end="1297" TYPE="AGE" comment=""/>
+<NAME id="P8" start="1883" end="1896" TYPE="DOCTOR" comment=""/>
+<LOCATION id="P9" start="1900" end="1906" TYPE="CITY" comment=""/>
+<NAME id="P10" start="2389" end="2403" TYPE="DOCTOR" comment=""/>
+<DATE id="P11" start="2404" end="2410" TYPE="DATE" comment=""/>
+<NAME id="P12" start="2448" end="2460" TYPE="DOCTOR" comment=""/>
+<NAME id="P13" start="2493" end="2502" TYPE="PATIENT" comment=""/>
+<NAME id="P14" start="2538" end="2544" TYPE="DOCTOR" comment=""/>
+<NAME id="P15" start="2629" end="2643" TYPE="DOCTOR" comment=""/>
+<NAME id="P16" start="2865" end="2874" TYPE="PATIENT" comment=""/>
+<NAME id="P17" start="3489" end="3502" TYPE="DOCTOR" comment=""/>
+<LOCATION id="P18" start="3504" end="3510" TYPE="CITY" comment=""/>
+<NAME id="P19" start="3574" end="3580" TYPE="DOCTOR" comment=""/>
+<NAME id="P20" start="3809" end="3822" TYPE="DOCTOR" comment=""/>
+<NAME id="P21" start="7253" end="7267" TYPE="DOCTOR" comment=""/>
+<LOCATION id="P22" start="8708" end="8717" TYPE="CITY" comment=""/>
+<LOCATION id="P23" start="8719" end="8721" TYPE="STATE" comment=""/>
+<LOCATION id="P24" start="8908" end="8914" TYPE="CITY" comment=""/>
+<NAME id="P25" start="8950" end="8955" TYPE="PATIENT" comment=""/>
+<AGE id="P26" start="8962" end="8963" TYPE="AGE" comment=""/>
+<NAME id="P27" start="8971" end="8975" TYPE="PATIENT" comment=""/>
+<AGE id="P28" start="8982" end="8983" TYPE="AGE" comment=""/>
+<AGE id="P29" start="9134" end="9135" TYPE="AGE" comment=""/>
+<AGE id="P30" start="9140" end="9141" TYPE="AGE" comment=""/>
+<LOCATION id="P31" start="9372" end="9384" TYPE="ORGANIZATION" comment=""/>
+<PROFESSION id="P32" start="9749" end="9771" TYPE="PROFESSION" comment=""/>
+<NAME id="P33" start="10829" end="10838" TYPE="PATIENT" comment=""/>
+<NAME id="P34" start="12029" end="12038" TYPE="PATIENT" comment=""/>
+<AGE id="P35" start="12044" end="12046" TYPE="AGE" comment=""/>
+<NAME id="P36" start="12545" end="12559" TYPE="DOCTOR" comment=""/>
+</TAGS>
+</NGRID_deId>

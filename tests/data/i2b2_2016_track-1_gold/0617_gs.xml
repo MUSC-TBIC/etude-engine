@@ -1,0 +1,49 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<NGRID_deId>
+<TEXT><![CDATA[
+
+Redacted
+
+]]></TEXT>
+<TAGS>
+<DATE id="P0" start="89" end="96" TYPE="DATE" comment=""/>
+<AGE id="P1" start="153" end="155" TYPE="AGE" comment=""/>
+<NAME id="P2" start="186" end="198" TYPE="DOCTOR" comment=""/>
+<LOCATION id="P3" start="211" end="231" TYPE="STREET" comment=""/>
+<LOCATION id="P5" start="244" end="251" TYPE="CITY" comment=""/>
+<LOCATION id="P6" start="253" end="255" TYPE="STATE" comment=""/>
+<LOCATION id="P7" start="256" end="261" TYPE="ZIP" comment=""/>
+<CONTACT id="P8" start="270" end="282" TYPE="PHONE" comment=""/>
+<DATE id="P9" start="1011" end="1018" TYPE="DATE" comment=""/>
+<DATE id="P10" start="1482" end="1486" TYPE="DATE" comment=""/>
+<DATE id="P11" start="2074" end="2077" TYPE="DATE" comment=""/>
+<AGE id="P12" start="2450" end="2458" TYPE="AGE" comment=""/>
+<DATE id="P13" start="2498" end="2502" TYPE="DATE" comment=""/>
+<DATE id="P14" start="2596" end="2600" TYPE="DATE" comment=""/>
+<DATE id="P15" start="2635" end="2643" TYPE="DATE" comment=""/>
+<DATE id="P16" start="2655" end="2658" TYPE="DATE" comment=""/>
+<DATE id="P17" start="2659" end="2667" TYPE="DATE" comment=""/>
+<DATE id="P18" start="2719" end="2723" TYPE="DATE" comment=""/>
+<DATE id="P19" start="2771" end="2775" TYPE="DATE" comment=""/>
+<NAME id="P20" start="2848" end="2859" TYPE="DOCTOR" comment=""/>
+<LOCATION id="P21" start="2867" end="2881" TYPE="HOSPITAL" comment=""/>
+<LOCATION id="P22" start="2883" end="2898" TYPE="STREET" comment=""/>
+<LOCATION id="P23" start="2900" end="2906" TYPE="CITY" comment=""/>
+<LOCATION id="P24" start="2908" end="2910" TYPE="STATE" comment=""/>
+<LOCATION id="P25" start="2911" end="2916" TYPE="ZIP" comment=""/>
+<CONTACT id="P26" start="2925" end="2937" TYPE="PHONE" comment=""/>
+<NAME id="P27" start="2987" end="2996" TYPE="DOCTOR" comment=""/>
+<LOCATION id="P28" start="3004" end="3017" TYPE="STREET" comment=""/>
+<LOCATION id="P29" start="3019" end="3026" TYPE="CITY" comment=""/>
+<LOCATION id="P30" start="3028" end="3030" TYPE="STATE" comment=""/>
+<LOCATION id="P31" start="3031" end="3036" TYPE="ZIP" comment=""/>
+<CONTACT id="P32" start="3045" end="3057" TYPE="PHONE" comment=""/>
+<DATE id="P33" start="6441" end="6445" TYPE="DATE" comment=""/>
+<PROFESSION id="P34" start="7815" end="7835" TYPE="PROFESSION" comment=""/>
+<DATE id="P35" start="7852" end="7856" TYPE="DATE" comment=""/>
+<AGE id="P36" start="8175" end="8177" TYPE="AGE" comment=""/>
+<DATE id="P37" start="8309" end="8313" TYPE="DATE" comment=""/>
+<AGE id="P38" start="10261" end="10263" TYPE="AGE" comment=""/>
+<DATE id="P39" start="11063" end="11071" TYPE="DATE" comment=""/>
+</TAGS>
+</NGRID_deId>

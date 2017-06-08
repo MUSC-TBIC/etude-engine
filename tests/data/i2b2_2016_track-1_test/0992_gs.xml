@@ -1,0 +1,35 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<NGRID_deId>
+<TEXT><![CDATA[
+
+Redacted
+
+]]></TEXT>
+<TAGS>
+<DATE id="P0" start="89" end="99" TYPE="DATE" comment=""/>
+<AGE id="P1" start="144" end="146" TYPE="AGE" comment=""/>
+<AGE id="P2" start="232" end="234" TYPE="AGE" comment=""/>
+<LOCATION id="P3" start="261" end="271" TYPE="ORGANIZATION" comment=""/>
+<DATE id="P4" start="1167" end="1173" TYPE="DATE" comment=""/>
+<NAME id="P5" start="2607" end="2613" TYPE="PATIENT" comment=""/>
+<NAME id="P6" start="2641" end="2647" TYPE="PATIENT" comment=""/>
+<LOCATION id="P7" start="4329" end="4343" TYPE="CITY" comment=""/>
+<DATE id="P8" start="8049" end="8056" TYPE="DATE" comment=""/>
+<DATE id="P9" start="8304" end="8310" TYPE="DATE" comment=""/>
+<DATE id="P10" start="8335" end="8341" TYPE="DATE" comment=""/>
+<DATE id="P11" start="8816" end="8822" TYPE="DATE" comment=""/>
+<DATE id="P12" start="8981" end="8987" TYPE="DATE" comment=""/>
+<DATE id="P13" start="9012" end="9018" TYPE="DATE" comment=""/>
+<ID id="P14" start="9286" end="9296" TYPE="LICENSE" comment=""/>
+<LOCATION id="P15" start="10359" end="10365" TYPE="COUNTRY" comment=""/>
+<AGE id="P16" start="10382" end="10383" TYPE="AGE" comment=""/>
+<LOCATION id="P17" start="10395" end="10409" TYPE="CITY" comment=""/>
+<LOCATION id="P18" start="11035" end="11041" TYPE="COUNTRY" comment=""/>
+<LOCATION id="P19" start="11244" end="11254" TYPE="ORGANIZATION" comment=""/>
+<LOCATION id="P20" start="11388" end="11402" TYPE="CITY" comment=""/>
+<DATE id="P21" start="13655" end="13661" TYPE="DATE" comment=""/>
+<DATE id="P22" start="13686" end="13692" TYPE="DATE" comment=""/>
+<AGE id="P23" start="14050" end="14052" TYPE="AGE" comment=""/>
+<LOCATION id="P24" start="14079" end="14089" TYPE="ORGANIZATION" comment=""/>
+</TAGS>
+</NGRID_deId>

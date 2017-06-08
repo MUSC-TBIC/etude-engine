@@ -1,0 +1,50 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<NGRID_deId>
+<TEXT><![CDATA[
+
+Redacted
+
+]]></TEXT>
+<TAGS>
+<DATE id="P0" start="89" end="100" TYPE="DATE" comment=""/>
+<AGE id="P1" start="146" end="148" TYPE="AGE" comment=""/>
+<LOCATION id="P2" start="179" end="196" TYPE="HOSPITAL" comment=""/>
+<AGE id="P3" start="461" end="463" TYPE="AGE" comment=""/>
+<LOCATION id="P4" start="581" end="598" TYPE="HOSPITAL" comment=""/>
+<DATE id="P5" start="684" end="695" TYPE="DATE" comment=""/>
+<LOCATION id="P6" start="716" end="733" TYPE="HOSPITAL" comment=""/>
+<DATE id="P7" start="823" end="834" TYPE="DATE" comment=""/>
+<LOCATION id="P8" start="863" end="879" TYPE="HOSPITAL" comment=""/>
+<LOCATION id="P9" start="1140" end="1165" TYPE="HOSPITAL" comment=""/>
+<LOCATION id="P10" start="1167" end="1172" TYPE="CITY" comment=""/>
+<LOCATION id="P11" start="1174" end="1176" TYPE="STATE" comment=""/>
+<LOCATION id="P13" start="1240" end="1259" TYPE="HOSPITAL" comment=""/>
+<LOCATION id="P14" start="1360" end="1367" TYPE="CITY" comment=""/>
+<LOCATION id="P15" start="1553" end="1567" TYPE="HOSPITAL" comment=""/>
+<LOCATION id="P16" start="1636" end="1644" TYPE="HOSPITAL" comment=""/>
+<LOCATION id="P17" start="1648" end="1655" TYPE="CITY" comment=""/>
+<DATE id="P18" start="2236" end="2247" TYPE="DATE" comment=""/>
+<LOCATION id="P19" start="2248" end="2265" TYPE="HOSPITAL" comment=""/>
+<DATE id="P20" start="2362" end="2373" TYPE="DATE" comment=""/>
+<LOCATION id="P21" start="2374" end="2391" TYPE="HOSPITAL" comment=""/>
+<DATE id="P22" start="2559" end="2570" TYPE="DATE" comment=""/>
+<LOCATION id="P23" start="2571" end="2588" TYPE="HOSPITAL" comment=""/>
+<DATE id="P24" start="2663" end="2674" TYPE="DATE" comment=""/>
+<LOCATION id="P25" start="2675" end="2692" TYPE="HOSPITAL" comment=""/>
+<DATE id="P26" start="2747" end="2758" TYPE="DATE" comment=""/>
+<LOCATION id="P27" start="2759" end="2776" TYPE="HOSPITAL" comment=""/>
+<DATE id="P28" start="5589" end="5600" TYPE="DATE" comment=""/>
+<ID id="P29" start="6324" end="6334" TYPE="LICENSE" comment=""/>
+<ID id="P30" start="6605" end="6615" TYPE="LICENSE" comment=""/>
+<DATE id="P31" start="8445" end="8456" TYPE="DATE" comment=""/>
+<AGE id="P32" start="8607" end="8609" TYPE="AGE" comment=""/>
+<LOCATION id="P33" start="8727" end="8744" TYPE="HOSPITAL" comment=""/>
+<LOCATION id="P34" start="9229" end="9243" TYPE="HOSPITAL" comment=""/>
+<LOCATION id="P35" start="9964" end="9978" TYPE="HOSPITAL" comment=""/>
+<LOCATION id="P36" start="10012" end="10020" TYPE="HOSPITAL" comment=""/>
+<LOCATION id="P37" start="10024" end="10031" TYPE="CITY" comment=""/>
+<LOCATION id="P38" start="10572" end="10580" TYPE="HOSPITAL" comment=""/>
+<LOCATION id="P39" start="10584" end="10591" TYPE="CITY" comment=""/>
+<DATE id="P40" start="10936" end="10951" TYPE="DATE" comment=""/>
+</TAGS>
+</NGRID_deId>
