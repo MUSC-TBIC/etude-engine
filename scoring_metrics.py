@@ -1,3 +1,7 @@
+import sys
+
+from sets import Set
+
 import pandas as pd
 
 def new_score_card():
@@ -103,7 +107,6 @@ def norm_summary( score_summary , row_name , args ):
         metrics.append( score_summary[ metric ] )
     return metrics
 
-
 def print_score_summary( score_card , file_list ,
                          gold_config , test_config ,
                          args ):
@@ -114,21 +117,25 @@ def print_score_summary( score_card , file_list ,
                             args.delim.join( '{}'.format( m ) for m in args.metrics_list ) ) )
     ##
     metrics = norm_summary( score_card[ 'Score' ].value_counts() ,
-                            'aggregate' , args )
+                            row_name = 'aggregate' , args = args )
     print( args.delim.join( '{}'.format( m ) for m in metrics ) )
     ##
     if( args.by_file ):
         for filename in file_list:
             this_file = ( score_card[ 'File' ] == filename )
             metrics = norm_summary( score_card[ this_file ][ 'Score' ].value_counts() ,
-                                    filename , args )
+                                    row_name = filename , args = args )
             print( args.delim.join( '{}'.format( m ) for m in metrics ) )
 
     if( args.by_type ):
+        unique_types = Set()
         for pattern in gold_config:
-            this_type = ( score_card[ 'Type' ] == pattern[ 'type' ] )
+            unique_types.add( pattern[ 'type' ] )
+        for unique_type in sorted( unique_types ):
+            this_type = ( score_card[ 'Type' ] == unique_type )
             metrics = norm_summary( score_card[ this_type ][ 'Score' ].value_counts() ,
-                                    pattern[ 'type' ] , args )
+                                    row_name = unique_type ,
+                                    args = args )
             print( args.delim.join( '{}'.format( m ) for m in metrics ) )
 
 
