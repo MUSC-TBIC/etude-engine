@@ -90,32 +90,51 @@ def get_arguments( command_line_args ):
     ##
     return args
 
+def extract_namespaces( namespaces ,
+                        config , sect ):
+    for ns , value in config.items( sect ):
+        namespaces[ ns ] = value
+    return namespaces
+
+
+def extract_patterns( annotations ,
+                      config , sect ,
+                      score_key ):
+    if( config.has_option( sect , 'XPath' ) and
+        config.has_option( sect , 'Begin Attr' ) and
+        config.has_option( sect , 'End Attr' ) ):
+        display_name = '{} ({})'.format( sect.strip() ,
+                                         config.get( sect , 'Short Name' ) )
+        if( score_key == 'Long Name' or
+            score_key == 'Section' ):
+            key_value = sect.strip()
+        else:
+            key_value = config.get( sect , score_key )
+        annotations.append( dict( type = key_value ,
+                                  long_name = sect.strip() ,
+                                  xpath = config.get( sect , 'XPath' ) ,
+                                  display_name = display_name ,
+                                  short_name = config.get( sect ,
+                                                           'Short Name' ) ,
+                                  begin_attr = config.get( sect ,
+                                                           'Begin Attr' ) ,
+                                  end_attr = config.get( sect ,
+                                                         'End Attr' ) ) )
+    return annotations
+
 
 def process_config( config_file ,
                     score_key ):
     config = ConfigParser.ConfigParser()
     config.read( config_file )
     annotations = []
+    namespaces = {}
     for sect in config.sections():
-        if( config.has_option( sect , 'XPath' ) and
-            config.has_option( sect , 'Begin Attr' ) and
-            config.has_option( sect , 'End Attr' ) ):
-            display_name = '{} ({})'.format( sect.strip() ,
-                                             config.get( sect , 'Short Name' ) )
-            if( score_key == 'Long Name' or
-                score_key == 'Section' ):
-                key_value = sect.strip()
-            else:
-                key_value = config.get( sect , score_key )
-            annotations.append( dict( type = key_value ,
-                                      long_name = sect.strip() ,
-                                      xpath = config.get( sect , 'XPath' ) ,
-                                      display_name = display_name ,
-                                      short_name = config.get( sect ,
-                                                               'Short Name' ) ,
-                                      begin_attr = config.get( sect ,
-                                                               'Begin Attr' ) ,
-                                      end_attr = config.get( sect ,
-                                                             'End Attr' ) ) )
+        if( sect.strip() == 'XML Namespaces' ):
+            namespaces = extract_namespaces( namespaces , config , sect )
+        else:
+            annotations = extract_patterns( annotations ,
+                                            config , sect ,
+                                            score_key )
     ##
-    return annotations
+    return namespaces , annotations

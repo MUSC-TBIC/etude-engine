@@ -65,19 +65,19 @@ python etude.py \
 
 #########	TP	FP	TN	FN
 aggregate	19.0	20.0	0.0	426.0
-Patient	0.0	0.0	0.0	19.0
-Provider	0.0	0.0	0.0	64.0
+Age	0.0	0.0	0.0	92.0
+DateTime	19.0	20.0	0.0	105.0
 HCUnit	0.0	0.0	0.0	76.0
+OtherID	0.0	0.0	0.0	7.0
 OtherLoc	0.0	0.0	0.0	5.0
 OtherOrg	0.0	0.0	0.0	21.0
-StreetCity	0.0	0.0	0.0	4.0
-StateCountry	0.0	0.0	0.0	21.0
-Zip	0.0	0.0	0.0	4.0
-DateTime	19.0	20.0	0.0	105.0
-Age	0.0	0.0	0.0	92.0
+Patient	0.0	0.0	0.0	19.0
 PhoneFax	0.0	0.0	0.0	6.0
+Provider	0.0	0.0	0.0	64.0
+StateCountry	0.0	0.0	0.0	21.0
+StreetCity	0.0	0.0	0.0	4.0
+Zip	0.0	0.0	0.0	4.0
 eAddress	0.0	0.0	0.0	2.0
-OtherID	0.0	0.0	0.0	7.0
 
 python etude.py \
     $ETUDE_DIR/tests/data/i2b2_2016_track-1_gold \

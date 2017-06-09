@@ -9,7 +9,6 @@ import os
 import warnings
 
 import re
-import xml.etree.ElementTree as ET
 
 import numpy as np
 
@@ -21,7 +20,7 @@ import text_extraction
 ## helper functions
 #############################################
 
-def count_ref_set( test_config , test_folder ,
+def count_ref_set( test_ns , test_patterns , test_folder ,
                    args ,
                    file_prefix = '/' ,
                    file_suffix = '.xml' ):
@@ -41,7 +40,8 @@ def count_ref_set( test_config , test_folder ,
         test_ss = \
           text_extraction.extract_annotations( '{}/{}'.format( test_folder ,
                                                                test_filename ) ,
-                                               patterns = test_config )
+                                               namespaces = test_ns ,
+                                               patterns = test_patterns )
         for test_start in test_ss.keys():
             ## grab type and end position
             test_type = test_ss[ test_start ][ 0 ][ 'type' ]
@@ -52,7 +52,7 @@ def count_ref_set( test_config , test_folder ,
     ##
     scoring_metrics.print_counts_summary( type_counts ,
                                           sorted( tests ) ,
-                                          test_config ,
+                                          test_patterns ,
                                           args )
 
 def collect_files( gold_folder , test_folder ,
@@ -82,8 +82,8 @@ def collect_files( gold_folder , test_folder ,
     return( match_count , file_mapping )
 
 
-def score_ref_set( gold_config , gold_folder ,
-                   test_config , test_folder ,
+def score_ref_set( gold_ns , gold_patterns , gold_folder ,
+                   test_ns , test_patterns , test_folder ,
                    args ,
                    file_prefix = '/' ,
                    file_suffix = '.xml' ):
@@ -97,8 +97,8 @@ def score_ref_set( gold_config , gold_folder ,
                                                 file_prefix , file_suffix )
     ##
     if( match_count == 0 ):
-        ## Empty dictionaries evaluate to False so testing bool can tell us if any gold
-        ## documents exist
+        ## Empty dictionaries evaluate to False so testing bool can tell us if
+        ## any gold documents exist
         if( bool( file_mapping ) ):
             print( 'ERROR:  No documents found in test directory:  {}'.format( test_folder ) )
         else:
@@ -110,7 +110,8 @@ def score_ref_set( gold_config , gold_folder ,
         gold_ss = \
           text_extraction.extract_annotations( '{}/{}'.format( gold_folder ,
                                                                gold_filename ) ,
-                                               patterns = gold_config )
+                                               namespaces = gold_ns ,
+                                               patterns = gold_patterns )
         test_filename = file_mapping[ gold_filename ]
         if( test_filename == None ):
             test_ss = {}
@@ -118,7 +119,8 @@ def score_ref_set( gold_config , gold_folder ,
             test_ss = \
               text_extraction.extract_annotations( '{}/{}'.format( test_folder ,
                                                                    test_filename ) ,
-                                                   patterns = test_config )
+                                                   namespaces = test_ns ,
+                                                   patterns = test_patterns )
         ##
         for gold_start in gold_ss.keys():
             ## grab type and end position
@@ -174,28 +176,33 @@ def score_ref_set( gold_config , gold_folder ,
     ##
     scoring_metrics.print_score_summary( score_card ,
                                          sorted( file_mapping.keys() ) ,
-                                         gold_config , test_config ,
+                                         gold_patterns , test_patterns ,
                                          args )
 
 if __name__ == "__main__":
     ##
     args = args_and_configs.get_arguments( sys.argv[ 1: ] )
     ## Extract and process the two input file configs
-    gold_patterns = args_and_configs.process_config( config_file = args.gold_config ,
-                                                     score_key = args.score_key )
-    test_patterns = args_and_configs.process_config( config_file = args.test_config ,
-                                                     score_key = args.score_key )
+    gold_ns , gold_patterns = \
+      args_and_configs.process_config( config_file = args.gold_config ,
+                                       score_key = args.score_key )
+    test_ns , test_patterns = \
+      args_and_configs.process_config( config_file = args.test_config ,
+                                       score_key = args.score_key )
     ##
     if( args.count_types ):
-        count_ref_set( test_config = test_patterns ,
+        count_ref_set( test_ns = test_ns ,
+                       test_patterns = test_patterns ,
                        test_folder = os.path.abspath( args.test_dir ) ,
                        args = args ,
                        file_prefix = args.file_prefix ,
                        file_suffix = args.file_suffix[ len( args.file_suffix ) - 1 ].lstrip() )
     else:
-        score_ref_set( gold_config = gold_patterns ,
+        score_ref_set( gold_ns = gold_ns ,
+                       gold_patterns = gold_patterns ,
                        gold_folder = os.path.abspath( args.gold_dir ) ,
-                       test_config = test_patterns ,
+                       test_ns = test_ns ,
+                       test_patterns = test_patterns ,
                        test_folder = os.path.abspath( args.test_dir ) ,
                        args = args ,
                        file_prefix = args.file_prefix ,
