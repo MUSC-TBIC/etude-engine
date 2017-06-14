@@ -114,8 +114,8 @@ def initialize_for_print_summary_test():
       [ 'a.xml' , 0 , 1 , 'Sentence' , 'FN' ]
     score_card.loc[ score_card.shape[ 0 ] ] = \
       [ 'b.xml' , 0 , 1 , 'Sentence' , 'FN' ]
-    command_line_args = [ 'tests/data/i2b2_2016_track-1_gold' ,
-                          'tests/data/i2b2_2016_track-1_test' ]
+    command_line_args = [ '--gold-input' , 'tests/data/i2b2_2016_track-1_gold' ,
+                          '--test-input' , 'tests/data/i2b2_2016_track-1_test' ]
     args = args_and_configs.get_arguments( command_line_args )
     sample_config = [ { 'type' : 'Sentence' ,
                         'XPath' : './/type:Sentence' } ,

@@ -107,20 +107,36 @@ def score_ref_set( gold_ns , gold_patterns , gold_folder ,
     ##
     progress = progressbar.ProgressBar( max_value = match_count )
     for gold_filename in progress( sorted( file_mapping.keys() ) ):
+        if( args.gold_out == None ):
+            gold_out_file = None
+        else:
+            ## TODO - add filename translation services
+            gold_out_file = '{}/{}'.format( args.gold_out ,
+                                               gold_filename )
+        ##
         gold_ss = \
           text_extraction.extract_annotations( '{}/{}'.format( gold_folder ,
                                                                gold_filename ) ,
                                                namespaces = gold_ns ,
-                                               patterns = gold_patterns )
+                                               patterns = gold_patterns ,
+                                               out_file = gold_out_file )
         test_filename = file_mapping[ gold_filename ]
         if( test_filename == None ):
             test_ss = {}
         else:
+            if( args.test_out == None ):
+                test_out_file = None
+            else:
+                ## TODO - add filename translation services
+                test_out_file = '{}/{}'.format( args.test_out ,
+                                                   test_filename )
+            ##
             test_ss = \
               text_extraction.extract_annotations( '{}/{}'.format( test_folder ,
                                                                    test_filename ) ,
                                                    namespaces = test_ns ,
-                                                   patterns = test_patterns )
+                                                   patterns = test_patterns ,
+                                                   out_file = test_out_file )
         ##
         for gold_start in gold_ss.keys():
             ## grab type and end position
@@ -193,17 +209,17 @@ if __name__ == "__main__":
     if( args.count_types ):
         count_ref_set( test_ns = test_ns ,
                        test_patterns = test_patterns ,
-                       test_folder = os.path.abspath( args.test_dir ) ,
+                       test_folder = os.path.abspath( args.test_input ) ,
                        args = args ,
                        file_prefix = args.file_prefix ,
                        file_suffix = args.file_suffix[ len( args.file_suffix ) - 1 ].lstrip() )
     else:
         score_ref_set( gold_ns = gold_ns ,
                        gold_patterns = gold_patterns ,
-                       gold_folder = os.path.abspath( args.gold_dir ) ,
+                       gold_folder = os.path.abspath( args.gold_input ) ,
                        test_ns = test_ns ,
                        test_patterns = test_patterns ,
-                       test_folder = os.path.abspath( args.test_dir ) ,
+                       test_folder = os.path.abspath( args.test_input ) ,
                        args = args ,
                        file_prefix = args.file_prefix ,
                        file_suffix = args.file_suffix )
