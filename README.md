@@ -15,12 +15,12 @@ per-annotation-type score breakdown.
 
 ```bash
 python etude.py \
-    $ETUDE_DIR/tests/data/i2b2_2016_track-1_gold \
-    $ETUDE_DIR/tests/data/i2b2_2016_track-1_test
+    --gold-input $ETUDE_DIR/tests/data/i2b2_2016_track-1_gold \
+    --test-input $ETUDE_DIR/tests/data/i2b2_2016_track-1_test
 
 python etude.py \
-    $ETUDE_DIR/tests/data/i2b2_2016_track-1_gold \
-    $ETUDE_DIR/tests/data/i2b2_2016_track-1_test \
+    --gold-input $ETUDE_DIR/tests/data/i2b2_2016_track-1_gold \
+    --test-input $ETUDE_DIR/tests/data/i2b2_2016_track-1_test \
 	--by-file \
 	--by-type
 
@@ -57,8 +57,8 @@ $UIMA_HOME/bin/runAE.sh \
   $I2B2_OUTPUT
 
 python etude.py \
-    $ETUDE_DIR/tests/data/i2b2_2016_track-1_gold \
-    $I2B2_OUTPUT \
+    --gold-input $ETUDE_DIR/tests/data/i2b2_2016_track-1_gold \
+    --test-input $I2B2_OUTPUT \
 	--by-type \
 	--file-suffix ".xml" ".txt" \
 	--test-config config/CAS_XMI.conf
@@ -80,8 +80,8 @@ Zip	0.0	0.0	0.0	4.0
 eAddress	0.0	0.0	0.0	2.0
 
 python etude.py \
-    $ETUDE_DIR/tests/data/i2b2_2016_track-1_gold \
-    $I2B2_OUTPUT \
+    --gold-input $ETUDE_DIR/tests/data/i2b2_2016_track-1_gold \
+    --test-input $I2B2_OUTPUT \
 	--file-suffix ".xml" ".txt"
 
 #########	TP	FP	TN	FN
@@ -99,19 +99,19 @@ such as the parent class or long description.
 
 ```bash
 python etude.py \
-    $ETUDE_DIR/tests/data/i2b2_2016_track-1_gold \
-    $ETUDE_DIR/tests/data/i2b2_2016_track-1_test \
+    --gold-input $ETUDE_DIR/tests/data/i2b2_2016_track-1_gold \
+    --test-input $ETUDE_DIR/tests/data/i2b2_2016_track-1_test \
 	--by-type
 
 python etude.py \
-    $ETUDE_DIR/tests/data/i2b2_2016_track-1_gold \
-    $ETUDE_DIR/tests/data/i2b2_2016_track-1_test \
+    --gold-input $ETUDE_DIR/tests/data/i2b2_2016_track-1_gold \
+    --test-input $ETUDE_DIR/tests/data/i2b2_2016_track-1_test \
 	--by-type \
 	--score-key "Parent"
 
 python etude.py \
-    $ETUDE_DIR/tests/data/i2b2_2016_track-1_gold \
-    $ETUDE_DIR/tests/data/i2b2_2016_track-1_test \
+    --gold-input $ETUDE_DIR/tests/data/i2b2_2016_track-1_gold \
+    --test-input $ETUDE_DIR/tests/data/i2b2_2016_track-1_test \
 	--by-type \
 	--score-key "Long Name"
 

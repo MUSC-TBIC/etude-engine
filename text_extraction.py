@@ -1,3 +1,4 @@
+import json
 import xml.etree.ElementTree as ET
 
 def extract_annotations_kernel( ingest_file ,
@@ -6,8 +7,7 @@ def extract_annotations_kernel( ingest_file ,
                                 namespaces = {} ,
                                 begin_attribute = None ,
                                 end_attribute = None ,
-                                text_attribute = None ,
-                                default_score = 'FN' ):
+                                text_attribute = None ):
     found_annots = {}
     strict_starts = {}
     ##
@@ -29,10 +29,10 @@ def extract_annotations_kernel( ingest_file ,
             raw_text = annot.text
         else:
             raw_text = annot.get( text_attribute )
-        new_entry = dict( end_pos = end_pos ,
+        new_entry = dict( begin_pos = begin_pos ,
+                          end_pos = end_pos ,
                           raw_text = raw_text ,
-                          type = tag_name ,
-                          score = default_score )
+                          type = tag_name )
         if( begin_pos in strict_starts.keys() ):
             strict_starts[ begin_pos ].append( new_entry )
         else:
@@ -41,9 +41,20 @@ def extract_annotations_kernel( ingest_file ,
     return strict_starts
 
 
+def write_annotations_to_disk( annotations , out_file ):
+    if( out_file == None ):
+        return
+    ##
+    ## TODO - add directory existence check
+    with open( out_file , 'w' ) as output:
+        json.dump( annotations , output ,
+                   indent = 4 )
+
+
 def extract_annotations( ingest_file ,
                          namespaces ,
-                         patterns ):
+                         patterns ,
+                         out_file = None ):
     annotations = {}
     for pattern in patterns:
         annotations.update( 
@@ -51,8 +62,12 @@ def extract_annotations( ingest_file ,
                                         namespaces = namespaces ,
                                         annotation_path = pattern[ 'xpath' ] ,
                                         tag_name = pattern[ 'type' ] ,
-                                        begin_attribute = pattern[ 'begin_attr' ] ,
-                                        end_attribute = pattern[ 'end_attr' ] ) )
+                                        begin_attribute = \
+                                            pattern[ 'begin_attr' ] ,
+                                        end_attribute = \
+                                            pattern[ 'end_attr' ] ) )
+    ##
+    write_annotations_to_disk( annotations , out_file )
     return annotations
 
 

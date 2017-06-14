@@ -13,13 +13,13 @@ def test_extracting_datetime_from_0005_gs():
                                                   end_attribute = 'end' )
     expected_output = \
       { '2404' :  [ { 'type': 'DateTime' ,
+                      'begin_pos': '2404' ,
                       'end_pos': '2410' ,
-                      'raw_text': None ,
-                      'score': 'FN' } ] ,
+                      'raw_text': None } ] ,
         '87' : [ { 'type': 'DateTime' ,
+                   'begin_pos': '87' ,
                    'end_pos': '97' ,
-                   'raw_text': None ,
-                   'score': 'FN' } ]
+                   'raw_text': None } ]
       }
     assert strict_starts == expected_output
 
@@ -110,7 +110,3 @@ def test_extracting_sentences_from_CTAKES4_OpenNLP1_8():
                                                   end_attribute = 'end' )
     assert len( strict_starts ) == 82
 
-
-
-##    with open( '/tmp/stdout.log' , 'w' ) as fp:
-##        fp.write( '-----------\n{}\n-------------\n'.format( len( strict_starts ) ) )

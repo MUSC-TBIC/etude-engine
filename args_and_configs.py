@@ -18,10 +18,12 @@ unstructured data extraction.
     ## --file-pattern "" regex pattern fed to glob for selecting files
     ##                   (maybe call this --file-filter?)
     
-    parser.add_argument("gold_dir",
-                        help="Directory containing gold reference set")
-    parser.add_argument("test_dir",
-                        help="Directory containing reference set to score")
+    parser.add_argument( '--gold-input' , required = True ,
+                        dest = "gold_input",
+                        help = "Directory containing gold reference set" )
+    parser.add_argument( '--test-input' , required = True ,
+                        dest = "test_input",
+                        help = "Directory containing reference set to score" )
 
     ## TODO - add special hook for include all metrics
     parser.add_argument( "-m" , "--metrics" , nargs = '+' ,
@@ -72,6 +74,16 @@ unstructured data extraction.
                         dest = 'file_suffix' ,
                         default = [ '.xml' ] ,
                         help="Suffix used for filename matching.  You can provide a second argument if the test file suffixes don't match the gold file suffixes. The span of the gold filename that matches the file suffix will be replaced with the contents of the second suffix string.  This replacement is useful when the gold and test differ in terms of file endings (e.g., '001.txt' -> '001.xmi')" )
+
+    parser.add_argument( '--gold-out' ,
+                         dest = 'gold_out' ,
+                         default = None ,
+                         help = 'When provided, write the dictionary of extracted gold annotations to disk in this directory' )
+    
+    parser.add_argument( '--test-out' ,
+                         dest = 'test_out' ,
+                         default = None ,
+                         help = 'When provided, write the dictionary of extracted test annotations to disk in this directory' )
     
     parser.add_argument( '-c' , '--count-types' ,
                          dest = 'count_types' ,
