@@ -27,9 +27,7 @@ def count_ref_set( test_ns , test_patterns , test_folder ,
     """
     Count annotation occurrences in the test folder
     """
-    type_counts = pd.DataFrame( columns = [ 'File' ,
-                                           'Start' , 'End' ,
-                                           'Type' , 'Score' ] )
+    type_counts = scoring_metrics.new_score_card()
     confusion_matrix = {}
     tests = set([os.path.basename(x) for x in glob.glob( test_folder +
                                                          file_prefix +
