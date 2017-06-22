@@ -1,0 +1,258 @@
+{
+    "2911": [
+        {
+            "type": "Zip", 
+            "end_pos": "2916", 
+            "raw_text": null, 
+            "begin_pos": "2911"
+        }
+    ], 
+    "2596": [
+        {
+            "type": "DateTime", 
+            "end_pos": "2600", 
+            "raw_text": null, 
+            "begin_pos": "2596"
+        }
+    ], 
+    "8175": [
+        {
+            "type": "Age", 
+            "end_pos": "8177", 
+            "raw_text": null, 
+            "begin_pos": "8175"
+        }
+    ], 
+    "2848": [
+        {
+            "type": "Provider", 
+            "end_pos": "2859", 
+            "raw_text": null, 
+            "begin_pos": "2848"
+        }
+    ], 
+    "2867": [
+        {
+            "type": "HCUnit", 
+            "end_pos": "2881", 
+            "raw_text": null, 
+            "begin_pos": "2867"
+        }
+    ], 
+    "2635": [
+        {
+            "type": "DateTime", 
+            "end_pos": "2643", 
+            "raw_text": null, 
+            "begin_pos": "2635"
+        }
+    ], 
+    "2771": [
+        {
+            "type": "DateTime", 
+            "end_pos": "2775", 
+            "raw_text": null, 
+            "begin_pos": "2771"
+        }
+    ], 
+    "2719": [
+        {
+            "type": "DateTime", 
+            "end_pos": "2723", 
+            "raw_text": null, 
+            "begin_pos": "2719"
+        }
+    ], 
+    "2925": [
+        {
+            "type": "PhoneFax", 
+            "end_pos": "2937", 
+            "raw_text": null, 
+            "begin_pos": "2925"
+        }
+    ], 
+    "2659": [
+        {
+            "type": "DateTime", 
+            "end_pos": "2667", 
+            "raw_text": null, 
+            "begin_pos": "2659"
+        }
+    ], 
+    "2655": [
+        {
+            "type": "DateTime", 
+            "end_pos": "2658", 
+            "raw_text": null, 
+            "begin_pos": "2655"
+        }
+    ], 
+    "2450": [
+        {
+            "type": "Age", 
+            "end_pos": "2458", 
+            "raw_text": null, 
+            "begin_pos": "2450"
+        }
+    ], 
+    "7852": [
+        {
+            "type": "DateTime", 
+            "end_pos": "7856", 
+            "raw_text": null, 
+            "begin_pos": "7852"
+        }
+    ], 
+    "3004": [
+        {
+            "type": "StreetCity", 
+            "end_pos": "3017", 
+            "raw_text": null, 
+            "begin_pos": "3004"
+        }
+    ], 
+    "10261": [
+        {
+            "type": "Age", 
+            "end_pos": "10263", 
+            "raw_text": null, 
+            "begin_pos": "10261"
+        }
+    ], 
+    "89": [
+        {
+            "type": "DateTime", 
+            "end_pos": "96", 
+            "raw_text": null, 
+            "begin_pos": "89"
+        }
+    ], 
+    "2498": [
+        {
+            "type": "DateTime", 
+            "end_pos": "2502", 
+            "raw_text": null, 
+            "begin_pos": "2498"
+        }
+    ], 
+    "6441": [
+        {
+            "type": "DateTime", 
+            "end_pos": "6445", 
+            "raw_text": null, 
+            "begin_pos": "6441"
+        }
+    ], 
+    "256": [
+        {
+            "type": "Zip", 
+            "end_pos": "261", 
+            "raw_text": null, 
+            "begin_pos": "256"
+        }
+    ], 
+    "8309": [
+        {
+            "type": "DateTime", 
+            "end_pos": "8313", 
+            "raw_text": null, 
+            "begin_pos": "8309"
+        }
+    ], 
+    "2883": [
+        {
+            "type": "StreetCity", 
+            "end_pos": "2898", 
+            "raw_text": null, 
+            "begin_pos": "2883"
+        }
+    ], 
+    "1482": [
+        {
+            "type": "DateTime", 
+            "end_pos": "1486", 
+            "raw_text": null, 
+            "begin_pos": "1482"
+        }
+    ], 
+    "3045": [
+        {
+            "type": "PhoneFax", 
+            "end_pos": "3057", 
+            "raw_text": null, 
+            "begin_pos": "3045"
+        }
+    ], 
+    "11063": [
+        {
+            "type": "DateTime", 
+            "end_pos": "11071", 
+            "raw_text": null, 
+            "begin_pos": "11063"
+        }
+    ], 
+    "211": [
+        {
+            "type": "StreetCity", 
+            "end_pos": "231", 
+            "raw_text": null, 
+            "begin_pos": "211"
+        }
+    ], 
+    "2987": [
+        {
+            "type": "Provider", 
+            "end_pos": "2996", 
+            "raw_text": null, 
+            "begin_pos": "2987"
+        }
+    ], 
+    "3031": [
+        {
+            "type": "Zip", 
+            "end_pos": "3036", 
+            "raw_text": null, 
+            "begin_pos": "3031"
+        }
+    ], 
+    "270": [
+        {
+            "type": "PhoneFax", 
+            "end_pos": "282", 
+            "raw_text": null, 
+            "begin_pos": "270"
+        }
+    ], 
+    "186": [
+        {
+            "type": "Provider", 
+            "end_pos": "198", 
+            "raw_text": null, 
+            "begin_pos": "186"
+        }
+    ], 
+    "1011": [
+        {
+            "type": "DateTime", 
+            "end_pos": "1018", 
+            "raw_text": null, 
+            "begin_pos": "1011"
+        }
+    ], 
+    "153": [
+        {
+            "type": "Age", 
+            "end_pos": "155", 
+            "raw_text": null, 
+            "begin_pos": "153"
+        }
+    ], 
+    "2074": [
+        {
+            "type": "DateTime", 
+            "end_pos": "2077", 
+            "raw_text": null, 
+            "begin_pos": "2074"
+        }
+    ]
+}

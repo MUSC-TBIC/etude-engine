@@ -1,0 +1,762 @@
+{
+    "20639": [
+        {
+            "type": "Age", 
+            "end_pos": "20641", 
+            "raw_text": null, 
+            "begin_pos": "20639"
+        }
+    ], 
+    "21946": [
+        {
+            "type": "HCUnit", 
+            "end_pos": "21949", 
+            "raw_text": null, 
+            "begin_pos": "21946"
+        }
+    ], 
+    "15605": [
+        {
+            "type": "Age", 
+            "end_pos": "15607", 
+            "raw_text": null, 
+            "begin_pos": "15605"
+        }
+    ], 
+    "5317": [
+        {
+            "type": "eAddress", 
+            "end_pos": "5328", 
+            "raw_text": null, 
+            "begin_pos": "5317"
+        }
+    ], 
+    "3753": [
+        {
+            "type": "Provider", 
+            "end_pos": "3765", 
+            "raw_text": null, 
+            "begin_pos": "3753"
+        }
+    ], 
+    "2842": [
+        {
+            "type": "DateTime", 
+            "end_pos": "2846", 
+            "raw_text": null, 
+            "begin_pos": "2842"
+        }
+    ], 
+    "4571": [
+        {
+            "type": "Provider", 
+            "end_pos": "4577", 
+            "raw_text": null, 
+            "begin_pos": "4571"
+        }
+    ], 
+    "22932": [
+        {
+            "type": "HCUnit", 
+            "end_pos": "22935", 
+            "raw_text": null, 
+            "begin_pos": "22932"
+        }
+    ], 
+    "7225": [
+        {
+            "type": "Provider", 
+            "end_pos": "7233", 
+            "raw_text": null, 
+            "begin_pos": "7225"
+        }
+    ], 
+    "17043": [
+        {
+            "type": "DateTime", 
+            "end_pos": "17047", 
+            "raw_text": null, 
+            "begin_pos": "17043"
+        }
+    ], 
+    "22172": [
+        {
+            "type": "HCUnit", 
+            "end_pos": "22175", 
+            "raw_text": null, 
+            "begin_pos": "22172"
+        }
+    ], 
+    "20278": [
+        {
+            "type": "HCUnit", 
+            "end_pos": "20281", 
+            "raw_text": null, 
+            "begin_pos": "20278"
+        }
+    ], 
+    "4346": [
+        {
+            "type": "Provider", 
+            "end_pos": "4360", 
+            "raw_text": null, 
+            "begin_pos": "4346"
+        }
+    ], 
+    "16560": [
+        {
+            "type": "OtherOrg", 
+            "end_pos": "16575", 
+            "raw_text": null, 
+            "begin_pos": "16560"
+        }
+    ], 
+    "15248": [
+        {
+            "type": "Age", 
+            "end_pos": "15249", 
+            "raw_text": null, 
+            "begin_pos": "15248"
+        }
+    ], 
+    "14987": [
+        {
+            "type": "Age", 
+            "end_pos": "14989", 
+            "raw_text": null, 
+            "begin_pos": "14987"
+        }
+    ], 
+    "3251": [
+        {
+            "type": "HCUnit", 
+            "end_pos": "3254", 
+            "raw_text": null, 
+            "begin_pos": "3251"
+        }
+    ], 
+    "20233": [
+        {
+            "type": "Provider", 
+            "end_pos": "20245", 
+            "raw_text": null, 
+            "begin_pos": "20233"
+        }
+    ], 
+    "22188": [
+        {
+            "type": "HCUnit", 
+            "end_pos": "22191", 
+            "raw_text": null, 
+            "begin_pos": "22188"
+        }
+    ], 
+    "21933": [
+        {
+            "type": "Provider", 
+            "end_pos": "21942", 
+            "raw_text": null, 
+            "begin_pos": "21933"
+        }
+    ], 
+    "13003": [
+        {
+            "type": "Age", 
+            "end_pos": "13004", 
+            "raw_text": null, 
+            "begin_pos": "13003"
+        }
+    ], 
+    "3997": [
+        {
+            "type": "HCUnit", 
+            "end_pos": "4018", 
+            "raw_text": null, 
+            "begin_pos": "3997"
+        }
+    ], 
+    "6044": [
+        {
+            "type": "Age", 
+            "end_pos": "6046", 
+            "raw_text": null, 
+            "begin_pos": "6044"
+        }
+    ], 
+    "13128": [
+        {
+            "type": "DateTime", 
+            "end_pos": "13132", 
+            "raw_text": null, 
+            "begin_pos": "13128"
+        }
+    ], 
+    "2626": [
+        {
+            "type": "DateTime", 
+            "end_pos": "2630", 
+            "raw_text": null, 
+            "begin_pos": "2626"
+        }
+    ], 
+    "12170": [
+        {
+            "type": "Age", 
+            "end_pos": "12172", 
+            "raw_text": null, 
+            "begin_pos": "12170"
+        }
+    ], 
+    "2916": [
+        {
+            "type": "DateTime", 
+            "end_pos": "2925", 
+            "raw_text": null, 
+            "begin_pos": "2916"
+        }
+    ], 
+    "7921": [
+        {
+            "type": "Provider", 
+            "end_pos": "7936", 
+            "raw_text": null, 
+            "begin_pos": "7921"
+        }
+    ], 
+    "15717": [
+        {
+            "type": "Patient", 
+            "end_pos": "15723", 
+            "raw_text": null, 
+            "begin_pos": "15717"
+        }
+    ], 
+    "3769": [
+        {
+            "type": "HCUnit", 
+            "end_pos": "3772", 
+            "raw_text": null, 
+            "begin_pos": "3769"
+        }
+    ], 
+    "2853": [
+        {
+            "type": "DateTime", 
+            "end_pos": "2862", 
+            "raw_text": null, 
+            "begin_pos": "2853"
+        }
+    ], 
+    "6254": [
+        {
+            "type": "Age", 
+            "end_pos": "6256", 
+            "raw_text": null, 
+            "begin_pos": "6254"
+        }
+    ], 
+    "13072": [
+        {
+            "type": "Age", 
+            "end_pos": "13073", 
+            "raw_text": null, 
+            "begin_pos": "13072"
+        }
+    ], 
+    "938": [
+        {
+            "type": "Age", 
+            "end_pos": "940", 
+            "raw_text": null, 
+            "begin_pos": "938"
+        }
+    ], 
+    "22043": [
+        {
+            "type": "HCUnit", 
+            "end_pos": "22046", 
+            "raw_text": null, 
+            "begin_pos": "22043"
+        }
+    ], 
+    "7846": [
+        {
+            "type": "HCUnit", 
+            "end_pos": "7849", 
+            "raw_text": null, 
+            "begin_pos": "7846"
+        }
+    ], 
+    "15799": [
+        {
+            "type": "DateTime", 
+            "end_pos": "15803", 
+            "raw_text": null, 
+            "begin_pos": "15799"
+        }
+    ], 
+    "21981": [
+        {
+            "type": "HCUnit", 
+            "end_pos": "21984", 
+            "raw_text": null, 
+            "begin_pos": "21981"
+        }
+    ], 
+    "12534": [
+        {
+            "type": "Provider", 
+            "end_pos": "12546", 
+            "raw_text": null, 
+            "begin_pos": "12534"
+        }
+    ], 
+    "4399": [
+        {
+            "type": "DateTime", 
+            "end_pos": "4405", 
+            "raw_text": null, 
+            "begin_pos": "4399"
+        }
+    ], 
+    "1625": [
+        {
+            "type": "Age", 
+            "end_pos": "1627", 
+            "raw_text": null, 
+            "begin_pos": "1625"
+        }
+    ], 
+    "16098": [
+        {
+            "type": "StateCountry", 
+            "end_pos": "16105", 
+            "raw_text": null, 
+            "begin_pos": "16098"
+        }
+    ], 
+    "6752": [
+        {
+            "type": "HCUnit", 
+            "end_pos": "6755", 
+            "raw_text": null, 
+            "begin_pos": "6752"
+        }
+    ], 
+    "16973": [
+        {
+            "type": "Patient", 
+            "end_pos": "16981", 
+            "raw_text": null, 
+            "begin_pos": "16973"
+        }
+    ], 
+    "13094": [
+        {
+            "type": "Age", 
+            "end_pos": "13096", 
+            "raw_text": null, 
+            "begin_pos": "13094"
+        }
+    ], 
+    "6293": [
+        {
+            "type": "Age", 
+            "end_pos": "6295", 
+            "raw_text": null, 
+            "begin_pos": "6293"
+        }
+    ], 
+    "7310": [
+        {
+            "type": "HCUnit", 
+            "end_pos": "7331", 
+            "raw_text": null, 
+            "begin_pos": "7310"
+        }
+    ], 
+    "2753": [
+        {
+            "type": "DateTime", 
+            "end_pos": "2757", 
+            "raw_text": null, 
+            "begin_pos": "2753"
+        }
+    ], 
+    "6192": [
+        {
+            "type": "Age", 
+            "end_pos": "6194", 
+            "raw_text": null, 
+            "begin_pos": "6192"
+        }
+    ], 
+    "15599": [
+        {
+            "type": "Age", 
+            "end_pos": "15600", 
+            "raw_text": null, 
+            "begin_pos": "15599"
+        }
+    ], 
+    "17240": [
+        {
+            "type": "Patient", 
+            "end_pos": "17248", 
+            "raw_text": null, 
+            "begin_pos": "17240"
+        }
+    ], 
+    "15346": [
+        {
+            "type": "Age", 
+            "end_pos": "15348", 
+            "raw_text": null, 
+            "begin_pos": "15346"
+        }
+    ], 
+    "2635": [
+        {
+            "type": "DateTime", 
+            "end_pos": "2639", 
+            "raw_text": null, 
+            "begin_pos": "2635"
+        }
+    ], 
+    "15781": [
+        {
+            "type": "DateTime", 
+            "end_pos": "15785", 
+            "raw_text": null, 
+            "begin_pos": "15781"
+        }
+    ], 
+    "89": [
+        {
+            "type": "DateTime", 
+            "end_pos": "96", 
+            "raw_text": null, 
+            "begin_pos": "89"
+        }
+    ], 
+    "22919": [
+        {
+            "type": "Provider", 
+            "end_pos": "22928", 
+            "raw_text": null, 
+            "begin_pos": "22919"
+        }
+    ], 
+    "20296": [
+        {
+            "type": "Provider", 
+            "end_pos": "20305", 
+            "raw_text": null, 
+            "begin_pos": "20296"
+        }
+    ], 
+    "22640": [
+        {
+            "type": "Provider", 
+            "end_pos": "22649", 
+            "raw_text": null, 
+            "begin_pos": "22640"
+        }
+    ], 
+    "7835": [
+        {
+            "type": "Provider", 
+            "end_pos": "7844", 
+            "raw_text": null, 
+            "begin_pos": "7835"
+        }
+    ], 
+    "15474": [
+        {
+            "type": "Age", 
+            "end_pos": "15476", 
+            "raw_text": null, 
+            "begin_pos": "15474"
+        }
+    ], 
+    "12548": [
+        {
+            "type": "HCUnit", 
+            "end_pos": "12569", 
+            "raw_text": null, 
+            "begin_pos": "12548"
+        }
+    ], 
+    "12501": [
+        {
+            "type": "DateTime", 
+            "end_pos": "12507", 
+            "raw_text": null, 
+            "begin_pos": "12501"
+        }
+    ], 
+    "20215": [
+        {
+            "type": "HCUnit", 
+            "end_pos": "20218", 
+            "raw_text": null, 
+            "begin_pos": "20215"
+        }
+    ], 
+    "7240": [
+        {
+            "type": "HCUnit", 
+            "end_pos": "7243", 
+            "raw_text": null, 
+            "begin_pos": "7240"
+        }
+    ], 
+    "1966": [
+        {
+            "type": "OtherOrg", 
+            "end_pos": "1978", 
+            "raw_text": null, 
+            "begin_pos": "1966"
+        }
+    ], 
+    "1718": [
+        {
+            "type": "DateTime", 
+            "end_pos": "1722", 
+            "raw_text": null, 
+            "begin_pos": "1718"
+        }
+    ], 
+    "1612": [
+        {
+            "type": "DateTime", 
+            "end_pos": "1616", 
+            "raw_text": null, 
+            "begin_pos": "1612"
+        }
+    ], 
+    "4555": [
+        {
+            "type": "DateTime", 
+            "end_pos": "4561", 
+            "raw_text": null, 
+            "begin_pos": "4555"
+        }
+    ], 
+    "13026": [
+        {
+            "type": "Age", 
+            "end_pos": "13028", 
+            "raw_text": null, 
+            "begin_pos": "13026"
+        }
+    ], 
+    "366": [
+        {
+            "type": "Age", 
+            "end_pos": "368", 
+            "raw_text": null, 
+            "begin_pos": "366"
+        }
+    ], 
+    "2748": [
+        {
+            "type": "DateTime", 
+            "end_pos": "2752", 
+            "raw_text": null, 
+            "begin_pos": "2748"
+        }
+    ], 
+    "5761": [
+        {
+            "type": "Age", 
+            "end_pos": "5769", 
+            "raw_text": null, 
+            "begin_pos": "5761"
+        }
+    ], 
+    "17030": [
+        {
+            "type": "DateTime", 
+            "end_pos": "17034", 
+            "raw_text": null, 
+            "begin_pos": "17030"
+        }
+    ], 
+    "1139": [
+        {
+            "type": "Age", 
+            "end_pos": "1141", 
+            "raw_text": null, 
+            "begin_pos": "1139"
+        }
+    ], 
+    "141": [
+        {
+            "type": "Age", 
+            "end_pos": "143", 
+            "raw_text": null, 
+            "begin_pos": "141"
+        }
+    ], 
+    "12959": [
+        {
+            "type": "Age", 
+            "end_pos": "12961", 
+            "raw_text": null, 
+            "begin_pos": "12959"
+        }
+    ], 
+    "23417": [
+        {
+            "type": "Provider", 
+            "end_pos": "23428", 
+            "raw_text": null, 
+            "begin_pos": "23417"
+        }
+    ], 
+    "4164": [
+        {
+            "type": "HCUnit", 
+            "end_pos": "4170", 
+            "raw_text": null, 
+            "begin_pos": "4164"
+        }
+    ], 
+    "16958": [
+        {
+            "type": "Patient", 
+            "end_pos": "16964", 
+            "raw_text": null, 
+            "begin_pos": "16958"
+        }
+    ], 
+    "1885": [
+        {
+            "type": "DateTime", 
+            "end_pos": "1889", 
+            "raw_text": null, 
+            "begin_pos": "1885"
+        }
+    ], 
+    "4715": [
+        {
+            "type": "Provider", 
+            "end_pos": "4721", 
+            "raw_text": null, 
+            "begin_pos": "4715"
+        }
+    ], 
+    "14964": [
+        {
+            "type": "Age", 
+            "end_pos": "14965", 
+            "raw_text": null, 
+            "begin_pos": "14964"
+        }
+    ], 
+    "14616": [
+        {
+            "type": "eAddress", 
+            "end_pos": "14627", 
+            "raw_text": null, 
+            "begin_pos": "14616"
+        }
+    ], 
+    "2040": [
+        {
+            "type": "DateTime", 
+            "end_pos": "2044", 
+            "raw_text": null, 
+            "begin_pos": "2040"
+        }
+    ], 
+    "15468": [
+        {
+            "type": "Age", 
+            "end_pos": "15469", 
+            "raw_text": null, 
+            "begin_pos": "15468"
+        }
+    ], 
+    "1726": [
+        {
+            "type": "OtherOrg", 
+            "end_pos": "1744", 
+            "raw_text": null, 
+            "begin_pos": "1726"
+        }
+    ], 
+    "3226": [
+        {
+            "type": "Provider", 
+            "end_pos": "3238", 
+            "raw_text": null, 
+            "begin_pos": "3226"
+        }
+    ], 
+    "4291": [
+        {
+            "type": "HCUnit", 
+            "end_pos": "4304", 
+            "raw_text": null, 
+            "begin_pos": "4291"
+        }
+    ], 
+    "2087": [
+        {
+            "type": "DateTime", 
+            "end_pos": "2091", 
+            "raw_text": null, 
+            "begin_pos": "2087"
+        }
+    ], 
+    "12981": [
+        {
+            "type": "Age", 
+            "end_pos": "12982", 
+            "raw_text": null, 
+            "begin_pos": "12981"
+        }
+    ], 
+    "13136": [
+        {
+            "type": "HCUnit", 
+            "end_pos": "13139", 
+            "raw_text": null, 
+            "begin_pos": "13136"
+        }
+    ], 
+    "1368": [
+        {
+            "type": "Age", 
+            "end_pos": "1370", 
+            "raw_text": null, 
+            "begin_pos": "1368"
+        }
+    ], 
+    "6218": [
+        {
+            "type": "Age", 
+            "end_pos": "6220", 
+            "raw_text": null, 
+            "begin_pos": "6218"
+        }
+    ], 
+    "12168": [
+        {
+            "type": "Age", 
+            "end_pos": "12169", 
+            "raw_text": null, 
+            "begin_pos": "12168"
+        }
+    ], 
+    "1575": [
+        {
+            "type": "Age", 
+            "end_pos": "1577", 
+            "raw_text": null, 
+            "begin_pos": "1575"
+        }
+    ]
+}
