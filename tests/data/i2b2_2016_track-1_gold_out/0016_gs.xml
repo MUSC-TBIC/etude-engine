@@ -1,0 +1,410 @@
+{
+    "12874": [
+        {
+            "type": "Age", 
+            "end_pos": "12876", 
+            "raw_text": null, 
+            "begin_pos": "12874"
+        }
+    ], 
+    "1302": [
+        {
+            "type": "Provider", 
+            "end_pos": "1314", 
+            "raw_text": null, 
+            "begin_pos": "1302"
+        }
+    ], 
+    "6581": [
+        {
+            "type": "Age", 
+            "end_pos": "6583", 
+            "raw_text": null, 
+            "begin_pos": "6581"
+        }
+    ], 
+    "6709": [
+        {
+            "type": "Age", 
+            "end_pos": "6711", 
+            "raw_text": null, 
+            "begin_pos": "6709"
+        }
+    ], 
+    "88": [
+        {
+            "type": "DateTime", 
+            "end_pos": "96", 
+            "raw_text": null, 
+            "begin_pos": "88"
+        }
+    ], 
+    "2801": [
+        {
+            "type": "Provider", 
+            "end_pos": "2813", 
+            "raw_text": null, 
+            "begin_pos": "2801"
+        }
+    ], 
+    "13505": [
+        {
+            "type": "HCUnit", 
+            "end_pos": "13508", 
+            "raw_text": null, 
+            "begin_pos": "13505"
+        }
+    ], 
+    "6871": [
+        {
+            "type": "Age", 
+            "end_pos": "6873", 
+            "raw_text": null, 
+            "begin_pos": "6871"
+        }
+    ], 
+    "6781": [
+        {
+            "type": "Age", 
+            "end_pos": "6783", 
+            "raw_text": null, 
+            "begin_pos": "6781"
+        }
+    ], 
+    "6267": [
+        {
+            "type": "DateTime", 
+            "end_pos": "6271", 
+            "raw_text": null, 
+            "begin_pos": "6267"
+        }
+    ], 
+    "6874": [
+        {
+            "type": "Age", 
+            "end_pos": "6876", 
+            "raw_text": null, 
+            "begin_pos": "6874"
+        }
+    ], 
+    "6262": [
+        {
+            "type": "DateTime", 
+            "end_pos": "6266", 
+            "raw_text": null, 
+            "begin_pos": "6262"
+        }
+    ], 
+    "2342": [
+        {
+            "type": "HCUnit", 
+            "end_pos": "2364", 
+            "raw_text": null, 
+            "begin_pos": "2342"
+        }
+    ], 
+    "1058": [
+        {
+            "type": "DateTime", 
+            "end_pos": "1062", 
+            "raw_text": null, 
+            "begin_pos": "1058"
+        }
+    ], 
+    "2329": [
+        {
+            "type": "Provider", 
+            "end_pos": "2338", 
+            "raw_text": null, 
+            "begin_pos": "2329"
+        }
+    ], 
+    "2485": [
+        {
+            "type": "Provider", 
+            "end_pos": "2490", 
+            "raw_text": null, 
+            "begin_pos": "2485"
+        }
+    ], 
+    "13611": [
+        {
+            "type": "HCUnit", 
+            "end_pos": "13614", 
+            "raw_text": null, 
+            "begin_pos": "13611"
+        }
+    ], 
+    "2220": [
+        {
+            "type": "Provider", 
+            "end_pos": "2232", 
+            "raw_text": null, 
+            "begin_pos": "2220"
+        }
+    ], 
+    "172": [
+        {
+            "type": "Age", 
+            "end_pos": "174", 
+            "raw_text": null, 
+            "begin_pos": "172"
+        }
+    ], 
+    "8659": [
+        {
+            "type": "OtherOrg", 
+            "end_pos": "8677", 
+            "raw_text": null, 
+            "begin_pos": "8659"
+        }
+    ], 
+    "1113": [
+        {
+            "type": "DateTime", 
+            "end_pos": "1117", 
+            "raw_text": null, 
+            "begin_pos": "1113"
+        }
+    ], 
+    "1044": [
+        {
+            "type": "OtherLoc", 
+            "end_pos": "1056", 
+            "raw_text": null, 
+            "begin_pos": "1044"
+        }
+    ], 
+    "2507": [
+        {
+            "type": "Provider", 
+            "end_pos": "2518", 
+            "raw_text": null, 
+            "begin_pos": "2507"
+        }
+    ], 
+    "2245": [
+        {
+            "type": "Provider", 
+            "end_pos": "2257", 
+            "raw_text": null, 
+            "begin_pos": "2245"
+        }
+    ], 
+    "936": [
+        {
+            "type": "DateTime", 
+            "end_pos": "940", 
+            "raw_text": null, 
+            "begin_pos": "936"
+        }
+    ], 
+    "2501": [
+        {
+            "type": "DateTime", 
+            "end_pos": "2505", 
+            "raw_text": null, 
+            "begin_pos": "2501"
+        }
+    ], 
+    "2289": [
+        {
+            "type": "HCUnit", 
+            "end_pos": "2297", 
+            "raw_text": null, 
+            "begin_pos": "2289"
+        }
+    ], 
+    "2817": [
+        {
+            "type": "HCUnit", 
+            "end_pos": "2851", 
+            "raw_text": null, 
+            "begin_pos": "2817"
+        }
+    ], 
+    "2115": [
+        {
+            "type": "Provider", 
+            "end_pos": "2120", 
+            "raw_text": null, 
+            "begin_pos": "2115"
+        }
+    ], 
+    "14644": [
+        {
+            "type": "DateTime", 
+            "end_pos": "14654", 
+            "raw_text": null, 
+            "begin_pos": "14644"
+        }
+    ], 
+    "6584": [
+        {
+            "type": "Age", 
+            "end_pos": "6586", 
+            "raw_text": null, 
+            "begin_pos": "6584"
+        }
+    ], 
+    "9257": [
+        {
+            "type": "Patient", 
+            "end_pos": "9269", 
+            "raw_text": null, 
+            "begin_pos": "9257"
+        }
+    ], 
+    "2855": [
+        {
+            "type": "PhoneFax", 
+            "end_pos": "2867", 
+            "raw_text": null, 
+            "begin_pos": "2855"
+        }
+    ], 
+    "1933": [
+        {
+            "type": "DateTime", 
+            "end_pos": "1937", 
+            "raw_text": null, 
+            "begin_pos": "1933"
+        }
+    ], 
+    "1954": [
+        {
+            "type": "HCUnit", 
+            "end_pos": "1966", 
+            "raw_text": null, 
+            "begin_pos": "1954"
+        }
+    ], 
+    "1968": [
+        {
+            "type": "HCUnit", 
+            "end_pos": "2000", 
+            "raw_text": null, 
+            "begin_pos": "1968"
+        }
+    ], 
+    "1938": [
+        {
+            "type": "DateTime", 
+            "end_pos": "1942", 
+            "raw_text": null, 
+            "begin_pos": "1938"
+        }
+    ], 
+    "6712": [
+        {
+            "type": "Age", 
+            "end_pos": "6714", 
+            "raw_text": null, 
+            "begin_pos": "6712"
+        }
+    ], 
+    "6658": [
+        {
+            "type": "Age", 
+            "end_pos": "6660", 
+            "raw_text": null, 
+            "begin_pos": "6658"
+        }
+    ], 
+    "6778": [
+        {
+            "type": "Age", 
+            "end_pos": "6780", 
+            "raw_text": null, 
+            "begin_pos": "6778"
+        }
+    ], 
+    "7701": [
+        {
+            "type": "DateTime", 
+            "end_pos": "7705", 
+            "raw_text": null, 
+            "begin_pos": "7701"
+        }
+    ], 
+    "2574": [
+        {
+            "type": "Provider", 
+            "end_pos": "2587", 
+            "raw_text": null, 
+            "begin_pos": "2574"
+        }
+    ], 
+    "2522": [
+        {
+            "type": "HCUnit", 
+            "end_pos": "2542", 
+            "raw_text": null, 
+            "begin_pos": "2522"
+        }
+    ], 
+    "2494": [
+        {
+            "type": "HCUnit", 
+            "end_pos": "2497", 
+            "raw_text": null, 
+            "begin_pos": "2494"
+        }
+    ], 
+    "11932": [
+        {
+            "type": "DateTime", 
+            "end_pos": "11936", 
+            "raw_text": null, 
+            "begin_pos": "11932"
+        }
+    ], 
+    "7728": [
+        {
+            "type": "Provider", 
+            "end_pos": "7741", 
+            "raw_text": null, 
+            "begin_pos": "7728"
+        }
+    ], 
+    "2301": [
+        {
+            "type": "PhoneFax", 
+            "end_pos": "2313", 
+            "raw_text": null, 
+            "begin_pos": "2301"
+        }
+    ], 
+    "2001": [
+        {
+            "type": "DateTime", 
+            "end_pos": "2005", 
+            "raw_text": null, 
+            "begin_pos": "2001"
+        }
+    ], 
+    "6332": [
+        {
+            "type": "HCUnit", 
+            "end_pos": "6347", 
+            "raw_text": null, 
+            "begin_pos": "6332"
+        }
+    ], 
+    "12328": [
+        {
+            "type": "HCUnit", 
+            "end_pos": "12331", 
+            "raw_text": null, 
+            "begin_pos": "12328"
+        }
+    ], 
+    "6655": [
+        {
+            "type": "Age", 
+            "end_pos": "6657", 
+            "raw_text": null, 
+            "begin_pos": "6655"
+        }
+    ]
+}

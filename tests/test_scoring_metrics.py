@@ -1,8 +1,6 @@
 import sys
 import re
 
-import pandas as pd
-
 import args_and_configs
 import scoring_metrics
 
@@ -32,9 +30,6 @@ def test_add_missing_fields_FN():
 
 
 ## TODO - test_norm_summary variants
-
-
-## TODO - test_print_score_summary variants
 
 
 #############################################
@@ -101,7 +96,7 @@ def test_f_score_beta_proportional_to_recall():
         scoring_metrics.f_score( 0.1 , 1.0 , beta = 2 )
 
 #############################################
-## Test helper functions
+## Test print_score_summary()
 #############################################
 
 def initialize_for_print_summary_test():
@@ -202,3 +197,48 @@ def test_changing_delim_to_semicolon( capsys ):
 def test_changing_delim_to_pipe( capsys ):
     changing_delim_to_variable( capsys , '|' )
 
+
+#############################################
+## Test print_count_summary()
+#############################################
+
+def test_aggregate_summary_counts( capsys ):
+    score_card , args , sample_config , \
+      file_list = initialize_for_print_summary_test()
+    ##
+    scoring_metrics.print_counts_summary( type_counts = score_card ,
+                                          file_list = file_list ,
+                                          test_config = sample_config ,
+                                          args = args )
+    agg_out, err = capsys.readouterr()
+    ##
+    expected_values = [ [ '#########' , 'Sentence' ] ,
+                        [ 'aggregate' , '4' ] ]
+    for expected_values in expected_values:
+        print( args.delim.join( '{}'.format( m ) for m in expected_values ) )
+    expected_out, err = capsys.readouterr()
+    agg_out = agg_out.strip()
+    expected_out = expected_out.strip()
+    assert agg_out == expected_out
+
+def test_by_file_summary_counts( capsys ):
+    score_card , args , sample_config , \
+      file_list = initialize_for_print_summary_test()
+    args.by_file = True
+    ##
+    scoring_metrics.print_counts_summary( type_counts = score_card ,
+                                          file_list = file_list ,
+                                          test_config = sample_config ,
+                                          args = args )
+    by_type_out, err = capsys.readouterr()
+    ##
+    expected_values = [ [ '#########' , 'Sentence' ] ,
+                        [ 'aggregate' , '4' ] ,
+                        [ 'a.xml' , '2' ] ,
+                        [ 'b.xml' , '2' ] ]
+    for expected_values in expected_values:
+        print( args.delim.join( '{}'.format( m ) for m in expected_values ) )
+    expected_out, err = capsys.readouterr()
+    by_type_out = by_type_out.strip()
+    expected_out = expected_out.strip()
+    assert by_type_out == expected_out

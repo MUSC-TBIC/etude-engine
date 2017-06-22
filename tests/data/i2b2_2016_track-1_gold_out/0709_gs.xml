@@ -1,0 +1,330 @@
+{
+    "7617": [
+        {
+            "type": "StateCountry", 
+            "end_pos": "7624", 
+            "raw_text": null, 
+            "begin_pos": "7617"
+        }
+    ], 
+    "1326": [
+        {
+            "type": "HCUnit", 
+            "end_pos": "1332", 
+            "raw_text": null, 
+            "begin_pos": "1326"
+        }
+    ], 
+    "159": [
+        {
+            "type": "Age", 
+            "end_pos": "161", 
+            "raw_text": null, 
+            "begin_pos": "159"
+        }
+    ], 
+    "190": [
+        {
+            "type": "HCUnit", 
+            "end_pos": "203", 
+            "raw_text": null, 
+            "begin_pos": "190"
+        }
+    ], 
+    "6723": [
+        {
+            "type": "Provider", 
+            "end_pos": "6740", 
+            "raw_text": null, 
+            "begin_pos": "6723"
+        }
+    ], 
+    "7956": [
+        {
+            "type": "HCUnit", 
+            "end_pos": "7958", 
+            "raw_text": null, 
+            "begin_pos": "7956"
+        }
+    ], 
+    "89": [
+        {
+            "type": "DateTime", 
+            "end_pos": "102", 
+            "raw_text": null, 
+            "begin_pos": "89"
+        }
+    ], 
+    "11300": [
+        {
+            "type": "HCUnit", 
+            "end_pos": "11310", 
+            "raw_text": null, 
+            "begin_pos": "11300"
+        }
+    ], 
+    "10570": [
+        {
+            "type": "Age", 
+            "end_pos": "10572", 
+            "raw_text": null, 
+            "begin_pos": "10570"
+        }
+    ], 
+    "10791": [
+        {
+            "type": "HCUnit", 
+            "end_pos": "10801", 
+            "raw_text": null, 
+            "begin_pos": "10791"
+        }
+    ], 
+    "656": [
+        {
+            "type": "Age", 
+            "end_pos": "658", 
+            "raw_text": null, 
+            "begin_pos": "656"
+        }
+    ], 
+    "3382": [
+        {
+            "type": "HCUnit", 
+            "end_pos": "3400", 
+            "raw_text": null, 
+            "begin_pos": "3382"
+        }
+    ], 
+    "7714": [
+        {
+            "type": "StateCountry", 
+            "end_pos": "7718", 
+            "raw_text": null, 
+            "begin_pos": "7714"
+        }
+    ], 
+    "2229": [
+        {
+            "type": "DateTime", 
+            "end_pos": "2240", 
+            "raw_text": null, 
+            "begin_pos": "2229"
+        }
+    ], 
+    "6788": [
+        {
+            "type": "Zip", 
+            "end_pos": "6793", 
+            "raw_text": null, 
+            "begin_pos": "6788"
+        }
+    ], 
+    "12401": [
+        {
+            "type": "HCUnit", 
+            "end_pos": "12411", 
+            "raw_text": null, 
+            "begin_pos": "12401"
+        }
+    ], 
+    "7634": [
+        {
+            "type": "Age", 
+            "end_pos": "7635", 
+            "raw_text": null, 
+            "begin_pos": "7634"
+        }
+    ], 
+    "6688": [
+        {
+            "type": "DateTime", 
+            "end_pos": "6699", 
+            "raw_text": null, 
+            "begin_pos": "6688"
+        }
+    ], 
+    "7738": [
+        {
+            "type": "Age", 
+            "end_pos": "7740", 
+            "raw_text": null, 
+            "begin_pos": "7738"
+        }
+    ], 
+    "10604": [
+        {
+            "type": "StateCountry", 
+            "end_pos": "10611", 
+            "raw_text": null, 
+            "begin_pos": "10604"
+        }
+    ], 
+    "12919": [
+        {
+            "type": "DateTime", 
+            "end_pos": "12932", 
+            "raw_text": null, 
+            "begin_pos": "12919"
+        }
+    ], 
+    "10407": [
+        {
+            "type": "DateTime", 
+            "end_pos": "10420", 
+            "raw_text": null, 
+            "begin_pos": "10407"
+        }
+    ], 
+    "6806": [
+        {
+            "type": "PhoneFax", 
+            "end_pos": "6819", 
+            "raw_text": null, 
+            "begin_pos": "6806"
+        }
+    ], 
+    "10726": [
+        {
+            "type": "HCUnit", 
+            "end_pos": "10728", 
+            "raw_text": null, 
+            "begin_pos": "10726"
+        }
+    ], 
+    "1287": [
+        {
+            "type": "DateTime", 
+            "end_pos": "1297", 
+            "raw_text": null, 
+            "begin_pos": "1287"
+        }
+    ], 
+    "1125": [
+        {
+            "type": "DateTime", 
+            "end_pos": "1135", 
+            "raw_text": null, 
+            "begin_pos": "1125"
+        }
+    ], 
+    "836": [
+        {
+            "type": "HCUnit", 
+            "end_pos": "846", 
+            "raw_text": null, 
+            "begin_pos": "836"
+        }
+    ], 
+    "6844": [
+        {
+            "type": "DateTime", 
+            "end_pos": "6852", 
+            "raw_text": null, 
+            "begin_pos": "6844"
+        }
+    ], 
+    "786": [
+        {
+            "type": "HCUnit", 
+            "end_pos": "792", 
+            "raw_text": null, 
+            "begin_pos": "786"
+        }
+    ], 
+    "1802": [
+        {
+            "type": "HCUnit", 
+            "end_pos": "1815", 
+            "raw_text": null, 
+            "begin_pos": "1802"
+        }
+    ], 
+    "3376": [
+        {
+            "type": "DateTime", 
+            "end_pos": "3380", 
+            "raw_text": null, 
+            "begin_pos": "3376"
+        }
+    ], 
+    "12413": [
+        {
+            "type": "Provider", 
+            "end_pos": "12428", 
+            "raw_text": null, 
+            "begin_pos": "12413"
+        }
+    ], 
+    "7311": [
+        {
+            "type": "OtherID", 
+            "end_pos": "7321", 
+            "raw_text": null, 
+            "begin_pos": "7311"
+        }
+    ], 
+    "6754": [
+        {
+            "type": "StreetCity", 
+            "end_pos": "6772", 
+            "raw_text": null, 
+            "begin_pos": "6754"
+        }
+    ], 
+    "1771": [
+        {
+            "type": "DateTime", 
+            "end_pos": "1782", 
+            "raw_text": null, 
+            "begin_pos": "1771"
+        }
+    ], 
+    "12915": [
+        {
+            "type": "DateTime", 
+            "end_pos": "12918", 
+            "raw_text": null, 
+            "begin_pos": "12915"
+        }
+    ], 
+    "1451": [
+        {
+            "type": "DateTime", 
+            "end_pos": "1464", 
+            "raw_text": null, 
+            "begin_pos": "1451"
+        }
+    ], 
+    "1763": [
+        {
+            "type": "DateTime", 
+            "end_pos": "1769", 
+            "raw_text": null, 
+            "begin_pos": "1763"
+        }
+    ], 
+    "2399": [
+        {
+            "type": "HCUnit", 
+            "end_pos": "2409", 
+            "raw_text": null, 
+            "begin_pos": "2399"
+        }
+    ], 
+    "1108": [
+        {
+            "type": "HCUnit", 
+            "end_pos": "1114", 
+            "raw_text": null, 
+            "begin_pos": "1108"
+        }
+    ], 
+    "682": [
+        {
+            "type": "StateCountry", 
+            "end_pos": "689", 
+            "raw_text": null, 
+            "begin_pos": "682"
+        }
+    ]
+}

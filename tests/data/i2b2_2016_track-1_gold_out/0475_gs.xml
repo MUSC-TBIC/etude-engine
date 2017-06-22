@@ -1,0 +1,362 @@
+{
+    "18497": [
+        {
+            "type": "HCUnit", 
+            "end_pos": "18500", 
+            "raw_text": null, 
+            "begin_pos": "18497"
+        }
+    ], 
+    "155": [
+        {
+            "type": "Age", 
+            "end_pos": "157", 
+            "raw_text": null, 
+            "begin_pos": "155"
+        }
+    ], 
+    "13336": [
+        {
+            "type": "Provider", 
+            "end_pos": "13342", 
+            "raw_text": null, 
+            "begin_pos": "13336"
+        }
+    ], 
+    "18376": [
+        {
+            "type": "OtherOrg", 
+            "end_pos": "18380", 
+            "raw_text": null, 
+            "begin_pos": "18376"
+        }
+    ], 
+    "89": [
+        {
+            "type": "DateTime", 
+            "end_pos": "98", 
+            "raw_text": null, 
+            "begin_pos": "89"
+        }
+    ], 
+    "11558": [
+        {
+            "type": "OtherID", 
+            "end_pos": "11567", 
+            "raw_text": null, 
+            "begin_pos": "11558"
+        }
+    ], 
+    "16314": [
+        {
+            "type": "OtherOrg", 
+            "end_pos": "16318", 
+            "raw_text": null, 
+            "begin_pos": "16314"
+        }
+    ], 
+    "11406": [
+        {
+            "type": "OtherID", 
+            "end_pos": "11415", 
+            "raw_text": null, 
+            "begin_pos": "11406"
+        }
+    ], 
+    "12039": [
+        {
+            "type": "Age", 
+            "end_pos": "12040", 
+            "raw_text": null, 
+            "begin_pos": "12039"
+        }
+    ], 
+    "1078": [
+        {
+            "type": "HCUnit", 
+            "end_pos": "1081", 
+            "raw_text": null, 
+            "begin_pos": "1078"
+        }
+    ], 
+    "13309": [
+        {
+            "type": "OtherOrg", 
+            "end_pos": "13321", 
+            "raw_text": null, 
+            "begin_pos": "13309"
+        }
+    ], 
+    "7363": [
+        {
+            "type": "HCUnit", 
+            "end_pos": "7366", 
+            "raw_text": null, 
+            "begin_pos": "7363"
+        }
+    ], 
+    "2666": [
+        {
+            "type": "DateTime", 
+            "end_pos": "2672", 
+            "raw_text": null, 
+            "begin_pos": "2666"
+        }
+    ], 
+    "186": [
+        {
+            "type": "Provider", 
+            "end_pos": "196", 
+            "raw_text": null, 
+            "begin_pos": "186"
+        }
+    ], 
+    "16281": [
+        {
+            "type": "Provider", 
+            "end_pos": "16286", 
+            "raw_text": null, 
+            "begin_pos": "16281"
+        }
+    ], 
+    "5964": [
+        {
+            "type": "OtherOrg", 
+            "end_pos": "5968", 
+            "raw_text": null, 
+            "begin_pos": "5964"
+        }
+    ], 
+    "2649": [
+        {
+            "type": "DateTime", 
+            "end_pos": "2655", 
+            "raw_text": null, 
+            "begin_pos": "2649"
+        }
+    ], 
+    "7300": [
+        {
+            "type": "HCUnit", 
+            "end_pos": "7303", 
+            "raw_text": null, 
+            "begin_pos": "7300"
+        }
+    ], 
+    "7294": [
+        {
+            "type": "Provider", 
+            "end_pos": "7299", 
+            "raw_text": null, 
+            "begin_pos": "7294"
+        }
+    ], 
+    "11715": [
+        {
+            "type": "OtherID", 
+            "end_pos": "11724", 
+            "raw_text": null, 
+            "begin_pos": "11715"
+        }
+    ], 
+    "993": [
+        {
+            "type": "Provider", 
+            "end_pos": "1004", 
+            "raw_text": null, 
+            "begin_pos": "993"
+        }
+    ], 
+    "610": [
+        {
+            "type": "Age", 
+            "end_pos": "612", 
+            "raw_text": null, 
+            "begin_pos": "610"
+        }
+    ], 
+    "19776": [
+        {
+            "type": "Provider", 
+            "end_pos": "19781", 
+            "raw_text": null, 
+            "begin_pos": "19776"
+        }
+    ], 
+    "565": [
+        {
+            "type": "Age", 
+            "end_pos": "566", 
+            "raw_text": null, 
+            "begin_pos": "565"
+        }
+    ], 
+    "12069": [
+        {
+            "type": "Age", 
+            "end_pos": "12071", 
+            "raw_text": null, 
+            "begin_pos": "12069"
+        }
+    ], 
+    "382": [
+        {
+            "type": "OtherOrg", 
+            "end_pos": "386", 
+            "raw_text": null, 
+            "begin_pos": "382"
+        }
+    ], 
+    "7357": [
+        {
+            "type": "Provider", 
+            "end_pos": "7362", 
+            "raw_text": null, 
+            "begin_pos": "7357"
+        }
+    ], 
+    "12532": [
+        {
+            "type": "OtherOrg", 
+            "end_pos": "12545", 
+            "raw_text": null, 
+            "begin_pos": "12532"
+        }
+    ], 
+    "12062": [
+        {
+            "type": "Age", 
+            "end_pos": "12064", 
+            "raw_text": null, 
+            "begin_pos": "12062"
+        }
+    ], 
+    "15465": [
+        {
+            "type": "Provider", 
+            "end_pos": "15470", 
+            "raw_text": null, 
+            "begin_pos": "15465"
+        }
+    ], 
+    "3723": [
+        {
+            "type": "HCUnit", 
+            "end_pos": "3726", 
+            "raw_text": null, 
+            "begin_pos": "3723"
+        }
+    ], 
+    "903": [
+        {
+            "type": "Provider", 
+            "end_pos": "908", 
+            "raw_text": null, 
+            "begin_pos": "903"
+        }
+    ], 
+    "12122": [
+        {
+            "type": "Provider", 
+            "end_pos": "12131", 
+            "raw_text": null, 
+            "begin_pos": "12122"
+        }
+    ], 
+    "10963": [
+        {
+            "type": "DateTime", 
+            "end_pos": "10969", 
+            "raw_text": null, 
+            "begin_pos": "10963"
+        }
+    ], 
+    "11258": [
+        {
+            "type": "DateTime", 
+            "end_pos": "11270", 
+            "raw_text": null, 
+            "begin_pos": "11258"
+        }
+    ], 
+    "11254": [
+        {
+            "type": "HCUnit", 
+            "end_pos": "11257", 
+            "raw_text": null, 
+            "begin_pos": "11254"
+        }
+    ], 
+    "11276": [
+        {
+            "type": "Provider", 
+            "end_pos": "11283", 
+            "raw_text": null, 
+            "begin_pos": "11276"
+        }
+    ], 
+    "1067": [
+        {
+            "type": "Provider", 
+            "end_pos": "1074", 
+            "raw_text": null, 
+            "begin_pos": "1067"
+        }
+    ], 
+    "10903": [
+        {
+            "type": "Provider", 
+            "end_pos": "10914", 
+            "raw_text": null, 
+            "begin_pos": "10903"
+        }
+    ], 
+    "1008": [
+        {
+            "type": "HCUnit", 
+            "end_pos": "1011", 
+            "raw_text": null, 
+            "begin_pos": "1008"
+        }
+    ], 
+    "294": [
+        {
+            "type": "Provider", 
+            "end_pos": "299", 
+            "raw_text": null, 
+            "begin_pos": "294"
+        }
+    ], 
+    "19439": [
+        {
+            "type": "Provider", 
+            "end_pos": "19444", 
+            "raw_text": null, 
+            "begin_pos": "19439"
+        }
+    ], 
+    "1414": [
+        {
+            "type": "Age", 
+            "end_pos": "1419", 
+            "raw_text": null, 
+            "begin_pos": "1414"
+        }
+    ], 
+    "10864": [
+        {
+            "type": "DateTime", 
+            "end_pos": "10876", 
+            "raw_text": null, 
+            "begin_pos": "10864"
+        }
+    ], 
+    "13495": [
+        {
+            "type": "OtherOrg", 
+            "end_pos": "13499", 
+            "raw_text": null, 
+            "begin_pos": "13495"
+        }
+    ]
+}
