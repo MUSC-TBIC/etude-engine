@@ -142,18 +142,18 @@ def print_score_summary( score_card , file_list ,
 def print_counts_summary( type_counts , file_list ,
                           test_config ,
                           args ):
-    pattern_types = []
+    unique_types = Set()
     for pattern in test_config:
-        pattern_types.append( pattern[ 'short_name' ] )
+        unique_types.add( pattern[ 'type' ] )        
     print( '{}{}{}'.format( '\n#########' ,
                             args.delim ,
-                            args.delim.join( '{}'.format( t ) for t in pattern_types ) ) )
+                            args.delim.join( '{}'.format( t ) for t in unique_types ) ) )
     ##
     aggregate_type_counts = type_counts[ 'Type' ].value_counts()
     type_matches = []
-    for pattern in test_config:
-        if( pattern[ 'type' ] in aggregate_type_counts.keys() ):
-            type_matches.append( aggregate_type_counts[ pattern[ 'type' ] ] )
+    for unique_type in sorted( unique_types ):
+        if( unique_type in aggregate_type_counts.keys() ):
+            type_matches.append( aggregate_type_counts[ unique_type ] )
         else:
             type_matches.append( 0 )
     print( '{}{}{}'.format( 'aggregate' ,
@@ -165,9 +165,9 @@ def print_counts_summary( type_counts , file_list ,
             this_file = ( type_counts[ 'File' ] == filename )
             file_type_counts = type_counts[ this_file ][ 'Type' ].value_counts()
             type_matches = []
-            for pattern in test_config:
-                if( pattern[ 'type' ] in file_type_counts.keys() ):
-                    type_matches.append( file_type_counts[ pattern[ 'type' ] ] )
+            for unique_type in sorted( unique_types ):
+                if( unique_type in file_type_counts.keys() ):
+                    type_matches.append( file_type_counts[ unique_type ] )
                 else:
                     type_matches.append( 0 )
             print( '{}{}{}'.format( filename ,
