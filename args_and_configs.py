@@ -1,3 +1,5 @@
+import re
+
 import argparse
 import ConfigParser
 
@@ -64,6 +66,11 @@ unstructured data extraction.
                         default = 'Short Name' ,
                         help="Configuration file key used as the join key for matching patterns in scoring" )
 
+    parser.add_argument("--score-values", nargs = '+' ,
+                        dest = 'score_values' ,
+                        default = [ '.*' ] ,
+                        help="List of values associated with the score key to count in scoring" )
+
     parser.add_argument("--file-prefix", 
                         dest = 'file_prefix' ,
                         default = '/' ,
@@ -111,7 +118,8 @@ def extract_namespaces( namespaces ,
 
 def extract_patterns( annotations ,
                       config , sect ,
-                      score_key ):
+                      score_key ,
+                      score_values ):
     if( config.has_option( sect , 'XPath' ) and
         config.has_option( sect , 'Begin Attr' ) and
         config.has_option( sect , 'End Attr' ) ):
@@ -122,21 +130,27 @@ def extract_patterns( annotations ,
             key_value = sect.strip()
         else:
             key_value = config.get( sect , score_key )
-        annotations.append( dict( type = key_value ,
-                                  long_name = sect.strip() ,
-                                  xpath = config.get( sect , 'XPath' ) ,
-                                  display_name = display_name ,
-                                  short_name = config.get( sect ,
-                                                           'Short Name' ) ,
-                                  begin_attr = config.get( sect ,
-                                                           'Begin Attr' ) ,
-                                  end_attr = config.get( sect ,
-                                                         'End Attr' ) ) )
+        ## Loop through all the provided score_values to see if any
+        ## provided values match the currently extracted value
+        for score_value in score_values:
+            if( re.search( score_value , key_value ) ):
+                annotations.append( dict( type = key_value ,
+                                          long_name = sect.strip() ,
+                                          xpath = config.get( sect , 'XPath' ) ,
+                                          display_name = display_name ,
+                                          short_name = config.get( sect ,
+                                                                   'Short Name' ) ,
+                                          begin_attr = config.get( sect ,
+                                                                   'Begin Attr' ) ,
+                                          end_attr = config.get( sect ,
+                                                                 'End Attr' ) ) )
+                break
     return annotations
 
 
 def process_config( config_file ,
-                    score_key ):
+                    score_key ,
+                    score_values ):
     config = ConfigParser.ConfigParser()
     config.read( config_file )
     annotations = []
@@ -147,6 +161,7 @@ def process_config( config_file ,
         else:
             annotations = extract_patterns( annotations ,
                                             config , sect ,
-                                            score_key )
+                                            score_key ,
+                                            score_values )
     ##
     return namespaces , annotations

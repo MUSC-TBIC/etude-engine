@@ -1,0 +1,250 @@
+{
+    "3489": [
+        {
+            "type": "Provider", 
+            "end_pos": "3502", 
+            "raw_text": null, 
+            "begin_pos": "3489"
+        }
+    ], 
+    "2629": [
+        {
+            "type": "Provider", 
+            "end_pos": "2643", 
+            "raw_text": null, 
+            "begin_pos": "2629"
+        }
+    ], 
+    "3809": [
+        {
+            "type": "Provider", 
+            "end_pos": "3822", 
+            "raw_text": null, 
+            "begin_pos": "3809"
+        }
+    ], 
+    "2865": [
+        {
+            "type": "Patient", 
+            "end_pos": "2874", 
+            "raw_text": null, 
+            "begin_pos": "2865"
+        }
+    ], 
+    "9134": [
+        {
+            "type": "Age", 
+            "end_pos": "9135", 
+            "raw_text": null, 
+            "begin_pos": "9134"
+        }
+    ], 
+    "2448": [
+        {
+            "type": "Provider", 
+            "end_pos": "2460", 
+            "raw_text": null, 
+            "begin_pos": "2448"
+        }
+    ], 
+    "9372": [
+        {
+            "type": "OtherOrg", 
+            "end_pos": "9384", 
+            "raw_text": null, 
+            "begin_pos": "9372"
+        }
+    ], 
+    "764": [
+        {
+            "type": "Provider", 
+            "end_pos": "778", 
+            "raw_text": null, 
+            "begin_pos": "764"
+        }
+    ], 
+    "263": [
+        {
+            "type": "Age", 
+            "end_pos": "265", 
+            "raw_text": null, 
+            "begin_pos": "263"
+        }
+    ], 
+    "12545": [
+        {
+            "type": "Provider", 
+            "end_pos": "12559", 
+            "raw_text": null, 
+            "begin_pos": "12545"
+        }
+    ], 
+    "12044": [
+        {
+            "type": "Age", 
+            "end_pos": "12046", 
+            "raw_text": null, 
+            "begin_pos": "12044"
+        }
+    ], 
+    "8982": [
+        {
+            "type": "Age", 
+            "end_pos": "8983", 
+            "raw_text": null, 
+            "begin_pos": "8982"
+        }
+    ], 
+    "8962": [
+        {
+            "type": "Age", 
+            "end_pos": "8963", 
+            "raw_text": null, 
+            "begin_pos": "8962"
+        }
+    ], 
+    "9140": [
+        {
+            "type": "Age", 
+            "end_pos": "9141", 
+            "raw_text": null, 
+            "begin_pos": "9140"
+        }
+    ], 
+    "1883": [
+        {
+            "type": "Provider", 
+            "end_pos": "1896", 
+            "raw_text": null, 
+            "begin_pos": "1883"
+        }
+    ], 
+    "248": [
+        {
+            "type": "Patient", 
+            "end_pos": "257", 
+            "raw_text": null, 
+            "begin_pos": "248"
+        }
+    ], 
+    "87": [
+        {
+            "type": "DateTime", 
+            "end_pos": "97", 
+            "raw_text": null, 
+            "begin_pos": "87"
+        }
+    ], 
+    "796": [
+        {
+            "type": "Patient", 
+            "end_pos": "805", 
+            "raw_text": null, 
+            "begin_pos": "796"
+        }
+    ], 
+    "143": [
+        {
+            "type": "Age", 
+            "end_pos": "145", 
+            "raw_text": null, 
+            "begin_pos": "143"
+        }
+    ], 
+    "8950": [
+        {
+            "type": "Patient", 
+            "end_pos": "8955", 
+            "raw_text": null, 
+            "begin_pos": "8950"
+        }
+    ], 
+    "7253": [
+        {
+            "type": "Provider", 
+            "end_pos": "7267", 
+            "raw_text": null, 
+            "begin_pos": "7253"
+        }
+    ], 
+    "3574": [
+        {
+            "type": "Provider", 
+            "end_pos": "3580", 
+            "raw_text": null, 
+            "begin_pos": "3574"
+        }
+    ], 
+    "2493": [
+        {
+            "type": "Patient", 
+            "end_pos": "2502", 
+            "raw_text": null, 
+            "begin_pos": "2493"
+        }
+    ], 
+    "2404": [
+        {
+            "type": "DateTime", 
+            "end_pos": "2410", 
+            "raw_text": null, 
+            "begin_pos": "2404"
+        }
+    ], 
+    "12029": [
+        {
+            "type": "Patient", 
+            "end_pos": "12038", 
+            "raw_text": null, 
+            "begin_pos": "12029"
+        }
+    ], 
+    "2538": [
+        {
+            "type": "Provider", 
+            "end_pos": "2544", 
+            "raw_text": null, 
+            "begin_pos": "2538"
+        }
+    ], 
+    "2389": [
+        {
+            "type": "Provider", 
+            "end_pos": "2403", 
+            "raw_text": null, 
+            "begin_pos": "2389"
+        }
+    ], 
+    "8971": [
+        {
+            "type": "Patient", 
+            "end_pos": "8975", 
+            "raw_text": null, 
+            "begin_pos": "8971"
+        }
+    ], 
+    "1295": [
+        {
+            "type": "Age", 
+            "end_pos": "1297", 
+            "raw_text": null, 
+            "begin_pos": "1295"
+        }
+    ], 
+    "936": [
+        {
+            "type": "Patient", 
+            "end_pos": "945", 
+            "raw_text": null, 
+            "begin_pos": "936"
+        }
+    ], 
+    "10829": [
+        {
+            "type": "Patient", 
+            "end_pos": "10838", 
+            "raw_text": null, 
+            "begin_pos": "10829"
+        }
+    ]
+}
