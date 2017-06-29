@@ -57,7 +57,8 @@ def test_extracting_sentences_from_0005_gs():
     config_file = 'config/uima_sentences.conf'
     namespaces , patterns = \
       args_and_configs.process_config( config_file = config_file ,
-                                       score_key = 'Short Name' )
+                                       score_key = 'Short Name' ,
+                                       score_values = [ '.*' ] )
     strict_starts = \
       text_extraction.extract_annotations_kernel( ingest_file ,
                                                   namespaces = namespaces ,
@@ -74,7 +75,8 @@ def test_extracting_sentences_from_reference_standard():
     config_file = 'config/uima_sentences.conf'
     namespaces , patterns = \
       args_and_configs.process_config( config_file = config_file ,
-                                       score_key = 'Short Name' )
+                                       score_key = 'Short Name' ,
+                                       score_values = [ '.*' ] )
     strict_starts = \
       text_extraction.extract_annotations_kernel( ingest_file ,
                                                   namespaces = namespaces ,
@@ -91,7 +93,8 @@ def test_extracting_sentences_from_WebAnno():
     config_file = 'config/uima_sentences.conf'
     namespaces , patterns = \
       args_and_configs.process_config( config_file = config_file ,
-                                       score_key = 'Short Name' )
+                                       score_key = 'Short Name' ,
+                                       score_values = [ '.*' ] )
     strict_starts = \
       text_extraction.extract_annotations_kernel( ingest_file ,
                                                   namespaces = namespaces ,
@@ -108,7 +111,8 @@ def test_extracting_sentences_from_CTAKES4_OpenNLP1_8():
     config_file = 'config/uima_sentences.conf'
     namespaces , patterns = \
       args_and_configs.process_config( config_file = config_file ,
-                                       score_key = 'Short Name' )
+                                       score_key = 'Short Name' ,
+                                       score_values = [ '.*' ] )
     strict_starts = \
       text_extraction.extract_annotations_kernel( ingest_file ,
                                                   namespaces = namespaces ,
@@ -159,7 +163,8 @@ def test_of_presaved_dictionary_for_complex_patterns():
     config_file = 'config/i2b2_2016_track-1.conf'
     namespaces , patterns = \
       args_and_configs.process_config( config_file = config_file ,
-                                       score_key = 'Short Name' )
+                                       score_key = 'Short Name' ,
+                                       score_values = [ '.*' ] )
     with open( presaved_file , 'r' ) as fp:
         reloaded_json = json.load( fp )
     strict_starts = \
@@ -175,7 +180,8 @@ def test_of_identity_read_write_of_dictionary_for_complex_patterns():
     config_file = 'config/i2b2_2016_track-1.conf'
     namespaces , patterns = \
       args_and_configs.process_config( config_file = config_file ,
-                                       score_key = 'Short Name' )
+                                       score_key = 'Short Name' ,
+                                       score_values = [ '.*' ] )
     with tempfile.NamedTemporaryFile() as tmpfile_handle:
         assert os.path.exists( tmpfile_handle.name )
         strict_starts = \

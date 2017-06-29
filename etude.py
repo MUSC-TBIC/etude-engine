@@ -199,10 +199,12 @@ if __name__ == "__main__":
     ## Extract and process the two input file configs
     gold_ns , gold_patterns = \
       args_and_configs.process_config( config_file = args.gold_config ,
-                                       score_key = args.score_key )
+                                       score_key = args.score_key ,
+                                       score_values = args.score_values )
     test_ns , test_patterns = \
       args_and_configs.process_config( config_file = args.test_config ,
-                                       score_key = args.score_key )
+                                       score_key = args.score_key ,
+                                       score_values = args.score_values )
     ##
     if( args.count_types ):
         count_ref_set( test_ns = test_ns ,
