@@ -97,10 +97,16 @@ unstructured data extraction.
                          help = "Count pattern types in each test file" ,
                          action = "store_true" )
     
-    parser.add_argument( '--count-chars' ,
-                         dest = 'count_chars' ,
-                         help = "Count unique characters in each gold and test file" ,
+    parser.add_argument( '--ignore-whitespace' ,
+                         default = True ,
+                         dest = 'ignore_whitespace' ,
+                         help = "Create a offset mapping from the raw document that ignores whitespaces in the offset index (Turned on by default; the counter argument to --count-whitespace)" ,
                          action = "store_true" )
+    
+    parser.add_argument( '--heed-whitespace' ,
+                         dest = 'ignore_whitespace' ,
+                         help = "Include all whitespace in the offset mapping from the raw document (the counter argument to --ignore-whitespace" ,
+                         action = "store_false" )
     ##
     return parser
 

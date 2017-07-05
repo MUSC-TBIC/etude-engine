@@ -24,16 +24,14 @@ def extract_annotations_kernel( ingest_file ,
     for annot in found_annots:
         if( begin_attribute != None ):
             begin_pos = annot.get( begin_attribute )
-            begin_orig = None
+            begin_pos_mapped = None
             if( begin_pos in offset_mapping ):
-                begin_orig = begin_pos
-                begin_pos = offset_mapping[ begin_pos ]
+                begin_pos_mapped = offset_mapping[ begin_pos ]
         if( end_attribute != None ):
             end_pos = annot.get( end_attribute )
-            end_orig = None
+            end_pos_mapped = None
             if( end_pos in offset_mapping ):
-                end_orig = end_pos
-                end_pos = offset_mapping[ end_pos ]
+                end_pos_mapped = offset_mapping[ end_pos ]
         if( text_attribute == None ):
             raw_text = annot.text
         else:
@@ -42,10 +40,10 @@ def extract_annotations_kernel( ingest_file ,
                           end_pos = end_pos ,
                           raw_text = raw_text ,
                           type = tag_name )
-        if( begin_orig != None ):
-            new_entry[ 'begin_orig' ] = begin_orig
-        if( end_orig != None ):
-            new_entry[ 'end_orig' ] = end_orig
+        if( begin_pos_mapped != None ):
+            new_entry[ 'begin_pos_mapped' ] = begin_pos_mapped
+        if( end_pos_mapped != None ):
+            new_entry[ 'end_pos_mapped' ] = end_pos_mapped
         if( begin_pos in strict_starts.keys() ):
             strict_starts[ begin_pos ].append( new_entry )
         else:
@@ -68,14 +66,17 @@ def extract_annotations( ingest_file ,
                          namespaces ,
                          document_data ,
                          patterns ,
+                         ignore_whitespace = True ,
                          out_file = None ):
+    raw_content = None
     annotations = {}
     offset_mapping = {}
+    file_dictionary = {}
     if( bool( document_data ) ):
-        offset_mapping = extract_chars( ingest_file ,
-                                        namespaces ,
-                                        document_data ,
-                                        out_file )
+        raw_content , offset_mapping = extract_chars( ingest_file ,
+                                                      namespaces ,
+                                                      document_data ,
+                                                      out_file )
     for pattern in patterns:
         annotations.update( 
             extract_annotations_kernel( ingest_file ,
@@ -87,8 +88,11 @@ def extract_annotations( ingest_file ,
                                             pattern[ 'begin_attr' ] ,
                                         end_attribute = \
                                             pattern[ 'end_attr' ] ) )
+    file_dictionary = dict( raw_content = raw_content ,
+                            offset_mapping = offset_mapping ,
+                            annotations = annotations )
     ##
-    write_annotations_to_disk( annotations , out_file )
+    write_annotations_to_disk( file_dictionary , out_file )
     return annotations
 
 
@@ -124,7 +128,7 @@ def extract_chars( ingest_file ,
         content_path = document_data[ 'tag_xpath' ]
         attribute_name = document_data[ 'content_attribute' ]
     else:
-        return offset_mapping
+        return None , offset_mapping
     ##
     tree = ET.parse( ingest_file )
     root = tree.getroot()
@@ -133,7 +137,7 @@ def extract_chars( ingest_file ,
         found_annots = root.findall( content_path , namespaces )
     except SyntaxError, e:
         print( 'I had a problem parsing the XML file.  Are you sure your XPath is correct and matches your namespace?\n\tSkipping file ({}) and XPath ({})\n\tReported Error:  {}'.format( ingest_file , content_path , e ) )
-        return offset_mapping
+        return None , offset_mapping
     ##
     raw_text = None
     for annot in found_annots:
@@ -145,8 +149,5 @@ def extract_chars( ingest_file ,
     if( raw_text != None ):
         offset_mapping = split_content( raw_text ,
                                         offset_mapping )
-    ##
-    ##write_annotations_to_disk( annotations , out_file )
-    ##return annotations
-    return offset_mapping
+    return raw_text , offset_mapping
 

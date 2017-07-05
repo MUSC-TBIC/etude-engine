@@ -4,6 +4,31 @@ import json
 import args_and_configs
 
 #############################################
+## Test passing command line arguments
+#############################################
+
+def test_default_ignore_whitespace_flag():
+    command_line_args = [ '--gold-input' , 'tests/data/i2b2_2016_track-1_gold' ,
+                          '--test-input' , 'tests/data/i2b2_2016_track-1_test' ]
+    args = args_and_configs.get_arguments( command_line_args )
+    assert args.ignore_whitespace == True
+
+def test_ignore_whitespace_flag_usage():
+    command_line_args = [ '--gold-input' , 'tests/data/i2b2_2016_track-1_gold' ,
+                          '--test-input' , 'tests/data/i2b2_2016_track-1_test' ,
+                          '--heed-whitespace' ]
+    args = args_and_configs.get_arguments( command_line_args )
+    assert args.ignore_whitespace == False
+
+def test_heed_whitespace_flag_usage():
+    command_line_args = [ '--gold-input' , 'tests/data/i2b2_2016_track-1_gold' ,
+                          '--test-input' , 'tests/data/i2b2_2016_track-1_test' ,
+                          '--ignore-whitespace' ]
+    args = args_and_configs.get_arguments( command_line_args )
+    assert args.ignore_whitespace == True
+
+
+#############################################
 ## Test loading and reading of config files
 #############################################
 

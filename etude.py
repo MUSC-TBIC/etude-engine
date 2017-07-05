@@ -175,6 +175,8 @@ def score_ref_set( gold_ns , gold_dd , gold_patterns , gold_folder ,
                                                namespaces = gold_ns ,
                                                document_data = gold_dd ,
                                                patterns = gold_patterns ,
+                                               ignore_whitespace = \
+                                                 args.ignore_whitespace ,
                                                out_file = gold_out_file )
         test_filename = file_mapping[ gold_filename ]
         if( test_filename == None ):
@@ -193,6 +195,8 @@ def score_ref_set( gold_ns , gold_dd , gold_patterns , gold_folder ,
                                                    namespaces = test_ns ,
                                                    document_data = test_dd ,
                                                    patterns = test_patterns ,
+                                                   ignore_whitespace = \
+                                                     args.ignore_whitespace ,
                                                    out_file = test_out_file )
         ##
         for gold_start in gold_ss.keys():
@@ -272,17 +276,6 @@ if __name__ == "__main__":
                        args = args ,
                        file_prefix = args.file_prefix ,
                        file_suffix = args.file_suffix[ len( args.file_suffix ) - 1 ].lstrip() )
-    elif( args.count_chars ):
-        ## TODO - expand the character profiling
-        count_chars_profile( gold_ns = gold_ns ,
-                             gold_dd = gold_dd ,
-                             gold_folder = os.path.abspath( args.gold_input ) ,
-                             test_ns = test_ns ,
-                             test_dd = test_dd ,
-                             test_folder = os.path.abspath( args.test_input ) ,
-                             args = args ,
-                             file_prefix = args.file_prefix ,
-                             file_suffix = args.file_suffix[ len( args.file_suffix ) - 1 ].lstrip() )
     else:
         score_ref_set( gold_ns = gold_ns ,
                        gold_dd = gold_dd ,
