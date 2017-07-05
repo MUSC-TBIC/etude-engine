@@ -80,8 +80,64 @@ def collect_files( gold_folder , test_folder ,
     return( match_count , file_mapping )
 
 
-def score_ref_set( gold_ns , gold_patterns , gold_folder ,
-                   test_ns , test_patterns , test_folder ,
+def count_chars_profile( gold_ns , gold_dd , gold_folder ,
+                         test_ns , test_dd , test_folder ,
+                         args ,
+                         file_prefix = '/' ,
+                         file_suffix = '.xml' ):
+    """
+    Extract a character profile for each document and corpus as a whole.
+    """
+    match_count , file_mapping = collect_files( gold_folder , test_folder ,
+                                                file_prefix , file_suffix )
+    ##
+    if( match_count == 0 ):
+        ## Empty dictionaries evaluate to False so testing bool can tell us if
+        ## any gold documents exist
+        if( bool( file_mapping ) ):
+            print( 'ERROR:  No documents found in test directory:  {}'.format( test_folder ) )
+        else:
+            print( 'ERROR:  No documents found in gold directory:  {}'.format( gold_folder ) )
+        return( None )
+    ##
+    progress = progressbar.ProgressBar( max_value = match_count ,
+                                        redirect_stderr = True )
+    for gold_filename in progress( sorted( file_mapping.keys() ) ):
+        if( args.gold_out == None ):
+            gold_out_file = None
+        else:
+            ## TODO - add filename translation services
+            gold_out_file = '{}/{}'.format( args.gold_out ,
+                                               gold_filename )
+        ##
+        gold_chars = \
+          text_extraction.extract_chars( '{}/{}'.format( gold_folder ,
+                                                         gold_filename ) ,
+                                         namespaces = gold_ns ,
+                                         document_data = gold_dd ,
+                                         out_file = gold_out_file )
+        test_filename = file_mapping[ gold_filename ]
+        if( test_filename == None ):
+            test_chars = {}
+        else:
+            if( args.test_out == None ):
+                test_out_file = None
+            else:
+                ## TODO - add filename translation services
+                test_out_file = '{}/{}'.format( args.test_out ,
+                                                   test_filename )
+            ##
+            test_chars = \
+              text_extraction.extract_chars( '{}/{}'.format( test_folder ,
+                                                             test_filename ) ,
+                                             namespaces = test_ns ,
+                                             document_data = test_dd ,
+                                             out_file = test_out_file )
+        ##
+
+
+def score_ref_set( gold_ns , gold_dd , gold_patterns , gold_folder ,
+                   test_ns , test_dd , test_patterns , test_folder ,
                    args ,
                    file_prefix = '/' ,
                    file_suffix = '.xml' ):
@@ -103,7 +159,8 @@ def score_ref_set( gold_ns , gold_patterns , gold_folder ,
             print( 'ERROR:  No documents found in gold directory:  {}'.format( gold_folder ) )
         return( None )
     ##
-    progress = progressbar.ProgressBar( max_value = match_count )
+    progress = progressbar.ProgressBar( max_value = match_count ,
+                                        redirect_stderr = True )
     for gold_filename in progress( sorted( file_mapping.keys() ) ):
         if( args.gold_out == None ):
             gold_out_file = None
@@ -116,6 +173,7 @@ def score_ref_set( gold_ns , gold_patterns , gold_folder ,
           text_extraction.extract_annotations( '{}/{}'.format( gold_folder ,
                                                                gold_filename ) ,
                                                namespaces = gold_ns ,
+                                               document_data = gold_dd ,
                                                patterns = gold_patterns ,
                                                out_file = gold_out_file )
         test_filename = file_mapping[ gold_filename ]
@@ -133,6 +191,7 @@ def score_ref_set( gold_ns , gold_patterns , gold_folder ,
               text_extraction.extract_annotations( '{}/{}'.format( test_folder ,
                                                                    test_filename ) ,
                                                    namespaces = test_ns ,
+                                                   document_data = test_dd ,
                                                    patterns = test_patterns ,
                                                    out_file = test_out_file )
         ##
@@ -197,11 +256,11 @@ if __name__ == "__main__":
     ##
     args = args_and_configs.get_arguments( sys.argv[ 1: ] )
     ## Extract and process the two input file configs
-    gold_ns , gold_patterns = \
+    gold_ns , gold_dd , gold_patterns = \
       args_and_configs.process_config( config_file = args.gold_config ,
                                        score_key = args.score_key ,
                                        score_values = args.score_values )
-    test_ns , test_patterns = \
+    test_ns , test_dd , test_patterns = \
       args_and_configs.process_config( config_file = args.test_config ,
                                        score_key = args.score_key ,
                                        score_values = args.score_values )
@@ -213,11 +272,24 @@ if __name__ == "__main__":
                        args = args ,
                        file_prefix = args.file_prefix ,
                        file_suffix = args.file_suffix[ len( args.file_suffix ) - 1 ].lstrip() )
+    elif( args.count_chars ):
+        ## TODO - expand the character profiling
+        count_chars_profile( gold_ns = gold_ns ,
+                             gold_dd = gold_dd ,
+                             gold_folder = os.path.abspath( args.gold_input ) ,
+                             test_ns = test_ns ,
+                             test_dd = test_dd ,
+                             test_folder = os.path.abspath( args.test_input ) ,
+                             args = args ,
+                             file_prefix = args.file_prefix ,
+                             file_suffix = args.file_suffix[ len( args.file_suffix ) - 1 ].lstrip() )
     else:
         score_ref_set( gold_ns = gold_ns ,
+                       gold_dd = gold_dd ,
                        gold_patterns = gold_patterns ,
                        gold_folder = os.path.abspath( args.gold_input ) ,
                        test_ns = test_ns ,
+                       test_dd = test_dd ,
                        test_patterns = test_patterns ,
                        test_folder = os.path.abspath( args.test_input ) ,
                        args = args ,

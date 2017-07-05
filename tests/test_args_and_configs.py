@@ -11,7 +11,7 @@ import args_and_configs
 
 def test_i2b2_2016_track_1_has_empty_namespace():
     config_file = 'config/i2b2_2016_track-1.conf'
-    namespaces , patterns = \
+    namespaces , document_data , patterns = \
       args_and_configs.process_config( config_file = config_file ,
                                        score_key = 'Short Name' ,
                                        score_values = [ '.*' ] )
@@ -21,7 +21,7 @@ def test_i2b2_2016_track_1_has_empty_namespace():
 
 def test_sentences_has_defined_namespaces():
     config_file = 'config/uima_sentences.conf'
-    namespaces , patterns = \
+    namespaces , document_data , patterns = \
       args_and_configs.process_config( config_file = config_file ,
                                        score_key = 'Short Name' ,
                                        score_values = [ '.*' ] )
@@ -35,7 +35,7 @@ def test_sentences_has_defined_namespaces():
 
 def test_webanno_custom_namespaces():
     config_file = 'config/webanno_uima_xmi.conf'
-    namespaces , patterns = \
+    namespaces , document_data , patterns = \
       args_and_configs.process_config( config_file = config_file ,
                                        score_key = 'Short Name' ,
                                        score_values = [ '.*' ] )
@@ -50,7 +50,7 @@ def test_webanno_custom_namespaces():
 
 def test_set_score_key_Sentences():
     filename = 'config/uima_sentences.conf'
-    namespaces , patterns = \
+    namespaces , document_data , patterns = \
       args_and_configs.process_config( config_file = filename ,
                                        score_key = 'Short Name' ,
                                        score_values = [ '.*' ] )
@@ -60,19 +60,19 @@ def test_set_score_key_Sentences():
 def test_set_score_key_DateTime_Tutorial():
     filename = 'config/CAS_XMI.conf'
     score_values = [ '.*' ]
-    namespaces , patterns = \
+    namespaces , document_data , patterns = \
       args_and_configs.process_config( config_file = filename ,
                                        score_key = 'Short Name' ,
                                        score_values = score_values )
     for pattern in patterns:
         assert pattern[ 'type' ] == "DateTime"
-    namespaces , patterns = \
+    namespaces , document_data , patterns = \
       args_and_configs.process_config( config_file = filename ,
                                        score_key = 'Parent' ,
                                        score_values = score_values )
     for pattern in patterns:
         assert pattern[ 'type' ] == "Time"
-    namespaces , patterns = \
+    namespaces , document_data , patterns = \
       args_and_configs.process_config( config_file = filename ,
                                        score_key = 'Long Name' ,
                                        score_values = score_values )
@@ -83,7 +83,7 @@ def test_set_score_key_DateTime_Tutorial():
 def test_skip_missing_XPath():
     filename = 'config/i2b2_2016_track-1.conf'
     score_values = [ '.*' ]
-    namespaces , patterns = \
+    namespaces , document_data , patterns = \
       args_and_configs.process_config( config_file = filename ,
                                        score_key = 'Short Name' ,
                                        score_values = score_values )
@@ -93,19 +93,19 @@ def test_skip_missing_XPath():
 def test_set_score_key_match_Time_Tutorial():
     filename = 'config/CAS_XMI.conf'
     score_values = [ 'Time' ]
-    namespaces , patterns = \
+    namespaces , document_data , patterns = \
       args_and_configs.process_config( config_file = filename ,
                                        score_key = 'Short Name' ,
                                        score_values = score_values )
     for pattern in patterns:
         assert pattern[ 'type' ] == "DateTime"
-    namespaces , patterns = \
+    namespaces , document_data , patterns = \
       args_and_configs.process_config( config_file = filename ,
                                        score_key = 'Parent' ,
                                        score_values = score_values )
     for pattern in patterns:
         assert pattern[ 'type' ] == "Time"
-    namespaces , patterns = \
+    namespaces , document_data , patterns = \
       args_and_configs.process_config( config_file = filename ,
                                        score_key = 'Long Name' ,
                                        score_values = score_values )
@@ -115,19 +115,19 @@ def test_set_score_key_match_Time_Tutorial():
 def test_set_score_key_match_strict_start_and_end_char_Tutorial():
     filename = 'config/CAS_XMI.conf'
     score_values = [ '^[DT].*[en]$' ]
-    namespaces , patterns = \
+    namespaces , document_data , patterns = \
       args_and_configs.process_config( config_file = filename ,
                                        score_key = 'Short Name' ,
                                        score_values = score_values )
     for pattern in patterns:
         assert pattern[ 'type' ] == "DateTime"
-    namespaces , patterns = \
+    namespaces , document_data , patterns = \
       args_and_configs.process_config( config_file = filename ,
                                        score_key = 'Parent' ,
                                        score_values = score_values )
     for pattern in patterns:
         assert pattern[ 'type' ] == "Time"
-    namespaces , patterns = \
+    namespaces , document_data , patterns = \
       args_and_configs.process_config( config_file = filename ,
                                        score_key = 'Long Name' ,
                                        score_values = score_values )
@@ -137,19 +137,19 @@ def test_set_score_key_match_strict_start_and_end_char_Tutorial():
 def test_set_score_key_match_over_multiple_values_Tutorial():
     filename = 'config/CAS_XMI.conf'
     score_values = [ '^D.*e$' , '^D.*n$' , '^T.*e$' ]
-    namespaces , patterns = \
+    namespaces , document_data , patterns = \
       args_and_configs.process_config( config_file = filename ,
                                        score_key = 'Short Name' ,
                                        score_values = score_values )
     for pattern in patterns:
         assert pattern[ 'type' ] == "DateTime"
-    namespaces , patterns = \
+    namespaces , document_data , patterns = \
       args_and_configs.process_config( config_file = filename ,
                                        score_key = 'Parent' ,
                                        score_values = score_values )
     for pattern in patterns:
         assert pattern[ 'type' ] == "Time"
-    namespaces , patterns = \
+    namespaces , document_data , patterns = \
       args_and_configs.process_config( config_file = filename ,
                                        score_key = 'Long Name' ,
                                        score_values = score_values )
@@ -160,7 +160,7 @@ def test_set_score_key_match_over_multiple_values_Tutorial():
 def test_skip_missing_XPath():
     filename = 'config/i2b2_2016_track-1.conf'
     score_values = [ '.*' ]
-    namespaces , patterns = \
+    namespaces , document_data , patterns = \
       args_and_configs.process_config( config_file = filename ,
                                        score_key = 'Short Name' ,
                                        score_values = score_values )
@@ -179,7 +179,7 @@ def convert_configs_to_json():
                   'webanno_uima_xmi' ]
     for fileroot in fileroots:
         filename = 'config/' + fileroot + '.conf'
-        namespaces , patterns = \
+        namespaces , document_data , patterns = \
           args_and_configs.process_config( config_file = filename ,
                                            score_key = 'Short Name' ,
                                            score_values = [ '.*' ] )
