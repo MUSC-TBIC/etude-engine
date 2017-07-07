@@ -3,6 +3,9 @@ import re
 
 import args_and_configs
 import scoring_metrics
+import text_extraction
+
+from pandas.testing import assert_frame_equal
 
 #############################################
 ## Test helper functions
@@ -242,3 +245,126 @@ def test_by_file_summary_counts( capsys ):
     by_type_out = by_type_out.strip()
     expected_out = expected_out.strip()
     assert by_type_out == expected_out
+
+
+def test_evaluate_positions_copy_match():
+    score_card = scoring_metrics.new_score_card()
+    ingest_file = 'tests/data/i2b2_2016_track-1_gold/0005_gs.xml'
+    document_data = dict( cdata_xpath = './TEXT' )
+    raw_content , gold_om = \
+      text_extraction.extract_chars( ingest_file ,
+                                     namespaces = {} ,
+                                     document_data = document_data ,
+                                     out_file = None )
+    gold_ss = \
+      text_extraction.extract_annotations_kernel( ingest_file ,
+                                                  offset_mapping = gold_om ,
+                                                  annotation_path = \
+                                                      './TAGS/DATE' ,
+                                                  tag_name = 'DateTime' ,
+                                                  begin_attribute = 'start' ,
+                                                  end_attribute = 'end' )
+    test_om = gold_om
+    test_ss = gold_ss
+    score_card = \
+      scoring_metrics.evaluate_positions( ingest_file ,
+                                          score_card ,
+                                          gold_ss = gold_ss ,
+                                          test_ss = test_ss ,
+                                          ignore_whitespace = False )
+    ##
+    expected_score_card = scoring_metrics.new_score_card()
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ ingest_file , '87' , '97' , 'DateTime' , 'TP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ ingest_file , '2404' , '2410' , 'DateTime' , 'TP' ]
+    assert_frame_equal( score_card , expected_score_card )
+
+
+def test_evaluate_positions_tweak_annotation_dictionary_heed_whitespace():
+    score_card = scoring_metrics.new_score_card()
+    ingest_file = 'tests/data/i2b2_2016_track-1_gold/0005_gs.xml'
+    document_data = dict( cdata_xpath = './TEXT' )
+    raw_content , gold_om = \
+      text_extraction.extract_chars( ingest_file ,
+                                     namespaces = {} ,
+                                     document_data = document_data ,
+                                     out_file = None )
+    gold_ss = \
+      text_extraction.extract_annotations_kernel( ingest_file ,
+                                                  offset_mapping = gold_om ,
+                                                  annotation_path = \
+                                                      './TAGS/DATE' ,
+                                                  tag_name = 'DateTime' ,
+                                                  begin_attribute = 'start' ,
+                                                  end_attribute = 'end' )
+    test_om = gold_om
+    test_ss = \
+      text_extraction.extract_annotations_kernel( ingest_file ,
+                                                  offset_mapping = gold_om ,
+                                                  annotation_path = \
+                                                      './TAGS/DATE' ,
+                                                  tag_name = 'DateTime' ,
+                                                  begin_attribute = 'start' ,
+                                                  end_attribute = 'end' )
+    test_ss[ '87' ][ 0 ][ 'begin_pos' ] = '73'
+    score_card = \
+      scoring_metrics.evaluate_positions( ingest_file ,
+                                          score_card ,
+                                          gold_ss = gold_ss ,
+                                          test_ss = test_ss ,
+                                          ignore_whitespace = False )
+    ##
+    expected_score_card = scoring_metrics.new_score_card()
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ ingest_file , '87' , '97' , 'DateTime' , 'FN' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ ingest_file , '2404' , '2410' , 'DateTime' , 'TP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ ingest_file , '73' , '97' , 'DateTime' , 'FP' ]
+    assert_frame_equal( score_card , expected_score_card )
+
+
+def test_evaluate_positions_tweak_annotation_dictionary_ignore_whitespace():
+    score_card = scoring_metrics.new_score_card()
+    ingest_file = 'tests/data/i2b2_2016_track-1_gold/0005_gs.xml'
+    document_data = dict( cdata_xpath = './TEXT' )
+    raw_content , gold_om = \
+      text_extraction.extract_chars( ingest_file ,
+                                     namespaces = {} ,
+                                     document_data = document_data ,
+                                     out_file = None )
+    gold_ss = \
+      text_extraction.extract_annotations_kernel( ingest_file ,
+                                                  offset_mapping = gold_om ,
+                                                  annotation_path = \
+                                                      './TAGS/DATE' ,
+                                                  tag_name = 'DateTime' ,
+                                                  begin_attribute = 'start' ,
+                                                  end_attribute = 'end' )
+    test_om = gold_om
+    test_ss = \
+      text_extraction.extract_annotations_kernel( ingest_file ,
+                                                  offset_mapping = gold_om ,
+                                                  annotation_path = \
+                                                      './TAGS/DATE' ,
+                                                  tag_name = 'DateTime' ,
+                                                  begin_attribute = 'start' ,
+                                                  end_attribute = 'end' )
+    test_ss[ '87' ][ 0 ][ 'begin_pos' ] = '73'
+    score_card = \
+      scoring_metrics.evaluate_positions( ingest_file ,
+                                          score_card ,
+                                          gold_ss = gold_ss ,
+                                          test_ss = test_ss ,
+                                          ignore_whitespace = True )
+    ##
+    expected_score_card = scoring_metrics.new_score_card()
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ ingest_file , '70' , '80' , 'DateTime' , 'TP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ ingest_file , '2006' , '2011' , 'DateTime' , 'TP' ]
+    assert_frame_equal( score_card , expected_score_card )
+
+
+

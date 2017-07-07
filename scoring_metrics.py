@@ -10,8 +10,99 @@ def new_score_card():
                                      'Type' , 'Score' ] )
 
 ##
+## 
+##
+
+def evaluate_positions( gold_filename ,
+                        score_card ,
+                        gold_ss ,
+                        test_ss ,
+                        ignore_whitespace = False ):
+    if( ignore_whitespace ):
+        start_key = 'begin_pos_mapped'
+        end_key = 'end_pos_mapped'
+    else:
+        start_key = 'begin_pos'
+        end_key = 'end_pos'
+    ##
+    gold_keys = gold_ss.keys()
+    gold_keys.sort( key = int )
+    test_keys = test_ss.keys()
+    test_keys.sort( key = int )
+    last_test_key_index = -1
+    matched_test_keys = Set()
+    for gold_key in gold_keys:
+        ## grab type and end position
+        ## TODO - loop over all entries in the dictionary
+        gold_type = gold_ss[ gold_key ][ 0 ][ 'type' ]
+        gold_start = gold_ss[ gold_key ][ 0 ][ start_key ]
+        gold_end = gold_ss[ gold_key ][ 0 ][ end_key ]
+        ## Loop through all the test keys after our last matching key
+        test_key_index = last_test_key_index + 1
+        while( test_key_index < len( test_keys ) ):
+            test_key = test_keys[ test_key_index ]
+            ## grab type and end position
+            test_type = test_ss[ test_key ][ 0 ][ 'type' ]
+            test_start = test_ss[ test_key ][ 0 ][ start_key ]
+            test_end = test_ss[ test_key ][ 0 ][ end_key ]
+            if( gold_start == test_start ):
+                ## If the types match...
+                if( gold_type == test_type ):
+                    ## ... and the end positions match, then we have a
+                    ##     perfect match
+                    if( gold_end == test_end ):
+                        score_card.loc[ score_card.shape[ 0 ] ] = \
+                          [ gold_filename , gold_start , gold_end ,
+                            gold_type , 'TP' ]
+                    elif( gold_end < test_end ):
+                        ## If the gold end position is prior to the system
+                        ## determined end position, we consider this a
+                        ## 'fully contained' match and also count it
+                        ## as a win (until we score strict vs. lenient matches)
+                        score_card.loc[ score_card.shape[ 0 ] ] = \
+                          [ gold_filename , gold_start , gold_end ,
+                            gold_type , 'TP' ]
+                    else:
+                        ## otherwise, we missed some data that needs
+                        ## to be captured.  For now, this is also
+                        ## a win but will not always count.
+                        score_card.loc[ score_card.shape[ 0 ] ] = \
+                          [ gold_filename , gold_start , gold_end ,
+                            gold_type , 'TP' ]
+                else:
+                    score_card.loc[ score_card.shape[ 0 ] ] = \
+                      [ gold_filename , gold_start , gold_end ,
+                        gold_type , 'FN' ]
+                    score_card.loc[ score_card.shape[ 0 ] ] = \
+                      [ gold_filename , gold_start , test_end ,
+                        test_type , 'FP' ]
+                ## Everything within this block counts as a match
+                ## so we need to update out index tracker and
+                ## break out of the loop
+                matched_test_keys.add( test_key )
+                last_test_key_index = test_key_index
+                break
+            test_key_index += 1
+        ## If these aren't equal, then we didn't find a match
+        if( last_test_key_index < test_key_index ):
+            score_card.loc[ score_card.shape[ 0 ] ] = \
+              [ gold_filename , gold_start , gold_end , gold_type , 'FN' ]
+    for test_key in test_keys:
+        if( test_key in matched_test_keys ):
+            continue
+        ## grab type and end position
+        test_type = test_ss[ test_key ][ 0 ][ 'type' ]
+        test_start = test_ss[ test_key ][ 0 ][ start_key ]
+        test_end = test_ss[ test_key ][ 0 ][ end_key ]
+        score_card.loc[ score_card.shape[ 0 ] ] = \
+          [ gold_filename , test_start , test_end , test_type , 'FP' ]
+    ##
+    return score_card
+
+##
 ## All functions related to printing and calculating scoring metrics
 ##
+
 
 def accuracy( tp , fp , tn , fn ):
     if( tp + fp + tn + fn > 0 ):
@@ -173,4 +264,5 @@ def print_counts_summary( type_counts , file_list ,
             print( '{}{}{}'.format( filename ,
                                     args.delim ,
                                     args.delim.join( '{}'.format( m ) for m in type_matches ) ) )
+
 
