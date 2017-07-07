@@ -176,7 +176,7 @@ def test_of_presaved_dictionary_for_complex_patterns():
                                        score_values = [ '.*' ] )
     with open( presaved_file , 'r' ) as fp:
         reloaded_json = json.load( fp )
-    strict_starts = \
+    offset_mapping , strict_starts = \
       text_extraction.extract_annotations( ingest_file ,
                                            namespaces = namespaces ,
                                            document_data = {} ,
@@ -194,7 +194,7 @@ def test_of_identity_read_write_of_dictionary_for_complex_patterns():
                                        score_values = [ '.*' ] )
     with tempfile.NamedTemporaryFile() as tmpfile_handle:
         assert os.path.exists( tmpfile_handle.name )
-        strict_starts = \
+        offset_mapping , strict_starts = \
           text_extraction.extract_annotations( ingest_file ,
                                                namespaces = namespaces ,
                                                document_data = {} ,
@@ -209,8 +209,20 @@ def test_of_identity_read_write_of_dictionary_for_complex_patterns():
 ## Test extracting document contents
 #############################################
 
+def test_empty_extraction_of_doc_content_from_0005_gs():
+    ingest_file = 'tests/data/i2b2_2016_track-1_gold/0016_gs.xml'
+    ## Look for a path that doesn't exist so that we get an empty return
+    test_dd = dict( cdata_xpath = '/dev/null' )
+    raw_content , offset_mapping = \
+      text_extraction.extract_chars( ingest_file ,
+                                     namespaces = {} ,
+                                     document_data = test_dd ,
+                                     out_file = None )
+    expected_output = {}
+    assert offset_mapping == expected_output
+
 def test_extracting_doc_content_from_0005_gs():
-    ingest_file = 'tests/data/i2b2_2016_track-1_gold/0005_gs.xml'
+    ingest_file = 'tests/data/i2b2_2016_track-1_gold/0016_gs.xml'
     test_dd = dict( cdata_xpath = './TEXT' )
     raw_content , offset_mapping = \
       text_extraction.extract_chars( ingest_file ,
@@ -238,4 +250,71 @@ def test_extracting_doc_content_from_995723_sentences_xmi():
                         '5': '5' , '6': '6' , '7': '7' }
     assert offset_mapping == expected_output
 
-    
+
+def test_offset_mapping_matches_pos_mapped_automatically():
+    ingest_file = 'tests/data/i2b2_2016_track-1_gold/0005_gs.xml'
+    document_data = dict( cdata_xpath = './TEXT' )
+    raw_content , offset_mapping = \
+      text_extraction.extract_chars( ingest_file ,
+                                     namespaces = {} ,
+                                     document_data = document_data ,
+                                     out_file = None )
+    strict_starts = \
+      text_extraction.extract_annotations_kernel( ingest_file ,
+                                                  offset_mapping = offset_mapping ,
+                                                  annotation_path = \
+                                                      './TAGS/DATE' ,
+                                                  tag_name = 'DateTime' ,
+                                                  begin_attribute = 'start' ,
+                                                  end_attribute = 'end' )
+    for start_key in strict_starts.keys():
+        begin_pos = strict_starts[ start_key ][ 0 ][ 'begin_pos' ]
+        begin_pos_mapped = strict_starts[ start_key ][ 0 ][ 'begin_pos_mapped' ]
+        end_pos = strict_starts[ start_key ][ 0 ][ 'end_pos' ]
+        end_pos_mapped = strict_starts[ start_key ][ 0 ][ 'end_pos_mapped' ]
+        ## dictionary key is set to begin_pos
+        assert start_key == begin_pos
+        ## mapping works for begin position
+        assert begin_pos != begin_pos_mapped
+        while( offset_mapping[ begin_pos ] == None ):
+            begin_pos = str( int( begin_pos ) + 1 )
+        assert begin_pos_mapped == offset_mapping[ begin_pos ]
+        ## mapping works for end position
+        assert end_pos != end_pos_mapped
+        while( offset_mapping[ end_pos ] == None ):
+            end_pos = str( int( end_pos ) - 1 )
+        assert end_pos_mapped == offset_mapping[ end_pos ]
+
+
+def test_offset_mapping_matches_pos_mapped_manually():
+    ingest_file = 'tests/data/i2b2_2016_track-1_gold/0005_gs.xml'
+    document_data = dict( cdata_xpath = './TEXT' )
+    raw_content , offset_mapping = \
+      text_extraction.extract_chars( ingest_file ,
+                                     namespaces = {} ,
+                                     document_data = document_data ,
+                                     out_file = None )
+    strict_starts = \
+      text_extraction.extract_annotations_kernel( ingest_file ,
+                                                  offset_mapping = offset_mapping ,
+                                                  annotation_path = \
+                                                      './TAGS/DATE' ,
+                                                  tag_name = 'DateTime' ,
+                                                  begin_attribute = 'start' ,
+                                                  end_attribute = 'end' )
+    ##
+    assert strict_starts[ '87' ][ 0 ][ 'begin_pos' ] == '87'
+    assert strict_starts[ '87' ][ 0 ][ 'begin_pos_mapped' ] == \
+        offset_mapping[ '87' ]
+    assert strict_starts[ '87' ][ 0 ][ 'end_pos' ] == '97'
+    assert strict_starts[ '87' ][ 0 ][ 'end_pos_mapped' ] == \
+        offset_mapping[ '97' ]
+    ##
+    assert strict_starts[ '2404' ][ 0 ][ 'begin_pos' ] == '2404'
+    assert strict_starts[ '2404' ][ 0 ][ 'begin_pos_mapped' ] == \
+        offset_mapping[ '2404' ]
+    assert strict_starts[ '2404' ][ 0 ][ 'end_pos' ] == '2410'
+    assert strict_starts[ '2404' ][ 0 ][ 'end_pos_mapped' ] == \
+        offset_mapping[ '2409' ]
+
+

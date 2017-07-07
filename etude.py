@@ -169,7 +169,7 @@ def score_ref_set( gold_ns , gold_dd , gold_patterns , gold_folder ,
             gold_out_file = '{}/{}'.format( args.gold_out ,
                                                gold_filename )
         ##
-        gold_ss = \
+        gold_om , gold_ss = \
           text_extraction.extract_annotations( '{}/{}'.format( gold_folder ,
                                                                gold_filename ) ,
                                                namespaces = gold_ns ,
@@ -180,6 +180,7 @@ def score_ref_set( gold_ns , gold_dd , gold_patterns , gold_folder ,
                                                out_file = gold_out_file )
         test_filename = file_mapping[ gold_filename ]
         if( test_filename == None ):
+            test_om = {}
             test_ss = {}
         else:
             if( args.test_out == None ):
@@ -189,7 +190,7 @@ def score_ref_set( gold_ns , gold_dd , gold_patterns , gold_folder ,
                 test_out_file = '{}/{}'.format( args.test_out ,
                                                    test_filename )
             ##
-            test_ss = \
+            test_om , test_ss = \
               text_extraction.extract_annotations( '{}/{}'.format( test_folder ,
                                                                    test_filename ) ,
                                                    namespaces = test_ns ,
@@ -199,57 +200,13 @@ def score_ref_set( gold_ns , gold_dd , gold_patterns , gold_folder ,
                                                      args.ignore_whitespace ,
                                                    out_file = test_out_file )
         ##
-        for gold_start in gold_ss.keys():
-            ## grab type and end position
-            gold_type = gold_ss[ gold_start ][ 0 ][ 'type' ]
-            gold_end = gold_ss[ gold_start ][ 0 ][ 'end_pos' ]
-            ##print( '{}'.format( gold_type ) )
-            ## Loop through all the gold start positions looking for matches
-            if( gold_start in test_ss.keys() ):
-                ## grab type and end position
-                test_type = test_ss[ gold_start ][ 0 ][ 'type' ]
-                test_end = test_ss[ gold_start ][ 0 ][ 'end_pos' ]
-                ##print( '{}\t{}'.format( gold_type , test_type ) )
-                ## If the types match...
-                if( gold_type == test_type ):
-                    ## ... and the end positions match, then we have a
-                    ##     perfect match
-                    if( gold_end == test_end ):
-                        score_card.loc[ score_card.shape[ 0 ] ] = \
-                          [ gold_filename , gold_start , gold_end ,
-                                gold_type , 'TP' ]
-                    elif( gold_end < test_end ):
-                        ## If the gold end position is prior to the system
-                        ## determined end position, we consider this a
-                        ## 'fully contained' match and also count it
-                        ## as a win (until we score strict vs. lenient matches)
-                        score_card.loc[ score_card.shape[ 0 ] ] = \
-                          [ gold_filename , gold_start , gold_end ,
-                                gold_type , 'TP' ]
-                    else:
-                        ## otherwise, we missed some data that needs
-                        ## to be captured.  For now, this is also
-                        ## a win but will not always count.
-                        score_card.loc[ score_card.shape[ 0 ] ] = \
-                          [ gold_filename , gold_start , gold_end ,
-                                gold_type , 'TP' ]
-                else:
-                    score_card.loc[ score_card.shape[ 0 ] ] = \
-                          [ gold_filename , gold_start , gold_end ,
-                                gold_type , 'FN' ]
-                    score_card.loc[ score_card.shape[ 0 ] ] = \
-                          [ gold_filename , gold_start , test_end ,
-                                test_type , 'FP' ]
-            else:
-                score_card.loc[ score_card.shape[ 0 ] ] = \
-                  [ gold_filename , gold_start , gold_end , gold_type , 'FN' ]
-        for test_start in test_ss.keys():
-            if( test_start not in gold_ss.keys() ):
-                ## grab type and end position
-                test_type = test_ss[ test_start ][ 0 ][ 'type' ]
-                test_end = test_ss[ test_start ][ 0 ][ 'end_pos' ]
-                score_card.loc[ score_card.shape[ 0 ] ] = \
-                  [ gold_filename , test_start , test_end , test_type , 'FP' ]
+        score_card = scoring_metrics.evaluate_positions( gold_filename ,
+                                                         score_card ,
+                                                         gold_om ,
+                                                         gold_ss ,
+                                                         test_om ,
+                                                         test_ss ,
+                                                         args.ignore_whitespace )
     ##
     scoring_metrics.print_score_summary( score_card ,
                                          sorted( file_mapping.keys() ) ,

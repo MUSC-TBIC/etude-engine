@@ -24,14 +24,26 @@ def extract_annotations_kernel( ingest_file ,
     for annot in found_annots:
         if( begin_attribute != None ):
             begin_pos = annot.get( begin_attribute )
-            begin_pos_mapped = None
-            if( begin_pos in offset_mapping ):
-                begin_pos_mapped = offset_mapping[ begin_pos ]
+            if( not bool( offset_mapping ) ):
+                begin_pos_mapped = None
+            else:
+                offset_key = begin_pos
+                while( offset_mapping[ offset_key ] == None ):
+                    offset_key = str( int( offset_key ) + 1 )
+                begin_pos_mapped = offset_mapping[ offset_key ]
         if( end_attribute != None ):
+            ## TODO - add flag to distinguish between conditions
+            ##        when the end_pos marks the last character
+            ##        vs. when the end_pos is the position after
+            ##        the last character
             end_pos = annot.get( end_attribute )
-            end_pos_mapped = None
-            if( end_pos in offset_mapping ):
-                end_pos_mapped = offset_mapping[ end_pos ]
+            if( not bool( offset_mapping ) ):
+                end_pos_mapped = None
+            else:
+                offset_key = end_pos
+                while( offset_mapping[ offset_key ] == None ):
+                    offset_key = str( int( offset_key ) - 1 )
+                end_pos_mapped = offset_mapping[ offset_key ]
         if( text_attribute == None ):
             raw_text = annot.text
         else:
@@ -40,10 +52,13 @@ def extract_annotations_kernel( ingest_file ,
                           end_pos = end_pos ,
                           raw_text = raw_text ,
                           type = tag_name )
+        ##
         if( begin_pos_mapped != None ):
             new_entry[ 'begin_pos_mapped' ] = begin_pos_mapped
+        ##
         if( end_pos_mapped != None ):
             new_entry[ 'end_pos_mapped' ] = end_pos_mapped
+        ##
         if( begin_pos in strict_starts.keys() ):
             strict_starts[ begin_pos ].append( new_entry )
         else:
@@ -93,7 +108,7 @@ def extract_annotations( ingest_file ,
                             annotations = annotations )
     ##
     write_annotations_to_disk( file_dictionary , out_file )
-    return annotations
+    return offset_mapping , annotations
 
 
 def split_content( raw_text , offset_mapping ):
