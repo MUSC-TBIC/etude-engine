@@ -15,9 +15,7 @@ def new_score_card():
 
 def evaluate_positions( gold_filename ,
                         score_card ,
-                        gold_om ,
                         gold_ss ,
-                        test_om ,
                         test_ss ,
                         ignore_whitespace = False ):
     if( ignore_whitespace ):

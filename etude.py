@@ -202,9 +202,7 @@ def score_ref_set( gold_ns , gold_dd , gold_patterns , gold_folder ,
         ##
         score_card = scoring_metrics.evaluate_positions( gold_filename ,
                                                          score_card ,
-                                                         gold_om ,
                                                          gold_ss ,
-                                                         test_om ,
                                                          test_ss ,
                                                          args.ignore_whitespace )
     ##
