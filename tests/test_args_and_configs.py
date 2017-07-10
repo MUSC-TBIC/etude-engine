@@ -192,6 +192,66 @@ def test_skip_missing_XPath():
     for pattern in patterns:
         assert pattern[ 'long_name' ] != "Other Person Name"
 
+## Document Data
+
+
+def test_default_document_format():
+    filename = 'config/i2b2_2016_track-1.conf'
+    score_values = [ '.*' ]
+    namespaces , document_data , patterns = \
+      args_and_configs.process_config( config_file = filename ,
+                                       score_key = 'Short Name' ,
+                                       score_values = score_values )
+    assert document_data[ 'format' ] == 'Unknown'
+
+
+def test_plaintext_document_format():
+    filename = 'config/plaintext_sentences.conf'
+    score_values = [ '.*' ]
+    namespaces , document_data , patterns = \
+      args_and_configs.process_config( config_file = filename ,
+                                       score_key = 'Short Name' ,
+                                       score_values = score_values )
+    assert document_data[ 'format' ] == 'txt'
+
+
+## Raw Content
+
+def test_raw_content_extraction_from_cdata():
+    filename = 'config/i2b2_2016_track-1.conf'
+    score_values = [ '.*' ]
+    namespaces , document_data , patterns = \
+      args_and_configs.process_config( config_file = filename ,
+                                       score_key = 'Short Name' ,
+                                       score_values = score_values )
+    assert document_data[ 'cdata_xpath' ] == './TEXT'
+    assert 'tag_xpath' not in document_data
+    assert 'content_attribute' not in document_data
+
+
+def test_raw_content_extraction_from_attribute():
+    filename = 'config/webanno_phi_xmi.conf'
+    score_values = [ '.*' ]
+    namespaces , document_data , patterns = \
+      args_and_configs.process_config( config_file = filename ,
+                                       score_key = 'Short Name' ,
+                                       score_values = score_values )
+    assert 'cdata_xpath' not in document_data
+    assert document_data[ 'tag_xpath' ] == './cas:Sofa'
+    assert document_data[ 'content_attribute' ] == 'sofaString'
+
+
+def test_raw_content_extraction_from_plaintext():
+    filename = 'config/plaintext_sentences.conf'
+    score_values = [ '.*' ]
+    namespaces , document_data , patterns = \
+      args_and_configs.process_config( config_file = filename ,
+                                       score_key = 'Short Name' ,
+                                       score_values = score_values )
+    assert 'cdata_xpath' not in document_data
+    assert 'tag_xpath' not in document_data
+    assert 'content_attribute' not in document_data
+
 
 #############################################
 ## Helper functions to help in setting up tests

@@ -129,6 +129,10 @@ def extract_namespaces( namespaces ,
 
 def extract_document_data( document_data ,
                            config , sect ):
+    if( config.has_option( sect , 'Format' ) ):
+        document_data[ 'format' ] = config.get( sect , 'Format' )
+    else:
+        document_data[ 'format' ] = 'Unknown'
     if( config.has_option( sect , 'Content XPath' ) ):
         if( config.has_option( sect , 'Content Attribute' ) ):
             document_data[ 'tag_xpath' ] = config.get( sect ,
@@ -169,6 +173,26 @@ def extract_patterns( annotations ,
                                                                    'Begin Attr' ) ,
                                           end_attr = config.get( sect ,
                                                                  'End Attr' ) ) )
+                break
+    elif( config.has_option( sect , 'Delimiter' ) ):
+        display_name = '{} ({})'.format( sect.strip() ,
+                                         config.get( sect , 'Short Name' ) )
+        if( score_key == 'Long Name' or
+            score_key == 'Section' ):
+            key_value = sect.strip()
+        else:
+            key_value = config.get( sect , score_key )
+        ## Loop through all the provided score_values to see if any
+        ## provided values match the currently extracted value
+        for score_value in score_values:
+            if( re.search( score_value , key_value ) ):
+                annotations.append( dict( type = key_value ,
+                                          long_name = sect.strip() ,
+                                          delimiter = config.get( sect ,
+                                                                  'Delimiter' ) ,
+                                          display_name = display_name ,
+                                          short_name = config.get( sect ,
+                                                                   'Short Name' ) ) )
                 break
     return annotations
 

@@ -77,40 +77,6 @@ def write_annotations_to_disk( annotations , out_file ):
                    indent = 4 )
 
 
-def extract_annotations( ingest_file ,
-                         namespaces ,
-                         document_data ,
-                         patterns ,
-                         ignore_whitespace = True ,
-                         out_file = None ):
-    raw_content = None
-    annotations = {}
-    offset_mapping = {}
-    file_dictionary = {}
-    if( bool( document_data ) ):
-        raw_content , offset_mapping = extract_chars( ingest_file ,
-                                                      namespaces ,
-                                                      document_data ,
-                                                      out_file )
-    for pattern in patterns:
-        annotations.update( 
-            extract_annotations_kernel( ingest_file ,
-                                        offset_mapping = offset_mapping ,
-                                        namespaces = namespaces ,
-                                        annotation_path = pattern[ 'xpath' ] ,
-                                        tag_name = pattern[ 'type' ] ,
-                                        begin_attribute = \
-                                            pattern[ 'begin_attr' ] ,
-                                        end_attribute = \
-                                            pattern[ 'end_attr' ] ) )
-    file_dictionary = dict( raw_content = raw_content ,
-                            offset_mapping = offset_mapping ,
-                            annotations = annotations )
-    ##
-    write_annotations_to_disk( file_dictionary , out_file )
-    return offset_mapping , annotations
-
-
 def split_content( raw_text , offset_mapping ):
     list_of_chars = list( raw_text )
     init_offset = 0
@@ -165,4 +131,38 @@ def extract_chars( ingest_file ,
         offset_mapping = split_content( raw_text ,
                                         offset_mapping )
     return raw_text , offset_mapping
+
+
+def extract_annotations( ingest_file ,
+                         namespaces ,
+                         document_data ,
+                         patterns ,
+                         ignore_whitespace = True ,
+                         out_file = None ):
+    raw_content = None
+    annotations = {}
+    offset_mapping = {}
+    file_dictionary = {}
+    if( bool( document_data ) ):
+        raw_content , offset_mapping = extract_chars( ingest_file ,
+                                                      namespaces ,
+                                                      document_data ,
+                                                      out_file )
+    for pattern in patterns:
+        annotations.update( 
+            extract_annotations_kernel( ingest_file ,
+                                        offset_mapping = offset_mapping ,
+                                        namespaces = namespaces ,
+                                        annotation_path = pattern[ 'xpath' ] ,
+                                        tag_name = pattern[ 'type' ] ,
+                                        begin_attribute = \
+                                            pattern[ 'begin_attr' ] ,
+                                        end_attribute = \
+                                            pattern[ 'end_attr' ] ) )
+    file_dictionary = dict( raw_content = raw_content ,
+                            offset_mapping = offset_mapping ,
+                            annotations = annotations )
+    ##
+    write_annotations_to_disk( file_dictionary , out_file )
+    return offset_mapping , annotations
 
