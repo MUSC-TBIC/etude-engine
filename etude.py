@@ -80,8 +80,64 @@ def collect_files( gold_folder , test_folder ,
     return( match_count , file_mapping )
 
 
-def score_ref_set( gold_ns , gold_patterns , gold_folder ,
-                   test_ns , test_patterns , test_folder ,
+def count_chars_profile( gold_ns , gold_dd , gold_folder ,
+                         test_ns , test_dd , test_folder ,
+                         args ,
+                         file_prefix = '/' ,
+                         file_suffix = '.xml' ):
+    """
+    Extract a character profile for each document and corpus as a whole.
+    """
+    match_count , file_mapping = collect_files( gold_folder , test_folder ,
+                                                file_prefix , file_suffix )
+    ##
+    if( match_count == 0 ):
+        ## Empty dictionaries evaluate to False so testing bool can tell us if
+        ## any gold documents exist
+        if( bool( file_mapping ) ):
+            print( 'ERROR:  No documents found in test directory:  {}'.format( test_folder ) )
+        else:
+            print( 'ERROR:  No documents found in gold directory:  {}'.format( gold_folder ) )
+        return( None )
+    ##
+    progress = progressbar.ProgressBar( max_value = match_count ,
+                                        redirect_stderr = True )
+    for gold_filename in progress( sorted( file_mapping.keys() ) ):
+        if( args.gold_out == None ):
+            gold_out_file = None
+        else:
+            ## TODO - add filename translation services
+            gold_out_file = '{}/{}'.format( args.gold_out ,
+                                               gold_filename )
+        ##
+        gold_chars = \
+          text_extraction.extract_chars( '{}/{}'.format( gold_folder ,
+                                                         gold_filename ) ,
+                                         namespaces = gold_ns ,
+                                         document_data = gold_dd ,
+                                         out_file = gold_out_file )
+        test_filename = file_mapping[ gold_filename ]
+        if( test_filename == None ):
+            test_chars = {}
+        else:
+            if( args.test_out == None ):
+                test_out_file = None
+            else:
+                ## TODO - add filename translation services
+                test_out_file = '{}/{}'.format( args.test_out ,
+                                                   test_filename )
+            ##
+            test_chars = \
+              text_extraction.extract_chars( '{}/{}'.format( test_folder ,
+                                                             test_filename ) ,
+                                             namespaces = test_ns ,
+                                             document_data = test_dd ,
+                                             out_file = test_out_file )
+        ##
+
+
+def score_ref_set( gold_ns , gold_dd , gold_patterns , gold_folder ,
+                   test_ns , test_dd , test_patterns , test_folder ,
                    args ,
                    file_prefix = '/' ,
                    file_suffix = '.xml' ):
@@ -103,7 +159,8 @@ def score_ref_set( gold_ns , gold_patterns , gold_folder ,
             print( 'ERROR:  No documents found in gold directory:  {}'.format( gold_folder ) )
         return( None )
     ##
-    progress = progressbar.ProgressBar( max_value = match_count )
+    progress = progressbar.ProgressBar( max_value = match_count ,
+                                        redirect_stderr = True )
     for gold_filename in progress( sorted( file_mapping.keys() ) ):
         if( args.gold_out == None ):
             gold_out_file = None
@@ -112,14 +169,18 @@ def score_ref_set( gold_ns , gold_patterns , gold_folder ,
             gold_out_file = '{}/{}'.format( args.gold_out ,
                                                gold_filename )
         ##
-        gold_ss = \
+        gold_om , gold_ss = \
           text_extraction.extract_annotations( '{}/{}'.format( gold_folder ,
                                                                gold_filename ) ,
                                                namespaces = gold_ns ,
+                                               document_data = gold_dd ,
                                                patterns = gold_patterns ,
+                                               ignore_whitespace = \
+                                                 args.ignore_whitespace ,
                                                out_file = gold_out_file )
         test_filename = file_mapping[ gold_filename ]
         if( test_filename == None ):
+            test_om = {}
             test_ss = {}
         else:
             if( args.test_out == None ):
@@ -129,64 +190,21 @@ def score_ref_set( gold_ns , gold_patterns , gold_folder ,
                 test_out_file = '{}/{}'.format( args.test_out ,
                                                    test_filename )
             ##
-            test_ss = \
+            test_om , test_ss = \
               text_extraction.extract_annotations( '{}/{}'.format( test_folder ,
                                                                    test_filename ) ,
                                                    namespaces = test_ns ,
+                                                   document_data = test_dd ,
                                                    patterns = test_patterns ,
+                                                   ignore_whitespace = \
+                                                     args.ignore_whitespace ,
                                                    out_file = test_out_file )
         ##
-        for gold_start in gold_ss.keys():
-            ## grab type and end position
-            gold_type = gold_ss[ gold_start ][ 0 ][ 'type' ]
-            gold_end = gold_ss[ gold_start ][ 0 ][ 'end_pos' ]
-            ##print( '{}'.format( gold_type ) )
-            ## Loop through all the gold start positions looking for matches
-            if( gold_start in test_ss.keys() ):
-                ## grab type and end position
-                test_type = test_ss[ gold_start ][ 0 ][ 'type' ]
-                test_end = test_ss[ gold_start ][ 0 ][ 'end_pos' ]
-                ##print( '{}\t{}'.format( gold_type , test_type ) )
-                ## If the types match...
-                if( gold_type == test_type ):
-                    ## ... and the end positions match, then we have a
-                    ##     perfect match
-                    if( gold_end == test_end ):
-                        score_card.loc[ score_card.shape[ 0 ] ] = \
-                          [ gold_filename , gold_start , gold_end ,
-                                gold_type , 'TP' ]
-                    elif( gold_end < test_end ):
-                        ## If the gold end position is prior to the system
-                        ## determined end position, we consider this a
-                        ## 'fully contained' match and also count it
-                        ## as a win (until we score strict vs. lenient matches)
-                        score_card.loc[ score_card.shape[ 0 ] ] = \
-                          [ gold_filename , gold_start , gold_end ,
-                                gold_type , 'TP' ]
-                    else:
-                        ## otherwise, we missed some data that needs
-                        ## to be captured.  For now, this is also
-                        ## a win but will not always count.
-                        score_card.loc[ score_card.shape[ 0 ] ] = \
-                          [ gold_filename , gold_start , gold_end ,
-                                gold_type , 'TP' ]
-                else:
-                    score_card.loc[ score_card.shape[ 0 ] ] = \
-                          [ gold_filename , gold_start , gold_end ,
-                                gold_type , 'FN' ]
-                    score_card.loc[ score_card.shape[ 0 ] ] = \
-                          [ gold_filename , gold_start , test_end ,
-                                test_type , 'FP' ]
-            else:
-                score_card.loc[ score_card.shape[ 0 ] ] = \
-                  [ gold_filename , gold_start , gold_end , gold_type , 'FN' ]
-        for test_start in test_ss.keys():
-            if( test_start not in gold_ss.keys() ):
-                ## grab type and end position
-                test_type = test_ss[ test_start ][ 0 ][ 'type' ]
-                test_end = test_ss[ test_start ][ 0 ][ 'end_pos' ]
-                score_card.loc[ score_card.shape[ 0 ] ] = \
-                  [ gold_filename , test_start , test_end , test_type , 'FP' ]
+        score_card = scoring_metrics.evaluate_positions( gold_filename ,
+                                                         score_card ,
+                                                         gold_ss ,
+                                                         test_ss ,
+                                                         args.ignore_whitespace )
     ##
     scoring_metrics.print_score_summary( score_card ,
                                          sorted( file_mapping.keys() ) ,
@@ -197,11 +215,11 @@ if __name__ == "__main__":
     ##
     args = args_and_configs.get_arguments( sys.argv[ 1: ] )
     ## Extract and process the two input file configs
-    gold_ns , gold_patterns = \
+    gold_ns , gold_dd , gold_patterns = \
       args_and_configs.process_config( config_file = args.gold_config ,
                                        score_key = args.score_key ,
                                        score_values = args.score_values )
-    test_ns , test_patterns = \
+    test_ns , test_dd , test_patterns = \
       args_and_configs.process_config( config_file = args.test_config ,
                                        score_key = args.score_key ,
                                        score_values = args.score_values )
@@ -215,9 +233,11 @@ if __name__ == "__main__":
                        file_suffix = args.file_suffix[ len( args.file_suffix ) - 1 ].lstrip() )
     else:
         score_ref_set( gold_ns = gold_ns ,
+                       gold_dd = gold_dd ,
                        gold_patterns = gold_patterns ,
                        gold_folder = os.path.abspath( args.gold_input ) ,
                        test_ns = test_ns ,
+                       test_dd = test_dd ,
                        test_patterns = test_patterns ,
                        test_folder = os.path.abspath( args.test_input ) ,
                        args = args ,

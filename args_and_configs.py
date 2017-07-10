@@ -96,6 +96,17 @@ unstructured data extraction.
                          dest = 'count_types' ,
                          help = "Count pattern types in each test file" ,
                          action = "store_true" )
+    
+    parser.add_argument( '--ignore-whitespace' ,
+                         default = True ,
+                         dest = 'ignore_whitespace' ,
+                         help = "Create a offset mapping from the raw document that ignores whitespaces in the offset index (Turned on by default; the counter argument to --count-whitespace)" ,
+                         action = "store_true" )
+    
+    parser.add_argument( '--heed-whitespace' ,
+                         dest = 'ignore_whitespace' ,
+                         help = "Include all whitespace in the offset mapping from the raw document (the counter argument to --ignore-whitespace" ,
+                         action = "store_false" )
     ##
     return parser
 
@@ -114,6 +125,20 @@ def extract_namespaces( namespaces ,
     for ns , value in config.items( sect ):
         namespaces[ ns ] = value
     return namespaces
+
+
+def extract_document_data( document_data ,
+                           config , sect ):
+    if( config.has_option( sect , 'Content XPath' ) ):
+        if( config.has_option( sect , 'Content Attribute' ) ):
+            document_data[ 'tag_xpath' ] = config.get( sect ,
+                                                       'Content XPath' )
+            document_data[ 'content_attribute' ] = config.get( sect ,
+                                                               'Content Attribute' )
+        else:
+            document_data[ 'cdata_xpath' ] = config.get( sect ,
+                                                         'Content XPath' )
+    return document_data
 
 
 def extract_patterns( annotations ,
@@ -155,13 +180,16 @@ def process_config( config_file ,
     config.read( config_file )
     annotations = []
     namespaces = {}
+    document_data = {}
     for sect in config.sections():
         if( sect.strip() == 'XML Namespaces' ):
             namespaces = extract_namespaces( namespaces , config , sect )
+        elif( sect.strip() == 'Document Data' ):
+            document_data = extract_document_data( document_data , config , sect )
         else:
             annotations = extract_patterns( annotations ,
                                             config , sect ,
                                             score_key ,
                                             score_values )
     ##
-    return namespaces , annotations
+    return namespaces , document_data , annotations
