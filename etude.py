@@ -114,8 +114,7 @@ def count_chars_profile( gold_ns , gold_dd , gold_folder ,
           text_extraction.extract_chars( '{}/{}'.format( gold_folder ,
                                                          gold_filename ) ,
                                          namespaces = gold_ns ,
-                                         document_data = gold_dd ,
-                                         out_file = gold_out_file )
+                                         document_data = gold_dd )
         test_filename = file_mapping[ gold_filename ]
         if( test_filename == None ):
             test_chars = {}
@@ -131,8 +130,7 @@ def count_chars_profile( gold_ns , gold_dd , gold_folder ,
               text_extraction.extract_chars( '{}/{}'.format( test_folder ,
                                                              test_filename ) ,
                                              namespaces = test_ns ,
-                                             document_data = test_dd ,
-                                             out_file = test_out_file )
+                                             document_data = test_dd )
         ##
 
 
