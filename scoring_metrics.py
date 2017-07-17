@@ -211,13 +211,26 @@ def print_score_summary( score_card , file_list ,
                             row_name = 'aggregate' , args = args )
     print( args.delim.join( '{}'.format( m ) for m in metrics ) )
     ##
-    if( args.by_file ):
+    if( args.by_file or args.by_file_and_type ):
         for filename in file_list:
             this_file = ( score_card[ 'File' ] == filename )
             metrics = norm_summary( score_card[ this_file ][ 'Score' ].value_counts() ,
                                     row_name = filename , args = args )
             print( args.delim.join( '{}'.format( m ) for m in metrics ) )
-
+            if( args.by_file_and_type ):
+                unique_types = Set()
+                for pattern in gold_config:
+                    unique_types.add( pattern[ 'type' ] )
+                for unique_type in sorted( unique_types ):
+                    this_type = \
+                      (  ( score_card[ 'File' ] == filename ) &
+                         ( score_card[ 'Type' ] == unique_type ) )
+                    metrics = \
+                      norm_summary( score_card[ this_type ][ 'Score' ].value_counts() ,
+                                    row_name = filename + ' x ' + unique_type ,
+                                    args = args )
+                    print( args.delim.join( '{}'.format( m ) for m in metrics ) )
+    ##
     if( args.by_type ):
         unique_types = Set()
         for pattern in gold_config:

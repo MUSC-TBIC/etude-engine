@@ -52,7 +52,8 @@ def test_sentences_has_defined_namespaces():
                                        score_values = [ '.*' ] )
     ## Non-empty dictionary resolves as True
     expected_namespaces = \
-      { 'type': 'http:///com/clinacuity/deid/nlp/uima/type.ecore',
+      { 'cas' : 'http:///uima/cas.ecore' ,
+        'type': 'http:///com/clinacuity/deid/nlp/uima/type.ecore',
         'type4': 'http:///de/tudarmstadt/ukp/dkpro/core/api/segmentation/type.ecore' 
       }
     assert namespaces == expected_namespaces

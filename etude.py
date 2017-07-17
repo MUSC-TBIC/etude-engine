@@ -9,6 +9,7 @@ import os
 import warnings
 
 import re
+import json
 
 import numpy as np
 
@@ -134,6 +135,59 @@ def count_chars_profile( gold_ns , gold_dd , gold_folder ,
         ##
 
 
+def align_tokens(  gold_folder ,
+                   test_folder ,
+                   args ,
+                   file_prefix = '/' ,
+                   file_suffix = '.xml' ):
+    """
+    Align gold and test documents by token for comparison
+    """
+    match_count , file_mapping = collect_files( gold_folder , test_folder ,
+                                                file_prefix , file_suffix )
+    ##
+    if( match_count == 0 ):
+        ## Empty dictionaries evaluate to False so testing bool can tell us if
+        ## any gold documents exist
+        if( bool( file_mapping ) ):
+            print( 'ERROR:  No documents found in test directory:  {}'.format( test_folder ) )
+        else:
+            print( 'ERROR:  No documents found in gold directory:  {}'.format( gold_folder ) )
+        return( None )
+    ##
+    progress = progressbar.ProgressBar( max_value = match_count ,
+                                        redirect_stderr = True )
+    for gold_filename in progress( sorted( file_mapping.keys() ) ):
+        if( args.gold_out == None ):
+            gold_out_file = None
+        else:
+            ## TODO - add filename translation services
+            gold_out_file = '{}/{}'.format( args.gold_out ,
+                                            gold_filename )
+        ##
+        gold_dictionary = {}
+        with open( '{}/{}'.format( gold_folder , gold_filename ) , 'r' ) as fp:
+            gold_dictionary = json.load( fp )
+        text_extraction.align_tokens_on_whitespace( gold_dictionary ,
+                                                    gold_out_file )
+        test_filename = file_mapping[ gold_filename ]
+        if( test_filename != None ):
+            if( args.test_out == None ):
+                test_out_file = None
+            else:
+                ## TODO - add filename translation services
+                test_out_file = '{}/{}'.format( args.test_out ,
+                                                gold_filename )
+            ##
+            test_dictionary = {}
+            with open( '{}/{}'.format( test_folder ,
+                                       test_filename ) , 'r' ) as fp:
+                test_dictionary = json.load( fp )
+            text_extraction.align_tokens_on_whitespace( test_dictionary ,
+                                                        test_out_file )
+    ##
+
+
 def score_ref_set( gold_ns , gold_dd , gold_patterns , gold_folder ,
                    test_ns , test_dd , test_patterns , test_folder ,
                    args ,
@@ -209,6 +263,7 @@ def score_ref_set( gold_ns , gold_dd , gold_patterns , gold_folder ,
                                          gold_patterns , test_patterns ,
                                          args )
 
+
 if __name__ == "__main__":
     ##
     args = args_and_configs.get_arguments( sys.argv[ 1: ] )
@@ -216,11 +271,13 @@ if __name__ == "__main__":
     gold_ns , gold_dd , gold_patterns = \
       args_and_configs.process_config( config_file = args.gold_config ,
                                        score_key = args.score_key ,
-                                       score_values = args.score_values )
+                                       score_values = args.score_values ,
+                                       verbose = args.verbose )
     test_ns , test_dd , test_patterns = \
       args_and_configs.process_config( config_file = args.test_config ,
                                        score_key = args.score_key ,
-                                       score_values = args.score_values )
+                                       score_values = args.score_values ,
+                                       verbose = args.verbose )
     ##
     if( args.count_types ):
         count_ref_set( test_ns = test_ns ,
@@ -229,6 +286,12 @@ if __name__ == "__main__":
                        args = args ,
                        file_prefix = args.file_prefix ,
                        file_suffix = args.file_suffix[ len( args.file_suffix ) - 1 ].lstrip() )
+    elif( args.align_tokens ):
+        align_tokens( gold_folder = os.path.abspath( args.gold_input ) ,
+                      test_folder = os.path.abspath( args.test_input ) ,
+                      args = args ,
+                      file_prefix = args.file_prefix ,
+                      file_suffix = args.file_suffix )
     else:
         score_ref_set( gold_ns = gold_ns ,
                        gold_dd = gold_dd ,

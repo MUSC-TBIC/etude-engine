@@ -8,19 +8,93 @@ import args_and_configs
 import text_extraction
 
 #############################################
-## Test extracting various patterns
+## Test extracting various plaintext patterns
+#############################################
+
+def test_plaintext_split_on_spaces():
+    raw_content = 'Hello , world'
+    strict_starts = \
+      text_extraction.extract_annotations_plaintext( offset_mapping = {} ,
+                                                     raw_content = raw_content ,
+                                                     delimiter = ' ' ,
+                                                     tag_name = 'Token' )
+    expected_output = \
+      { '0' :  [ { 'type': 'Token',
+                   'end_pos': '5',
+                   'raw_text': 'Hello',
+                   'begin_pos': '0' } ] ,
+        '6' : [ { 'type': 'Token' ,
+                  'end_pos': '7' ,
+                  'raw_text': ',' ,
+                  'begin_pos': '6' } ] ,
+        '8' : [ { 'type': 'Token' ,
+                  'end_pos': '13' ,
+                  'raw_text': 'world' ,
+                  'begin_pos': '8' } ]
+      }
+    assert strict_starts == expected_output
+
+def test_plaintext_split_on_spaces_with_final_space():
+    raw_content = 'Hello , world  '
+    strict_starts = \
+      text_extraction.extract_annotations_plaintext( offset_mapping = {} ,
+                                                     raw_content = raw_content ,
+                                                     delimiter = ' ' ,
+                                                     tag_name = 'Token' )
+    expected_output = \
+      { '0' :  [ { 'type': 'Token',
+                   'end_pos': '5',
+                   'raw_text': 'Hello',
+                   'begin_pos': '0' } ] ,
+        '6' : [ { 'type': 'Token' ,
+                  'end_pos': '7' ,
+                  'raw_text': ',' ,
+                  'begin_pos': '6' } ] ,
+        '8' : [ { 'type': 'Token' ,
+                  'end_pos': '13' ,
+                  'raw_text': 'world' ,
+                  'begin_pos': '8' } ]
+      }
+    assert strict_starts == expected_output
+
+def test_plaintext_split_on_spaces_with_initial_space():
+    raw_content = '  Hello , world'
+    strict_starts = \
+      text_extraction.extract_annotations_plaintext( offset_mapping = {} ,
+                                                     raw_content = raw_content ,
+                                                     delimiter = ' ' ,
+                                                     tag_name = 'Token' )
+    expected_output = \
+      { '2' :  [ { 'type': 'Token',
+                   'end_pos': '7',
+                   'raw_text': 'Hello',
+                   'begin_pos': '2' } ] ,
+        '8' : [ { 'type': 'Token' ,
+                  'end_pos': '9' ,
+                  'raw_text': ',' ,
+                  'begin_pos': '8' } ] ,
+        '10' : [ { 'type': 'Token' ,
+                   'end_pos': '15' ,
+                   'raw_text': 'world' ,
+                   'begin_pos': '10' } ]
+      }
+    assert strict_starts == expected_output
+
+
+#############################################
+## Test extracting various xml patterns
 #############################################
 
 def test_extracting_datetime_from_0005_gs():
     ingest_file = 'tests/data/i2b2_2016_track-1_gold/0005_gs.xml'
     strict_starts = \
-      text_extraction.extract_annotations_kernel( ingest_file ,
-                                                  offset_mapping = {} ,
-                                                  annotation_path = \
-                                                      './TAGS/DATE' ,
-                                                  tag_name = 'DateTime' ,
-                                                  begin_attribute = 'start' ,
-                                                  end_attribute = 'end' )
+      text_extraction.extract_annotations_xml( ingest_file ,
+                                               offset_mapping = {} ,
+                                               annotation_path = \
+                                                 './TAGS/DATE' ,
+                                               tag_name = 'DateTime' ,
+                                               begin_attribute = 'start' ,
+                                               end_attribute = 'end' )
     expected_output = \
       { '2404' :  [ { 'type': 'DateTime' ,
                       'begin_pos': '2404' ,
@@ -36,7 +110,7 @@ def test_extracting_datetime_from_0005_gs():
 def test_default_namespace_same_as_empty():
     ingest_file = 'tests/data/i2b2_2016_track-1_gold/0005_gs.xml'
     strict_starts_default = \
-      text_extraction.extract_annotations_kernel( ingest_file ,
+      text_extraction.extract_annotations_xml( ingest_file ,
                                                   offset_mapping = {} ,
                                                   annotation_path = \
                                                       './TAGS/DATE' ,
@@ -44,7 +118,7 @@ def test_default_namespace_same_as_empty():
                                                   begin_attribute = 'start' ,
                                                   end_attribute = 'end' )
     strict_starts_empty = \
-      text_extraction.extract_annotations_kernel( ingest_file ,
+      text_extraction.extract_annotations_xml( ingest_file ,
                                                   offset_mapping = {} ,
                                                   annotation_path = \
                                                       './TAGS/DATE' ,
@@ -63,7 +137,7 @@ def test_extracting_sentences_from_0005_gs():
                                        score_key = 'Short Name' ,
                                        score_values = [ '.*' ] )
     strict_starts = \
-      text_extraction.extract_annotations_kernel( ingest_file ,
+      text_extraction.extract_annotations_xml( ingest_file ,
                                                   offset_mapping = {} ,
                                                   namespaces = namespaces ,
                                                   annotation_path = \
@@ -82,7 +156,7 @@ def test_extracting_sentences_from_reference_standard():
                                        score_key = 'Short Name' ,
                                        score_values = [ '.*' ] )
     strict_starts = \
-      text_extraction.extract_annotations_kernel( ingest_file ,
+      text_extraction.extract_annotations_xml( ingest_file ,
                                                   offset_mapping = {} ,
                                                   namespaces = namespaces ,
                                                   annotation_path = \
@@ -101,7 +175,7 @@ def test_extracting_sentences_from_WebAnno():
                                        score_key = 'Short Name' ,
                                        score_values = [ '.*' ] )
     strict_starts = \
-      text_extraction.extract_annotations_kernel( ingest_file ,
+      text_extraction.extract_annotations_xml( ingest_file ,
                                                   offset_mapping = {} ,
                                                   namespaces = namespaces ,
                                                   annotation_path = \
@@ -120,7 +194,7 @@ def test_extracting_sentences_from_CTAKES4_OpenNLP1_8():
                                        score_key = 'Short Name' ,
                                        score_values = [ '.*' ] )
     strict_starts = \
-      text_extraction.extract_annotations_kernel( ingest_file ,
+      text_extraction.extract_annotations_xml( ingest_file ,
                                                   offset_mapping = {} ,
                                                   namespaces = namespaces ,
                                                   annotation_path = \
@@ -138,7 +212,7 @@ def test_extracting_sentences_from_CTAKES4_OpenNLP1_8():
 def test_writing_dictionary_for_datetime_from_0005_gs():
     ingest_file = 'tests/data/i2b2_2016_track-1_gold/0005_gs.xml'
     strict_starts = \
-      text_extraction.extract_annotations_kernel( ingest_file ,
+      text_extraction.extract_annotations_xml( ingest_file ,
                                                   offset_mapping = {} ,
                                                   annotation_path = \
                                                       './TAGS/DATE' ,
@@ -216,8 +290,7 @@ def test_empty_extraction_of_doc_content_from_0005_gs():
     raw_content , offset_mapping = \
       text_extraction.extract_chars( ingest_file ,
                                      namespaces = {} ,
-                                     document_data = test_dd ,
-                                     out_file = None )
+                                     document_data = test_dd )
     expected_output = {}
     assert offset_mapping == expected_output
 
@@ -227,8 +300,7 @@ def test_extracting_doc_content_from_0005_gs():
     raw_content , offset_mapping = \
       text_extraction.extract_chars( ingest_file ,
                                      namespaces = {} ,
-                                     document_data = test_dd ,
-                                     out_file = None )
+                                     document_data = test_dd )
     expected_output = { '0': None ,
                         '1': None ,
                         '2': '0', '3': '1', '4': '2', '5': '3', '6': '4',
@@ -244,8 +316,7 @@ def test_extracting_doc_content_from_995723_sentences_xmi():
       text_extraction.extract_chars( ingest_file ,
                                      namespaces = { 'cas' :
                                                     "http:///uima/cas.ecore" } ,
-                                     document_data = test_dd ,
-                                     out_file = None )
+                                     document_data = test_dd )
     expected_output = { '0': '0' , '1': '1' , '2': '2' , '3': '3' , '4': '4' ,
                         '5': '5' , '6': '6' , '7': '7' }
     assert offset_mapping == expected_output
@@ -257,10 +328,9 @@ def test_offset_mapping_matches_pos_mapped_automatically():
     raw_content , offset_mapping = \
       text_extraction.extract_chars( ingest_file ,
                                      namespaces = {} ,
-                                     document_data = document_data ,
-                                     out_file = None )
+                                     document_data = document_data )
     strict_starts = \
-      text_extraction.extract_annotations_kernel( ingest_file ,
+      text_extraction.extract_annotations_xml( ingest_file ,
                                                   offset_mapping = offset_mapping ,
                                                   annotation_path = \
                                                       './TAGS/DATE' ,
@@ -292,10 +362,9 @@ def test_offset_mapping_matches_pos_mapped_manually():
     raw_content , offset_mapping = \
       text_extraction.extract_chars( ingest_file ,
                                      namespaces = {} ,
-                                     document_data = document_data ,
-                                     out_file = None )
+                                     document_data = document_data )
     strict_starts = \
-      text_extraction.extract_annotations_kernel( ingest_file ,
+      text_extraction.extract_annotations_xml( ingest_file ,
                                                   offset_mapping = offset_mapping ,
                                                   annotation_path = \
                                                       './TAGS/DATE' ,

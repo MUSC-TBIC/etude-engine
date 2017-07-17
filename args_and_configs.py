@@ -47,9 +47,15 @@ unstructured data extraction.
     parser.add_argument( '--by-file' , dest = 'by_file' ,
                          help = "Print metrics by file" ,
                          action = "store_true" )
+    parser.add_argument( '--by-file-and-type' , dest = 'by_file_and_type' ,
+                         help = "Print metrics by type nested within file" ,
+                         action = "store_true" )
     
     parser.add_argument( '--by-type' , dest = 'by_type' ,
                          help = "Print metrics by annotation type" ,
+                         action = "store_true" )
+    parser.add_argument( '--by-type-and-file' , dest = 'by_type_and_file' ,
+                         help = "Print metrics by file nested within annotation type" ,
                          action = "store_true" )
 
     parser.add_argument("--gold-config", 
@@ -96,7 +102,12 @@ unstructured data extraction.
                          dest = 'count_types' ,
                          help = "Count pattern types in each test file" ,
                          action = "store_true" )
-    
+
+    parser.add_argument( '--align-tokens' ,
+                         dest = 'align_tokens' ,
+                         help = "Generate a token-aligned corpus" ,
+                         action = "store_true" )
+
     parser.add_argument( '--ignore-whitespace' ,
                          default = True ,
                          dest = 'ignore_whitespace' ,
@@ -148,7 +159,8 @@ def extract_document_data( document_data ,
 def extract_patterns( annotations ,
                       config , sect ,
                       score_key ,
-                      score_values ):
+                      score_values ,
+                      verbose = False ):
     if( config.has_option( sect , 'XPath' ) and
         config.has_option( sect , 'Begin Attr' ) and
         config.has_option( sect , 'End Attr' ) ):
@@ -199,7 +211,8 @@ def extract_patterns( annotations ,
 
 def process_config( config_file ,
                     score_key ,
-                    score_values ):
+                    score_values ,
+                    verbose = False ):
     config = ConfigParser.ConfigParser()
     config.read( config_file )
     annotations = []
@@ -214,6 +227,16 @@ def process_config( config_file ,
             annotations = extract_patterns( annotations ,
                                             config , sect ,
                                             score_key ,
-                                            score_values )
+                                            score_values ,
+                                            verbose = verbose )
+    if( verbose ):
+        verbose_msg = 'Values defined by the config \'{}\':\n' + \
+                      '\tns\t=\t{}\n' + \
+                      '\tdocument data\t=\t{}\n' + \
+                      '\tpatterns\t=\t{}\n'
+        print( verbose_msg.format( config_file ,
+                                   namespaces ,
+                                   document_data ,
+                                   annotations ) )
     ##
     return namespaces , document_data , annotations
