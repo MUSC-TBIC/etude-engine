@@ -1,9 +1,11 @@
 from __future__ import print_function
 
+import sys
+import logging as log
+
 import progressbar
 
 import glob
-import sys
 import os
 ## TODO - use warnings
 import warnings
@@ -24,6 +26,7 @@ def count_ref_set( test_ns , test_patterns , test_folder ,
                    args ,
                    file_prefix = '/' ,
                    file_suffix = '.xml' ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     """
     Count annotation occurrences in the test folder
     """
@@ -52,9 +55,12 @@ def count_ref_set( test_ns , test_patterns , test_folder ,
                                           sorted( tests ) ,
                                           test_patterns ,
                                           args )
+    log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
+
 
 def collect_files( gold_folder , test_folder ,
                    file_prefix , file_suffix ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     file_mapping = {}
     match_count = 0
     ##
@@ -77,6 +83,7 @@ def collect_files( gold_folder , test_folder ,
             ## TODO - log on missing test file
             file_mapping[ gold_filename ] = None
     ##
+    log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
     return( match_count , file_mapping )
 
 
@@ -85,6 +92,7 @@ def count_chars_profile( gold_ns , gold_dd , gold_folder ,
                          args ,
                          file_prefix = '/' ,
                          file_suffix = '.xml' ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     """
     Extract a character profile for each document and corpus as a whole.
     """
@@ -134,6 +142,8 @@ def count_chars_profile( gold_ns , gold_dd , gold_folder ,
                                              document_data = test_dd ,
                                              out_file = test_out_file )
         ##
+    log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
+
 
 
 def score_ref_set( gold_ns , gold_dd , gold_patterns , gold_folder ,
@@ -141,6 +151,7 @@ def score_ref_set( gold_ns , gold_dd , gold_patterns , gold_folder ,
                    args ,
                    file_prefix = '/' ,
                    file_suffix = '.xml' ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     """
     Score the test folder against the gold folder.
     """
@@ -210,10 +221,20 @@ def score_ref_set( gold_ns , gold_dd , gold_patterns , gold_folder ,
                                          sorted( file_mapping.keys() ) ,
                                          gold_patterns , test_patterns ,
                                          args )
+    log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
+
 
 if __name__ == "__main__":
     ##
     args = args_and_configs.get_arguments( sys.argv[ 1: ] )
+    ##
+    if args.verbose:
+        log.basicConfig( format = "%(levelname)s: %(message)s" ,
+                         level = log.DEBUG )
+        log.info( "Verbose output." )
+        log.debug( "{}".format( args ) )
+    else:
+        log.basicConfig( format="%(levelname)s: %(message)s" )
     ## Extract and process the two input file configs
     gold_ns , gold_dd , gold_patterns = \
       args_and_configs.process_config( config_file = args.gold_config ,

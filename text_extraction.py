@@ -1,3 +1,6 @@
+import sys
+import logging as log
+
 import json
 import xml.etree.ElementTree as ET
 
@@ -9,6 +12,7 @@ def extract_annotations_kernel( ingest_file ,
                                 begin_attribute = None ,
                                 end_attribute = None ,
                                 text_attribute = None ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     found_annots = {}
     strict_starts = {}
     ##
@@ -21,6 +25,8 @@ def extract_annotations_kernel( ingest_file ,
         print( 'I had a problem parsing the XML file.  Are you sure your XPath is correct and matches your namespace?\n\tSkipping file ({}) and XPath ({})\n\tReported Error:  {}'.format( ingest_file , annotation_path , e ) )
         return strict_starts
     ##
+    log.debug( 'Found {} annotation(s) matching the pattern \'{}\''.format(
+        len( found_annots ) , annotation_path ) )
     for annot in found_annots:
         if( begin_attribute != None ):
             begin_pos = annot.get( begin_attribute )
@@ -29,7 +35,7 @@ def extract_annotations_kernel( ingest_file ,
             else:
                 offset_key = begin_pos
                 while( offset_mapping[ offset_key ] == None ):
-                    offset_key = str( int( offset_key ) + 1 )
+                    offset_key = str( int( offset_key ) - 1 )
                 begin_pos_mapped = offset_mapping[ offset_key ]
         if( end_attribute != None ):
             ## TODO - add flag to distinguish between conditions
@@ -64,10 +70,12 @@ def extract_annotations_kernel( ingest_file ,
         else:
             strict_starts[ begin_pos ] = [ new_entry ]
     ## 
+    log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
     return strict_starts
 
 
 def write_annotations_to_disk( annotations , out_file ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     if( out_file == None ):
         return
     ##
@@ -75,6 +83,7 @@ def write_annotations_to_disk( annotations , out_file ):
     with open( out_file , 'w' ) as output:
         json.dump( annotations , output ,
                    indent = 4 )
+    log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
 
 
 def extract_annotations( ingest_file ,
@@ -83,6 +92,7 @@ def extract_annotations( ingest_file ,
                          patterns ,
                          ignore_whitespace = True ,
                          out_file = None ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     raw_content = None
     annotations = {}
     offset_mapping = {}
@@ -108,10 +118,12 @@ def extract_annotations( ingest_file ,
                             annotations = annotations )
     ##
     write_annotations_to_disk( file_dictionary , out_file )
+    log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
     return offset_mapping , annotations
 
 
 def split_content( raw_text , offset_mapping ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     list_of_chars = list( raw_text )
     init_offset = 0
     mapped_offset = 0
@@ -123,6 +135,7 @@ def split_content( raw_text , offset_mapping ):
             ##offset_mapping[ init_offset ] = mapped_offset
             mapped_offset += 1
         init_offset += 1
+    log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
     return offset_mapping
     
 
@@ -131,6 +144,7 @@ def extract_chars( ingest_file ,
                    namespaces ,
                    document_data ,
                    out_file = None ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     offset_mapping = {}
     ##
     cdata_flag = False
@@ -164,5 +178,6 @@ def extract_chars( ingest_file ,
     if( raw_text != None ):
         offset_mapping = split_content( raw_text ,
                                         offset_mapping )
+    log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
     return raw_text , offset_mapping
 
