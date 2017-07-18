@@ -207,7 +207,7 @@ def score_ref_set( gold_ns , gold_dd , gold_patterns , gold_folder ,
                                             gold_filename )
         ##
         try:
-            gold_fulL_path = '{}/{}'.format( gold_folder ,
+            gold_full_path = '{}/{}'.format( gold_folder ,
                                              gold_filename )
             gold_om , gold_ss = \
               text_extraction.extract_annotations( gold_full_path ,
