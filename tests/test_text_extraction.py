@@ -231,10 +231,10 @@ def test_extracting_doc_content_from_0005_gs():
                                      out_file = None )
     expected_output = { '0': None ,
                         '1': None ,
-                        '2': '0', '3': '1', '4': '2', '5': '3', '6': '4',
-                        '7': '5', '8': '6', '9': '7',
-                        '10': None , '11': None }
-    assert offset_mapping == expected_output
+                        '2': None ,
+                        '3': '0', '4': '1', '5': '2', '6': None }
+    for index in [ "0" , "1" , "2" , "3" , "4" , "5" , "6" ]:
+        assert offset_mapping[ index ] == expected_output[ index ]
 
 def test_extracting_doc_content_from_995723_sentences_xmi():
     ingest_file = 'tests/data/sentences/995723.sentences.xmi'
