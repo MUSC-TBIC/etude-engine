@@ -38,11 +38,16 @@ def count_ref_set( test_ns , test_patterns , test_folder ,
                                                          file_suffix )])
     for test_filename in sorted( tests ):
         ## TODO - refactor into separate fuction
-        test_ss = \
-          text_extraction.extract_annotations( '{}/{}'.format( test_folder ,
-                                                               test_filename ) ,
-                                               namespaces = test_ns ,
-                                               patterns = test_patterns )
+        try:
+            test_full_path = '{}/{}'.format( test_folder ,
+                                             test_filename )
+            test_ss = \
+              text_extraction.extract_annotations( test_full_path ,
+                                                   namespaces = test_ns ,
+                                                   patterns = test_patterns )
+        except:
+            e = sys.exc_info()[0]
+            log.error( 'Uncaught exception in extract_annotations:  {}'.format( e ) )
         for test_start in test_ss.keys():
             ## grab type and end position
             test_type = test_ss[ test_start ][ 0 ][ 'type' ]
@@ -51,10 +56,14 @@ def count_ref_set( test_ns , test_patterns , test_folder ,
               [ test_filename , test_start , test_end ,
                 test_type , None ]
     ##
-    scoring_metrics.print_counts_summary( type_counts ,
-                                          sorted( tests ) ,
-                                          test_patterns ,
-                                          args )
+    try:
+        scoring_metrics.print_counts_summary( type_counts ,
+                                              sorted( tests ) ,
+                                              test_patterns ,
+                                              args )
+    except:
+        e = sys.exc_info()[0]
+        log.error( 'Uncaught exception in print_counts_summary:  {}'.format( e ) )
     log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
 
 
@@ -96,8 +105,12 @@ def count_chars_profile( gold_ns , gold_dd , gold_folder ,
     """
     Extract a character profile for each document and corpus as a whole.
     """
-    match_count , file_mapping = collect_files( gold_folder , test_folder ,
-                                                file_prefix , file_suffix )
+    try:
+        match_count , file_mapping = collect_files( gold_folder , test_folder ,
+                                                    file_prefix , file_suffix )
+    except:
+        e = sys.exc_info()[0]
+        log.error( 'Uncaught exception in collect_files:  {}'.format( e ) )
     ##
     if( match_count == 0 ):
         ## Empty dictionaries evaluate to False so testing bool can tell us if
@@ -118,12 +131,16 @@ def count_chars_profile( gold_ns , gold_dd , gold_folder ,
             gold_out_file = '{}/{}'.format( args.gold_out ,
                                                gold_filename )
         ##
-        gold_chars = \
-          text_extraction.extract_chars( '{}/{}'.format( gold_folder ,
-                                                         gold_filename ) ,
-                                         namespaces = gold_ns ,
-                                         document_data = gold_dd ,
-                                         out_file = gold_out_file )
+        try:
+            gold_chars = \
+              text_extraction.extract_chars( '{}/{}'.format( gold_folder ,
+                                                             gold_filename ) ,
+                                             namespaces = gold_ns ,
+                                             document_data = gold_dd ,
+                                             out_file = gold_out_file )
+        except:
+            e = sys.exc_info()[0]
+            log.error( 'Uncaught exception in extract_chars:  {}'.format( e ) )
         test_filename = file_mapping[ gold_filename ]
         if( test_filename == None ):
             test_chars = {}
@@ -135,12 +152,17 @@ def count_chars_profile( gold_ns , gold_dd , gold_folder ,
                 test_out_file = '{}/{}'.format( args.test_out ,
                                                    test_filename )
             ##
-            test_chars = \
-              text_extraction.extract_chars( '{}/{}'.format( test_folder ,
-                                                             test_filename ) ,
-                                             namespaces = test_ns ,
-                                             document_data = test_dd ,
-                                             out_file = test_out_file )
+            try:
+                test_full_path = '{}/{}'.format( test_folder ,
+                                                 test_filename )
+                test_chars = \
+                  text_extraction.extract_chars( test_full_path ,
+                                                 namespaces = test_ns ,
+                                                 document_data = test_dd ,
+                                                 out_file = test_out_file )
+            except:
+                e = sys.exc_info()[0]
+                log.error( 'Uncaught exception in extract_chars:  {}'.format( e ) )
         ##
     log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
 
@@ -158,8 +180,12 @@ def score_ref_set( gold_ns , gold_dd , gold_patterns , gold_folder ,
     score_card = scoring_metrics.new_score_card()
     
     confusion_matrix = {}
-    match_count , file_mapping = collect_files( gold_folder , test_folder ,
-                                                file_prefix , file_suffix )
+    try:
+        match_count , file_mapping = collect_files( gold_folder , test_folder ,
+                                                    file_prefix , file_suffix )
+    except:
+        e = sys.exc_info()[0]
+        log.error( 'Uncaught exception in collect_files:  {}'.format( e ) )
     ##
     if( match_count == 0 ):
         ## Empty dictionaries evaluate to False so testing bool can tell us if
@@ -178,17 +204,22 @@ def score_ref_set( gold_ns , gold_dd , gold_patterns , gold_folder ,
         else:
             ## TODO - add filename translation services
             gold_out_file = '{}/{}'.format( args.gold_out ,
-                                               gold_filename )
+                                            gold_filename )
         ##
-        gold_om , gold_ss = \
-          text_extraction.extract_annotations( '{}/{}'.format( gold_folder ,
-                                                               gold_filename ) ,
-                                               namespaces = gold_ns ,
-                                               document_data = gold_dd ,
-                                               patterns = gold_patterns ,
-                                               ignore_whitespace = \
-                                                 args.ignore_whitespace ,
-                                               out_file = gold_out_file )
+        try:
+            gold_fulL_path = '{}/{}'.format( gold_folder ,
+                                             gold_filename )
+            gold_om , gold_ss = \
+              text_extraction.extract_annotations( gold_full_path ,
+                                                   namespaces = gold_ns ,
+                                                   document_data = gold_dd ,
+                                                   patterns = gold_patterns ,
+                                                   ignore_whitespace = \
+                                                     args.ignore_whitespace ,
+                                                   out_file = gold_out_file )
+        except:
+            e = sys.exc_info()[0]
+            log.error( 'Uncaught exception in extract_annotations:  {}'.format( e ) )
         test_filename = file_mapping[ gold_filename ]
         if( test_filename == None ):
             test_om = {}
@@ -201,26 +232,39 @@ def score_ref_set( gold_ns , gold_dd , gold_patterns , gold_folder ,
                 test_out_file = '{}/{}'.format( args.test_out ,
                                                    test_filename )
             ##
-            test_om , test_ss = \
-              text_extraction.extract_annotations( '{}/{}'.format( test_folder ,
-                                                                   test_filename ) ,
-                                                   namespaces = test_ns ,
-                                                   document_data = test_dd ,
-                                                   patterns = test_patterns ,
-                                                   ignore_whitespace = \
-                                                     args.ignore_whitespace ,
-                                                   out_file = test_out_file )
+            test_full_path = '{}/{}'.format( test_folder ,
+                                             test_filename )
+            try:
+                test_om , test_ss = \
+                  text_extraction.extract_annotations( test_full_path ,
+                                                       namespaces = test_ns ,
+                                                       document_data = test_dd ,
+                                                       patterns = test_patterns ,
+                                                       ignore_whitespace = \
+                                                         args.ignore_whitespace ,
+                                                       out_file = test_out_file )
+            except:
+                e = sys.exc_info()[0]
+                log.error( 'Uncaught exception in extract_annotations:  {}'.format( e ) )
         ##
-        score_card = scoring_metrics.evaluate_positions( gold_filename ,
-                                                         score_card ,
-                                                         gold_ss ,
-                                                         test_ss ,
-                                                         args.ignore_whitespace )
+        try:
+            score_card = scoring_metrics.evaluate_positions( gold_filename ,
+                                                             score_card ,
+                                                             gold_ss ,
+                                                             test_ss ,
+                                                             args.ignore_whitespace )
+        except:
+            e = sys.exc_info()[0]
+            log.error( 'Uncaught exception in evaluate_positions:  {}'.format( e ) )
     ##
-    scoring_metrics.print_score_summary( score_card ,
-                                         sorted( file_mapping.keys() ) ,
-                                         gold_patterns , test_patterns ,
-                                         args )
+    try:
+        scoring_metrics.print_score_summary( score_card ,
+                                             sorted( file_mapping.keys() ) ,
+                                             gold_patterns , test_patterns ,
+                                             args )
+    except:
+        e = sys.exc_info()[0]
+        log.error( 'Uncaught exception in print_score_summary:  {}'.format( e ) )
     log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
 
 
@@ -236,31 +280,43 @@ if __name__ == "__main__":
     else:
         log.basicConfig( format="%(levelname)s: %(message)s" )
     ## Extract and process the two input file configs
-    gold_ns , gold_dd , gold_patterns = \
-      args_and_configs.process_config( config_file = args.gold_config ,
-                                       score_key = args.score_key ,
-                                       score_values = args.score_values )
-    test_ns , test_dd , test_patterns = \
-      args_and_configs.process_config( config_file = args.test_config ,
-                                       score_key = args.score_key ,
-                                       score_values = args.score_values )
+    try:
+        gold_ns , gold_dd , gold_patterns = \
+          args_and_configs.process_config( config_file = args.gold_config ,
+                                           score_key = args.score_key ,
+                                           score_values = args.score_values )
+        test_ns , test_dd , test_patterns = \
+          args_and_configs.process_config( config_file = args.test_config ,
+                                           score_key = args.score_key ,
+                                           score_values = args.score_values )
+    except:
+        e = sys.exc_info()[0]
+        log.error( 'Uncaught exception in process_config:  {}'.format( e ) )
     ##
     if( args.count_types ):
-        count_ref_set( test_ns = test_ns ,
-                       test_patterns = test_patterns ,
-                       test_folder = os.path.abspath( args.test_input ) ,
-                       args = args ,
-                       file_prefix = args.file_prefix ,
-                       file_suffix = args.file_suffix[ len( args.file_suffix ) - 1 ].lstrip() )
+        try:
+            count_ref_set( test_ns = test_ns ,
+                           test_patterns = test_patterns ,
+                           test_folder = os.path.abspath( args.test_input ) ,
+                           args = args ,
+                           file_prefix = args.file_prefix ,
+                           file_suffix = args.file_suffix[ len( args.file_suffix ) - 1 ].lstrip() )
+        except:
+            e = sys.exc_info()[0]
+            log.error( 'Uncaught exception in count_ref_set:  {}'.format( e ) )
     else:
-        score_ref_set( gold_ns = gold_ns ,
-                       gold_dd = gold_dd ,
-                       gold_patterns = gold_patterns ,
-                       gold_folder = os.path.abspath( args.gold_input ) ,
-                       test_ns = test_ns ,
-                       test_dd = test_dd ,
-                       test_patterns = test_patterns ,
-                       test_folder = os.path.abspath( args.test_input ) ,
-                       args = args ,
-                       file_prefix = args.file_prefix ,
-                       file_suffix = args.file_suffix )
+        try:
+            score_ref_set( gold_ns = gold_ns ,
+                           gold_dd = gold_dd ,
+                           gold_patterns = gold_patterns ,
+                           gold_folder = os.path.abspath( args.gold_input ) ,
+                           test_ns = test_ns ,
+                           test_dd = test_dd ,
+                           test_patterns = test_patterns ,
+                           test_folder = os.path.abspath( args.test_input ) ,
+                           args = args ,
+                           file_prefix = args.file_prefix ,
+                           file_suffix = args.file_suffix )
+        except:
+            e = sys.exc_info()[0]
+            log.error( 'Uncaught exception in score_ref_set:  {}'.format( e ) )
