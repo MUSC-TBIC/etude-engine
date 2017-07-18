@@ -1,3 +1,6 @@
+import sys
+import logging as log
+
 import re
 
 import argparse
@@ -115,20 +118,20 @@ def get_arguments( command_line_args ):
     parser = initialize_arg_parser()
     args = parser.parse_args( command_line_args )
     ##
-    if( args.verbose ):
-        print( '{}'.format( args ) )
-    ##
     return args
 
 def extract_namespaces( namespaces ,
                         config , sect ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     for ns , value in config.items( sect ):
         namespaces[ ns ] = value
+    log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
     return namespaces
 
 
 def extract_document_data( document_data ,
                            config , sect ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     if( config.has_option( sect , 'Content XPath' ) ):
         if( config.has_option( sect , 'Content Attribute' ) ):
             document_data[ 'tag_xpath' ] = config.get( sect ,
@@ -138,6 +141,7 @@ def extract_document_data( document_data ,
         else:
             document_data[ 'cdata_xpath' ] = config.get( sect ,
                                                          'Content XPath' )
+    log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
     return document_data
 
 
@@ -145,6 +149,7 @@ def extract_patterns( annotations ,
                       config , sect ,
                       score_key ,
                       score_values ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     if( config.has_option( sect , 'XPath' ) and
         config.has_option( sect , 'Begin Attr' ) and
         config.has_option( sect , 'End Attr' ) ):
@@ -170,12 +175,14 @@ def extract_patterns( annotations ,
                                           end_attr = config.get( sect ,
                                                                  'End Attr' ) ) )
                 break
+    log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
     return annotations
 
 
 def process_config( config_file ,
                     score_key ,
                     score_values ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     config = ConfigParser.ConfigParser()
     config.read( config_file )
     annotations = []
@@ -192,4 +199,5 @@ def process_config( config_file ,
                                             score_key ,
                                             score_values )
     ##
+    log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
     return namespaces , document_data , annotations
