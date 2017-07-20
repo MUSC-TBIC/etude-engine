@@ -1,3 +1,5 @@
+[![build status](https://git.musc.edu/tbic/etude/badges/master/build.svg)](https://git.musc.edu/tbic/etude/commits/master) 
+[![coverage report](https://git.musc.edu/tbic/etude/badges/master/coverage.svg)](https://git.musc.edu/tbic/etude/commits/master)
 
 Sample Runs
 =========
