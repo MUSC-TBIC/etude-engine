@@ -242,9 +242,9 @@ def score_ref_set( gold_ns , gold_dd , gold_patterns , gold_folder ,
         ## Empty dictionaries evaluate to False so testing bool can tell us if
         ## any gold documents exist
         if( bool( file_mapping ) ):
-            print( 'ERROR:  No documents found in test directory:  {}'.format( test_folder ) )
+            log.error( 'No documents found in test directory:  {}'.format( test_folder ) )
         else:
-            print( 'ERROR:  No documents found in gold directory:  {}'.format( gold_folder ) )
+            log.error( 'No documents found in gold directory:  {}'.format( gold_folder ) )
         return( None )
     ##
     progress = progressbar.ProgressBar( max_value = match_count ,
