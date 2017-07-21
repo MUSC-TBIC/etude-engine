@@ -231,7 +231,7 @@ def print_score_summary( score_card , file_list ,
                                     args = args )
                     print( args.delim.join( '{}'.format( m ) for m in metrics ) )
     ##
-    if( args.by_type ):
+    if( args.by_type or args.by_type_and_file ):
         unique_types = Set()
         for pattern in gold_config:
             unique_types.add( pattern[ 'type' ] )
@@ -241,6 +241,16 @@ def print_score_summary( score_card , file_list ,
                                     row_name = unique_type ,
                                     args = args )
             print( args.delim.join( '{}'.format( m ) for m in metrics ) )
+            if( args.by_type_and_file ):
+                for filename in file_list:
+                    this_file = \
+                      (  ( score_card[ 'File' ] == filename ) &
+                      ( score_card[ 'Type' ] == unique_type ) )
+                    metrics = \
+                      norm_summary( score_card[ this_file ][ 'Score' ].value_counts() ,
+                                    row_name = unique_type + ' x ' + filename ,
+                                    args = args )
+                    print( args.delim.join( '{}'.format( m ) for m in metrics ) )
 
 
 def print_counts_summary( type_counts , file_list ,
