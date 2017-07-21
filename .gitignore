@@ -1,7 +1,9 @@
 *~
+\#*
 \.\#*
 *.pyc
 
 .cache
+.coverage
 .ipynb_checkpoints
 __pycache__

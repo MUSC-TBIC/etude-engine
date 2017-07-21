@@ -254,10 +254,9 @@ def test_evaluate_positions_copy_match():
     raw_content , gold_om = \
       text_extraction.extract_chars( ingest_file ,
                                      namespaces = {} ,
-                                     document_data = document_data ,
-                                     out_file = None )
+                                     document_data = document_data )
     gold_ss = \
-      text_extraction.extract_annotations_kernel( ingest_file ,
+      text_extraction.extract_annotations_xml( ingest_file ,
                                                   offset_mapping = gold_om ,
                                                   annotation_path = \
                                                       './TAGS/DATE' ,
@@ -288,10 +287,9 @@ def test_evaluate_positions_tweak_annotation_dictionary_heed_whitespace():
     raw_content , gold_om = \
       text_extraction.extract_chars( ingest_file ,
                                      namespaces = {} ,
-                                     document_data = document_data ,
-                                     out_file = None )
+                                     document_data = document_data )
     gold_ss = \
-      text_extraction.extract_annotations_kernel( ingest_file ,
+      text_extraction.extract_annotations_xml( ingest_file ,
                                                   offset_mapping = gold_om ,
                                                   annotation_path = \
                                                       './TAGS/DATE' ,
@@ -300,7 +298,7 @@ def test_evaluate_positions_tweak_annotation_dictionary_heed_whitespace():
                                                   end_attribute = 'end' )
     test_om = gold_om
     test_ss = \
-      text_extraction.extract_annotations_kernel( ingest_file ,
+      text_extraction.extract_annotations_xml( ingest_file ,
                                                   offset_mapping = gold_om ,
                                                   annotation_path = \
                                                       './TAGS/DATE' ,
@@ -332,10 +330,9 @@ def test_evaluate_positions_tweak_annotation_dictionary_ignore_whitespace():
     raw_content , gold_om = \
       text_extraction.extract_chars( ingest_file ,
                                      namespaces = {} ,
-                                     document_data = document_data ,
-                                     out_file = None )
+                                     document_data = document_data )
     gold_ss = \
-      text_extraction.extract_annotations_kernel( ingest_file ,
+      text_extraction.extract_annotations_xml( ingest_file ,
                                                   offset_mapping = gold_om ,
                                                   annotation_path = \
                                                       './TAGS/DATE' ,
@@ -344,7 +341,7 @@ def test_evaluate_positions_tweak_annotation_dictionary_ignore_whitespace():
                                                   end_attribute = 'end' )
     test_om = gold_om
     test_ss = \
-      text_extraction.extract_annotations_kernel( ingest_file ,
+      text_extraction.extract_annotations_xml( ingest_file ,
                                                   offset_mapping = gold_om ,
                                                   annotation_path = \
                                                       './TAGS/DATE' ,

@@ -11,6 +11,7 @@ import os
 import warnings
 
 import re
+import json
 
 import numpy as np
 
@@ -136,8 +137,7 @@ def count_chars_profile( gold_ns , gold_dd , gold_folder ,
               text_extraction.extract_chars( '{}/{}'.format( gold_folder ,
                                                              gold_filename ) ,
                                              namespaces = gold_ns ,
-                                             document_data = gold_dd ,
-                                             out_file = gold_out_file )
+                                             document_data = gold_dd )
         except:
             e = sys.exc_info()[0]
             log.error( 'Uncaught exception in extract_chars:  {}'.format( e ) )
@@ -158,14 +158,65 @@ def count_chars_profile( gold_ns , gold_dd , gold_folder ,
                 test_chars = \
                   text_extraction.extract_chars( test_full_path ,
                                                  namespaces = test_ns ,
-                                                 document_data = test_dd ,
-                                                 out_file = test_out_file )
+                                                 document_data = test_dd )
             except:
                 e = sys.exc_info()[0]
                 log.error( 'Uncaught exception in extract_chars:  {}'.format( e ) )
         ##
     log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
 
+
+def align_tokens(  gold_folder ,
+                   test_folder ,
+                   args ,
+                   file_prefix = '/' ,
+                   file_suffix = '.xml' ):
+    """
+    Align gold and test documents by token for comparison
+    """
+    match_count , file_mapping = collect_files( gold_folder , test_folder ,
+                                                file_prefix , file_suffix )
+    ##
+    if( match_count == 0 ):
+        ## Empty dictionaries evaluate to False so testing bool can tell us if
+        ## any gold documents exist
+        if( bool( file_mapping ) ):
+            print( 'ERROR:  No documents found in test directory:  {}'.format( test_folder ) )
+        else:
+            print( 'ERROR:  No documents found in gold directory:  {}'.format( gold_folder ) )
+        return( None )
+    ##
+    progress = progressbar.ProgressBar( max_value = match_count ,
+                                        redirect_stderr = True )
+    for gold_filename in progress( sorted( file_mapping.keys() ) ):
+        if( args.gold_out == None ):
+            gold_out_file = None
+        else:
+            ## TODO - add filename translation services
+            gold_out_file = '{}/{}'.format( args.gold_out ,
+                                            gold_filename )
+        ##
+        gold_dictionary = {}
+        with open( '{}/{}'.format( gold_folder , gold_filename ) , 'r' ) as fp:
+            gold_dictionary = json.load( fp )
+        text_extraction.align_tokens_on_whitespace( gold_dictionary ,
+                                                    gold_out_file )
+        test_filename = file_mapping[ gold_filename ]
+        if( test_filename != None ):
+            if( args.test_out == None ):
+                test_out_file = None
+            else:
+                ## TODO - add filename translation services
+                test_out_file = '{}/{}'.format( args.test_out ,
+                                                gold_filename )
+            ##
+            test_dictionary = {}
+            with open( '{}/{}'.format( test_folder ,
+                                       test_filename ) , 'r' ) as fp:
+                test_dictionary = json.load( fp )
+            text_extraction.align_tokens_on_whitespace( test_dictionary ,
+                                                        test_out_file )
+    ##
 
 
 def score_ref_set( gold_ns , gold_dd , gold_patterns , gold_folder ,
@@ -284,11 +335,13 @@ if __name__ == "__main__":
         gold_ns , gold_dd , gold_patterns = \
           args_and_configs.process_config( config_file = args.gold_config ,
                                            score_key = args.score_key ,
-                                           score_values = args.score_values )
+                                           score_values = args.score_values ,
+                                           verbose = args.verbose )
         test_ns , test_dd , test_patterns = \
           args_and_configs.process_config( config_file = args.test_config ,
                                            score_key = args.score_key ,
-                                           score_values = args.score_values )
+                                           score_values = args.score_values ,
+                                           verbose = args.verbose )
     except:
         e = sys.exc_info()[0]
         log.error( 'Uncaught exception in process_config:  {}'.format( e ) )
@@ -304,6 +357,12 @@ if __name__ == "__main__":
         except:
             e = sys.exc_info()[0]
             log.error( 'Uncaught exception in count_ref_set:  {}'.format( e ) )
+    elif( args.align_tokens ):
+        align_tokens( gold_folder = os.path.abspath( args.gold_input ) ,
+                      test_folder = os.path.abspath( args.test_input ) ,
+                      args = args ,
+                      file_prefix = args.file_prefix ,
+                      file_suffix = args.file_suffix )
     else:
         try:
             score_ref_set( gold_ns = gold_ns ,
