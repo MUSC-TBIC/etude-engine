@@ -15,4 +15,4 @@ test:
   stage: test
   script:
   - docker build -t pytest-image .
-  - docker run pytest-image /usr/local/bin/python -m pytest /home/etude/tests
+  - docker run pytest-image /usr/local/bin/python -m pytest --cov=/home/etude /home/etude/tests
