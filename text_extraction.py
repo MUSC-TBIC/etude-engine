@@ -187,50 +187,6 @@ def write_annotations_to_disk( annotations , out_file ):
     log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
 
 
-def extract_annotations( ingest_file ,
-                         namespaces ,
-                         document_data ,
-                         patterns ,
-                         ignore_whitespace = True ,
-                         out_file = None ):
-    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
-    raw_content = None
-    annotations = {}
-    offset_mapping = {}
-    file_dictionary = {}
-    if( bool( document_data ) ):
-        try:
-            raw_content , offset_mapping = extract_chars( ingest_file ,
-                                                          namespaces ,
-                                                          document_data ,
-                                                          out_file )
-        except:
-            e = sys.exc_info()[0]
-            log.error( 'Uncaught exception in extract_chars:  {}'.format( e ) )
-    for pattern in patterns:
-        annotations.update( 
-            extract_annotations_kernel( ingest_file ,
-                                        offset_mapping = offset_mapping ,
-                                        namespaces = namespaces ,
-                                        annotation_path = pattern[ 'xpath' ] ,
-                                        tag_name = pattern[ 'type' ] ,
-                                        begin_attribute = \
-                                            pattern[ 'begin_attr' ] ,
-                                        end_attribute = \
-                                            pattern[ 'end_attr' ] ) )
-    file_dictionary = dict( raw_content = raw_content ,
-                            offset_mapping = offset_mapping ,
-                            annotations = annotations )
-    ##
-    try:
-        write_annotations_to_disk( file_dictionary , out_file )
-    except:
-        e = sys.exc_info()[0]
-        log.error( 'Uncaught exception in write_annotations_to_disk:  {}'.format( e ) )
-    log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
-    return offset_mapping , annotations
-
-
 def split_content( raw_text , offset_mapping ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     list_of_chars = list( raw_text )
@@ -352,6 +308,7 @@ def extract_annotations( ingest_file ,
                          patterns ,
                          ignore_whitespace = True ,
                          out_file = None ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     raw_content = None
     annotations = {}
     offset_mapping = {}
@@ -359,12 +316,23 @@ def extract_annotations( ingest_file ,
     if( bool( document_data ) ):
         if( 'format' in document_data and
             document_data[ 'format' ] == 'txt' ):
-            raw_content , offset_mapping = extract_plaintext( ingest_file )
-
+            try:
+                raw_content , offset_mapping = extract_plaintext( ingest_file )
+            except:
+                e = sys.exc_info()[0]
+                log.error( 'Uncaught exception in extract_plaintext:  {}'.format( e ) )
         else:
-            raw_content , offset_mapping = extract_chars( ingest_file ,
-                                                          namespaces ,
-                                                          document_data )
+            try:
+                raw_content , offset_mapping = extract_chars( ingest_file ,
+                                                              namespaces ,
+                                                              document_data )
+            except:
+                e = sys.exc_info()[0]
+                log.error( 'Uncaught exception in extract_chars:  {}'.format( e ) )
+    if( ignore_whitespace and raw_content == None ):
+        log.error( 'I could not find the raw content for this document but was asked to ignore its whitespace.  Add document data to the config file for extracting raw content or use the --heed-whitespace flag.' )
+        log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
+        return offset_mapping , annotations
     for pattern in patterns:
         if( 'delimiter' in pattern ):
             annotations.update( 
@@ -392,6 +360,12 @@ def extract_annotations( ingest_file ,
                             offset_mapping = offset_mapping ,
                             annotations = annotations )
     ##
-    write_annotations_to_disk( file_dictionary , out_file )
+    ##
+    try:
+        write_annotations_to_disk( file_dictionary , out_file )
+    except:
+        e = sys.exc_info()[0]
+        log.error( 'Uncaught exception in write_annotations_to_disk:  {}'.format( e ) )
+    log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
     return offset_mapping , annotations
 
