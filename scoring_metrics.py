@@ -30,21 +30,29 @@ def evaluate_positions( gold_filename ,
     log.debug( 'Anchoring positions at \'{}\' and \'{}\''.format( start_key ,
                                                                   end_key ) )
     gold_keys = gold_ss.keys()
-    gold_keys.sort( key = int )
-    log.debug( '{} gold keys ranging from {} to {}'.format( len( gold_keys ) ,
-                                                            gold_keys[ 0 ] ,
-                                                            gold_keys[ -1] ) )
+    if( len( gold_keys ) == 0 ):
+        log.debug( 'Zero gold keys in strict starts dictionary' )
+    else:
+        gold_keys.sort( key = int )
+        log.debug( '{} gold keys ranging from {} to {}'.format( len( gold_keys ) ,
+                                                                gold_keys[ 0 ] ,
+                                                                gold_keys[ -1 ] ) )
+    ##
     test_keys = test_ss.keys()
-    test_keys.sort( key = int )
-    log.debug( '{} test keys ranging from {} to {}'.format( len( test_keys ) ,
-                                                            test_keys[ 0 ] ,
-                                                            test_keys[ -1] ) )
+    if( len( test_keys ) == 0 ):
+        log.debug( 'Zero test keys in strict starts dictionary' )
+    else:
+        test_keys.sort( key = int )
+        log.debug( '{} test keys ranging from {} to {}'.format( len( test_keys ) ,
+                                                                test_keys[ 0 ] ,
+                                                                test_keys[ -1 ] ) )
+    ##
     last_test_key_index = -1
     matched_test_keys = Set()
     for gold_key in gold_keys:
         ## grab type and end position
         ## TODO - loop over all entries in the dictionary
-        log.debug( '{}'.format( gold_ss[ gold_key ] ) )
+        log.debug( 'These keys:  {}'.format( gold_ss[ gold_key ] ) )
 
         gold_type = gold_ss[ gold_key ][ 0 ][ 'type' ]
         gold_start = gold_ss[ gold_key ][ 0 ][ start_key ]
