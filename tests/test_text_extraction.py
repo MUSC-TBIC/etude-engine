@@ -244,6 +244,7 @@ def test_of_presaved_dictionary_for_complex_patterns():
     ingest_file = 'tests/data/i2b2_2016_track-1_gold/0005_gs.xml'
     presaved_file = 'tests/data/i2b2_2016_track-1_gold_out/0005_gs.xml'
     config_file = 'config/i2b2_2016_track-1.conf'
+    document_data = dict( cdata_xpath = './TEXT' )
     namespaces , document_data , patterns = \
       args_and_configs.process_config( config_file = config_file ,
                                        score_key = 'Short Name' ,
@@ -253,7 +254,7 @@ def test_of_presaved_dictionary_for_complex_patterns():
     offset_mapping , strict_starts = \
       text_extraction.extract_annotations( ingest_file ,
                                            namespaces = namespaces ,
-                                           document_data = {} ,
+                                           document_data = document_data ,
                                            patterns = patterns ,
                                            out_file = None )
     assert reloaded_json[ 'annotations' ] == strict_starts
@@ -262,6 +263,7 @@ def test_of_presaved_dictionary_for_complex_patterns():
 def test_of_identity_read_write_of_dictionary_for_complex_patterns():
     ingest_file = 'tests/data/i2b2_2016_track-1_gold/0005_gs.xml'
     config_file = 'config/i2b2_2016_track-1.conf'
+    document_data = dict( cdata_xpath = './TEXT' )
     namespaces , document_data , patterns = \
       args_and_configs.process_config( config_file = config_file ,
                                        score_key = 'Short Name' ,
@@ -271,7 +273,7 @@ def test_of_identity_read_write_of_dictionary_for_complex_patterns():
         offset_mapping , strict_starts = \
           text_extraction.extract_annotations( ingest_file ,
                                                namespaces = namespaces ,
-                                               document_data = {} ,
+                                               document_data = document_data ,
                                                patterns = patterns ,
                                                out_file = tmpfile_handle.name )
         reloaded_json = json.load( tmpfile_handle )
