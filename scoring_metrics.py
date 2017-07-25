@@ -10,6 +10,30 @@ def new_score_card():
                                      'Start' , 'End' ,
                                      'Type' , 'Score' ] )
 
+def get_annotation_from_base_entry( annotation_entry ,
+                                    start_key ,
+                                    end_key ):
+    try:
+        annotation_type = annotation_entry[ 'type' ]
+    except KeyError as e:
+        log.warn( 'Could not access annotation type.  Skipping entry.' )
+        return None , None , None
+    try:
+        annotation_start = annotation_entry[ start_key ]
+    except KeyError as e:
+        log.warn( 'Could not access annotation type.  Skipping entry.' )
+        return None , None , None
+    try:
+        annotation_end = annotation_entry[ end_key ]
+    except KeyError as e:
+        log.warn( 'Could not access annotation type.  Skipping entry.' )
+        return None , None , None
+    log.debug( '{} ( {} - {} )'.format( annotation_type ,
+                                        annotation_start ,
+                                        annotation_end ) )
+    return annotation_type , annotation_start , annotation_end
+
+
 ##
 ## 
 ##
@@ -50,24 +74,28 @@ def evaluate_positions( gold_filename ,
     last_test_key_index = -1
     matched_test_keys = Set()
     for gold_key in gold_keys:
-        ## grab type and end position
         ## TODO - loop over all entries in the dictionary
         log.debug( 'These keys:  {}'.format( gold_ss[ gold_key ] ) )
-
-        gold_type = gold_ss[ gold_key ][ 0 ][ 'type' ]
-        gold_start = gold_ss[ gold_key ][ 0 ][ start_key ]
-        gold_end = gold_ss[ gold_key ][ 0 ][ end_key ]
-        log.debug( '{} ( {} - {} )'.format( gold_type ,
-                                            gold_start ,
-                                            gold_end ) )
+        ## grab type and end position
+        gold_type , gold_start , gold_end = \
+          get_annotation_from_base_entry( gold_ss[ gold_key ][ 0 ] ,
+                                          start_key ,
+                                          end_key )
+        if( gold_type == None ):
+            continue
         ## Loop through all the test keys after our last matching key
         test_key_index = last_test_key_index + 1
         while( test_key_index < len( test_keys ) ):
             test_key = test_keys[ test_key_index ]
             ## grab type and end position
-            test_type = test_ss[ test_key ][ 0 ][ 'type' ]
-            test_start = test_ss[ test_key ][ 0 ][ start_key ]
-            test_end = test_ss[ test_key ][ 0 ][ end_key ]
+            test_type , test_start , test_end = \
+              get_annotation_from_base_entry( test_ss[ test_key ][ 0 ] ,
+                                              start_key ,
+                                              end_key )
+            if( test_type == None ):
+                test_key_index += 1
+                continue
+            ##
             if( gold_start == test_start ):
                 ## If the types match...
                 if( gold_type == test_type ):
@@ -114,9 +142,12 @@ def evaluate_positions( gold_filename ,
         if( test_key in matched_test_keys ):
             continue
         ## grab type and end position
-        test_type = test_ss[ test_key ][ 0 ][ 'type' ]
-        test_start = test_ss[ test_key ][ 0 ][ start_key ]
-        test_end = test_ss[ test_key ][ 0 ][ end_key ]
+        test_type , test_start , test_end = \
+          get_annotation_from_base_entry( test_ss[ test_key ][ 0 ] ,
+                                          start_key ,
+                                          end_key )
+        if( test_type == None ):
+            continue
         score_card.loc[ score_card.shape[ 0 ] ] = \
           [ gold_filename , test_start , test_end , test_type , 'FP' ]
     ##

@@ -302,8 +302,7 @@ def test_evaluate_positions_empty_gold_ss():
       scoring_metrics.evaluate_positions( ingest_file ,
                                           score_card ,
                                           gold_ss = gold_ss ,
-                                          test_ss = test_ss ,
-                                          ignore_whitespace = False )
+                                          test_ss = test_ss )
     ##
     expected_score_card = scoring_metrics.new_score_card()
     expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
@@ -335,8 +334,7 @@ def test_evaluate_positions_empty_test_ss():
       scoring_metrics.evaluate_positions( ingest_file ,
                                           score_card ,
                                           gold_ss = gold_ss ,
-                                          test_ss = test_ss ,
-                                          ignore_whitespace = False )
+                                          test_ss = test_ss )
     ##
     expected_score_card = scoring_metrics.new_score_card()
     expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
@@ -358,8 +356,7 @@ def test_evaluate_positions_empty_dictionaries():
       scoring_metrics.evaluate_positions( ingest_file ,
                                           score_card ,
                                           gold_ss = gold_ss ,
-                                          test_ss = test_ss ,
-                                          ignore_whitespace = False )
+                                          test_ss = test_ss )
     ##
     expected_score_card = scoring_metrics.new_score_card()
     assert_frame_equal( score_card , expected_score_card )
@@ -448,5 +445,134 @@ def test_evaluate_positions_tweak_annotation_dictionary_ignore_whitespace():
       [ ingest_file , '2006' , '2011' , 'DateTime' , 'TP' ]
     assert_frame_equal( score_card , expected_score_card )
 
+
+def prepare_evaluate_positions_missing_mapped_keys():
+    ingest_file = 'tests/data/i2b2_2016_track-1_gold/0005_gs.xml'
+    document_data = dict( cdata_xpath = './TEXT' )
+    raw_content , gold_om = \
+      text_extraction.extract_chars( ingest_file ,
+                                     namespaces = {} ,
+                                     document_data = document_data )
+    gold_ss = \
+      text_extraction.extract_annotations_xml( ingest_file ,
+                                               offset_mapping = gold_om ,
+                                               annotation_path = \
+                                                  './TAGS/DATE' ,
+                                               tag_name = 'DateTime' ,
+                                               begin_attribute = 'start' ,
+                                               end_attribute = 'end' )
+    test_om = gold_om
+    test_ss = \
+      text_extraction.extract_annotations_xml( ingest_file ,
+                                               offset_mapping = test_om ,
+                                               annotation_path = \
+                                                  './TAGS/DATE' ,
+                                               tag_name = 'DateTime' ,
+                                               begin_attribute = 'start' ,
+                                               end_attribute = 'end' )
+    return ingest_file , gold_ss , test_ss
+
+
+def test_evaluate_positions_missing_mapped_keys_with_heed_whitespace():
+    score_card = scoring_metrics.new_score_card()
+    ingest_file , gold_ss , test_ss = \
+      prepare_evaluate_positions_missing_mapped_keys()
+    del gold_ss[ "2404" ][ 0 ][ "begin_pos_mapped" ]
+    del gold_ss[ "2404" ][ 0 ][ "end_pos_mapped" ]
+    del test_ss[ "2404" ][ 0 ][ "begin_pos_mapped" ]
+    del test_ss[ "2404" ][ 0 ][ "end_pos_mapped" ]
+    score_card = \
+      scoring_metrics.evaluate_positions( ingest_file ,
+                                          score_card ,
+                                          gold_ss = gold_ss ,
+                                          test_ss = test_ss ,
+                                          ignore_whitespace = False )
+    ##
+    expected_score_card = scoring_metrics.new_score_card()
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ ingest_file , '87' , '97' , 'DateTime' , 'TP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ ingest_file , '2404' , '2410' , 'DateTime' , 'TP' ]
+    assert_frame_equal( score_card , expected_score_card )
+
+
+def test_evaluate_positions_missing_gold_begin_mapped_key():
+    score_card = scoring_metrics.new_score_card()
+    ingest_file , gold_ss , test_ss = \
+      prepare_evaluate_positions_missing_mapped_keys()
+    del gold_ss[ "2404" ][ 0 ][ "begin_pos_mapped" ]
+    score_card = \
+      scoring_metrics.evaluate_positions( ingest_file ,
+                                          score_card ,
+                                          gold_ss = gold_ss ,
+                                          test_ss = test_ss ,
+                                          ignore_whitespace = True )
+    ##
+    expected_score_card = scoring_metrics.new_score_card()
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ ingest_file , '70' , '80' , 'DateTime' , 'TP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ ingest_file , '2006' , '2011' , 'DateTime' , 'FP' ]
+    assert_frame_equal( score_card , expected_score_card )
+
+
+def test_evaluate_positions_missing_gold_end_mapped_key():
+    score_card = scoring_metrics.new_score_card()
+    ingest_file , gold_ss , test_ss = \
+      prepare_evaluate_positions_missing_mapped_keys()
+    del gold_ss[ "2404" ][ 0 ][ "end_pos_mapped" ]
+    score_card = \
+      scoring_metrics.evaluate_positions( ingest_file ,
+                                          score_card ,
+                                          gold_ss = gold_ss ,
+                                          test_ss = test_ss ,
+                                          ignore_whitespace = True )
+    ##
+    expected_score_card = scoring_metrics.new_score_card()
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ ingest_file , '70' , '80' , 'DateTime' , 'TP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ ingest_file , '2006' , '2011' , 'DateTime' , 'FP' ]
+    assert_frame_equal( score_card , expected_score_card )
+
+
+def test_evaluate_positions_missing_test_begin_mapped_key():
+    score_card = scoring_metrics.new_score_card()
+    ingest_file , gold_ss , test_ss = \
+      prepare_evaluate_positions_missing_mapped_keys()
+    del test_ss[ "2404" ][ 0 ][ "begin_pos_mapped" ]
+    score_card = \
+      scoring_metrics.evaluate_positions( ingest_file ,
+                                          score_card ,
+                                          gold_ss = gold_ss ,
+                                          test_ss = test_ss ,
+                                          ignore_whitespace = True )
+    ##
+    expected_score_card = scoring_metrics.new_score_card()
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ ingest_file , '70' , '80' , 'DateTime' , 'TP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ ingest_file , '2006' , '2011' , 'DateTime' , 'FN' ]
+    assert_frame_equal( score_card , expected_score_card )
+
+
+def test_evaluate_positions_missing_test_end_mapped_key():
+    score_card = scoring_metrics.new_score_card()
+    ingest_file , gold_ss , test_ss = \
+      prepare_evaluate_positions_missing_mapped_keys()
+    del test_ss[ "2404" ][ 0 ][ "end_pos_mapped" ]
+    score_card = \
+      scoring_metrics.evaluate_positions( ingest_file ,
+                                          score_card ,
+                                          gold_ss = gold_ss ,
+                                          test_ss = test_ss ,
+                                          ignore_whitespace = True )
+    ##
+    expected_score_card = scoring_metrics.new_score_card()
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ ingest_file , '70' , '80' , 'DateTime' , 'TP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ ingest_file , '2006' , '2011' , 'DateTime' , 'FN' ]
+    assert_frame_equal( score_card , expected_score_card )
 
 
