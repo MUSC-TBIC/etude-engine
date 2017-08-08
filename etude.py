@@ -281,7 +281,7 @@ def score_ref_set( gold_ns , gold_dd , gold_patterns , gold_folder ,
             else:
                 ## TODO - add filename translation services
                 test_out_file = '{}/{}'.format( args.test_out ,
-                                                   test_filename )
+                                                test_filename )
             ##
             test_full_path = '{}/{}'.format( test_folder ,
                                              test_filename )
@@ -310,7 +310,7 @@ def score_ref_set( gold_ns , gold_dd , gold_patterns , gold_folder ,
     ##
     try:
         scoring_metrics.print_score_summary( score_card ,
-                                             sorted( file_mapping.keys() ) ,
+                                             file_mapping ,
                                              gold_patterns , test_patterns ,
                                              args )
     except:

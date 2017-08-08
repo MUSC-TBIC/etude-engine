@@ -119,16 +119,16 @@ def initialize_for_print_summary_test():
                         'XPath' : './/type:Sentence' } ,
                       { 'type' : 'Sentence' ,
                         'XPath' : './/type4:Sentence' } ]
-    file_list = [ 'a.xml' , 'b.xml' ]
-    return( score_card , args , sample_config , file_list )
+    file_mapping = { 'a.xml': 'a.xml' , 'b.xml': 'b.xml' }
+    return( score_card , args , sample_config , file_mapping )
 
 
 def test_unique_score_key_summary_stats( capsys ):
     score_card , args , sample_config , \
-      file_list = initialize_for_print_summary_test()
+      file_mapping = initialize_for_print_summary_test()
     args.by_type = True
     ##
-    scoring_metrics.print_score_summary( score_card , file_list ,
+    scoring_metrics.print_score_summary( score_card , file_mapping ,
                                          sample_config , sample_config ,
                                          args )
     by_type_out, err = capsys.readouterr()
@@ -144,12 +144,35 @@ def test_unique_score_key_summary_stats( capsys ):
     assert by_type_out == expected_out
 
 
+def test_by_type_and_file_score_key_summary_stats( capsys ):
+    score_card , args , sample_config , \
+      file_mapping = initialize_for_print_summary_test()
+    args.by_type_and_file = True
+    ##
+    scoring_metrics.print_score_summary( score_card , file_mapping ,
+                                         sample_config , sample_config ,
+                                         args )
+    by_type_out, err = capsys.readouterr()
+    ##
+    expected_values = [ [ '#########' , 'TP' , 'FP' , 'TN' , 'FN' ] ,
+                        [ 'aggregate' , '1.0' , '1.0' , '0.0' , '2.0' ] ,
+                        [ 'Sentence' , '1.0' , '1.0' , '0.0' , '2.0' ] ,
+                        [ 'Sentence x a.xml' , '1.0' , '0.0' , '0.0' , '1.0' ] ,
+                        [ 'Sentence x b.xml' , '0.0' , '1.0' , '0.0' , '1.0' ] ]
+    for expected_values in expected_values:
+        print( args.delim.join( '{}'.format( m ) for m in expected_values ) )
+    expected_out, err = capsys.readouterr()
+    by_type_out = by_type_out.strip()
+    expected_out = expected_out.strip()
+    assert by_type_out == expected_out
+
+
 def test_by_file_summary_stats( capsys ):
     score_card , args , sample_config , \
-      file_list = initialize_for_print_summary_test()
+      file_mapping = initialize_for_print_summary_test()
     args.by_file = True
     ##
-    scoring_metrics.print_score_summary( score_card , file_list ,
+    scoring_metrics.print_score_summary( score_card , file_mapping ,
                                          sample_config , sample_config ,
                                          args )
     by_type_out, err = capsys.readouterr()
@@ -164,14 +187,38 @@ def test_by_file_summary_stats( capsys ):
     by_type_out = by_type_out.strip()
     expected_out = expected_out.strip()
     assert by_type_out == expected_out
+
+
+def test_by_file_and_type_summary_stats( capsys ):
+    score_card , args , sample_config , \
+      file_mapping = initialize_for_print_summary_test()
+    args.by_file_and_type = True
+    ##
+    scoring_metrics.print_score_summary( score_card , file_mapping ,
+                                         sample_config , sample_config ,
+                                         args )
+    by_type_out, err = capsys.readouterr()
+    ##
+    expected_values = [ [ '#########' , 'TP' , 'FP' , 'TN' , 'FN' ] ,
+                        [ 'aggregate' , '1.0' , '1.0' , '0.0' , '2.0' ] ,
+                        [ 'a.xml' , '1.0' , '0.0' , '0.0' , '1.0' ] ,
+                        [ 'a.xml x Sentence' , '1.0' , '0.0' , '0.0' , '1.0' ] ,
+                        [ 'b.xml' , '0.0' , '1.0' , '0.0' , '1.0' ]  ,
+                        [ 'b.xml x Sentence' , '0.0' , '1.0' , '0.0' , '1.0' ] ]
+    for expected_values in expected_values:
+        print( args.delim.join( '{}'.format( m ) for m in expected_values ) )
+    expected_out, err = capsys.readouterr()
+    by_type_out = by_type_out.strip()
+    expected_out = expected_out.strip()
+    assert by_type_out == expected_out
     
     
 
 def changing_delim_to_variable( capsys , new_delim ):
     score_card , args , sample_config , \
-      file_list = initialize_for_print_summary_test()
+      file_mapping = initialize_for_print_summary_test()
     ##
-    scoring_metrics.print_score_summary( score_card , file_list ,
+    scoring_metrics.print_score_summary( score_card , file_mapping ,
                                          sample_config , sample_config ,
                                          args )
     default_delim_out, err = capsys.readouterr()
@@ -180,7 +227,7 @@ def changing_delim_to_variable( capsys , new_delim ):
                             new_delim ,
                             default_delim_out )
     args.delim = new_delim
-    scoring_metrics.print_score_summary( score_card , file_list ,
+    scoring_metrics.print_score_summary( score_card , file_mapping ,
                                          sample_config , sample_config ,
                                          args )
     new_delim_out, err = capsys.readouterr()
@@ -207,10 +254,10 @@ def test_changing_delim_to_pipe( capsys ):
 
 def test_aggregate_summary_counts( capsys ):
     score_card , args , sample_config , \
-      file_list = initialize_for_print_summary_test()
+      file_mapping = initialize_for_print_summary_test()
     ##
     scoring_metrics.print_counts_summary( type_counts = score_card ,
-                                          file_list = file_list ,
+                                          file_mapping = file_mapping ,
                                           test_config = sample_config ,
                                           args = args )
     agg_out, err = capsys.readouterr()
@@ -226,11 +273,11 @@ def test_aggregate_summary_counts( capsys ):
 
 def test_by_file_summary_counts( capsys ):
     score_card , args , sample_config , \
-      file_list = initialize_for_print_summary_test()
+      file_mapping = initialize_for_print_summary_test()
     args.by_file = True
     ##
     scoring_metrics.print_counts_summary( type_counts = score_card ,
-                                          file_list = file_list ,
+                                          file_mapping = file_mapping ,
                                           test_config = sample_config ,
                                           args = args )
     by_type_out, err = capsys.readouterr()

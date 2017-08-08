@@ -257,12 +257,20 @@ def norm_summary( score_summary , row_name , args ):
     log.debug( "Leaving '{}'".format( sys._getframe().f_code.co_name ) )
     return metrics
 
-def print_score_summary( score_card , file_list ,
+
+def update_output_dictionary( gold_out_file ,
+                              metrics_keys ,
+                              metrics_values ):
+    return None
+
+
+def print_score_summary( score_card , file_mapping ,
                          gold_config , test_config ,
                          args ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     ## TODO - refactor score printing to a separate function
     ## TODO - add scores grouped by type
+    file_list = sorted( file_mapping.keys() )
     print( '{}{}{}'.format( '\n#########' ,
                             args.delim ,
                             args.delim.join( '{}'.format( m ) for m in args.metrics_list ) ) )
@@ -271,53 +279,81 @@ def print_score_summary( score_card , file_list ,
                             row_name = 'aggregate' , args = args )
     print( args.delim.join( '{}'.format( m ) for m in metrics ) )
     ##
-    if( args.by_file or args.by_file_and_type ):
-        for filename in file_list:
-            this_file = ( score_card[ 'File' ] == filename )
-            metrics = norm_summary( score_card[ this_file ][ 'Score' ].value_counts() ,
-                                    row_name = filename , args = args )
+    args.test_out == None
+    for filename in file_list:
+        this_file = ( score_card[ 'File' ] == filename )
+        metrics = norm_summary( score_card[ this_file ][ 'Score' ].value_counts() ,
+                                row_name = filename , args = args )
+        if( args.by_file or args.by_file_and_type ):
             print( args.delim.join( '{}'.format( m ) for m in metrics ) )
-            if( args.by_file_and_type ):
-                unique_types = Set()
-                for pattern in gold_config:
-                    unique_types.add( pattern[ 'type' ] )
-                for unique_type in sorted( unique_types ):
-                    this_type = \
-                      (  ( score_card[ 'File' ] == filename ) &
-                         ( score_card[ 'Type' ] == unique_type ) )
-                    metrics = \
-                      norm_summary( score_card[ this_type ][ 'Score' ].value_counts() ,
-                                    row_name = filename + ' x ' + unique_type ,
-                                    args = args )
-                    print( args.delim.join( '{}'.format( m ) for m in metrics ) )
-    ##
-    if( args.by_type or args.by_type_and_file ):
+        if( args.gold_out ):
+            gold_out_file = '{}/{}'.format( args.gold_out ,
+                                            filename )
+            update_output_dictionary( gold_out_file ,
+                                      args.metrics_list ,
+                                      metrics )
+        if( args.test_out ):
+            test_out_file = '{}/{}'.format( args.test_out ,
+                                            file_mapping[ filename ] )
+            update_output_dictionary( gold_out_file ,
+                                      args.metrics_list ,
+                                      metrics )
+        ##
         unique_types = Set()
         for pattern in gold_config:
             unique_types.add( pattern[ 'type' ] )
         for unique_type in sorted( unique_types ):
-            this_type = ( score_card[ 'Type' ] == unique_type )
-            metrics = norm_summary( score_card[ this_type ][ 'Score' ].value_counts() ,
-                                    row_name = unique_type ,
-                                    args = args )
+            this_type = \
+              (  ( score_card[ 'File' ] == filename ) &
+                 ( score_card[ 'Type' ] == unique_type ) )
+            metrics = \
+              norm_summary( score_card[ this_type ][ 'Score' ].value_counts() ,
+                            row_name = filename + ' x ' + unique_type ,
+                            args = args )
+            if( args.by_file_and_type ):
+                print( args.delim.join( '{}'.format( m ) for m in metrics ) )
+            if( args.gold_out ):
+                gold_out_file = '{}/{}'.format( args.gold_out ,
+                                                filename )
+                update_output_dictionary( gold_out_file ,
+                                          args.metrics_list ,
+                                          metrics )
+            if( args.test_out ):
+                test_out_file = '{}/{}'.format( args.test_out ,
+                                                file_mapping[ filename ] )
+                update_output_dictionary( gold_out_file ,
+                                          args.metrics_list ,
+                                          metrics )
+    ##
+    unique_types = Set()
+    for pattern in gold_config:
+        unique_types.add( pattern[ 'type' ] )
+    for unique_type in sorted( unique_types ):
+        this_type = ( score_card[ 'Type' ] == unique_type )
+        metrics = norm_summary( score_card[ this_type ][ 'Score' ].value_counts() ,
+                                row_name = unique_type ,
+                                args = args )
+        if( args.by_type or args.by_type_and_file ):
             print( args.delim.join( '{}'.format( m ) for m in metrics ) )
+        ##
+        for filename in file_list:
+            this_file = \
+              (  ( score_card[ 'File' ] == filename ) &
+                 ( score_card[ 'Type' ] == unique_type ) )
+            metrics = \
+              norm_summary( score_card[ this_file ][ 'Score' ].value_counts() ,
+                            row_name = unique_type + ' x ' + filename ,
+                            args = args )
             if( args.by_type_and_file ):
-                for filename in file_list:
-                    this_file = \
-                      (  ( score_card[ 'File' ] == filename ) &
-                      ( score_card[ 'Type' ] == unique_type ) )
-                    metrics = \
-                      norm_summary( score_card[ this_file ][ 'Score' ].value_counts() ,
-                                    row_name = unique_type + ' x ' + filename ,
-                                    args = args )
-                    print( args.delim.join( '{}'.format( m ) for m in metrics ) )
+                print( args.delim.join( '{}'.format( m ) for m in metrics ) )
     log.debug( "Leaving '{}'".format( sys._getframe().f_code.co_name ) )
 
 
-def print_counts_summary( type_counts , file_list ,
+def print_counts_summary( type_counts , file_mapping ,
                           test_config ,
                           args ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
+    file_list = sorted( file_mapping.keys() )
     unique_types = Set()
     for pattern in test_config:
         unique_types.add( pattern[ 'type' ] )        
