@@ -1,4 +1,5 @@
 import sys
+import logging as log
 
 from sets import Set
 
@@ -9,6 +10,30 @@ def new_score_card():
                                      'Start' , 'End' ,
                                      'Type' , 'Score' ] )
 
+def get_annotation_from_base_entry( annotation_entry ,
+                                    start_key ,
+                                    end_key ):
+    try:
+        annotation_type = annotation_entry[ 'type' ]
+    except KeyError as e:
+        log.warn( 'Could not access annotation type.  Skipping entry.' )
+        return None , None , None
+    try:
+        annotation_start = annotation_entry[ start_key ]
+    except KeyError as e:
+        log.warn( 'Could not access annotation type.  Skipping entry.' )
+        return None , None , None
+    try:
+        annotation_end = annotation_entry[ end_key ]
+    except KeyError as e:
+        log.warn( 'Could not access annotation type.  Skipping entry.' )
+        return None , None , None
+    log.debug( '{} ( {} - {} )'.format( annotation_type ,
+                                        annotation_start ,
+                                        annotation_end ) )
+    return annotation_type , annotation_start , annotation_end
+
+
 ##
 ## 
 ##
@@ -18,6 +43,7 @@ def evaluate_positions( gold_filename ,
                         gold_ss ,
                         test_ss ,
                         ignore_whitespace = False ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     if( ignore_whitespace ):
         start_key = 'begin_pos_mapped'
         end_key = 'end_pos_mapped'
@@ -25,26 +51,51 @@ def evaluate_positions( gold_filename ,
         start_key = 'begin_pos'
         end_key = 'end_pos'
     ##
+    log.debug( 'Anchoring positions at \'{}\' and \'{}\''.format( start_key ,
+                                                                  end_key ) )
     gold_keys = gold_ss.keys()
-    gold_keys.sort( key = int )
+    if( len( gold_keys ) == 0 ):
+        log.debug( 'Zero gold keys in strict starts dictionary' )
+    else:
+        gold_keys.sort( key = int )
+        log.debug( '{} gold keys ranging from {} to {}'.format( len( gold_keys ) ,
+                                                                gold_keys[ 0 ] ,
+                                                                gold_keys[ -1 ] ) )
+    ##
     test_keys = test_ss.keys()
-    test_keys.sort( key = int )
+    if( len( test_keys ) == 0 ):
+        log.debug( 'Zero test keys in strict starts dictionary' )
+    else:
+        test_keys.sort( key = int )
+        log.debug( '{} test keys ranging from {} to {}'.format( len( test_keys ) ,
+                                                                test_keys[ 0 ] ,
+                                                                test_keys[ -1 ] ) )
+    ##
     last_test_key_index = -1
     matched_test_keys = Set()
     for gold_key in gold_keys:
-        ## grab type and end position
         ## TODO - loop over all entries in the dictionary
-        gold_type = gold_ss[ gold_key ][ 0 ][ 'type' ]
-        gold_start = gold_ss[ gold_key ][ 0 ][ start_key ]
-        gold_end = gold_ss[ gold_key ][ 0 ][ end_key ]
+        log.debug( 'These keys:  {}'.format( gold_ss[ gold_key ] ) )
+        ## grab type and end position
+        gold_type , gold_start , gold_end = \
+          get_annotation_from_base_entry( gold_ss[ gold_key ][ 0 ] ,
+                                          start_key ,
+                                          end_key )
+        if( gold_type == None ):
+            continue
         ## Loop through all the test keys after our last matching key
         test_key_index = last_test_key_index + 1
         while( test_key_index < len( test_keys ) ):
             test_key = test_keys[ test_key_index ]
             ## grab type and end position
-            test_type = test_ss[ test_key ][ 0 ][ 'type' ]
-            test_start = test_ss[ test_key ][ 0 ][ start_key ]
-            test_end = test_ss[ test_key ][ 0 ][ end_key ]
+            test_type , test_start , test_end = \
+              get_annotation_from_base_entry( test_ss[ test_key ][ 0 ] ,
+                                              start_key ,
+                                              end_key )
+            if( test_type == None ):
+                test_key_index += 1
+                continue
+            ##
             if( gold_start == test_start ):
                 ## If the types match...
                 if( gold_type == test_type ):
@@ -91,12 +142,16 @@ def evaluate_positions( gold_filename ,
         if( test_key in matched_test_keys ):
             continue
         ## grab type and end position
-        test_type = test_ss[ test_key ][ 0 ][ 'type' ]
-        test_start = test_ss[ test_key ][ 0 ][ start_key ]
-        test_end = test_ss[ test_key ][ 0 ][ end_key ]
+        test_type , test_start , test_end = \
+          get_annotation_from_base_entry( test_ss[ test_key ][ 0 ] ,
+                                          start_key ,
+                                          end_key )
+        if( test_type == None ):
+            continue
         score_card.loc[ score_card.shape[ 0 ] ] = \
           [ gold_filename , test_start , test_end , test_type , 'FP' ]
     ##
+    log.debug( "Leaving '{}'".format( sys._getframe().f_code.co_name ) )
     return score_card
 
 ##
@@ -141,6 +196,7 @@ def f_score( p , r , beta = 1 ):
 
 
 def add_missing_fields( score_summary ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     score_types = score_summary.keys()
     if( 'TP' not in score_types ):
         score_summary[ 'TP' ] = 0.0
@@ -150,10 +206,12 @@ def add_missing_fields( score_summary ):
         score_summary[ 'TN' ] = 0.0
     if( 'FN' not in score_types ):
         score_summary[ 'FN' ] = 0.0
+    log.debug( "Leaving '{}'".format( sys._getframe().f_code.co_name ) )
     return score_summary
 
 
 def norm_summary( score_summary , row_name , args ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     ## Source for definitions:
     ## -- https://en.wikipedia.org/wiki/Precision_and_recall#Definition_.28classification_context.29
     ##
@@ -196,11 +254,13 @@ def norm_summary( score_summary , row_name , args ):
     metrics = [ row_name ]
     for metric in args.metrics_list:
         metrics.append( score_summary[ metric ] )
+    log.debug( "Leaving '{}'".format( sys._getframe().f_code.co_name ) )
     return metrics
 
 def print_score_summary( score_card , file_list ,
                          gold_config , test_config ,
                          args ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     ## TODO - refactor score printing to a separate function
     ## TODO - add scores grouped by type
     print( '{}{}{}'.format( '\n#########' ,
@@ -211,14 +271,27 @@ def print_score_summary( score_card , file_list ,
                             row_name = 'aggregate' , args = args )
     print( args.delim.join( '{}'.format( m ) for m in metrics ) )
     ##
-    if( args.by_file ):
+    if( args.by_file or args.by_file_and_type ):
         for filename in file_list:
             this_file = ( score_card[ 'File' ] == filename )
             metrics = norm_summary( score_card[ this_file ][ 'Score' ].value_counts() ,
                                     row_name = filename , args = args )
             print( args.delim.join( '{}'.format( m ) for m in metrics ) )
-
-    if( args.by_type ):
+            if( args.by_file_and_type ):
+                unique_types = Set()
+                for pattern in gold_config:
+                    unique_types.add( pattern[ 'type' ] )
+                for unique_type in sorted( unique_types ):
+                    this_type = \
+                      (  ( score_card[ 'File' ] == filename ) &
+                         ( score_card[ 'Type' ] == unique_type ) )
+                    metrics = \
+                      norm_summary( score_card[ this_type ][ 'Score' ].value_counts() ,
+                                    row_name = filename + ' x ' + unique_type ,
+                                    args = args )
+                    print( args.delim.join( '{}'.format( m ) for m in metrics ) )
+    ##
+    if( args.by_type or args.by_type_and_file ):
         unique_types = Set()
         for pattern in gold_config:
             unique_types.add( pattern[ 'type' ] )
@@ -228,11 +301,23 @@ def print_score_summary( score_card , file_list ,
                                     row_name = unique_type ,
                                     args = args )
             print( args.delim.join( '{}'.format( m ) for m in metrics ) )
+            if( args.by_type_and_file ):
+                for filename in file_list:
+                    this_file = \
+                      (  ( score_card[ 'File' ] == filename ) &
+                      ( score_card[ 'Type' ] == unique_type ) )
+                    metrics = \
+                      norm_summary( score_card[ this_file ][ 'Score' ].value_counts() ,
+                                    row_name = unique_type + ' x ' + filename ,
+                                    args = args )
+                    print( args.delim.join( '{}'.format( m ) for m in metrics ) )
+    log.debug( "Leaving '{}'".format( sys._getframe().f_code.co_name ) )
 
 
 def print_counts_summary( type_counts , file_list ,
                           test_config ,
                           args ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     unique_types = Set()
     for pattern in test_config:
         unique_types.add( pattern[ 'type' ] )        
@@ -264,5 +349,6 @@ def print_counts_summary( type_counts , file_list ,
             print( '{}{}{}'.format( filename ,
                                     args.delim ,
                                     args.delim.join( '{}'.format( m ) for m in type_matches ) ) )
+    log.debug( "Leaving '{}'".format( sys._getframe().f_code.co_name ) )
 
 

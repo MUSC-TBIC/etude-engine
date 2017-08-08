@@ -1,3 +1,6 @@
+import sys
+import logging as log
+
 import re
 
 import argparse
@@ -47,9 +50,15 @@ unstructured data extraction.
     parser.add_argument( '--by-file' , dest = 'by_file' ,
                          help = "Print metrics by file" ,
                          action = "store_true" )
+    parser.add_argument( '--by-file-and-type' , dest = 'by_file_and_type' ,
+                         help = "Print metrics by type nested within file" ,
+                         action = "store_true" )
     
     parser.add_argument( '--by-type' , dest = 'by_type' ,
                          help = "Print metrics by annotation type" ,
+                         action = "store_true" )
+    parser.add_argument( '--by-type-and-file' , dest = 'by_type_and_file' ,
+                         help = "Print metrics by file nested within annotation type" ,
                          action = "store_true" )
 
     parser.add_argument("--gold-config", 
@@ -96,7 +105,12 @@ unstructured data extraction.
                          dest = 'count_types' ,
                          help = "Count pattern types in each test file" ,
                          action = "store_true" )
-    
+
+    parser.add_argument( '--align-tokens' ,
+                         dest = 'align_tokens' ,
+                         help = "Generate a token-aligned corpus" ,
+                         action = "store_true" )
+
     parser.add_argument( '--ignore-whitespace' ,
                          default = True ,
                          dest = 'ignore_whitespace' ,
@@ -115,20 +129,24 @@ def get_arguments( command_line_args ):
     parser = initialize_arg_parser()
     args = parser.parse_args( command_line_args )
     ##
-    if( args.verbose ):
-        print( '{}'.format( args ) )
-    ##
     return args
 
 def extract_namespaces( namespaces ,
                         config , sect ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     for ns , value in config.items( sect ):
         namespaces[ ns ] = value
+    log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
     return namespaces
 
 
 def extract_document_data( document_data ,
                            config , sect ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
+    if( config.has_option( sect , 'Format' ) ):
+        document_data[ 'format' ] = config.get( sect , 'Format' )
+    else:
+        document_data[ 'format' ] = 'Unknown'
     if( config.has_option( sect , 'Content XPath' ) ):
         if( config.has_option( sect , 'Content Attribute' ) ):
             document_data[ 'tag_xpath' ] = config.get( sect ,
@@ -138,13 +156,16 @@ def extract_document_data( document_data ,
         else:
             document_data[ 'cdata_xpath' ] = config.get( sect ,
                                                          'Content XPath' )
+    log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
     return document_data
 
 
 def extract_patterns( annotations ,
                       config , sect ,
                       score_key ,
-                      score_values ):
+                      score_values ,
+                      verbose = False ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     if( config.has_option( sect , 'XPath' ) and
         config.has_option( sect , 'Begin Attr' ) and
         config.has_option( sect , 'End Attr' ) ):
@@ -170,12 +191,35 @@ def extract_patterns( annotations ,
                                           end_attr = config.get( sect ,
                                                                  'End Attr' ) ) )
                 break
+    elif( config.has_option( sect , 'Delimiter' ) ):
+        display_name = '{} ({})'.format( sect.strip() ,
+                                         config.get( sect , 'Short Name' ) )
+        if( score_key == 'Long Name' or
+            score_key == 'Section' ):
+            key_value = sect.strip()
+        else:
+            key_value = config.get( sect , score_key )
+        ## Loop through all the provided score_values to see if any
+        ## provided values match the currently extracted value
+        for score_value in score_values:
+            if( re.search( score_value , key_value ) ):
+                annotations.append( dict( type = key_value ,
+                                          long_name = sect.strip() ,
+                                          delimiter = config.get( sect ,
+                                                                  'Delimiter' ) ,
+                                          display_name = display_name ,
+                                          short_name = config.get( sect ,
+                                                                   'Short Name' ) ) )
+                break
+    log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
     return annotations
 
 
 def process_config( config_file ,
                     score_key ,
-                    score_values ):
+                    score_values ,
+                    verbose = False ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     config = ConfigParser.ConfigParser()
     config.read( config_file )
     annotations = []
@@ -190,6 +234,17 @@ def process_config( config_file ,
             annotations = extract_patterns( annotations ,
                                             config , sect ,
                                             score_key ,
-                                            score_values )
+                                            score_values ,
+                                            verbose = verbose )
+    if( verbose ):
+        verbose_msg = 'Values defined by the config \'{}\':\n' + \
+                      '\tns\t=\t{}\n' + \
+                      '\tdocument data\t=\t{}\n' + \
+                      '\tpatterns\t=\t{}\n'
+        print( verbose_msg.format( config_file ,
+                                   namespaces ,
+                                   document_data ,
+                                   annotations ) )
     ##
+    log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
     return namespaces , document_data , annotations
