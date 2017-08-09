@@ -213,23 +213,26 @@ def test_writing_dictionary_for_datetime_from_0005_gs():
     ingest_file = 'tests/data/i2b2_2016_track-1_gold/0005_gs.xml'
     reference_file = 'tests/data/i2b2_2016_track-1_gold_out/0005_gs.xml'
     config_file = 'config/i2b2_2016_track-1.conf'
-    tmp_descriptor, tmp_file = tempfile.mkstemp()
-    os.close( tmp_descriptor )
-    namespaces , document_data , patterns = \
-      args_and_configs.process_config( config_file = config_file ,
-                                       score_key = 'Short Name' ,
-                                       score_values = [ '.*' ] )
-    text_extraction.extract_annotations( ingest_file ,
-                                         namespaces = namespaces ,
-                                         document_data = document_data ,
-                                         patterns = patterns ,
-                                         ignore_whitespace = True ,
-                                         out_file = tmp_file )
-    with open( reference_file , 'r' ) as rf:
-        reloaded_reference = json.load( rf )
-    with open( tmp_file , 'r' ) as tf:
-        reloaded_test = json.load( tf )
-    assert reloaded_reference == reloaded_test
+    try:
+        tmp_descriptor, tmp_file = tempfile.mkstemp()
+        os.close( tmp_descriptor )
+        namespaces , document_data , patterns = \
+          args_and_configs.process_config( config_file = config_file ,
+                                           score_key = 'Short Name' ,
+                                           score_values = [ '.*' ] )
+        text_extraction.extract_annotations( ingest_file ,
+                                             namespaces = namespaces ,
+                                             document_data = document_data ,
+                                             patterns = patterns ,
+                                             ignore_whitespace = True ,
+                                             out_file = tmp_file )
+        with open( reference_file , 'r' ) as rf:
+            reloaded_reference = json.load( rf )
+        with open( tmp_file , 'r' ) as tf:
+            reloaded_test = json.load( tf )
+        assert reloaded_reference == reloaded_test
+    finally:
+        os.remove( tmp_file )
 
 
 ## TODO - add tests for ingore_whitespace == True | False

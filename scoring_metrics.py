@@ -1,6 +1,8 @@
 import sys
 import logging as log
 
+import json
+
 from sets import Set
 
 import pandas as pd
@@ -258,10 +260,38 @@ def norm_summary( score_summary , row_name , args ):
     return metrics
 
 
-def update_output_dictionary( gold_out_file ,
+def recursive_deep_key_value_pair( dictionary , path , key , value ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
+    if( len( path ) == 0 ):
+        dictionary[ key ] = value
+    else:
+        pop_path = path[ 0 ]
+        if( pop_path not in dictionary.keys() ):
+            dictionary[ pop_path ] = {}
+        dictionary[ pop_path ] = recursive_deep_key_value_pair( dictionary[ pop_path ] ,
+                                                                path[ 1: ] ,
+                                                                key ,
+                                                                value )
+    log.debug( "Leaving '{}'".format( sys._getframe().f_code.co_name ) )
+    return dictionary
+
+
+def update_output_dictionary( out_file ,
+                              metric_type ,
                               metrics_keys ,
                               metrics_values ):
-    return None
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
+    with open( out_file , 'r' ) as fp:
+        file_dictionary = json.load( fp )
+    for key , value in zip( metrics_keys , metrics_values ):
+        file_dictionary = recursive_deep_key_value_pair( file_dictionary ,
+                                                         metric_type ,
+                                                         key ,
+                                                         value )
+    with open( out_file , 'w' ) as fp:
+        json.dump( file_dictionary , fp ,
+                   indent = 4 )
+    log.debug( "Leaving '{}'".format( sys._getframe().f_code.co_name ) )
 
 
 def print_score_summary( score_card , file_mapping ,
@@ -290,14 +320,16 @@ def print_score_summary( score_card , file_mapping ,
             gold_out_file = '{}/{}'.format( args.gold_out ,
                                             filename )
             update_output_dictionary( gold_out_file ,
+                                      [ 'metrics' , 'aggregate' ] ,
                                       args.metrics_list ,
-                                      metrics )
+                                      metrics[ 1: ] )
         if( args.test_out ):
             test_out_file = '{}/{}'.format( args.test_out ,
                                             file_mapping[ filename ] )
             update_output_dictionary( gold_out_file ,
+                                      [ 'metrics' , 'aggregate' ] ,
                                       args.metrics_list ,
-                                      metrics )
+                                      metrics[ 1: ] )
         ##
         unique_types = Set()
         for pattern in gold_config:
@@ -316,14 +348,16 @@ def print_score_summary( score_card , file_mapping ,
                 gold_out_file = '{}/{}'.format( args.gold_out ,
                                                 filename )
                 update_output_dictionary( gold_out_file ,
+                                          [ 'metrics' , 'by-type' , unique_type ] ,
                                           args.metrics_list ,
-                                          metrics )
+                                          metrics[ 1: ] )
             if( args.test_out ):
                 test_out_file = '{}/{}'.format( args.test_out ,
                                                 file_mapping[ filename ] )
                 update_output_dictionary( gold_out_file ,
+                                          [ 'metrics' , 'by-type' , unique_type ] ,
                                           args.metrics_list ,
-                                          metrics )
+                                          metrics[ 1: ] )
     ##
     unique_types = Set()
     for pattern in gold_config:
