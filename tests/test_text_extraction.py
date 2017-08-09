@@ -230,7 +230,9 @@ def test_writing_dictionary_for_datetime_from_0005_gs():
             reloaded_reference = json.load( rf )
         with open( tmp_file , 'r' ) as tf:
             reloaded_test = json.load( tf )
-        assert reloaded_reference == reloaded_test
+        assert reloaded_reference[ 'annotations' ] == reloaded_test[ 'annotations' ]
+        assert reloaded_reference[ 'offset_mapping' ] == reloaded_test[ 'offset_mapping' ]
+        assert reloaded_reference[ 'raw_content' ] == reloaded_test[ 'raw_content' ]
     finally:
         os.remove( tmp_file )
 
