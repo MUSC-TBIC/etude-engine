@@ -1,3 +1,4 @@
+import os
 import sys
 import logging as log
 
@@ -281,8 +282,19 @@ def update_output_dictionary( out_file ,
                               metrics_keys ,
                               metrics_values ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
-    with open( out_file , 'r' ) as fp:
-        file_dictionary = json.load( fp )
+    if( os.path.exists( out_file ) ):
+        try:
+            with open( out_file , 'r' ) as fp:
+                file_dictionary = json.load( fp )
+        except ValueError , e:
+            log.error( 'I can\'t update the output dictionary \'{}\'' + \
+                       'because I had a problem loading it into memory:  ' + \
+                       '{}'.format( out_file ,
+                                    e ) )
+            log.debug( "Leaving '{}'".format( sys._getframe().f_code.co_name ) )
+            return
+    else:
+        file_dictionary = {}
     for key , value in zip( metrics_keys , metrics_values ):
         file_dictionary = recursive_deep_key_value_pair( file_dictionary ,
                                                          metric_type ,
@@ -309,7 +321,18 @@ def print_score_summary( score_card , file_mapping ,
                             row_name = 'aggregate' , args = args )
     print( args.delim.join( '{}'.format( m ) for m in metrics ) )
     ##
+    if( args.corpus_out ):
+        update_output_dictionary( args.corpus_out ,
+                                  [ 'metrics' , 'aggregate' ] ,
+                                  args.metrics_list ,
+                                  metrics[ 1: ] )
+    ##
     for filename in file_list:
+        if( args.corpus_out ):
+            update_output_dictionary( args.corpus_out ,
+                                      [ 'file-mapping' ] ,
+                                      [ filename ] ,
+                                      [ file_mapping[ filename ] ] )
         this_file = ( score_card[ 'File' ] == filename )
         metrics = norm_summary( score_card[ this_file ][ 'Score' ].value_counts() ,
                                 row_name = filename , args = args )
@@ -368,6 +391,11 @@ def print_score_summary( score_card , file_mapping ,
                                 args = args )
         if( args.by_type or args.by_type_and_file ):
             print( args.delim.join( '{}'.format( m ) for m in metrics ) )
+        if( args.corpus_out ):
+            update_output_dictionary( args.corpus_out ,
+                                      [ 'metrics' , 'by-type' , unique_type ] ,
+                                      args.metrics_list ,
+                                      metrics[ 1: ] )
         ##
         for filename in file_list:
             this_file = \
@@ -379,6 +407,7 @@ def print_score_summary( score_card , file_mapping ,
                             args = args )
             if( args.by_type_and_file ):
                 print( args.delim.join( '{}'.format( m ) for m in metrics ) )
+
     log.debug( "Leaving '{}'".format( sys._getframe().f_code.co_name ) )
 
 
