@@ -1,5 +1,9 @@
+import os
 import sys
 import re
+import tempfile
+
+import json
 
 import args_and_configs
 import scoring_metrics
@@ -119,16 +123,16 @@ def initialize_for_print_summary_test():
                         'XPath' : './/type:Sentence' } ,
                       { 'type' : 'Sentence' ,
                         'XPath' : './/type4:Sentence' } ]
-    file_list = [ 'a.xml' , 'b.xml' ]
-    return( score_card , args , sample_config , file_list )
+    file_mapping = { 'a.xml': 'a.xml' , 'b.xml': 'b.xml' }
+    return( score_card , args , sample_config , file_mapping )
 
 
 def test_unique_score_key_summary_stats( capsys ):
     score_card , args , sample_config , \
-      file_list = initialize_for_print_summary_test()
+      file_mapping = initialize_for_print_summary_test()
     args.by_type = True
     ##
-    scoring_metrics.print_score_summary( score_card , file_list ,
+    scoring_metrics.print_score_summary( score_card , file_mapping ,
                                          sample_config , sample_config ,
                                          args )
     by_type_out, err = capsys.readouterr()
@@ -144,12 +148,35 @@ def test_unique_score_key_summary_stats( capsys ):
     assert by_type_out == expected_out
 
 
+def test_by_type_and_file_score_key_summary_stats( capsys ):
+    score_card , args , sample_config , \
+      file_mapping = initialize_for_print_summary_test()
+    args.by_type_and_file = True
+    ##
+    scoring_metrics.print_score_summary( score_card , file_mapping ,
+                                         sample_config , sample_config ,
+                                         args )
+    by_type_out, err = capsys.readouterr()
+    ##
+    expected_values = [ [ '#########' , 'TP' , 'FP' , 'TN' , 'FN' ] ,
+                        [ 'aggregate' , '1.0' , '1.0' , '0.0' , '2.0' ] ,
+                        [ 'Sentence' , '1.0' , '1.0' , '0.0' , '2.0' ] ,
+                        [ 'Sentence x a.xml' , '1.0' , '0.0' , '0.0' , '1.0' ] ,
+                        [ 'Sentence x b.xml' , '0.0' , '1.0' , '0.0' , '1.0' ] ]
+    for expected_values in expected_values:
+        print( args.delim.join( '{}'.format( m ) for m in expected_values ) )
+    expected_out, err = capsys.readouterr()
+    by_type_out = by_type_out.strip()
+    expected_out = expected_out.strip()
+    assert by_type_out == expected_out
+
+
 def test_by_file_summary_stats( capsys ):
     score_card , args , sample_config , \
-      file_list = initialize_for_print_summary_test()
+      file_mapping = initialize_for_print_summary_test()
     args.by_file = True
     ##
-    scoring_metrics.print_score_summary( score_card , file_list ,
+    scoring_metrics.print_score_summary( score_card , file_mapping ,
                                          sample_config , sample_config ,
                                          args )
     by_type_out, err = capsys.readouterr()
@@ -164,14 +191,38 @@ def test_by_file_summary_stats( capsys ):
     by_type_out = by_type_out.strip()
     expected_out = expected_out.strip()
     assert by_type_out == expected_out
+
+
+def test_by_file_and_type_summary_stats( capsys ):
+    score_card , args , sample_config , \
+      file_mapping = initialize_for_print_summary_test()
+    args.by_file_and_type = True
+    ##
+    scoring_metrics.print_score_summary( score_card , file_mapping ,
+                                         sample_config , sample_config ,
+                                         args )
+    by_type_out, err = capsys.readouterr()
+    ##
+    expected_values = [ [ '#########' , 'TP' , 'FP' , 'TN' , 'FN' ] ,
+                        [ 'aggregate' , '1.0' , '1.0' , '0.0' , '2.0' ] ,
+                        [ 'a.xml' , '1.0' , '0.0' , '0.0' , '1.0' ] ,
+                        [ 'a.xml x Sentence' , '1.0' , '0.0' , '0.0' , '1.0' ] ,
+                        [ 'b.xml' , '0.0' , '1.0' , '0.0' , '1.0' ]  ,
+                        [ 'b.xml x Sentence' , '0.0' , '1.0' , '0.0' , '1.0' ] ]
+    for expected_values in expected_values:
+        print( args.delim.join( '{}'.format( m ) for m in expected_values ) )
+    expected_out, err = capsys.readouterr()
+    by_type_out = by_type_out.strip()
+    expected_out = expected_out.strip()
+    assert by_type_out == expected_out
     
     
 
 def changing_delim_to_variable( capsys , new_delim ):
     score_card , args , sample_config , \
-      file_list = initialize_for_print_summary_test()
+      file_mapping = initialize_for_print_summary_test()
     ##
-    scoring_metrics.print_score_summary( score_card , file_list ,
+    scoring_metrics.print_score_summary( score_card , file_mapping ,
                                          sample_config , sample_config ,
                                          args )
     default_delim_out, err = capsys.readouterr()
@@ -180,7 +231,7 @@ def changing_delim_to_variable( capsys , new_delim ):
                             new_delim ,
                             default_delim_out )
     args.delim = new_delim
-    scoring_metrics.print_score_summary( score_card , file_list ,
+    scoring_metrics.print_score_summary( score_card , file_mapping ,
                                          sample_config , sample_config ,
                                          args )
     new_delim_out, err = capsys.readouterr()
@@ -207,10 +258,10 @@ def test_changing_delim_to_pipe( capsys ):
 
 def test_aggregate_summary_counts( capsys ):
     score_card , args , sample_config , \
-      file_list = initialize_for_print_summary_test()
+      file_mapping = initialize_for_print_summary_test()
     ##
     scoring_metrics.print_counts_summary( type_counts = score_card ,
-                                          file_list = file_list ,
+                                          file_mapping = file_mapping ,
                                           test_config = sample_config ,
                                           args = args )
     agg_out, err = capsys.readouterr()
@@ -226,11 +277,11 @@ def test_aggregate_summary_counts( capsys ):
 
 def test_by_file_summary_counts( capsys ):
     score_card , args , sample_config , \
-      file_list = initialize_for_print_summary_test()
+      file_mapping = initialize_for_print_summary_test()
     args.by_file = True
     ##
     scoring_metrics.print_counts_summary( type_counts = score_card ,
-                                          file_list = file_list ,
+                                          file_mapping = file_mapping ,
                                           test_config = sample_config ,
                                           args = args )
     by_type_out, err = capsys.readouterr()
@@ -575,4 +626,102 @@ def test_evaluate_positions_missing_test_end_mapped_key():
       [ ingest_file , '2006' , '2011' , 'DateTime' , 'FN' ]
     assert_frame_equal( score_card , expected_score_card )
 
+
+#############################################
+## Test augmenting dictionaries on disk
+#############################################
+
+def test_empty_path_recursive_deep_key_value_pair():
+    base_dict = {}
+    reference_dict = { 'hello' : 'world' }
+    base_dict = scoring_metrics.recursive_deep_key_value_pair( base_dict ,
+                                                               [] ,
+                                                               'hello' ,
+                                                               'world' )
+    assert base_dict == reference_dict
+
+def test_one_deep_path_recursive_deep_key_value_pair():
+    base_dict = {}
+    reference_dict = { 'foobar' : { 'hello' : 'world' } }
+    base_dict = scoring_metrics.recursive_deep_key_value_pair( base_dict ,
+                                                               [ 'foobar' ] ,
+                                                               'hello' ,
+                                                               'world' )
+    assert base_dict == reference_dict
+
+
+def test_two_deep_path_recursive_deep_key_value_pair():
+    base_dict = {}
+    reference_dict = { 'foo' : { 'bar' : { 'hello' : 'world' } } }
+    base_dict = scoring_metrics.recursive_deep_key_value_pair( base_dict ,
+                                                               [ 'foo' , 'bar' ] ,
+                                                               'hello' ,
+                                                               'world' )
+    assert base_dict == reference_dict
+
+
+def test_empty_path_dictionary_augmentation():
+    base_dict = { 'Do not disturb' : [ 8 , 6 , 7, 5 , 3, 0 , 9 ] ,
+                  'Thing 1' : 'Thing 2' }
+    reference_dict = { 'Do not disturb' : [ 8 , 6 , 7, 5 , 3, 0 , 9 ] ,
+                       'Thing 1' : 'Thing 2' ,
+                       'hello' : 'world' }
+    try:
+        tmp_descriptor, tmp_file = tempfile.mkstemp()
+        os.close( tmp_descriptor )
+        with open( tmp_file , 'w' ) as fp:
+            json.dump( base_dict , fp )
+        scoring_metrics.update_output_dictionary( tmp_file ,
+                                                  [] ,
+                                                  [ 'hello' ] ,
+                                                  [ 'world' ] )
+        with open( tmp_file , 'r' ) as fp:
+            test_dict = json.load( fp )
+        assert test_dict == reference_dict
+    finally:
+        os.remove( tmp_file )
+
+
+def test_one_deep_path_dictionary_augmentation():
+    base_dict = { 'Do not disturb' : [ 8 , 6 , 7, 5 , 3, 0 , 9 ] ,
+                  'Thing 1' : 'Thing 2' }
+    reference_dict = { 'Do not disturb' : [ 8 , 6 , 7, 5 , 3, 0 , 9 ] ,
+                       'Thing 1' : 'Thing 2' ,
+                       'foobar' : { 'hello' : 'world' } }
+    try:
+        tmp_descriptor, tmp_file = tempfile.mkstemp()
+        os.close( tmp_descriptor )
+        with open( tmp_file , 'w' ) as fp:
+            json.dump( base_dict , fp )
+        scoring_metrics.update_output_dictionary( tmp_file ,
+                                                  [ 'foobar' ] ,
+                                                  [ 'hello' ] ,
+                                                  [ 'world' ] )
+        with open( tmp_file , 'r' ) as fp:
+            test_dict = json.load( fp )
+        assert test_dict == reference_dict
+    finally:
+        os.remove( tmp_file )
+
+
+def test_two_deep_path_dictionary_augmentation():
+    base_dict = { 'Do not disturb' : [ 8 , 6 , 7, 5 , 3, 0 , 9 ] ,
+                  'Thing 1' : 'Thing 2' }
+    reference_dict = { 'Do not disturb' : [ 8 , 6 , 7, 5 , 3, 0 , 9 ] ,
+                       'Thing 1' : 'Thing 2' ,
+                       'foo' : { 'bar' : { 'hello' : 'world' } } }
+    try:
+        tmp_descriptor, tmp_file = tempfile.mkstemp()
+        os.close( tmp_descriptor )
+        with open( tmp_file , 'w' ) as fp:
+            json.dump( base_dict , fp )
+        scoring_metrics.update_output_dictionary( tmp_file ,
+                                                  [ 'foo' , 'bar' ] ,
+                                                  [ 'hello' ] ,
+                                                  [ 'world' ] )
+        with open( tmp_file , 'r' ) as fp:
+            test_dict = json.load( fp )
+        assert test_dict == reference_dict
+    finally:
+        os.remove( tmp_file )
 

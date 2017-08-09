@@ -195,48 +195,46 @@ def test_extracting_sentences_from_CTAKES4_OpenNLP1_8():
                                        score_values = [ '.*' ] )
     strict_starts = \
       text_extraction.extract_annotations_xml( ingest_file ,
-                                                  offset_mapping = {} ,
-                                                  namespaces = namespaces ,
-                                                  annotation_path = \
-                                                      './/type:Sentence' ,
-                                                  tag_name = 'Sentence' ,
-                                                  begin_attribute = 'begin' ,
-                                                  end_attribute = 'end' )
+                                               offset_mapping = {} ,
+                                               namespaces = namespaces ,
+                                               annotation_path = \
+                                                   './/type:Sentence' ,
+                                               tag_name = 'Sentence' ,
+                                               begin_attribute = 'begin' ,
+                                               end_attribute = 'end' )
     assert len( strict_starts ) == 82
 
 
 #############################################
 ## Test writing to disk
 #############################################
-    
+
 def test_writing_dictionary_for_datetime_from_0005_gs():
     ingest_file = 'tests/data/i2b2_2016_track-1_gold/0005_gs.xml'
-    strict_starts = \
-      text_extraction.extract_annotations_xml( ingest_file ,
-                                                  offset_mapping = {} ,
-                                                  annotation_path = \
-                                                      './TAGS/DATE' ,
-                                                  tag_name = 'DateTime' ,
-                                                  begin_attribute = 'start' ,
-                                                  end_attribute = 'end' )
-    expected_output = \
-      { '2404' :  [ { 'type': 'DateTime' ,
-                      'begin_pos': '2404' ,
-                      'end_pos': '2410' ,
-                      'raw_text': None } ] ,
-        '87' : [ { 'type': 'DateTime' ,
-                   'begin_pos': '87' ,
-                   'end_pos': '97' ,
-                   'raw_text': None } ]
-      }
-    with tempfile.NamedTemporaryFile() as tmpfile_handle:
-        assert os.path.exists( tmpfile_handle.name )
-        text_extraction.write_annotations_to_disk( strict_starts ,
-                                                   tmpfile_handle.name )
-        reloaded_json = json.load( tmpfile_handle )
-        assert reloaded_json == expected_output
-        assert os.path.exists( tmpfile_handle.name )
-    assert os.path.exists( tmpfile_handle.name ) == False
+    reference_file = 'tests/data/i2b2_2016_track-1_gold_out/0005_gs.xml'
+    config_file = 'config/i2b2_2016_track-1.conf'
+    try:
+        tmp_descriptor, tmp_file = tempfile.mkstemp()
+        os.close( tmp_descriptor )
+        namespaces , document_data , patterns = \
+          args_and_configs.process_config( config_file = config_file ,
+                                           score_key = 'Short Name' ,
+                                           score_values = [ '.*' ] )
+        text_extraction.extract_annotations( ingest_file ,
+                                             namespaces = namespaces ,
+                                             document_data = document_data ,
+                                             patterns = patterns ,
+                                             ignore_whitespace = True ,
+                                             out_file = tmp_file )
+        with open( reference_file , 'r' ) as rf:
+            reloaded_reference = json.load( rf )
+        with open( tmp_file , 'r' ) as tf:
+            reloaded_test = json.load( tf )
+        assert reloaded_reference[ 'annotations' ] == reloaded_test[ 'annotations' ]
+        assert reloaded_reference[ 'offset_mapping' ] == reloaded_test[ 'offset_mapping' ]
+        assert reloaded_reference[ 'raw_content' ] == reloaded_test[ 'raw_content' ]
+    finally:
+        os.remove( tmp_file )
 
 
 ## TODO - add tests for ingore_whitespace == True | False

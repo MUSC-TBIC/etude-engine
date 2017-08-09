@@ -1,5 +1,8 @@
+import os
 import sys
 import logging as log
+
+import json
 
 from sets import Set
 
@@ -257,12 +260,59 @@ def norm_summary( score_summary , row_name , args ):
     log.debug( "Leaving '{}'".format( sys._getframe().f_code.co_name ) )
     return metrics
 
-def print_score_summary( score_card , file_list ,
+
+def recursive_deep_key_value_pair( dictionary , path , key , value ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
+    if( len( path ) == 0 ):
+        dictionary[ key ] = value
+    else:
+        pop_path = path[ 0 ]
+        if( pop_path not in dictionary.keys() ):
+            dictionary[ pop_path ] = {}
+        dictionary[ pop_path ] = recursive_deep_key_value_pair( dictionary[ pop_path ] ,
+                                                                path[ 1: ] ,
+                                                                key ,
+                                                                value )
+    log.debug( "Leaving '{}'".format( sys._getframe().f_code.co_name ) )
+    return dictionary
+
+
+def update_output_dictionary( out_file ,
+                              metric_type ,
+                              metrics_keys ,
+                              metrics_values ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
+    if( os.path.exists( out_file ) ):
+        try:
+            with open( out_file , 'r' ) as fp:
+                file_dictionary = json.load( fp )
+        except ValueError , e:
+            log.error( 'I can\'t update the output dictionary \'{}\'' + \
+                       'because I had a problem loading it into memory:  ' + \
+                       '{}'.format( out_file ,
+                                    e ) )
+            log.debug( "Leaving '{}'".format( sys._getframe().f_code.co_name ) )
+            return
+    else:
+        file_dictionary = {}
+    for key , value in zip( metrics_keys , metrics_values ):
+        file_dictionary = recursive_deep_key_value_pair( file_dictionary ,
+                                                         metric_type ,
+                                                         key ,
+                                                         value )
+    with open( out_file , 'w' ) as fp:
+        json.dump( file_dictionary , fp ,
+                   indent = 4 )
+    log.debug( "Leaving '{}'".format( sys._getframe().f_code.co_name ) )
+
+
+def print_score_summary( score_card , file_mapping ,
                          gold_config , test_config ,
                          args ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     ## TODO - refactor score printing to a separate function
     ## TODO - add scores grouped by type
+    file_list = sorted( file_mapping.keys() )
     print( '{}{}{}'.format( '\n#########' ,
                             args.delim ,
                             args.delim.join( '{}'.format( m ) for m in args.metrics_list ) ) )
@@ -271,53 +321,101 @@ def print_score_summary( score_card , file_list ,
                             row_name = 'aggregate' , args = args )
     print( args.delim.join( '{}'.format( m ) for m in metrics ) )
     ##
-    if( args.by_file or args.by_file_and_type ):
-        for filename in file_list:
-            this_file = ( score_card[ 'File' ] == filename )
-            metrics = norm_summary( score_card[ this_file ][ 'Score' ].value_counts() ,
-                                    row_name = filename , args = args )
-            print( args.delim.join( '{}'.format( m ) for m in metrics ) )
-            if( args.by_file_and_type ):
-                unique_types = Set()
-                for pattern in gold_config:
-                    unique_types.add( pattern[ 'type' ] )
-                for unique_type in sorted( unique_types ):
-                    this_type = \
-                      (  ( score_card[ 'File' ] == filename ) &
-                         ( score_card[ 'Type' ] == unique_type ) )
-                    metrics = \
-                      norm_summary( score_card[ this_type ][ 'Score' ].value_counts() ,
-                                    row_name = filename + ' x ' + unique_type ,
-                                    args = args )
-                    print( args.delim.join( '{}'.format( m ) for m in metrics ) )
+    if( args.corpus_out ):
+        update_output_dictionary( args.corpus_out ,
+                                  [ 'metrics' , 'aggregate' ] ,
+                                  args.metrics_list ,
+                                  metrics[ 1: ] )
     ##
-    if( args.by_type or args.by_type_and_file ):
+    for filename in file_list:
+        if( args.corpus_out ):
+            update_output_dictionary( args.corpus_out ,
+                                      [ 'file-mapping' ] ,
+                                      [ filename ] ,
+                                      [ file_mapping[ filename ] ] )
+        this_file = ( score_card[ 'File' ] == filename )
+        metrics = norm_summary( score_card[ this_file ][ 'Score' ].value_counts() ,
+                                row_name = filename , args = args )
+        if( args.by_file or args.by_file_and_type ):
+            print( args.delim.join( '{}'.format( m ) for m in metrics ) )
+        if( args.gold_out ):
+            out_file = '{}/{}'.format( args.gold_out ,
+                                       filename )
+            update_output_dictionary( out_file ,
+                                      [ 'metrics' , 'aggregate' ] ,
+                                      args.metrics_list ,
+                                      metrics[ 1: ] )
+        if( args.test_out ):
+            out_file = '{}/{}'.format( args.test_out ,
+                                       file_mapping[ filename ] )
+            update_output_dictionary( out_file ,
+                                      [ 'metrics' , 'aggregate' ] ,
+                                      args.metrics_list ,
+                                      metrics[ 1: ] )
+        ##
         unique_types = Set()
         for pattern in gold_config:
             unique_types.add( pattern[ 'type' ] )
         for unique_type in sorted( unique_types ):
-            this_type = ( score_card[ 'Type' ] == unique_type )
-            metrics = norm_summary( score_card[ this_type ][ 'Score' ].value_counts() ,
-                                    row_name = unique_type ,
-                                    args = args )
+            this_type = \
+              (  ( score_card[ 'File' ] == filename ) &
+                 ( score_card[ 'Type' ] == unique_type ) )
+            metrics = \
+              norm_summary( score_card[ this_type ][ 'Score' ].value_counts() ,
+                            row_name = filename + ' x ' + unique_type ,
+                            args = args )
+            if( args.by_file_and_type ):
+                print( args.delim.join( '{}'.format( m ) for m in metrics ) )
+            if( args.gold_out ):
+                out_file = '{}/{}'.format( args.gold_out ,
+                                           filename )
+                update_output_dictionary( out_file ,
+                                          [ 'metrics' , 'by-type' , unique_type ] ,
+                                          args.metrics_list ,
+                                          metrics[ 1: ] )
+            if( args.test_out ):
+                out_file = '{}/{}'.format( args.test_out ,
+                                           file_mapping[ filename ] )
+                update_output_dictionary( out_file ,
+                                          [ 'metrics' , 'by-type' , unique_type ] ,
+                                          args.metrics_list ,
+                                          metrics[ 1: ] )
+    ##
+    unique_types = Set()
+    for pattern in gold_config:
+        unique_types.add( pattern[ 'type' ] )
+    for unique_type in sorted( unique_types ):
+        this_type = ( score_card[ 'Type' ] == unique_type )
+        metrics = norm_summary( score_card[ this_type ][ 'Score' ].value_counts() ,
+                                row_name = unique_type ,
+                                args = args )
+        if( args.by_type or args.by_type_and_file ):
             print( args.delim.join( '{}'.format( m ) for m in metrics ) )
+        if( args.corpus_out ):
+            update_output_dictionary( args.corpus_out ,
+                                      [ 'metrics' , 'by-type' , unique_type ] ,
+                                      args.metrics_list ,
+                                      metrics[ 1: ] )
+        ##
+        for filename in file_list:
+            this_file = \
+              (  ( score_card[ 'File' ] == filename ) &
+                 ( score_card[ 'Type' ] == unique_type ) )
+            metrics = \
+              norm_summary( score_card[ this_file ][ 'Score' ].value_counts() ,
+                            row_name = unique_type + ' x ' + filename ,
+                            args = args )
             if( args.by_type_and_file ):
-                for filename in file_list:
-                    this_file = \
-                      (  ( score_card[ 'File' ] == filename ) &
-                      ( score_card[ 'Type' ] == unique_type ) )
-                    metrics = \
-                      norm_summary( score_card[ this_file ][ 'Score' ].value_counts() ,
-                                    row_name = unique_type + ' x ' + filename ,
-                                    args = args )
-                    print( args.delim.join( '{}'.format( m ) for m in metrics ) )
+                print( args.delim.join( '{}'.format( m ) for m in metrics ) )
+
     log.debug( "Leaving '{}'".format( sys._getframe().f_code.co_name ) )
 
 
-def print_counts_summary( type_counts , file_list ,
+def print_counts_summary( type_counts , file_mapping ,
                           test_config ,
                           args ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
+    file_list = sorted( file_mapping.keys() )
     unique_types = Set()
     for pattern in test_config:
         unique_types.add( pattern[ 'type' ] )        
