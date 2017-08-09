@@ -309,7 +309,6 @@ def print_score_summary( score_card , file_mapping ,
                             row_name = 'aggregate' , args = args )
     print( args.delim.join( '{}'.format( m ) for m in metrics ) )
     ##
-    args.test_out == None
     for filename in file_list:
         this_file = ( score_card[ 'File' ] == filename )
         metrics = norm_summary( score_card[ this_file ][ 'Score' ].value_counts() ,
@@ -317,16 +316,16 @@ def print_score_summary( score_card , file_mapping ,
         if( args.by_file or args.by_file_and_type ):
             print( args.delim.join( '{}'.format( m ) for m in metrics ) )
         if( args.gold_out ):
-            gold_out_file = '{}/{}'.format( args.gold_out ,
-                                            filename )
-            update_output_dictionary( gold_out_file ,
+            out_file = '{}/{}'.format( args.gold_out ,
+                                       filename )
+            update_output_dictionary( out_file ,
                                       [ 'metrics' , 'aggregate' ] ,
                                       args.metrics_list ,
                                       metrics[ 1: ] )
         if( args.test_out ):
-            test_out_file = '{}/{}'.format( args.test_out ,
-                                            file_mapping[ filename ] )
-            update_output_dictionary( gold_out_file ,
+            out_file = '{}/{}'.format( args.test_out ,
+                                       file_mapping[ filename ] )
+            update_output_dictionary( out_file ,
                                       [ 'metrics' , 'aggregate' ] ,
                                       args.metrics_list ,
                                       metrics[ 1: ] )
@@ -345,16 +344,16 @@ def print_score_summary( score_card , file_mapping ,
             if( args.by_file_and_type ):
                 print( args.delim.join( '{}'.format( m ) for m in metrics ) )
             if( args.gold_out ):
-                gold_out_file = '{}/{}'.format( args.gold_out ,
-                                                filename )
-                update_output_dictionary( gold_out_file ,
+                out_file = '{}/{}'.format( args.gold_out ,
+                                           filename )
+                update_output_dictionary( out_file ,
                                           [ 'metrics' , 'by-type' , unique_type ] ,
                                           args.metrics_list ,
                                           metrics[ 1: ] )
             if( args.test_out ):
-                test_out_file = '{}/{}'.format( args.test_out ,
-                                                file_mapping[ filename ] )
-                update_output_dictionary( gold_out_file ,
+                out_file = '{}/{}'.format( args.test_out ,
+                                           file_mapping[ filename ] )
+                update_output_dictionary( out_file ,
                                           [ 'metrics' , 'by-type' , unique_type ] ,
                                           args.metrics_list ,
                                           metrics[ 1: ] )
