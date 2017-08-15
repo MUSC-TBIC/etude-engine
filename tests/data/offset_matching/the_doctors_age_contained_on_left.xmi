@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xmi:XMI xmlns:xmi="http://www.omg.org/XMI"
+         xmlns:cas="http:///uima/cas.ecore" 
+         xmlns:custom="http:///webanno/custom.ecore" 
+         xmi:version="2.0">
+    <custom:PHI xmi:id="149" sofa="12" begin="24" end="27" Time="Age"/>
+    <custom:PHI xmi:id="154" sofa="12" begin="38" end="59" Time="DateTime"/>
+    <cas:Sofa xmi:id="12" sofaNum="1" sofaID="_InitialView" mimeType="text"
+              sofaString="The Doctor will be over 900 years old on November 8th, 2017."/>
+</xmi:XMI>

@@ -628,6 +628,125 @@ def test_evaluate_positions_missing_test_end_mapped_key():
 
 
 #############################################
+## Test exact, overlapping, and fully contained
+#############################################
+
+def prepare_evaluate_positions_offset_alignment( test_filename ):
+    gold_filename = 'tests/data/offset_matching/the_doctors_age_gold.xmi'
+    namespaces = { 'cas' :
+                   "http:///uima/cas.ecore" ,
+                   'custom' :
+                   "http:///webanno/custom.ecore" }
+    document_data = dict( tag_xpath = './cas:Sofa' ,
+                          content_attribute = 'sofaString' )
+    raw_content , gold_om = \
+      text_extraction.extract_chars( ingest_file = gold_filename ,
+                                     namespaces = namespaces ,
+                                     document_data = document_data )
+    test_om = gold_om
+    tag_set = { 'DateTime' : './custom:PHI[@Time="DateTime"]' ,
+                'Age' : './custom:PHI[@Time="Age"]' }
+    gold_ss = {}
+    test_ss = {}
+    for tag_name in tag_set:
+        gold_ss.update( 
+         text_extraction.extract_annotations_xml( gold_filename ,
+                                                  offset_mapping = gold_om ,
+                                                  annotation_path = tag_set[ tag_name ] ,
+                                                  tag_name = tag_name ,
+                                                  namespaces = namespaces ,
+                                                  begin_attribute = 'begin' ,
+                                                  end_attribute = 'end' ) )
+        test_ss.update( 
+         text_extraction.extract_annotations_xml( test_filename ,
+                                                  offset_mapping = test_om ,
+                                                  annotation_path = tag_set[ tag_name ] ,
+                                                  tag_name = tag_name ,
+                                                  namespaces = namespaces ,
+                                                  begin_attribute = 'begin' ,
+                                                  end_attribute = 'end' ) )
+    with open( '/tmp/bob.txt' , 'w' ) as fp:
+        import json
+        json.dump( gold_ss , fp , indent = 4 )
+        fp.write( '\n' )
+        json.dump( test_ss , fp , indent = 4 )
+    return gold_ss , test_ss
+
+def test_exact_match_overlap():
+    test_filename = 'tests/data/offset_matching/the_doctors_age_gold.xmi'
+    gold_ss , test_ss = \
+        prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
+    assert gold_ss == test_ss
+
+def test_match_overlap_contained_on_both_sides():
+    test_filename = 'tests/data/offset_matching/the_doctors_age_contained_on_both_sides.xmi'
+    gold_ss , test_ss = \
+        prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
+    assert gold_ss != test_ss
+
+def test_match_overlap_contained_on_left():
+    test_filename = 'tests/data/offset_matching/the_doctors_age_contained_on_left.xmi'
+    gold_ss , test_ss = \
+        prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
+    assert gold_ss != test_ss
+
+def test_match_overlap_contained_on_right():
+    test_filename = 'tests/data/offset_matching/the_doctors_age_contained_on_right.xmi'
+    gold_ss , test_ss = \
+        prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
+    assert gold_ss != test_ss
+
+def test_match_overlap_partial_on_both_sides():
+    test_filename = 'tests/data/offset_matching/the_doctors_age_partial_on_both_sides.xmi'
+    gold_ss , test_ss = \
+        prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
+    assert gold_ss != test_ss
+
+def test_match_overlap_partial_on_left():
+    test_filename = 'tests/data/offset_matching/the_doctors_age_partial_on_left.xmi'
+    gold_ss , test_ss = \
+        prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
+    assert gold_ss != test_ss
+
+def test_match_overlap_partial_on_right():
+    test_filename = 'tests/data/offset_matching/the_doctors_age_partial_on_right.xmi'
+    gold_ss , test_ss = \
+        prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
+    assert gold_ss != test_ss
+
+def test_match_overlap_partial_on_left_contained_on_right():
+    test_filename = 'tests/data/offset_matching/the_doctors_age_partial_on_left_contained_on_right.xmi'
+    gold_ss , test_ss = \
+        prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
+    assert gold_ss != test_ss
+
+def test_match_overlap_partial_on_right_contained_on_left():
+    test_filename = 'tests/data/offset_matching/the_doctors_age_partial_on_right_contained_on_left.xmi'
+    gold_ss , test_ss = \
+        prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
+    assert gold_ss != test_ss
+
+def test_match_overlap_type_mismatch():
+    test_filename = 'tests/data/offset_matching/the_doctors_age_type_mismatch.xmi'
+    gold_ss , test_ss = \
+        prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
+    assert gold_ss != test_ss
+
+def test_match_overlap_type_mismatch_contained_on_left():
+    test_filename = 'tests/data/offset_matching/the_doctors_age_type_mismatch_contained_on_left.xmi'
+    gold_ss , test_ss = \
+        prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
+    assert gold_ss != test_ss
+
+def test_match_overlap_type_mismatch_contained_on_right():
+    test_filename = 'tests/data/offset_matching/the_doctors_age_type_mismatch_contained_on_right.xmi'
+    gold_ss , test_ss = \
+        prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
+    assert gold_ss != test_ss
+
+
+
+#############################################
 ## Test augmenting dictionaries on disk
 #############################################
 
