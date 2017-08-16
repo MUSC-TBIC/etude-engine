@@ -497,7 +497,7 @@ def test_evaluate_positions_tweak_annotation_dictionary_ignore_whitespace():
     assert_frame_equal( score_card , expected_score_card )
 
 
-def prepare_evaluate_positions_missing_mapped_keys():
+def prepare_evaluate_positions_structs():
     ingest_file = 'tests/data/i2b2_2016_track-1_gold/0005_gs.xml'
     document_data = dict( cdata_xpath = './TEXT' )
     raw_content , gold_om = \
@@ -527,7 +527,7 @@ def prepare_evaluate_positions_missing_mapped_keys():
 def test_evaluate_positions_missing_mapped_keys_with_heed_whitespace():
     score_card = scoring_metrics.new_score_card()
     ingest_file , gold_ss , test_ss = \
-      prepare_evaluate_positions_missing_mapped_keys()
+      prepare_evaluate_positions_structs()
     del gold_ss[ "2404" ][ 0 ][ "begin_pos_mapped" ]
     del gold_ss[ "2404" ][ 0 ][ "end_pos_mapped" ]
     del test_ss[ "2404" ][ 0 ][ "begin_pos_mapped" ]
@@ -550,7 +550,7 @@ def test_evaluate_positions_missing_mapped_keys_with_heed_whitespace():
 def test_evaluate_positions_missing_gold_begin_mapped_key():
     score_card = scoring_metrics.new_score_card()
     ingest_file , gold_ss , test_ss = \
-      prepare_evaluate_positions_missing_mapped_keys()
+      prepare_evaluate_positions_structs()
     del gold_ss[ "2404" ][ 0 ][ "begin_pos_mapped" ]
     score_card = \
       scoring_metrics.evaluate_positions( ingest_file ,
@@ -570,7 +570,7 @@ def test_evaluate_positions_missing_gold_begin_mapped_key():
 def test_evaluate_positions_missing_gold_end_mapped_key():
     score_card = scoring_metrics.new_score_card()
     ingest_file , gold_ss , test_ss = \
-      prepare_evaluate_positions_missing_mapped_keys()
+      prepare_evaluate_positions_structs()
     del gold_ss[ "2404" ][ 0 ][ "end_pos_mapped" ]
     score_card = \
       scoring_metrics.evaluate_positions( ingest_file ,
@@ -590,7 +590,7 @@ def test_evaluate_positions_missing_gold_end_mapped_key():
 def test_evaluate_positions_missing_test_begin_mapped_key():
     score_card = scoring_metrics.new_score_card()
     ingest_file , gold_ss , test_ss = \
-      prepare_evaluate_positions_missing_mapped_keys()
+      prepare_evaluate_positions_structs()
     del test_ss[ "2404" ][ 0 ][ "begin_pos_mapped" ]
     score_card = \
       scoring_metrics.evaluate_positions( ingest_file ,
@@ -610,7 +610,7 @@ def test_evaluate_positions_missing_test_begin_mapped_key():
 def test_evaluate_positions_missing_test_end_mapped_key():
     score_card = scoring_metrics.new_score_card()
     ingest_file , gold_ss , test_ss = \
-      prepare_evaluate_positions_missing_mapped_keys()
+      prepare_evaluate_positions_structs()
     del test_ss[ "2404" ][ 0 ][ "end_pos_mapped" ]
     score_card = \
       scoring_metrics.evaluate_positions( ingest_file ,
@@ -625,6 +625,133 @@ def test_evaluate_positions_missing_test_end_mapped_key():
     expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
       [ ingest_file , '2006' , '2011' , 'DateTime' , 'FN' ]
     assert_frame_equal( score_card , expected_score_card )
+
+
+#############################################
+## Test nested annotation entries
+#############################################
+
+
+def test_evaluate_positions_nested_annotations_gold_first_match():
+    score_card = scoring_metrics.new_score_card()
+    ingest_file , gold_ss , test_ss = \
+      prepare_evaluate_positions_structs()
+    ##
+    new_entry = text_extraction.create_annotation_entry( begin_pos = "87" ,
+                                                         begin_pos_mapped = "70" ,
+                                                         end_pos = "97" ,
+                                                         end_pos_mapped = "80" ,
+                                                         raw_text = None ,
+                                                         tag_name = "Age" )
+    gold_ss[ "87" ].append( new_entry )
+    ##
+    score_card = \
+      scoring_metrics.evaluate_positions( ingest_file ,
+                                          score_card ,
+                                          gold_ss = gold_ss ,
+                                          test_ss = test_ss ,
+                                          ignore_whitespace = False )
+    ##
+    expected_score_card = scoring_metrics.new_score_card()
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ ingest_file , '87' , '97' , 'DateTime' , 'TP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ ingest_file , '2404' , '2410' , 'DateTime' , 'TP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ ingest_file , '87' , '97' , 'Age' , 'FN' ]
+    assert_frame_equal( score_card , expected_score_card )
+
+
+def test_evaluate_positions_nested_annotations_gold_second_match():
+    score_card = scoring_metrics.new_score_card()
+    ingest_file , gold_ss , test_ss = \
+      prepare_evaluate_positions_structs()
+    ##
+    new_entry = text_extraction.create_annotation_entry( begin_pos = "87" ,
+                                                         begin_pos_mapped = "70" ,
+                                                         end_pos = "97" ,
+                                                         end_pos_mapped = "80" ,
+                                                         raw_text = None ,
+                                                         tag_name = "Age" )
+    gold_ss[ "87" ].append( new_entry )
+    ##
+    score_card = \
+      scoring_metrics.evaluate_positions( ingest_file ,
+                                          score_card ,
+                                          gold_ss = gold_ss ,
+                                          test_ss = test_ss ,
+                                          ignore_whitespace = False )
+    ##
+    expected_score_card = scoring_metrics.new_score_card()
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ ingest_file , '87' , '97' , 'DateTime' , 'TP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ ingest_file , '2404' , '2410' , 'DateTime' , 'TP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ ingest_file , '87' , '97' , 'Age' , 'FN' ]
+    assert_frame_equal( score_card , expected_score_card )
+
+
+def test_evaluate_positions_nested_annotations_test():
+    score_card = scoring_metrics.new_score_card()
+    ingest_file , gold_ss , test_ss = \
+      prepare_evaluate_positions_structs()
+    ##
+    new_entry = text_extraction.create_annotation_entry( begin_pos = "87" ,
+                                                         begin_pos_mapped = "70" ,
+                                                         end_pos = "97" ,
+                                                         end_pos_mapped = "80" ,
+                                                         raw_text = None ,
+                                                         tag_name = "Age" )
+    test_ss[ "87" ].append( new_entry )
+    ##
+    score_card = \
+      scoring_metrics.evaluate_positions( ingest_file ,
+                                          score_card ,
+                                          gold_ss = gold_ss ,
+                                          test_ss = test_ss ,
+                                          ignore_whitespace = False )
+    ##
+    expected_score_card = scoring_metrics.new_score_card()
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ ingest_file , '87' , '97' , 'DateTime' , 'TP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ ingest_file , '2404' , '2410' , 'DateTime' , 'TP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ ingest_file , '87' , '97' , 'Age' , 'FP' ]
+    assert_frame_equal( score_card , expected_score_card )
+
+
+def test_evaluate_positions_nested_annotations_gold_and_test():
+    score_card = scoring_metrics.new_score_card()
+    ingest_file , gold_ss , test_ss = \
+      prepare_evaluate_positions_structs()
+    ##
+    new_entry = text_extraction.create_annotation_entry( begin_pos = "87" ,
+                                                         begin_pos_mapped = "70" ,
+                                                         end_pos = "97" ,
+                                                         end_pos_mapped = "80" ,
+                                                         raw_text = None ,
+                                                         tag_name = "Age" )
+    gold_ss[ "87" ].append( new_entry )
+    test_ss[ "87" ].append( new_entry )
+    ##
+    score_card = \
+      scoring_metrics.evaluate_positions( ingest_file ,
+                                          score_card ,
+                                          gold_ss = gold_ss ,
+                                          test_ss = test_ss ,
+                                          ignore_whitespace = False )
+    ##
+    expected_score_card = scoring_metrics.new_score_card()
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ ingest_file , '87' , '97' , 'DateTime' , 'TP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ ingest_file , '87' , '97' , 'Age' , 'TP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ ingest_file , '2404' , '2410' , 'DateTime' , 'TP' ]
+    assert_frame_equal( score_card , expected_score_card )
+
 
 
 #############################################
