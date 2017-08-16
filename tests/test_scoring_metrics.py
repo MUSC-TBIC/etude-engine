@@ -448,9 +448,9 @@ def test_evaluate_positions_tweak_annotation_dictionary_heed_whitespace():
     ##
     expected_score_card = scoring_metrics.new_score_card()
     expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
-      [ ingest_file , '87' , '97' , 'DateTime' , 'FN' ]
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
       [ ingest_file , '2404' , '2410' , 'DateTime' , 'TP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ ingest_file , '87' , '97' , 'DateTime' , 'FN' ]
     expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
       [ ingest_file , '73' , '97' , 'DateTime' , 'FP' ]
     assert_frame_equal( score_card , expected_score_card )
@@ -665,84 +665,376 @@ def prepare_evaluate_positions_offset_alignment( test_filename ):
                                                   namespaces = namespaces ,
                                                   begin_attribute = 'begin' ,
                                                   end_attribute = 'end' ) )
-    with open( '/tmp/bob.txt' , 'w' ) as fp:
-        import json
-        json.dump( gold_ss , fp , indent = 4 )
-        fp.write( '\n' )
-        json.dump( test_ss , fp , indent = 4 )
     return gold_ss , test_ss
+
+
+def prepare_offset_alignment_score_cards( filename , gold_ss , test_ss ):
+    score_card = scoring_metrics.new_score_card()
+    exact_score_card = scoring_metrics.evaluate_positions( filename ,
+                                                           score_card ,
+                                                           gold_ss ,
+                                                           test_ss ,
+                                                           fuzzy_flag = 'exact' ,
+                                                           ignore_whitespace = True )
+    score_card = scoring_metrics.new_score_card()
+    contained_score_card = scoring_metrics.evaluate_positions( filename ,
+                                                               score_card ,
+                                                               gold_ss ,
+                                                               test_ss ,
+                                                               fuzzy_flag = 'fully-contained' ,
+                                                               ignore_whitespace = True )
+    score_card = scoring_metrics.new_score_card()
+    partial_score_card = scoring_metrics.evaluate_positions( filename ,
+                                                             score_card ,
+                                                             gold_ss ,
+                                                             test_ss ,
+                                                             fuzzy_flag = 'partial' ,
+                                                             ignore_whitespace = True )
+    return exact_score_card , contained_score_card , partial_score_card 
+
 
 def test_exact_match_overlap():
     test_filename = 'tests/data/offset_matching/the_doctors_age_gold.xmi'
     gold_ss , test_ss = \
         prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
     assert gold_ss == test_ss
+    ##
+    exact_score_card , contained_score_card , partial_score_card = \
+      prepare_offset_alignment_score_cards( test_filename ,
+                                            gold_ss ,
+                                            test_ss )
+    ## exact match only
+    expected_score_card = scoring_metrics.new_score_card()
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '19' , '21' , 'Age' , 'TP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '32' , '48' , 'DateTime' , 'TP' ]
+    assert_frame_equal( exact_score_card , expected_score_card )
+    ## fully-contained matches
+    assert_frame_equal( contained_score_card , expected_score_card )
+    ## overlapping matches
+    assert_frame_equal( partial_score_card , expected_score_card )
+
 
 def test_match_overlap_contained_on_both_sides():
     test_filename = 'tests/data/offset_matching/the_doctors_age_contained_on_both_sides.xmi'
     gold_ss , test_ss = \
         prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
     assert gold_ss != test_ss
+    ##
+    exact_score_card , contained_score_card , partial_score_card = \
+      prepare_offset_alignment_score_cards( test_filename ,
+                                            gold_ss ,
+                                            test_ss )
+    ## exact match only
+    expected_score_card = scoring_metrics.new_score_card()
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '19' , '21' , 'Age' , 'TP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '32' , '48' , 'DateTime' , 'FN' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '30' , 'EOF' , 'DateTime' , 'FP' ]
+    assert_frame_equal( exact_score_card , expected_score_card )
+    ## fully-contained matches
+    expected_score_card = scoring_metrics.new_score_card()
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '19' , '21' , 'Age' , 'TP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '32' , '48' , 'DateTime' , 'TP' ]
+    assert_frame_equal( contained_score_card , expected_score_card )
+    ## overlapping matches
+    assert_frame_equal( partial_score_card , expected_score_card )
+
 
 def test_match_overlap_contained_on_left():
     test_filename = 'tests/data/offset_matching/the_doctors_age_contained_on_left.xmi'
     gold_ss , test_ss = \
         prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
     assert gold_ss != test_ss
+    ##
+    exact_score_card , contained_score_card , partial_score_card = \
+      prepare_offset_alignment_score_cards( test_filename ,
+                                            gold_ss ,
+                                            test_ss )
+    ## exact match only
+    expected_score_card = scoring_metrics.new_score_card()
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '19' , '21' , 'Age' , 'TP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '32' , '48' , 'DateTime' , 'FN' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '30' , '48' , 'DateTime' , 'FP' ]
+    assert_frame_equal( exact_score_card , expected_score_card )
+    ## fully-contained matches
+    expected_score_card = scoring_metrics.new_score_card()
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '19' , '21' , 'Age' , 'TP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '32' , '48' , 'DateTime' , 'TP' ]
+    assert_frame_equal( contained_score_card , expected_score_card )
+    ## overlapping matches
+    assert_frame_equal( partial_score_card , expected_score_card )
+
 
 def test_match_overlap_contained_on_right():
     test_filename = 'tests/data/offset_matching/the_doctors_age_contained_on_right.xmi'
     gold_ss , test_ss = \
         prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
     assert gold_ss != test_ss
+    ##
+    exact_score_card , contained_score_card , partial_score_card = \
+      prepare_offset_alignment_score_cards( test_filename ,
+                                            gold_ss ,
+                                            test_ss )
+    ## exact match only
+    expected_score_card = scoring_metrics.new_score_card()
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '19' , '21' , 'Age' , 'TP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '32' , '48' , 'DateTime' , 'FN' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '32' , 'EOF' , 'DateTime' , 'FP' ]
+    assert_frame_equal( exact_score_card , expected_score_card )
+    ## fully-contained matches
+    expected_score_card = scoring_metrics.new_score_card()
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '19' , '21' , 'Age' , 'TP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '32' , '48' , 'DateTime' , 'TP' ]
+    assert_frame_equal( contained_score_card , expected_score_card )
+    ## overlapping matches
+    assert_frame_equal( partial_score_card , expected_score_card )
+
 
 def test_match_overlap_partial_on_both_sides():
     test_filename = 'tests/data/offset_matching/the_doctors_age_partial_on_both_sides.xmi'
     gold_ss , test_ss = \
         prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
     assert gold_ss != test_ss
+    ##
+    exact_score_card , contained_score_card , partial_score_card = \
+      prepare_offset_alignment_score_cards( test_filename ,
+                                            gold_ss ,
+                                            test_ss )
+    ## exact match only
+    expected_score_card = scoring_metrics.new_score_card()
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '19' , '21' , 'Age' , 'TP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '32' , '48' , 'DateTime' , 'FN' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '40' , '43' , 'DateTime' , 'FP' ]
+    assert_frame_equal( exact_score_card , expected_score_card )
+    ## fully-contained matches
+    assert_frame_equal( contained_score_card , expected_score_card )
+    ## overlapping matches
+    expected_score_card = scoring_metrics.new_score_card()
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '19' , '21' , 'Age' , 'TP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '32' , '48' , 'DateTime' , 'TP' ]
+    assert_frame_equal( partial_score_card , expected_score_card )
+
 
 def test_match_overlap_partial_on_left():
     test_filename = 'tests/data/offset_matching/the_doctors_age_partial_on_left.xmi'
     gold_ss , test_ss = \
         prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
     assert gold_ss != test_ss
+    ##
+    exact_score_card , contained_score_card , partial_score_card = \
+      prepare_offset_alignment_score_cards( test_filename ,
+                                            gold_ss ,
+                                            test_ss )
+    ## exact match only
+    expected_score_card = scoring_metrics.new_score_card()
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '19' , '21' , 'Age' , 'TP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '32' , '48' , 'DateTime' , 'FN' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '40' , '48' , 'DateTime' , 'FP' ]
+    assert_frame_equal( exact_score_card , expected_score_card )
+    ## fully-contained matches
+    assert_frame_equal( contained_score_card , expected_score_card )
+    ## overlapping matches
+    expected_score_card = scoring_metrics.new_score_card()
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '19' , '21' , 'Age' , 'TP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '32' , '48' , 'DateTime' , 'TP' ]
+    assert_frame_equal( partial_score_card , expected_score_card )
+
 
 def test_match_overlap_partial_on_right():
     test_filename = 'tests/data/offset_matching/the_doctors_age_partial_on_right.xmi'
     gold_ss , test_ss = \
         prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
     assert gold_ss != test_ss
+    ##
+    exact_score_card , contained_score_card , partial_score_card = \
+      prepare_offset_alignment_score_cards( test_filename ,
+                                            gold_ss ,
+                                            test_ss )
+    ## exact match only
+    expected_score_card = scoring_metrics.new_score_card()
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '19' , '21' , 'Age' , 'TP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '32' , '48' , 'DateTime' , 'FN' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '32' , '43' , 'DateTime' , 'FP' ]
+    assert_frame_equal( exact_score_card , expected_score_card )
+    ## fully-contained matches
+    assert_frame_equal( contained_score_card , expected_score_card )
+    ## overlapping matches
+    expected_score_card = scoring_metrics.new_score_card()
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '19' , '21' , 'Age' , 'TP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '32' , '48' , 'DateTime' , 'TP' ]
+    assert_frame_equal( partial_score_card , expected_score_card )
+
 
 def test_match_overlap_partial_on_left_contained_on_right():
     test_filename = 'tests/data/offset_matching/the_doctors_age_partial_on_left_contained_on_right.xmi'
     gold_ss , test_ss = \
         prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
     assert gold_ss != test_ss
+    ##
+    exact_score_card , contained_score_card , partial_score_card = \
+      prepare_offset_alignment_score_cards( test_filename ,
+                                            gold_ss ,
+                                            test_ss )
+    ## exact match only
+    expected_score_card = scoring_metrics.new_score_card()
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '19' , '21' , 'Age' , 'TP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '32' , '48' , 'DateTime' , 'FN' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '40' , 'EOF' , 'DateTime' , 'FP' ]
+    assert_frame_equal( exact_score_card , expected_score_card )
+    ## fully-contained matches
+    assert_frame_equal( contained_score_card , expected_score_card )
+    ## overlapping matches
+    expected_score_card = scoring_metrics.new_score_card()
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '19' , '21' , 'Age' , 'TP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '32' , '48' , 'DateTime' , 'TP' ]
+    assert_frame_equal( partial_score_card , expected_score_card )
+
 
 def test_match_overlap_partial_on_right_contained_on_left():
     test_filename = 'tests/data/offset_matching/the_doctors_age_partial_on_right_contained_on_left.xmi'
     gold_ss , test_ss = \
         prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
     assert gold_ss != test_ss
+    ##
+    exact_score_card , contained_score_card , partial_score_card = \
+      prepare_offset_alignment_score_cards( test_filename ,
+                                            gold_ss ,
+                                            test_ss )
+    ## exact match only
+    expected_score_card = scoring_metrics.new_score_card()
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '19' , '21' , 'Age' , 'TP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '32' , '48' , 'DateTime' , 'FN' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '30' , '43' , 'DateTime' , 'FP' ]
+    assert_frame_equal( exact_score_card , expected_score_card )
+    ## fully-contained matches
+    assert_frame_equal( contained_score_card , expected_score_card )
+    ## overlapping matches
+    expected_score_card = scoring_metrics.new_score_card()
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '19' , '21' , 'Age' , 'TP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '32' , '48' , 'DateTime' , 'TP' ]
+    assert_frame_equal( partial_score_card , expected_score_card )
+
 
 def test_match_overlap_type_mismatch():
     test_filename = 'tests/data/offset_matching/the_doctors_age_type_mismatch.xmi'
     gold_ss , test_ss = \
         prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
     assert gold_ss != test_ss
+    ##
+    exact_score_card , contained_score_card , partial_score_card = \
+      prepare_offset_alignment_score_cards( test_filename ,
+                                            gold_ss ,
+                                            test_ss )
+    ## exact match only
+    expected_score_card = scoring_metrics.new_score_card()
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '19' , '21' , 'Age' , 'FN' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '19' , '21' , 'DateTime' , 'FP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '32' , '48' , 'DateTime' , 'FN' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '32' , '48' , 'Age' , 'FP' ]
+    assert_frame_equal( exact_score_card , expected_score_card )
+    ## fully-contained matches
+    assert_frame_equal( contained_score_card , expected_score_card )
+    ## overlapping matches
+    assert_frame_equal( partial_score_card , expected_score_card )
+
 
 def test_match_overlap_type_mismatch_contained_on_left():
     test_filename = 'tests/data/offset_matching/the_doctors_age_type_mismatch_contained_on_left.xmi'
     gold_ss , test_ss = \
         prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
     assert gold_ss != test_ss
+    ##
+    exact_score_card , contained_score_card , partial_score_card = \
+      prepare_offset_alignment_score_cards( test_filename ,
+                                            gold_ss ,
+                                            test_ss )
+    ## exact match only
+    expected_score_card = scoring_metrics.new_score_card()
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '19' , '21' , 'Age' , 'FN' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '19' , '21' , 'DateTime' , 'FP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '32' , '48' , 'DateTime' , 'FN' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '30' , '48' , 'Age' , 'FP' ]
+    assert_frame_equal( exact_score_card , expected_score_card )
+    ## fully-contained matches
+    assert_frame_equal( contained_score_card , expected_score_card )
+    ## overlapping matches
+    assert_frame_equal( partial_score_card , expected_score_card )
+
 
 def test_match_overlap_type_mismatch_contained_on_right():
     test_filename = 'tests/data/offset_matching/the_doctors_age_type_mismatch_contained_on_right.xmi'
     gold_ss , test_ss = \
         prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
     assert gold_ss != test_ss
+    ##
+    exact_score_card , contained_score_card , partial_score_card = \
+      prepare_offset_alignment_score_cards( test_filename ,
+                                            gold_ss ,
+                                            test_ss )
+    ## exact match only
+    expected_score_card = scoring_metrics.new_score_card()
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '19' , '21' , 'Age' , 'FN' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '19' , '21' , 'DateTime' , 'FP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '32' , '48' , 'DateTime' , 'FN' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '32' , 'EOF' , 'Age' , 'FP' ]
+    assert_frame_equal( exact_score_card , expected_score_card )
+    ## fully-contained matches
+    assert_frame_equal( contained_score_card , expected_score_card )
+    ## overlapping matches
+    assert_frame_equal( partial_score_card , expected_score_card )
 
 
 
