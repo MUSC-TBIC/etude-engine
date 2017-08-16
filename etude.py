@@ -299,11 +299,13 @@ def score_ref_set( gold_ns , gold_dd , gold_patterns , gold_folder ,
                 log.error( 'Uncaught exception in extract_annotations:  {}'.format( e ) )
         ##
         try:
-            score_card = scoring_metrics.evaluate_positions( gold_filename ,
-                                                             score_card ,
-                                                             gold_ss ,
-                                                             test_ss ,
-                                                             args.ignore_whitespace )
+            score_card = \
+              scoring_metrics.evaluate_positions( gold_filename ,
+                                                  score_card ,
+                                                  gold_ss ,
+                                                  test_ss ,
+                                                  fuzzy_flag = args.fuzzy_flag ,
+                                                  ignore_whitespace = args.ignore_whitespace )
         except:
             e = sys.exc_info()[0]
             log.error( 'Uncaught exception in evaluate_positions:  {}'.format( e ) )
@@ -341,15 +343,21 @@ if __name__ == "__main__":
         scoring_metrics.update_output_dictionary( args.corpus_out ,
                                                   [ 'args' ] ,
                                                   [ 'gold_config' ,
-                                                    'gold_input' , 'gold_out' ,
+                                                    'gold_input' ,
+                                                    'gold_out' ,
                                                     'test_config' ,
-                                                    'test_input' , 'test_out' ,
-                                                    'score_key' ] ,
+                                                    'test_input' ,
+                                                    'test_out' ,
+                                                    'score_key' ,
+                                                    'fuzzy_flag' ] ,
                                                   [ args.gold_config ,
-                                                    args.gold_input , args.gold_out ,
+                                                    args.gold_input ,
+                                                    args.gold_out ,
                                                     args.test_config ,
-                                                    args.test_input , args.test_out ,
-                                                    args.score_key ] )
+                                                    args.test_input ,
+                                                    args.test_out ,
+                                                    args.score_key ,
+                                                    args.fuzzy_flag ] )
     ## Extract and process the two input file configs
     try:
         gold_ns , gold_dd , gold_patterns = \
