@@ -36,9 +36,17 @@ def map_position( offset_mapping , position , direction ):
     if( not bool( offset_mapping ) ):
         return None
     else:
-        while( offset_mapping[ position ] == None ):
-            position = str( int( position ) + direction )
-        return offset_mapping[ position ]
+        try:
+            while( offset_mapping[ position ] == None ):
+                position = str( int( position ) + direction )
+            return offset_mapping[ position ]
+        except KeyError:
+            if( direction < 0 ):
+                return 'EOF'
+            elif( direction > 0 ):
+                return 'SOF'
+            else:
+                return None
 
 
 #############################################
@@ -46,13 +54,13 @@ def map_position( offset_mapping , position , direction ):
 #############################################
 
 def extract_annotations_xml( ingest_file ,
-                                offset_mapping ,
-                                annotation_path ,
-                                tag_name ,
-                                namespaces = {} ,
-                                begin_attribute = None ,
-                                end_attribute = None ,
-                                text_attribute = None ):
+                             offset_mapping ,
+                             annotation_path ,
+                             tag_name ,
+                             namespaces = {} ,
+                             begin_attribute = None ,
+                             end_attribute = None ,
+                             text_attribute = None ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     found_annots = {}
     strict_starts = {}

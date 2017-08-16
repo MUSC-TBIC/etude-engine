@@ -24,12 +24,12 @@ def get_annotation_from_base_entry( annotation_entry ,
     try:
         annotation_start = annotation_entry[ start_key ]
     except KeyError as e:
-        log.warn( 'Could not access annotation type.  Skipping entry.' )
+        log.warn( 'Could not access annotation start key.  Skipping entry.' )
         return None , None , None
     try:
         annotation_end = annotation_entry[ end_key ]
     except KeyError as e:
-        log.warn( 'Could not access annotation type.  Skipping entry.' )
+        log.warn( 'Could not access annotation end key.  Skipping entry.' )
         return None , None , None
     log.debug( '{} ( {} - {} )'.format( annotation_type ,
                                         annotation_start ,
@@ -41,10 +41,187 @@ def get_annotation_from_base_entry( annotation_entry ,
 ## 
 ##
 
+def flatten_ss_dictionary( ss_dictionary ,
+                           category = '(unknown)' ):
+    all_keys = ss_dictionary.keys()
+    if( len( all_keys ) == 0 ):
+        log.debug( 'Zero {} keys in strict starts dictionary'.format( category ) )
+    else:
+        all_keys.sort( key = int )
+        log.debug( '{} {} keys ranging from {} to {}'.format( len( all_keys ) ,
+                                                              category ,
+                                                              all_keys[ 0 ] ,
+                                                              all_keys[ -1 ] ) )
+    ##
+    flat_entries = []
+    for this_key in all_keys:
+        for annot_index in range( len( ss_dictionary[ this_key ] ) ):
+            flat_entries.append( ss_dictionary[ this_key ][ annot_index ] )
+    return flat_entries
+
+
+def gold_annot_comparison_runner( score_card , gold_filename ,
+                                  gold_annot , gold_leftovers ,
+                                  test_entries ,
+                                  start_key , end_key ,
+                                  fuzzy_flag ):
+    ## grab type and end position
+    gold_type , gold_start , gold_end = \
+      get_annotation_from_base_entry( gold_annot ,
+                                      start_key ,
+                                      end_key )
+    if( gold_type == None ):
+        ## If we couldn't extract a type, consider this
+        ## an invalid annotations    
+        return test_entries
+    ## Loop through all the test annotations
+    ## that haven't been matched yet
+    test_leftovers = []
+    matched_flag = False
+    for test_annot in test_entries:
+        if( matched_flag ):
+            test_leftovers.append( test_annot )
+            continue
+        ## grab type and end position
+        test_type , test_start , test_end = \
+          get_annotation_from_base_entry( test_annot ,
+                                          start_key ,
+                                          end_key )
+        if( test_type == None ):
+            ## If we couldn't extract a type, consider this
+            ## an invalid annotations
+            continue
+        ##
+        if( gold_start == test_start ):
+            ## If the types match...
+            if( gold_type == test_type ):
+                ## ... and the end positions match, then we have a
+                ##     perfect match
+                if( gold_end == test_end ):
+                    score_card.loc[ score_card.shape[ 0 ] ] = \
+                          [ gold_filename , gold_start , gold_end ,
+                            gold_type , 'TP' ]
+                elif( test_end == 'EOF' or
+                      gold_end < test_end ):
+                    ## If the gold end position is prior to the system
+                    ## determined end position, we consider this a
+                    ## 'fully contained' match and also count it
+                    ## as a win (until we score strict vs. lenient matches)
+                    if( fuzzy_flag == 'exact' ):
+                        score_card.loc[ score_card.shape[ 0 ] ] = \
+                              [ gold_filename , gold_start , gold_end ,
+                                gold_type , 'FN' ]
+                        score_card.loc[ score_card.shape[ 0 ] ] = \
+                              [ gold_filename , test_start , test_end ,
+                                test_type , 'FP' ]
+                    else:
+                        score_card.loc[ score_card.shape[ 0 ] ] = \
+                              [ gold_filename , gold_start , gold_end ,
+                                gold_type , 'TP' ]
+                else:
+                    ## otherwise, we missed some data that needs
+                    ## to be captured.  For now, this is also
+                    ## a win but will not always count.
+                    if( fuzzy_flag == 'partial' ):
+                        score_card.loc[ score_card.shape[ 0 ] ] = \
+                              [ gold_filename , gold_start , gold_end ,
+                                gold_type , 'TP' ]
+                    else:
+                        score_card.loc[ score_card.shape[ 0 ] ] = \
+                              [ gold_filename , gold_start , gold_end ,
+                                gold_type , 'FN' ]
+                        score_card.loc[ score_card.shape[ 0 ] ] = \
+                              [ gold_filename , test_start , test_end ,
+                                test_type , 'FP' ]
+            else:
+                score_card.loc[ score_card.shape[ 0 ] ] = \
+                      [ gold_filename , gold_start , gold_end ,
+                        gold_type , 'FN' ]
+                score_card.loc[ score_card.shape[ 0 ] ] = \
+                      [ gold_filename , test_start , test_end ,
+                        test_type , 'FP' ]
+            ## Everything within this block counts as a match
+            ## so we need to remove the current test_annot from
+            ## the list of possible matches in the future and
+            ## break out of the loop
+            matched_flag = True
+        elif( fuzzy_flag != 'exact' and
+              gold_end == test_end ):
+            ## The end offsets AND types may match...
+            if( gold_type == test_type ):
+                ##
+                if( gold_start > test_start ):
+                    ## If the gold start position is after the system
+                    ## determined start position, we consider this a
+                    ## 'fully contained' match and also count it
+                    ## as a win
+                    score_card.loc[ score_card.shape[ 0 ] ] = \
+                      [ gold_filename , gold_start , gold_end ,
+                        gold_type , 'TP' ]
+                else:
+                    ## otherwise, we missed some data that needs
+                    ## to be captured.  This is a partial win.
+                    if( fuzzy_flag == 'partial' ):
+                        score_card.loc[ score_card.shape[ 0 ] ] = \
+                              [ gold_filename , gold_start , gold_end ,
+                                gold_type , 'TP' ]
+                    else:
+                        score_card.loc[ score_card.shape[ 0 ] ] = \
+                              [ gold_filename , gold_start , gold_end ,
+                                gold_type , 'FN' ]
+                        score_card.loc[ score_card.shape[ 0 ] ] = \
+                              [ gold_filename , test_start , test_end ,
+                                test_type , 'FP' ]
+            else:
+                score_card.loc[ score_card.shape[ 0 ] ] = \
+                      [ gold_filename , gold_start , gold_end ,
+                        gold_type , 'FN' ]
+                score_card.loc[ score_card.shape[ 0 ] ] = \
+                      [ gold_filename , test_start , test_end ,
+                        test_type , 'FP' ]
+            ## Everything within this block counts as a match
+            ## so we need to remove the current test_annot from
+            ## the list of possible matches in the future and
+            ## break out of the loop
+            matched_flag = True
+        elif( fuzzy_flag != 'exact' and
+              ( test_start == 'SOF' or test_start < gold_start ) and
+              ( test_end == 'EOF' or test_end > gold_end ) and
+              gold_type == test_type ):
+            score_card.loc[ score_card.shape[ 0 ] ] = \
+              [ gold_filename , gold_start , gold_end ,
+                gold_type , 'TP' ]
+            ## Everything within this block counts as a match
+            ## so we need to remove the current test_annot from
+            ## the list of possible matches in the future and
+            ## break out of the loop
+            matched_flag = True
+        elif( fuzzy_flag == 'partial' and
+              ( ( test_end == 'EOF' or
+                  test_end > gold_start ) or
+                ( test_start == 'SOF' or
+                  test_start < gold_end ) ) and
+              gold_type == test_type ):
+            score_card.loc[ score_card.shape[ 0 ] ] = \
+              [ gold_filename , gold_start , gold_end ,
+                gold_type , 'TP' ]
+            ## Everything within this block counts as a match
+            ## so we need to remove the current test_annot from
+            ## the list of possible matches in the future and
+            ## break out of the loop
+            matched_flag = True
+        else:
+            test_leftovers.append( test_annot )
+    if( not matched_flag ):
+        gold_leftovers.append( gold_annot )
+    return test_leftovers
+
+
 def evaluate_positions( gold_filename ,
                         score_card ,
                         gold_ss ,
                         test_ss ,
+                        fuzzy_flag = 'exact' ,
                         ignore_whitespace = False ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     if( ignore_whitespace ):
@@ -56,97 +233,32 @@ def evaluate_positions( gold_filename ,
     ##
     log.debug( 'Anchoring positions at \'{}\' and \'{}\''.format( start_key ,
                                                                   end_key ) )
-    gold_keys = gold_ss.keys()
-    if( len( gold_keys ) == 0 ):
-        log.debug( 'Zero gold keys in strict starts dictionary' )
-    else:
-        gold_keys.sort( key = int )
-        log.debug( '{} gold keys ranging from {} to {}'.format( len( gold_keys ) ,
-                                                                gold_keys[ 0 ] ,
-                                                                gold_keys[ -1 ] ) )
+    gold_entries = flatten_ss_dictionary( gold_ss , 'gold' )
+    test_entries = flatten_ss_dictionary( test_ss , 'test' )
     ##
-    test_keys = test_ss.keys()
-    if( len( test_keys ) == 0 ):
-        log.debug( 'Zero test keys in strict starts dictionary' )
-    else:
-        test_keys.sort( key = int )
-        log.debug( '{} test keys ranging from {} to {}'.format( len( test_keys ) ,
-                                                                test_keys[ 0 ] ,
-                                                                test_keys[ -1 ] ) )
-    ##
-    last_test_key_index = -1
-    matched_test_keys = Set()
-    for gold_key in gold_keys:
-        ## TODO - loop over all entries in the dictionary
-        log.debug( 'These keys:  {}'.format( gold_ss[ gold_key ] ) )
+    gold_leftovers = []
+    test_leftovers = test_entries
+    for gold_annot in gold_entries:
+        test_leftovers = \
+          gold_annot_comparison_runner( score_card , gold_filename ,
+                                        gold_annot , gold_leftovers ,
+                                        test_entries ,
+                                        start_key , end_key ,
+                                        fuzzy_flag )
+        test_entries = test_leftovers
+    ## any remaining entries in the gold set are FNs
+    for gold_annot in gold_leftovers:
         ## grab type and end position
         gold_type , gold_start , gold_end = \
-          get_annotation_from_base_entry( gold_ss[ gold_key ][ 0 ] ,
+          get_annotation_from_base_entry( gold_annot ,
                                           start_key ,
                                           end_key )
-        if( gold_type == None ):
-            continue
-        ## Loop through all the test keys after our last matching key
-        test_key_index = last_test_key_index + 1
-        while( test_key_index < len( test_keys ) ):
-            test_key = test_keys[ test_key_index ]
-            ## grab type and end position
-            test_type , test_start , test_end = \
-              get_annotation_from_base_entry( test_ss[ test_key ][ 0 ] ,
-                                              start_key ,
-                                              end_key )
-            if( test_type == None ):
-                test_key_index += 1
-                continue
-            ##
-            if( gold_start == test_start ):
-                ## If the types match...
-                if( gold_type == test_type ):
-                    ## ... and the end positions match, then we have a
-                    ##     perfect match
-                    if( gold_end == test_end ):
-                        score_card.loc[ score_card.shape[ 0 ] ] = \
-                          [ gold_filename , gold_start , gold_end ,
-                            gold_type , 'TP' ]
-                    elif( gold_end < test_end ):
-                        ## If the gold end position is prior to the system
-                        ## determined end position, we consider this a
-                        ## 'fully contained' match and also count it
-                        ## as a win (until we score strict vs. lenient matches)
-                        score_card.loc[ score_card.shape[ 0 ] ] = \
-                          [ gold_filename , gold_start , gold_end ,
-                            gold_type , 'TP' ]
-                    else:
-                        ## otherwise, we missed some data that needs
-                        ## to be captured.  For now, this is also
-                        ## a win but will not always count.
-                        score_card.loc[ score_card.shape[ 0 ] ] = \
-                          [ gold_filename , gold_start , gold_end ,
-                            gold_type , 'TP' ]
-                else:
-                    score_card.loc[ score_card.shape[ 0 ] ] = \
-                      [ gold_filename , gold_start , gold_end ,
-                        gold_type , 'FN' ]
-                    score_card.loc[ score_card.shape[ 0 ] ] = \
-                      [ gold_filename , gold_start , test_end ,
-                        test_type , 'FP' ]
-                ## Everything within this block counts as a match
-                ## so we need to update out index tracker and
-                ## break out of the loop
-                matched_test_keys.add( test_key )
-                last_test_key_index = test_key_index
-                break
-            test_key_index += 1
-        ## If these aren't equal, then we didn't find a match
-        if( last_test_key_index < test_key_index ):
-            score_card.loc[ score_card.shape[ 0 ] ] = \
-              [ gold_filename , gold_start , gold_end , gold_type , 'FN' ]
-    for test_key in test_keys:
-        if( test_key in matched_test_keys ):
-            continue
+        score_card.loc[ score_card.shape[ 0 ] ] = \
+          [ gold_filename , gold_start , gold_end , gold_type , 'FN' ]
+    for test_annot in test_leftovers:
         ## grab type and end position
         test_type , test_start , test_end = \
-          get_annotation_from_base_entry( test_ss[ test_key ][ 0 ] ,
+          get_annotation_from_base_entry( test_annot ,
                                           start_key ,
                                           end_key )
         if( test_type == None ):

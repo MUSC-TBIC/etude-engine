@@ -42,6 +42,12 @@ unstructured data extraction.
                                      'F1' ] ,
                          help = "List of metrics to return, in order" )
 
+    parser.add_argument( "--fuzzy-match" ,
+                         dest = 'fuzzy_flag' ,
+                         default = 'exact' ,
+                         choices = [ 'exact' , 'fully-contained' , 'partial' ] ,
+                         help = "Set the strictness of matching offsets." )
+
     parser.add_argument("-d", 
                         dest = 'delim' ,
                         default = '\t' ,
