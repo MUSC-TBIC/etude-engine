@@ -1,0 +1,111 @@
+{
+    "metrics": {
+        "aggregate": {
+            "FP": 0.0, 
+            "TN": 0.0, 
+            "TP": 445.0, 
+            "FN": 0.0
+        }, 
+        "by-type": {
+            "OtherID": {
+                "FP": 0.0, 
+                "TN": 0.0, 
+                "TP": 7.0, 
+                "FN": 0.0
+            }, 
+            "OtherLoc": {
+                "FP": 0.0, 
+                "TN": 0.0, 
+                "FN": 0.0, 
+                "TP": 5.0
+            }, 
+            "Zip": {
+                "FP": 0.0, 
+                "TN": 0.0, 
+                "TP": 4.0, 
+                "FN": 0.0
+            }, 
+            "eAddress": {
+                "FP": 0.0, 
+                "TN": 0.0, 
+                "FN": 0.0, 
+                "TP": 2.0
+            }, 
+            "Age": {
+                "FP": 0.0, 
+                "TN": 0.0, 
+                "FN": 0.0, 
+                "TP": 92.0
+            }, 
+            "Provider": {
+                "FP": 0.0, 
+                "TN": 0.0, 
+                "FN": 0.0, 
+                "TP": 64.0
+            }, 
+            "DateTime": {
+                "FP": 0.0, 
+                "TN": 0.0, 
+                "TP": 124.0, 
+                "FN": 0.0
+            }, 
+            "OtherOrg": {
+                "FP": 0.0, 
+                "TN": 0.0, 
+                "TP": 21.0, 
+                "FN": 0.0
+            }, 
+            "StateCountry": {
+                "FP": 0.0, 
+                "TN": 0.0, 
+                "TP": 21.0, 
+                "FN": 0.0
+            }, 
+            "Patient": {
+                "FP": 0.0, 
+                "TN": 0.0, 
+                "FN": 0.0, 
+                "TP": 19.0
+            }, 
+            "StreetCity": {
+                "FP": 0.0, 
+                "TN": 0.0, 
+                "FN": 0.0, 
+                "TP": 4.0
+            }, 
+            "PhoneFax": {
+                "FP": 0.0, 
+                "TN": 0.0, 
+                "TP": 6.0, 
+                "FN": 0.0
+            }, 
+            "HCUnit": {
+                "FP": 0.0, 
+                "TN": 0.0, 
+                "FN": 0.0, 
+                "TP": 76.0
+            }
+        }
+    }, 
+    "args": {
+        "test_out": "tests/data/i2b2_2016_track-1_test_out", 
+        "score_key": "Short Name", 
+        "test_config": "config/i2b2_2016_track-1.conf", 
+        "gold_out": "tests/data/i2b2_2016_track-1_gold_out", 
+        "test_input": "tests/data/i2b2_2016_track-1_test", 
+        "gold_config": "config/i2b2_2016_track-1.conf", 
+        "gold_input": "tests/data/i2b2_2016_track-1_gold"
+    }, 
+    "file-mapping": {
+        "0005_gs.xml": "0005_gs.xml", 
+        "0016_gs.xml": "0016_gs.xml", 
+        "0389_gs.xml": "0389_gs.xml", 
+        "0475_gs.xml": "0475_gs.xml", 
+        "0617_gs.xml": "0617_gs.xml", 
+        "0982_gs.xml": "0982_gs.xml", 
+        "0709_gs.xml": "0709_gs.xml", 
+        "0273_gs.xml": "0273_gs.xml", 
+        "0267_gs.xml": "0267_gs.xml", 
+        "0992_gs.xml": "0992_gs.xml"
+    }
+}

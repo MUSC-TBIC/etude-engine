@@ -281,7 +281,7 @@ def score_ref_set( gold_ns , gold_dd , gold_patterns , gold_folder ,
             else:
                 ## TODO - add filename translation services
                 test_out_file = '{}/{}'.format( args.test_out ,
-                                                   test_filename )
+                                                test_filename )
             ##
             test_full_path = '{}/{}'.format( test_folder ,
                                              test_filename )
@@ -299,18 +299,20 @@ def score_ref_set( gold_ns , gold_dd , gold_patterns , gold_folder ,
                 log.error( 'Uncaught exception in extract_annotations:  {}'.format( e ) )
         ##
         try:
-            score_card = scoring_metrics.evaluate_positions( gold_filename ,
-                                                             score_card ,
-                                                             gold_ss ,
-                                                             test_ss ,
-                                                             args.ignore_whitespace )
+            score_card = \
+              scoring_metrics.evaluate_positions( gold_filename ,
+                                                  score_card ,
+                                                  gold_ss ,
+                                                  test_ss ,
+                                                  fuzzy_flag = args.fuzzy_flag ,
+                                                  ignore_whitespace = args.ignore_whitespace )
         except:
             e = sys.exc_info()[0]
             log.error( 'Uncaught exception in evaluate_positions:  {}'.format( e ) )
     ##
     try:
         scoring_metrics.print_score_summary( score_card ,
-                                             sorted( file_mapping.keys() ) ,
+                                             file_mapping ,
                                              gold_patterns , test_patterns ,
                                              args )
     except:
@@ -330,6 +332,32 @@ if __name__ == "__main__":
         log.debug( "{}".format( args ) )
     else:
         log.basicConfig( format="%(levelname)s: %(message)s" )
+    ## Initialize the corpuse settings, values, and metrics file
+    ## if it was provided at the command line
+    if( args.corpus_out ):
+        ## Clean out any previous corpus dictionary, in case it exists from
+        ## an old run
+        with open( args.corpus_out , 'w' ) as fp:
+            json.dump( {} , fp , indent = 4 )
+        ## Add a few important arguments
+        scoring_metrics.update_output_dictionary( args.corpus_out ,
+                                                  [ 'args' ] ,
+                                                  [ 'gold_config' ,
+                                                    'gold_input' ,
+                                                    'gold_out' ,
+                                                    'test_config' ,
+                                                    'test_input' ,
+                                                    'test_out' ,
+                                                    'score_key' ,
+                                                    'fuzzy_flag' ] ,
+                                                  [ args.gold_config ,
+                                                    args.gold_input ,
+                                                    args.gold_out ,
+                                                    args.test_config ,
+                                                    args.test_input ,
+                                                    args.test_out ,
+                                                    args.score_key ,
+                                                    args.fuzzy_flag ] )
     ## Extract and process the two input file configs
     try:
         gold_ns , gold_dd , gold_patterns = \

@@ -42,6 +42,12 @@ unstructured data extraction.
                                      'F1' ] ,
                          help = "List of metrics to return, in order" )
 
+    parser.add_argument( "--fuzzy-match" ,
+                         dest = 'fuzzy_flag' ,
+                         default = 'exact' ,
+                         choices = [ 'exact' , 'fully-contained' , 'partial' ] ,
+                         help = "Set the strictness of matching offsets." )
+
     parser.add_argument("-d", 
                         dest = 'delim' ,
                         default = '\t' ,
@@ -100,6 +106,11 @@ unstructured data extraction.
                          dest = 'test_out' ,
                          default = None ,
                          help = 'When provided, write the dictionary of extracted test annotations to disk in this directory' )
+    
+    parser.add_argument( '--corpus-out' ,
+                         dest = 'corpus_out' ,
+                         default = None ,
+                         help = 'When provided, write the dictionary of extracted corpus metrics to disk in this file' )
     
     parser.add_argument( '-c' , '--count-types' ,
                          dest = 'count_types' ,

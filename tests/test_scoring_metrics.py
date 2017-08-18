@@ -1,5 +1,9 @@
+import os
 import sys
 import re
+import tempfile
+
+import json
 
 import args_and_configs
 import scoring_metrics
@@ -119,16 +123,16 @@ def initialize_for_print_summary_test():
                         'XPath' : './/type:Sentence' } ,
                       { 'type' : 'Sentence' ,
                         'XPath' : './/type4:Sentence' } ]
-    file_list = [ 'a.xml' , 'b.xml' ]
-    return( score_card , args , sample_config , file_list )
+    file_mapping = { 'a.xml': 'a.xml' , 'b.xml': 'b.xml' }
+    return( score_card , args , sample_config , file_mapping )
 
 
 def test_unique_score_key_summary_stats( capsys ):
     score_card , args , sample_config , \
-      file_list = initialize_for_print_summary_test()
+      file_mapping = initialize_for_print_summary_test()
     args.by_type = True
     ##
-    scoring_metrics.print_score_summary( score_card , file_list ,
+    scoring_metrics.print_score_summary( score_card , file_mapping ,
                                          sample_config , sample_config ,
                                          args )
     by_type_out, err = capsys.readouterr()
@@ -144,12 +148,35 @@ def test_unique_score_key_summary_stats( capsys ):
     assert by_type_out == expected_out
 
 
+def test_by_type_and_file_score_key_summary_stats( capsys ):
+    score_card , args , sample_config , \
+      file_mapping = initialize_for_print_summary_test()
+    args.by_type_and_file = True
+    ##
+    scoring_metrics.print_score_summary( score_card , file_mapping ,
+                                         sample_config , sample_config ,
+                                         args )
+    by_type_out, err = capsys.readouterr()
+    ##
+    expected_values = [ [ '#########' , 'TP' , 'FP' , 'TN' , 'FN' ] ,
+                        [ 'aggregate' , '1.0' , '1.0' , '0.0' , '2.0' ] ,
+                        [ 'Sentence' , '1.0' , '1.0' , '0.0' , '2.0' ] ,
+                        [ 'Sentence x a.xml' , '1.0' , '0.0' , '0.0' , '1.0' ] ,
+                        [ 'Sentence x b.xml' , '0.0' , '1.0' , '0.0' , '1.0' ] ]
+    for expected_values in expected_values:
+        print( args.delim.join( '{}'.format( m ) for m in expected_values ) )
+    expected_out, err = capsys.readouterr()
+    by_type_out = by_type_out.strip()
+    expected_out = expected_out.strip()
+    assert by_type_out == expected_out
+
+
 def test_by_file_summary_stats( capsys ):
     score_card , args , sample_config , \
-      file_list = initialize_for_print_summary_test()
+      file_mapping = initialize_for_print_summary_test()
     args.by_file = True
     ##
-    scoring_metrics.print_score_summary( score_card , file_list ,
+    scoring_metrics.print_score_summary( score_card , file_mapping ,
                                          sample_config , sample_config ,
                                          args )
     by_type_out, err = capsys.readouterr()
@@ -164,14 +191,38 @@ def test_by_file_summary_stats( capsys ):
     by_type_out = by_type_out.strip()
     expected_out = expected_out.strip()
     assert by_type_out == expected_out
+
+
+def test_by_file_and_type_summary_stats( capsys ):
+    score_card , args , sample_config , \
+      file_mapping = initialize_for_print_summary_test()
+    args.by_file_and_type = True
+    ##
+    scoring_metrics.print_score_summary( score_card , file_mapping ,
+                                         sample_config , sample_config ,
+                                         args )
+    by_type_out, err = capsys.readouterr()
+    ##
+    expected_values = [ [ '#########' , 'TP' , 'FP' , 'TN' , 'FN' ] ,
+                        [ 'aggregate' , '1.0' , '1.0' , '0.0' , '2.0' ] ,
+                        [ 'a.xml' , '1.0' , '0.0' , '0.0' , '1.0' ] ,
+                        [ 'a.xml x Sentence' , '1.0' , '0.0' , '0.0' , '1.0' ] ,
+                        [ 'b.xml' , '0.0' , '1.0' , '0.0' , '1.0' ]  ,
+                        [ 'b.xml x Sentence' , '0.0' , '1.0' , '0.0' , '1.0' ] ]
+    for expected_values in expected_values:
+        print( args.delim.join( '{}'.format( m ) for m in expected_values ) )
+    expected_out, err = capsys.readouterr()
+    by_type_out = by_type_out.strip()
+    expected_out = expected_out.strip()
+    assert by_type_out == expected_out
     
     
 
 def changing_delim_to_variable( capsys , new_delim ):
     score_card , args , sample_config , \
-      file_list = initialize_for_print_summary_test()
+      file_mapping = initialize_for_print_summary_test()
     ##
-    scoring_metrics.print_score_summary( score_card , file_list ,
+    scoring_metrics.print_score_summary( score_card , file_mapping ,
                                          sample_config , sample_config ,
                                          args )
     default_delim_out, err = capsys.readouterr()
@@ -180,7 +231,7 @@ def changing_delim_to_variable( capsys , new_delim ):
                             new_delim ,
                             default_delim_out )
     args.delim = new_delim
-    scoring_metrics.print_score_summary( score_card , file_list ,
+    scoring_metrics.print_score_summary( score_card , file_mapping ,
                                          sample_config , sample_config ,
                                          args )
     new_delim_out, err = capsys.readouterr()
@@ -207,10 +258,10 @@ def test_changing_delim_to_pipe( capsys ):
 
 def test_aggregate_summary_counts( capsys ):
     score_card , args , sample_config , \
-      file_list = initialize_for_print_summary_test()
+      file_mapping = initialize_for_print_summary_test()
     ##
     scoring_metrics.print_counts_summary( type_counts = score_card ,
-                                          file_list = file_list ,
+                                          file_mapping = file_mapping ,
                                           test_config = sample_config ,
                                           args = args )
     agg_out, err = capsys.readouterr()
@@ -226,11 +277,11 @@ def test_aggregate_summary_counts( capsys ):
 
 def test_by_file_summary_counts( capsys ):
     score_card , args , sample_config , \
-      file_list = initialize_for_print_summary_test()
+      file_mapping = initialize_for_print_summary_test()
     args.by_file = True
     ##
     scoring_metrics.print_counts_summary( type_counts = score_card ,
-                                          file_list = file_list ,
+                                          file_mapping = file_mapping ,
                                           test_config = sample_config ,
                                           args = args )
     by_type_out, err = capsys.readouterr()
@@ -397,9 +448,9 @@ def test_evaluate_positions_tweak_annotation_dictionary_heed_whitespace():
     ##
     expected_score_card = scoring_metrics.new_score_card()
     expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
-      [ ingest_file , '87' , '97' , 'DateTime' , 'FN' ]
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
       [ ingest_file , '2404' , '2410' , 'DateTime' , 'TP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ ingest_file , '87' , '97' , 'DateTime' , 'FN' ]
     expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
       [ ingest_file , '73' , '97' , 'DateTime' , 'FP' ]
     assert_frame_equal( score_card , expected_score_card )
@@ -446,7 +497,7 @@ def test_evaluate_positions_tweak_annotation_dictionary_ignore_whitespace():
     assert_frame_equal( score_card , expected_score_card )
 
 
-def prepare_evaluate_positions_missing_mapped_keys():
+def prepare_evaluate_positions_structs():
     ingest_file = 'tests/data/i2b2_2016_track-1_gold/0005_gs.xml'
     document_data = dict( cdata_xpath = './TEXT' )
     raw_content , gold_om = \
@@ -476,7 +527,7 @@ def prepare_evaluate_positions_missing_mapped_keys():
 def test_evaluate_positions_missing_mapped_keys_with_heed_whitespace():
     score_card = scoring_metrics.new_score_card()
     ingest_file , gold_ss , test_ss = \
-      prepare_evaluate_positions_missing_mapped_keys()
+      prepare_evaluate_positions_structs()
     del gold_ss[ "2404" ][ 0 ][ "begin_pos_mapped" ]
     del gold_ss[ "2404" ][ 0 ][ "end_pos_mapped" ]
     del test_ss[ "2404" ][ 0 ][ "begin_pos_mapped" ]
@@ -499,7 +550,7 @@ def test_evaluate_positions_missing_mapped_keys_with_heed_whitespace():
 def test_evaluate_positions_missing_gold_begin_mapped_key():
     score_card = scoring_metrics.new_score_card()
     ingest_file , gold_ss , test_ss = \
-      prepare_evaluate_positions_missing_mapped_keys()
+      prepare_evaluate_positions_structs()
     del gold_ss[ "2404" ][ 0 ][ "begin_pos_mapped" ]
     score_card = \
       scoring_metrics.evaluate_positions( ingest_file ,
@@ -519,7 +570,7 @@ def test_evaluate_positions_missing_gold_begin_mapped_key():
 def test_evaluate_positions_missing_gold_end_mapped_key():
     score_card = scoring_metrics.new_score_card()
     ingest_file , gold_ss , test_ss = \
-      prepare_evaluate_positions_missing_mapped_keys()
+      prepare_evaluate_positions_structs()
     del gold_ss[ "2404" ][ 0 ][ "end_pos_mapped" ]
     score_card = \
       scoring_metrics.evaluate_positions( ingest_file ,
@@ -539,7 +590,7 @@ def test_evaluate_positions_missing_gold_end_mapped_key():
 def test_evaluate_positions_missing_test_begin_mapped_key():
     score_card = scoring_metrics.new_score_card()
     ingest_file , gold_ss , test_ss = \
-      prepare_evaluate_positions_missing_mapped_keys()
+      prepare_evaluate_positions_structs()
     del test_ss[ "2404" ][ 0 ][ "begin_pos_mapped" ]
     score_card = \
       scoring_metrics.evaluate_positions( ingest_file ,
@@ -559,7 +610,7 @@ def test_evaluate_positions_missing_test_begin_mapped_key():
 def test_evaluate_positions_missing_test_end_mapped_key():
     score_card = scoring_metrics.new_score_card()
     ingest_file , gold_ss , test_ss = \
-      prepare_evaluate_positions_missing_mapped_keys()
+      prepare_evaluate_positions_structs()
     del test_ss[ "2404" ][ 0 ][ "end_pos_mapped" ]
     score_card = \
       scoring_metrics.evaluate_positions( ingest_file ,
@@ -575,4 +626,640 @@ def test_evaluate_positions_missing_test_end_mapped_key():
       [ ingest_file , '2006' , '2011' , 'DateTime' , 'FN' ]
     assert_frame_equal( score_card , expected_score_card )
 
+
+#############################################
+## Test nested annotation entries
+#############################################
+
+
+def test_evaluate_positions_nested_annotations_gold_first_match():
+    score_card = scoring_metrics.new_score_card()
+    ingest_file , gold_ss , test_ss = \
+      prepare_evaluate_positions_structs()
+    ##
+    new_entry = text_extraction.create_annotation_entry( begin_pos = "87" ,
+                                                         begin_pos_mapped = "70" ,
+                                                         end_pos = "97" ,
+                                                         end_pos_mapped = "80" ,
+                                                         raw_text = None ,
+                                                         tag_name = "Age" )
+    gold_ss[ "87" ].append( new_entry )
+    ##
+    score_card = \
+      scoring_metrics.evaluate_positions( ingest_file ,
+                                          score_card ,
+                                          gold_ss = gold_ss ,
+                                          test_ss = test_ss ,
+                                          ignore_whitespace = False )
+    ##
+    expected_score_card = scoring_metrics.new_score_card()
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ ingest_file , '87' , '97' , 'DateTime' , 'TP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ ingest_file , '2404' , '2410' , 'DateTime' , 'TP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ ingest_file , '87' , '97' , 'Age' , 'FN' ]
+    assert_frame_equal( score_card , expected_score_card )
+
+
+def test_evaluate_positions_nested_annotations_gold_second_match():
+    score_card = scoring_metrics.new_score_card()
+    ingest_file , gold_ss , test_ss = \
+      prepare_evaluate_positions_structs()
+    ##
+    new_entry = text_extraction.create_annotation_entry( begin_pos = "87" ,
+                                                         begin_pos_mapped = "70" ,
+                                                         end_pos = "97" ,
+                                                         end_pos_mapped = "80" ,
+                                                         raw_text = None ,
+                                                         tag_name = "Age" )
+    gold_ss[ "87" ].append( new_entry )
+    ##
+    score_card = \
+      scoring_metrics.evaluate_positions( ingest_file ,
+                                          score_card ,
+                                          gold_ss = gold_ss ,
+                                          test_ss = test_ss ,
+                                          ignore_whitespace = False )
+    ##
+    expected_score_card = scoring_metrics.new_score_card()
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ ingest_file , '87' , '97' , 'DateTime' , 'TP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ ingest_file , '2404' , '2410' , 'DateTime' , 'TP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ ingest_file , '87' , '97' , 'Age' , 'FN' ]
+    assert_frame_equal( score_card , expected_score_card )
+
+
+def test_evaluate_positions_nested_annotations_test():
+    score_card = scoring_metrics.new_score_card()
+    ingest_file , gold_ss , test_ss = \
+      prepare_evaluate_positions_structs()
+    ##
+    new_entry = text_extraction.create_annotation_entry( begin_pos = "87" ,
+                                                         begin_pos_mapped = "70" ,
+                                                         end_pos = "97" ,
+                                                         end_pos_mapped = "80" ,
+                                                         raw_text = None ,
+                                                         tag_name = "Age" )
+    test_ss[ "87" ].append( new_entry )
+    ##
+    score_card = \
+      scoring_metrics.evaluate_positions( ingest_file ,
+                                          score_card ,
+                                          gold_ss = gold_ss ,
+                                          test_ss = test_ss ,
+                                          ignore_whitespace = False )
+    ##
+    expected_score_card = scoring_metrics.new_score_card()
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ ingest_file , '87' , '97' , 'DateTime' , 'TP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ ingest_file , '2404' , '2410' , 'DateTime' , 'TP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ ingest_file , '87' , '97' , 'Age' , 'FP' ]
+    assert_frame_equal( score_card , expected_score_card )
+
+
+def test_evaluate_positions_nested_annotations_gold_and_test():
+    score_card = scoring_metrics.new_score_card()
+    ingest_file , gold_ss , test_ss = \
+      prepare_evaluate_positions_structs()
+    ##
+    new_entry = text_extraction.create_annotation_entry( begin_pos = "87" ,
+                                                         begin_pos_mapped = "70" ,
+                                                         end_pos = "97" ,
+                                                         end_pos_mapped = "80" ,
+                                                         raw_text = None ,
+                                                         tag_name = "Age" )
+    gold_ss[ "87" ].append( new_entry )
+    test_ss[ "87" ].append( new_entry )
+    ##
+    score_card = \
+      scoring_metrics.evaluate_positions( ingest_file ,
+                                          score_card ,
+                                          gold_ss = gold_ss ,
+                                          test_ss = test_ss ,
+                                          ignore_whitespace = False )
+    ##
+    expected_score_card = scoring_metrics.new_score_card()
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ ingest_file , '87' , '97' , 'DateTime' , 'TP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ ingest_file , '87' , '97' , 'Age' , 'TP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ ingest_file , '2404' , '2410' , 'DateTime' , 'TP' ]
+    assert_frame_equal( score_card , expected_score_card )
+
+
+
+#############################################
+## Test exact, overlapping, and fully contained
+#############################################
+
+def prepare_evaluate_positions_offset_alignment( test_filename ):
+    gold_filename = 'tests/data/offset_matching/the_doctors_age_gold.xmi'
+    namespaces = { 'cas' :
+                   "http:///uima/cas.ecore" ,
+                   'custom' :
+                   "http:///webanno/custom.ecore" }
+    document_data = dict( tag_xpath = './cas:Sofa' ,
+                          content_attribute = 'sofaString' )
+    raw_content , gold_om = \
+      text_extraction.extract_chars( ingest_file = gold_filename ,
+                                     namespaces = namespaces ,
+                                     document_data = document_data )
+    test_om = gold_om
+    tag_set = { 'DateTime' : './custom:PHI[@Time="DateTime"]' ,
+                'Age' : './custom:PHI[@Time="Age"]' }
+    gold_ss = {}
+    test_ss = {}
+    for tag_name in tag_set:
+        gold_ss.update( 
+         text_extraction.extract_annotations_xml( gold_filename ,
+                                                  offset_mapping = gold_om ,
+                                                  annotation_path = tag_set[ tag_name ] ,
+                                                  tag_name = tag_name ,
+                                                  namespaces = namespaces ,
+                                                  begin_attribute = 'begin' ,
+                                                  end_attribute = 'end' ) )
+        test_ss.update( 
+         text_extraction.extract_annotations_xml( test_filename ,
+                                                  offset_mapping = test_om ,
+                                                  annotation_path = tag_set[ tag_name ] ,
+                                                  tag_name = tag_name ,
+                                                  namespaces = namespaces ,
+                                                  begin_attribute = 'begin' ,
+                                                  end_attribute = 'end' ) )
+    return gold_ss , test_ss
+
+
+def prepare_offset_alignment_score_cards( filename , gold_ss , test_ss ):
+    score_card = scoring_metrics.new_score_card()
+    exact_score_card = scoring_metrics.evaluate_positions( filename ,
+                                                           score_card ,
+                                                           gold_ss ,
+                                                           test_ss ,
+                                                           fuzzy_flag = 'exact' ,
+                                                           ignore_whitespace = True )
+    score_card = scoring_metrics.new_score_card()
+    contained_score_card = scoring_metrics.evaluate_positions( filename ,
+                                                               score_card ,
+                                                               gold_ss ,
+                                                               test_ss ,
+                                                               fuzzy_flag = 'fully-contained' ,
+                                                               ignore_whitespace = True )
+    score_card = scoring_metrics.new_score_card()
+    partial_score_card = scoring_metrics.evaluate_positions( filename ,
+                                                             score_card ,
+                                                             gold_ss ,
+                                                             test_ss ,
+                                                             fuzzy_flag = 'partial' ,
+                                                             ignore_whitespace = True )
+    return exact_score_card , contained_score_card , partial_score_card 
+
+
+def test_exact_match_overlap():
+    test_filename = 'tests/data/offset_matching/the_doctors_age_gold.xmi'
+    gold_ss , test_ss = \
+        prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
+    assert gold_ss == test_ss
+    ##
+    exact_score_card , contained_score_card , partial_score_card = \
+      prepare_offset_alignment_score_cards( test_filename ,
+                                            gold_ss ,
+                                            test_ss )
+    ## exact match only
+    expected_score_card = scoring_metrics.new_score_card()
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '19' , '21' , 'Age' , 'TP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '32' , '48' , 'DateTime' , 'TP' ]
+    assert_frame_equal( exact_score_card , expected_score_card )
+    ## fully-contained matches
+    assert_frame_equal( contained_score_card , expected_score_card )
+    ## overlapping matches
+    assert_frame_equal( partial_score_card , expected_score_card )
+
+
+def test_match_overlap_contained_on_both_sides():
+    test_filename = 'tests/data/offset_matching/the_doctors_age_contained_on_both_sides.xmi'
+    gold_ss , test_ss = \
+        prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
+    assert gold_ss != test_ss
+    ##
+    exact_score_card , contained_score_card , partial_score_card = \
+      prepare_offset_alignment_score_cards( test_filename ,
+                                            gold_ss ,
+                                            test_ss )
+    ## exact match only
+    expected_score_card = scoring_metrics.new_score_card()
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '19' , '21' , 'Age' , 'TP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '32' , '48' , 'DateTime' , 'FN' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '30' , 'EOF' , 'DateTime' , 'FP' ]
+    assert_frame_equal( exact_score_card , expected_score_card )
+    ## fully-contained matches
+    expected_score_card = scoring_metrics.new_score_card()
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '19' , '21' , 'Age' , 'TP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '32' , '48' , 'DateTime' , 'TP' ]
+    assert_frame_equal( contained_score_card , expected_score_card )
+    ## overlapping matches
+    assert_frame_equal( partial_score_card , expected_score_card )
+
+
+def test_match_overlap_contained_on_left():
+    test_filename = 'tests/data/offset_matching/the_doctors_age_contained_on_left.xmi'
+    gold_ss , test_ss = \
+        prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
+    assert gold_ss != test_ss
+    ##
+    exact_score_card , contained_score_card , partial_score_card = \
+      prepare_offset_alignment_score_cards( test_filename ,
+                                            gold_ss ,
+                                            test_ss )
+    ## exact match only
+    expected_score_card = scoring_metrics.new_score_card()
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '19' , '21' , 'Age' , 'TP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '32' , '48' , 'DateTime' , 'FN' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '30' , '48' , 'DateTime' , 'FP' ]
+    assert_frame_equal( exact_score_card , expected_score_card )
+    ## fully-contained matches
+    expected_score_card = scoring_metrics.new_score_card()
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '19' , '21' , 'Age' , 'TP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '32' , '48' , 'DateTime' , 'TP' ]
+    assert_frame_equal( contained_score_card , expected_score_card )
+    ## overlapping matches
+    assert_frame_equal( partial_score_card , expected_score_card )
+
+
+def test_match_overlap_contained_on_right():
+    test_filename = 'tests/data/offset_matching/the_doctors_age_contained_on_right.xmi'
+    gold_ss , test_ss = \
+        prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
+    assert gold_ss != test_ss
+    ##
+    exact_score_card , contained_score_card , partial_score_card = \
+      prepare_offset_alignment_score_cards( test_filename ,
+                                            gold_ss ,
+                                            test_ss )
+    ## exact match only
+    expected_score_card = scoring_metrics.new_score_card()
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '19' , '21' , 'Age' , 'TP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '32' , '48' , 'DateTime' , 'FN' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '32' , 'EOF' , 'DateTime' , 'FP' ]
+    assert_frame_equal( exact_score_card , expected_score_card )
+    ## fully-contained matches
+    expected_score_card = scoring_metrics.new_score_card()
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '19' , '21' , 'Age' , 'TP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '32' , '48' , 'DateTime' , 'TP' ]
+    assert_frame_equal( contained_score_card , expected_score_card )
+    ## overlapping matches
+    assert_frame_equal( partial_score_card , expected_score_card )
+
+
+def test_match_overlap_partial_on_both_sides():
+    test_filename = 'tests/data/offset_matching/the_doctors_age_partial_on_both_sides.xmi'
+    gold_ss , test_ss = \
+        prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
+    assert gold_ss != test_ss
+    ##
+    exact_score_card , contained_score_card , partial_score_card = \
+      prepare_offset_alignment_score_cards( test_filename ,
+                                            gold_ss ,
+                                            test_ss )
+    ## exact match only
+    expected_score_card = scoring_metrics.new_score_card()
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '19' , '21' , 'Age' , 'TP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '32' , '48' , 'DateTime' , 'FN' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '40' , '43' , 'DateTime' , 'FP' ]
+    assert_frame_equal( exact_score_card , expected_score_card )
+    ## fully-contained matches
+    assert_frame_equal( contained_score_card , expected_score_card )
+    ## overlapping matches
+    expected_score_card = scoring_metrics.new_score_card()
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '19' , '21' , 'Age' , 'TP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '32' , '48' , 'DateTime' , 'TP' ]
+    assert_frame_equal( partial_score_card , expected_score_card )
+
+
+def test_match_overlap_partial_on_left():
+    test_filename = 'tests/data/offset_matching/the_doctors_age_partial_on_left.xmi'
+    gold_ss , test_ss = \
+        prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
+    assert gold_ss != test_ss
+    ##
+    exact_score_card , contained_score_card , partial_score_card = \
+      prepare_offset_alignment_score_cards( test_filename ,
+                                            gold_ss ,
+                                            test_ss )
+    ## exact match only
+    expected_score_card = scoring_metrics.new_score_card()
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '19' , '21' , 'Age' , 'TP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '32' , '48' , 'DateTime' , 'FN' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '40' , '48' , 'DateTime' , 'FP' ]
+    assert_frame_equal( exact_score_card , expected_score_card )
+    ## fully-contained matches
+    assert_frame_equal( contained_score_card , expected_score_card )
+    ## overlapping matches
+    expected_score_card = scoring_metrics.new_score_card()
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '19' , '21' , 'Age' , 'TP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '32' , '48' , 'DateTime' , 'TP' ]
+    assert_frame_equal( partial_score_card , expected_score_card )
+
+
+def test_match_overlap_partial_on_right():
+    test_filename = 'tests/data/offset_matching/the_doctors_age_partial_on_right.xmi'
+    gold_ss , test_ss = \
+        prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
+    assert gold_ss != test_ss
+    ##
+    exact_score_card , contained_score_card , partial_score_card = \
+      prepare_offset_alignment_score_cards( test_filename ,
+                                            gold_ss ,
+                                            test_ss )
+    ## exact match only
+    expected_score_card = scoring_metrics.new_score_card()
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '19' , '21' , 'Age' , 'TP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '32' , '48' , 'DateTime' , 'FN' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '32' , '43' , 'DateTime' , 'FP' ]
+    assert_frame_equal( exact_score_card , expected_score_card )
+    ## fully-contained matches
+    assert_frame_equal( contained_score_card , expected_score_card )
+    ## overlapping matches
+    expected_score_card = scoring_metrics.new_score_card()
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '19' , '21' , 'Age' , 'TP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '32' , '48' , 'DateTime' , 'TP' ]
+    assert_frame_equal( partial_score_card , expected_score_card )
+
+
+def test_match_overlap_partial_on_left_contained_on_right():
+    test_filename = 'tests/data/offset_matching/the_doctors_age_partial_on_left_contained_on_right.xmi'
+    gold_ss , test_ss = \
+        prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
+    assert gold_ss != test_ss
+    ##
+    exact_score_card , contained_score_card , partial_score_card = \
+      prepare_offset_alignment_score_cards( test_filename ,
+                                            gold_ss ,
+                                            test_ss )
+    ## exact match only
+    expected_score_card = scoring_metrics.new_score_card()
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '19' , '21' , 'Age' , 'TP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '32' , '48' , 'DateTime' , 'FN' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '40' , 'EOF' , 'DateTime' , 'FP' ]
+    assert_frame_equal( exact_score_card , expected_score_card )
+    ## fully-contained matches
+    assert_frame_equal( contained_score_card , expected_score_card )
+    ## overlapping matches
+    expected_score_card = scoring_metrics.new_score_card()
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '19' , '21' , 'Age' , 'TP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '32' , '48' , 'DateTime' , 'TP' ]
+    assert_frame_equal( partial_score_card , expected_score_card )
+
+
+def test_match_overlap_partial_on_right_contained_on_left():
+    test_filename = 'tests/data/offset_matching/the_doctors_age_partial_on_right_contained_on_left.xmi'
+    gold_ss , test_ss = \
+        prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
+    assert gold_ss != test_ss
+    ##
+    exact_score_card , contained_score_card , partial_score_card = \
+      prepare_offset_alignment_score_cards( test_filename ,
+                                            gold_ss ,
+                                            test_ss )
+    ## exact match only
+    expected_score_card = scoring_metrics.new_score_card()
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '19' , '21' , 'Age' , 'TP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '32' , '48' , 'DateTime' , 'FN' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '30' , '43' , 'DateTime' , 'FP' ]
+    assert_frame_equal( exact_score_card , expected_score_card )
+    ## fully-contained matches
+    assert_frame_equal( contained_score_card , expected_score_card )
+    ## overlapping matches
+    expected_score_card = scoring_metrics.new_score_card()
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '19' , '21' , 'Age' , 'TP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '32' , '48' , 'DateTime' , 'TP' ]
+    assert_frame_equal( partial_score_card , expected_score_card )
+
+
+def test_match_overlap_type_mismatch():
+    test_filename = 'tests/data/offset_matching/the_doctors_age_type_mismatch.xmi'
+    gold_ss , test_ss = \
+        prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
+    assert gold_ss != test_ss
+    ##
+    exact_score_card , contained_score_card , partial_score_card = \
+      prepare_offset_alignment_score_cards( test_filename ,
+                                            gold_ss ,
+                                            test_ss )
+    ## exact match only
+    expected_score_card = scoring_metrics.new_score_card()
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '19' , '21' , 'Age' , 'FN' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '19' , '21' , 'DateTime' , 'FP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '32' , '48' , 'DateTime' , 'FN' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '32' , '48' , 'Age' , 'FP' ]
+    assert_frame_equal( exact_score_card , expected_score_card )
+    ## fully-contained matches
+    assert_frame_equal( contained_score_card , expected_score_card )
+    ## overlapping matches
+    assert_frame_equal( partial_score_card , expected_score_card )
+
+
+def test_match_overlap_type_mismatch_contained_on_left():
+    test_filename = 'tests/data/offset_matching/the_doctors_age_type_mismatch_contained_on_left.xmi'
+    gold_ss , test_ss = \
+        prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
+    assert gold_ss != test_ss
+    ##
+    exact_score_card , contained_score_card , partial_score_card = \
+      prepare_offset_alignment_score_cards( test_filename ,
+                                            gold_ss ,
+                                            test_ss )
+    ## exact match only
+    expected_score_card = scoring_metrics.new_score_card()
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '19' , '21' , 'Age' , 'FN' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '19' , '21' , 'DateTime' , 'FP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '32' , '48' , 'DateTime' , 'FN' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '30' , '48' , 'Age' , 'FP' ]
+    assert_frame_equal( exact_score_card , expected_score_card )
+    ## fully-contained matches
+    assert_frame_equal( contained_score_card , expected_score_card )
+    ## overlapping matches
+    assert_frame_equal( partial_score_card , expected_score_card )
+
+
+def test_match_overlap_type_mismatch_contained_on_right():
+    test_filename = 'tests/data/offset_matching/the_doctors_age_type_mismatch_contained_on_right.xmi'
+    gold_ss , test_ss = \
+        prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
+    assert gold_ss != test_ss
+    ##
+    exact_score_card , contained_score_card , partial_score_card = \
+      prepare_offset_alignment_score_cards( test_filename ,
+                                            gold_ss ,
+                                            test_ss )
+    ## exact match only
+    expected_score_card = scoring_metrics.new_score_card()
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '19' , '21' , 'Age' , 'FN' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '19' , '21' , 'DateTime' , 'FP' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '32' , '48' , 'DateTime' , 'FN' ]
+    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+      [ test_filename , '32' , 'EOF' , 'Age' , 'FP' ]
+    assert_frame_equal( exact_score_card , expected_score_card )
+    ## fully-contained matches
+    assert_frame_equal( contained_score_card , expected_score_card )
+    ## overlapping matches
+    assert_frame_equal( partial_score_card , expected_score_card )
+
+
+
+#############################################
+## Test augmenting dictionaries on disk
+#############################################
+
+def test_empty_path_recursive_deep_key_value_pair():
+    base_dict = {}
+    reference_dict = { 'hello' : 'world' }
+    base_dict = scoring_metrics.recursive_deep_key_value_pair( base_dict ,
+                                                               [] ,
+                                                               'hello' ,
+                                                               'world' )
+    assert base_dict == reference_dict
+
+def test_one_deep_path_recursive_deep_key_value_pair():
+    base_dict = {}
+    reference_dict = { 'foobar' : { 'hello' : 'world' } }
+    base_dict = scoring_metrics.recursive_deep_key_value_pair( base_dict ,
+                                                               [ 'foobar' ] ,
+                                                               'hello' ,
+                                                               'world' )
+    assert base_dict == reference_dict
+
+
+def test_two_deep_path_recursive_deep_key_value_pair():
+    base_dict = {}
+    reference_dict = { 'foo' : { 'bar' : { 'hello' : 'world' } } }
+    base_dict = scoring_metrics.recursive_deep_key_value_pair( base_dict ,
+                                                               [ 'foo' , 'bar' ] ,
+                                                               'hello' ,
+                                                               'world' )
+    assert base_dict == reference_dict
+
+
+def test_empty_path_dictionary_augmentation():
+    base_dict = { 'Do not disturb' : [ 8 , 6 , 7, 5 , 3, 0 , 9 ] ,
+                  'Thing 1' : 'Thing 2' }
+    reference_dict = { 'Do not disturb' : [ 8 , 6 , 7, 5 , 3, 0 , 9 ] ,
+                       'Thing 1' : 'Thing 2' ,
+                       'hello' : 'world' }
+    try:
+        tmp_descriptor, tmp_file = tempfile.mkstemp()
+        os.close( tmp_descriptor )
+        with open( tmp_file , 'w' ) as fp:
+            json.dump( base_dict , fp )
+        scoring_metrics.update_output_dictionary( tmp_file ,
+                                                  [] ,
+                                                  [ 'hello' ] ,
+                                                  [ 'world' ] )
+        with open( tmp_file , 'r' ) as fp:
+            test_dict = json.load( fp )
+        assert test_dict == reference_dict
+    finally:
+        os.remove( tmp_file )
+
+
+def test_one_deep_path_dictionary_augmentation():
+    base_dict = { 'Do not disturb' : [ 8 , 6 , 7, 5 , 3, 0 , 9 ] ,
+                  'Thing 1' : 'Thing 2' }
+    reference_dict = { 'Do not disturb' : [ 8 , 6 , 7, 5 , 3, 0 , 9 ] ,
+                       'Thing 1' : 'Thing 2' ,
+                       'foobar' : { 'hello' : 'world' } }
+    try:
+        tmp_descriptor, tmp_file = tempfile.mkstemp()
+        os.close( tmp_descriptor )
+        with open( tmp_file , 'w' ) as fp:
+            json.dump( base_dict , fp )
+        scoring_metrics.update_output_dictionary( tmp_file ,
+                                                  [ 'foobar' ] ,
+                                                  [ 'hello' ] ,
+                                                  [ 'world' ] )
+        with open( tmp_file , 'r' ) as fp:
+            test_dict = json.load( fp )
+        assert test_dict == reference_dict
+    finally:
+        os.remove( tmp_file )
+
+
+def test_two_deep_path_dictionary_augmentation():
+    base_dict = { 'Do not disturb' : [ 8 , 6 , 7, 5 , 3, 0 , 9 ] ,
+                  'Thing 1' : 'Thing 2' }
+    reference_dict = { 'Do not disturb' : [ 8 , 6 , 7, 5 , 3, 0 , 9 ] ,
+                       'Thing 1' : 'Thing 2' ,
+                       'foo' : { 'bar' : { 'hello' : 'world' } } }
+    try:
+        tmp_descriptor, tmp_file = tempfile.mkstemp()
+        os.close( tmp_descriptor )
+        with open( tmp_file , 'w' ) as fp:
+            json.dump( base_dict , fp )
+        scoring_metrics.update_output_dictionary( tmp_file ,
+                                                  [ 'foo' , 'bar' ] ,
+                                                  [ 'hello' ] ,
+                                                  [ 'world' ] )
+        with open( tmp_file , 'r' ) as fp:
+            test_dict = json.load( fp )
+        assert test_dict == reference_dict
+    finally:
+        os.remove( tmp_file )
 
