@@ -46,6 +46,7 @@ def get_annotation_from_base_entry( annotation_entry ,
 
 def flatten_ss_dictionary( ss_dictionary ,
                            category = '(unknown)' ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     all_keys = ss_dictionary.keys()
     if( len( all_keys ) == 0 ):
         log.debug( 'Zero {} keys in strict starts dictionary'.format( category ) )
@@ -60,6 +61,7 @@ def flatten_ss_dictionary( ss_dictionary ,
     for this_key in all_keys:
         for annot_index in range( len( ss_dictionary[ this_key ] ) ):
             flat_entries.append( ss_dictionary[ this_key ][ annot_index ] )
+    log.debug( "Leaving '{}'".format( sys._getframe().f_code.co_name ) )
     return flat_entries
 
 
@@ -68,6 +70,7 @@ def gold_annot_comparison_runner( score_card , gold_filename ,
                                   test_entries ,
                                   start_key , end_key ,
                                   fuzzy_flag ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     ## grab type and end position
     gold_type , gold_start , gold_end = \
       get_annotation_from_base_entry( gold_annot ,
@@ -217,6 +220,7 @@ def gold_annot_comparison_runner( score_card , gold_filename ,
             test_leftovers.append( test_annot )
     if( not matched_flag ):
         gold_leftovers.append( gold_annot )
+    log.debug( "Leaving '{}'".format( sys._getframe().f_code.co_name ) )
     return test_leftovers
 
 
@@ -324,7 +328,6 @@ def add_missing_fields( score_summary ):
     if( 'FN' not in score_types ):
         score_summary[ 'FN' ] = 0.0
     log.debug( "Leaving '{}'".format( sys._getframe().f_code.co_name ) )
-    return score_summary
 
 
 def norm_summary( score_summary , row_name , args ):
@@ -334,7 +337,7 @@ def norm_summary( score_summary , row_name , args ):
     ##
     ## First, we want to make sure that all score types are represented
     ## in the summary series.
-    score_summary = add_missing_fields( score_summary )
+    add_missing_fields( score_summary )
     ## True Positive Rate (TPR),
     ## Sensitivity,
     ## Recall,

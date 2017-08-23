@@ -31,7 +31,8 @@ def count_ref_set( test_ns , test_patterns , test_folder ,
     """
     Count annotation occurrences in the test folder
     """
-    type_counts = scoring_metrics.new_score_card()
+    type_counts = scoring_metrics.new_score_card( fuzzy_flags = \
+                                                  args.fuzzy_flags )
     confusion_matrix = {}
     tests = set([os.path.basename(x) for x in glob.glob( test_folder +
                                                          file_prefix +
@@ -228,9 +229,8 @@ def score_ref_set( gold_ns , gold_dd , gold_patterns , gold_folder ,
     """
     Score the test folder against the gold folder.
     """
-    score_card = {}
-    for fuzzy_flag in args.fuzzy_flags:
-        score_card[ fuzzy_flag ] = scoring_metrics.new_score_card()
+    score_card = scoring_metrics.new_score_card( fuzzy_flags = \
+                                                 args.fuzzy_flags )
     ##
     confusion_matrix = {}
     try:
@@ -314,10 +314,12 @@ def score_ref_set( gold_ns , gold_dd , gold_patterns , gold_folder ,
             log.error( 'Uncaught exception in evaluate_positions:  {}'.format( e ) )
     ##
     try:
-        scoring_metrics.print_score_summary( score_card ,
-                                             file_mapping ,
-                                             gold_patterns , test_patterns ,
-                                             args )
+        for fuzzy_flag in args.fuzzy_flags:
+            scoring_metrics.print_score_summary( score_card ,
+                                                 file_mapping ,
+                                                 gold_patterns , test_patterns ,
+                                                 fuzzy_flag = fuzzy_flag ,
+                                                 args = args )
     except:
         e = sys.exc_info()[0]
         log.error( 'Uncaught exception in print_score_summary:  {}'.format( e ) )
