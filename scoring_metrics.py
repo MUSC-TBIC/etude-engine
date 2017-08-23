@@ -8,10 +8,13 @@ from sets import Set
 
 import pandas as pd
 
-def new_score_card():
-    return pd.DataFrame( columns = [ 'File' ,
-                                     'Start' , 'End' ,
-                                     'Type' , 'Score' ] )
+def new_score_card( fuzzy_flags = [ 'exact' ] ):
+    score_card = {}
+    for fuzzy_flag in fuzzy_flags:
+        score_card[ fuzzy_flag ] = pd.DataFrame( columns = [ 'File' ,
+                                                             'Start' , 'End' ,
+                                                             'Type' , 'Score' ] )
+    return score_card
 
 def get_annotation_from_base_entry( annotation_entry ,
                                     start_key ,
@@ -98,7 +101,7 @@ def gold_annot_comparison_runner( score_card , gold_filename ,
                 ## ... and the end positions match, then we have a
                 ##     perfect match
                 if( gold_end == test_end ):
-                    score_card.loc[ score_card.shape[ 0 ] ] = \
+                    score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
                           [ gold_filename , gold_start , gold_end ,
                             gold_type , 'TP' ]
                 elif( test_end == 'EOF' or
@@ -108,14 +111,14 @@ def gold_annot_comparison_runner( score_card , gold_filename ,
                     ## 'fully contained' match and also count it
                     ## as a win (until we score strict vs. lenient matches)
                     if( fuzzy_flag == 'exact' ):
-                        score_card.loc[ score_card.shape[ 0 ] ] = \
+                        score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
                               [ gold_filename , gold_start , gold_end ,
                                 gold_type , 'FN' ]
-                        score_card.loc[ score_card.shape[ 0 ] ] = \
+                        score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
                               [ gold_filename , test_start , test_end ,
                                 test_type , 'FP' ]
                     else:
-                        score_card.loc[ score_card.shape[ 0 ] ] = \
+                        score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
                               [ gold_filename , gold_start , gold_end ,
                                 gold_type , 'TP' ]
                 else:
@@ -123,21 +126,21 @@ def gold_annot_comparison_runner( score_card , gold_filename ,
                     ## to be captured.  For now, this is also
                     ## a win but will not always count.
                     if( fuzzy_flag == 'partial' ):
-                        score_card.loc[ score_card.shape[ 0 ] ] = \
+                        score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
                               [ gold_filename , gold_start , gold_end ,
                                 gold_type , 'TP' ]
                     else:
-                        score_card.loc[ score_card.shape[ 0 ] ] = \
+                        score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
                               [ gold_filename , gold_start , gold_end ,
                                 gold_type , 'FN' ]
-                        score_card.loc[ score_card.shape[ 0 ] ] = \
+                        score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
                               [ gold_filename , test_start , test_end ,
                                 test_type , 'FP' ]
             else:
-                score_card.loc[ score_card.shape[ 0 ] ] = \
+                score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
                       [ gold_filename , gold_start , gold_end ,
                         gold_type , 'FN' ]
-                score_card.loc[ score_card.shape[ 0 ] ] = \
+                score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
                       [ gold_filename , test_start , test_end ,
                         test_type , 'FP' ]
             ## Everything within this block counts as a match
@@ -155,28 +158,28 @@ def gold_annot_comparison_runner( score_card , gold_filename ,
                     ## determined start position, we consider this a
                     ## 'fully contained' match and also count it
                     ## as a win
-                    score_card.loc[ score_card.shape[ 0 ] ] = \
+                    score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
                       [ gold_filename , gold_start , gold_end ,
                         gold_type , 'TP' ]
                 else:
                     ## otherwise, we missed some data that needs
                     ## to be captured.  This is a partial win.
                     if( fuzzy_flag == 'partial' ):
-                        score_card.loc[ score_card.shape[ 0 ] ] = \
+                        score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
                               [ gold_filename , gold_start , gold_end ,
                                 gold_type , 'TP' ]
                     else:
-                        score_card.loc[ score_card.shape[ 0 ] ] = \
+                        score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
                               [ gold_filename , gold_start , gold_end ,
                                 gold_type , 'FN' ]
-                        score_card.loc[ score_card.shape[ 0 ] ] = \
+                        score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
                               [ gold_filename , test_start , test_end ,
                                 test_type , 'FP' ]
             else:
-                score_card.loc[ score_card.shape[ 0 ] ] = \
+                score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
                       [ gold_filename , gold_start , gold_end ,
                         gold_type , 'FN' ]
-                score_card.loc[ score_card.shape[ 0 ] ] = \
+                score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
                       [ gold_filename , test_start , test_end ,
                         test_type , 'FP' ]
             ## Everything within this block counts as a match
@@ -188,7 +191,7 @@ def gold_annot_comparison_runner( score_card , gold_filename ,
               ( test_start == 'SOF' or test_start < gold_start ) and
               ( test_end == 'EOF' or test_end > gold_end ) and
               gold_type == test_type ):
-            score_card.loc[ score_card.shape[ 0 ] ] = \
+            score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
               [ gold_filename , gold_start , gold_end ,
                 gold_type , 'TP' ]
             ## Everything within this block counts as a match
@@ -202,7 +205,7 @@ def gold_annot_comparison_runner( score_card , gold_filename ,
                 ( test_start == 'SOF' or
                   test_start < gold_end ) ) and
               gold_type == test_type ):
-            score_card.loc[ score_card.shape[ 0 ] ] = \
+            score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
               [ gold_filename , gold_start , gold_end ,
                 gold_type , 'TP' ]
             ## Everything within this block counts as a match
@@ -253,7 +256,7 @@ def evaluate_positions( gold_filename ,
           get_annotation_from_base_entry( gold_annot ,
                                           start_key ,
                                           end_key )
-        score_card.loc[ score_card.shape[ 0 ] ] = \
+        score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
           [ gold_filename , gold_start , gold_end , gold_type , 'FN' ]
     for test_annot in test_leftovers:
         ## grab type and end position
@@ -263,7 +266,7 @@ def evaluate_positions( gold_filename ,
                                           end_key )
         if( test_type == None ):
             continue
-        score_card.loc[ score_card.shape[ 0 ] ] = \
+        score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
           [ gold_filename , test_start , test_end , test_type , 'FP' ]
     ##
     log.debug( "Leaving '{}'".format( sys._getframe().f_code.co_name ) )
@@ -419,22 +422,26 @@ def update_output_dictionary( out_file ,
 
 def print_score_summary( score_card , file_mapping ,
                          gold_config , test_config ,
+                         fuzzy_flag ,
                          args ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     ## TODO - refactor score printing to a separate function
     ## TODO - add scores grouped by type
     file_list = sorted( file_mapping.keys() )
-    print( '{}{}{}'.format( '\n#########' ,
+    print( '{}{}{}{}'.format( '\n' ,
+                            fuzzy_flag ,
                             args.delim ,
                             args.delim.join( '{}'.format( m ) for m in args.metrics_list ) ) )
     ##
-    metrics = norm_summary( score_card[ 'Score' ].value_counts() ,
+    metrics = norm_summary( score_card[ fuzzy_flag ][ 'Score' ].value_counts() ,
                             row_name = 'micro-average' , args = args )
     print( args.delim.join( '{}'.format( m ) for m in metrics ) )
     ##
     if( args.corpus_out ):
         update_output_dictionary( args.corpus_out ,
-                                  [ 'metrics' , 'micro-average' ] ,
+                                  [ 'metrics' ,
+                                    fuzzy_flag ,
+                                    'micro-average' ] ,
                                   args.metrics_list ,
                                   metrics[ 1: ] )
     ##
@@ -444,8 +451,8 @@ def print_score_summary( score_card , file_mapping ,
                                       [ 'file-mapping' ] ,
                                       [ filename ] ,
                                       [ file_mapping[ filename ] ] )
-        this_file = ( score_card[ 'File' ] == filename )
-        metrics = norm_summary( score_card[ this_file ][ 'Score' ].value_counts() ,
+        this_file = ( score_card[ fuzzy_flag ][ 'File' ] == filename )
+        metrics = norm_summary( score_card[ fuzzy_flag ][ this_file ][ 'Score' ].value_counts() ,
                                 row_name = filename , args = args )
         if( args.by_file or args.by_file_and_type ):
             print( args.delim.join( '{}'.format( m ) for m in metrics ) )
@@ -453,14 +460,18 @@ def print_score_summary( score_card , file_mapping ,
             out_file = '{}/{}'.format( args.gold_out ,
                                        filename )
             update_output_dictionary( out_file ,
-                                      [ 'metrics' , 'micro-average' ] ,
+                                      [ 'metrics' ,
+                                        fuzzy_flag ,
+                                        'micro-average' ] ,
                                       args.metrics_list ,
                                       metrics[ 1: ] )
         if( args.test_out ):
             out_file = '{}/{}'.format( args.test_out ,
                                        file_mapping[ filename ] )
             update_output_dictionary( out_file ,
-                                      [ 'metrics' , 'micro-average' ] ,
+                                      [ 'metrics' ,
+                                        fuzzy_flag ,
+                                        'micro-average' ] ,
                                       args.metrics_list ,
                                       metrics[ 1: ] )
         ##
@@ -469,10 +480,10 @@ def print_score_summary( score_card , file_mapping ,
             unique_types.add( pattern[ 'type' ] )
         for unique_type in sorted( unique_types ):
             this_type = \
-              (  ( score_card[ 'File' ] == filename ) &
-                 ( score_card[ 'Type' ] == unique_type ) )
+              (  ( score_card[ fuzzy_flag ][ 'File' ] == filename ) &
+                 ( score_card[ fuzzy_flag ][ 'Type' ] == unique_type ) )
             metrics = \
-              norm_summary( score_card[ this_type ][ 'Score' ].value_counts() ,
+              norm_summary( score_card[ fuzzy_flag ][ this_type ][ 'Score' ].value_counts() ,
                             row_name = filename + ' x ' + unique_type ,
                             args = args )
             if( args.by_file_and_type ):
@@ -481,14 +492,18 @@ def print_score_summary( score_card , file_mapping ,
                 out_file = '{}/{}'.format( args.gold_out ,
                                            filename )
                 update_output_dictionary( out_file ,
-                                          [ 'metrics' , 'by-type' , unique_type ] ,
+                                          [ 'metrics' ,
+                                            fuzzy_flag ,
+                                            'by-type' , unique_type ] ,
                                           args.metrics_list ,
                                           metrics[ 1: ] )
             if( args.test_out ):
                 out_file = '{}/{}'.format( args.test_out ,
                                            file_mapping[ filename ] )
                 update_output_dictionary( out_file ,
-                                          [ 'metrics' , 'by-type' , unique_type ] ,
+                                          [ 'metrics' ,
+                                            fuzzy_flag ,
+                                            'by-type' , unique_type ] ,
                                           args.metrics_list ,
                                           metrics[ 1: ] )
     ##
@@ -496,24 +511,26 @@ def print_score_summary( score_card , file_mapping ,
     for pattern in gold_config:
         unique_types.add( pattern[ 'type' ] )
     for unique_type in sorted( unique_types ):
-        this_type = ( score_card[ 'Type' ] == unique_type )
-        metrics = norm_summary( score_card[ this_type ][ 'Score' ].value_counts() ,
+        this_type = ( score_card[ fuzzy_flag ][ 'Type' ] == unique_type )
+        metrics = norm_summary( score_card[ fuzzy_flag ][ this_type ][ 'Score' ].value_counts() ,
                                 row_name = unique_type ,
                                 args = args )
         if( args.by_type or args.by_type_and_file ):
             print( args.delim.join( '{}'.format( m ) for m in metrics ) )
         if( args.corpus_out ):
             update_output_dictionary( args.corpus_out ,
-                                      [ 'metrics' , 'by-type' , unique_type ] ,
+                                      [ 'metrics' ,
+                                        fuzzy_flag ,
+                                        'by-type' , unique_type ] ,
                                       args.metrics_list ,
                                       metrics[ 1: ] )
         ##
         for filename in file_list:
             this_file = \
-              (  ( score_card[ 'File' ] == filename ) &
-                 ( score_card[ 'Type' ] == unique_type ) )
+              (  ( score_card[ fuzzy_flag ][ 'File' ] == filename ) &
+                 ( score_card[ fuzzy_flag ][ 'Type' ] == unique_type ) )
             metrics = \
-              norm_summary( score_card[ this_file ][ 'Score' ].value_counts() ,
+              norm_summary( score_card[ fuzzy_flag ][ this_file ][ 'Score' ].value_counts() ,
                             row_name = unique_type + ' x ' + filename ,
                             args = args )
             if( args.by_type_and_file ):

@@ -228,8 +228,10 @@ def score_ref_set( gold_ns , gold_dd , gold_patterns , gold_folder ,
     """
     Score the test folder against the gold folder.
     """
-    score_card = scoring_metrics.new_score_card()
-    
+    score_card = {}
+    for fuzzy_flag in args.fuzzy_flags:
+        score_card[ fuzzy_flag ] = scoring_metrics.new_score_card()
+    ##
     confusion_matrix = {}
     try:
         match_count , file_mapping = collect_files( gold_folder , test_folder ,
@@ -299,12 +301,14 @@ def score_ref_set( gold_ns , gold_dd , gold_patterns , gold_folder ,
                 log.error( 'Uncaught exception in extract_annotations:  {}'.format( e ) )
         ##
         try:
-            scoring_metrics.evaluate_positions( gold_filename ,
-                                                score_card ,
-                                                gold_ss ,
-                                                test_ss ,
-                                                fuzzy_flag = args.fuzzy_flag ,
-                                                ignore_whitespace = args.ignore_whitespace )
+            for fuzzy_flag in args.fuzzy_flags:
+                scoring_metrics.evaluate_positions( gold_filename ,
+                                                    score_card ,
+                                                    gold_ss ,
+                                                    test_ss ,
+                                                    fuzzy_flag = fuzzy_flag ,
+                                                    ignore_whitespace = \
+                                                      args.ignore_whitespace )
         except:
             e = sys.exc_info()[0]
             log.error( 'Uncaught exception in evaluate_positions:  {}'.format( e ) )
