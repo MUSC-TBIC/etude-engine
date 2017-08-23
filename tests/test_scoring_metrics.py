@@ -17,10 +17,10 @@ from pandas.testing import assert_frame_equal
 
 def add_missing_fields( test_type ):
     score_card = scoring_metrics.new_score_card()
-    new_types = score_card.keys()
+    new_types = score_card[ 'exact' ].keys()
     assert test_type not in new_types
-    score_summary = scoring_metrics.add_missing_fields( score_card )
-    score_types = score_summary.keys()
+    scoring_metrics.add_missing_fields( score_card )
+    score_types = score_card.keys()
     assert test_type in score_types
 
 def test_add_missing_fields_TP():
@@ -108,13 +108,13 @@ def test_f_score_beta_proportional_to_recall():
 
 def initialize_for_print_summary_test():
     score_card = scoring_metrics.new_score_card()
-    score_card.loc[ score_card.shape[ 0 ] ] = \
+    score_card[ 'exact' ].loc[ score_card[ 'exact' ].shape[ 0 ] ] = \
       [ 'a.xml' , 0 , 1 , 'Sentence' , 'TP' ]
-    score_card.loc[ score_card.shape[ 0 ] ] = \
+    score_card[ 'exact' ].loc[ score_card[ 'exact' ].shape[ 0 ] ] = \
       [ 'b.xml' , 0 , 1 , 'Sentence' , 'FP' ]
-    score_card.loc[ score_card.shape[ 0 ] ] = \
+    score_card[ 'exact' ].loc[ score_card[ 'exact' ].shape[ 0 ] ] = \
       [ 'a.xml' , 0 , 1 , 'Sentence' , 'FN' ]
-    score_card.loc[ score_card.shape[ 0 ] ] = \
+    score_card[ 'exact' ].loc[ score_card[ 'exact' ].shape[ 0 ] ] = \
       [ 'b.xml' , 0 , 1 , 'Sentence' , 'FN' ]
     command_line_args = [ '--gold-input' , 'tests/data/i2b2_2016_track-1_gold' ,
                           '--test-input' , 'tests/data/i2b2_2016_track-1_test' ]
@@ -134,11 +134,12 @@ def test_unique_score_key_summary_stats( capsys ):
     ##
     scoring_metrics.print_score_summary( score_card , file_mapping ,
                                          sample_config , sample_config ,
-                                         args )
+                                         fuzzy_flag = 'exact' ,
+                                         args = args )
     by_type_out, err = capsys.readouterr()
     ##
-    expected_values = [ [ '#########' , 'TP' , 'FP' , 'TN' , 'FN' ] ,
-                        [ 'aggregate' , '1.0' , '1.0' , '0.0' , '2.0' ] ,
+    expected_values = [ [ 'exact' , 'TP' , 'FP' , 'TN' , 'FN' ] ,
+                        [ 'micro-average' , '1.0' , '1.0' , '0.0' , '2.0' ] ,
                         [ 'Sentence' , '1.0' , '1.0' , '0.0' , '2.0' ] ]
     for expected_values in expected_values:
         print( args.delim.join( '{}'.format( m ) for m in expected_values ) )
@@ -155,11 +156,12 @@ def test_by_type_and_file_score_key_summary_stats( capsys ):
     ##
     scoring_metrics.print_score_summary( score_card , file_mapping ,
                                          sample_config , sample_config ,
-                                         args )
+                                         fuzzy_flag = 'exact' ,
+                                         args = args )
     by_type_out, err = capsys.readouterr()
     ##
-    expected_values = [ [ '#########' , 'TP' , 'FP' , 'TN' , 'FN' ] ,
-                        [ 'aggregate' , '1.0' , '1.0' , '0.0' , '2.0' ] ,
+    expected_values = [ [ 'exact' , 'TP' , 'FP' , 'TN' , 'FN' ] ,
+                        [ 'micro-average' , '1.0' , '1.0' , '0.0' , '2.0' ] ,
                         [ 'Sentence' , '1.0' , '1.0' , '0.0' , '2.0' ] ,
                         [ 'Sentence x a.xml' , '1.0' , '0.0' , '0.0' , '1.0' ] ,
                         [ 'Sentence x b.xml' , '0.0' , '1.0' , '0.0' , '1.0' ] ]
@@ -178,11 +180,12 @@ def test_by_file_summary_stats( capsys ):
     ##
     scoring_metrics.print_score_summary( score_card , file_mapping ,
                                          sample_config , sample_config ,
-                                         args )
+                                         fuzzy_flag = 'exact' ,
+                                         args = args )
     by_type_out, err = capsys.readouterr()
     ##
-    expected_values = [ [ '#########' , 'TP' , 'FP' , 'TN' , 'FN' ] ,
-                        [ 'aggregate' , '1.0' , '1.0' , '0.0' , '2.0' ] ,
+    expected_values = [ [ 'exact' , 'TP' , 'FP' , 'TN' , 'FN' ] ,
+                        [ 'micro-average' , '1.0' , '1.0' , '0.0' , '2.0' ] ,
                         [ 'a.xml' , '1.0' , '0.0' , '0.0' , '1.0' ]  ,
                         [ 'b.xml' , '0.0' , '1.0' , '0.0' , '1.0' ] ]
     for expected_values in expected_values:
@@ -200,11 +203,12 @@ def test_by_file_and_type_summary_stats( capsys ):
     ##
     scoring_metrics.print_score_summary( score_card , file_mapping ,
                                          sample_config , sample_config ,
-                                         args )
+                                         fuzzy_flag = 'exact' ,
+                                         args = args )
     by_type_out, err = capsys.readouterr()
     ##
-    expected_values = [ [ '#########' , 'TP' , 'FP' , 'TN' , 'FN' ] ,
-                        [ 'aggregate' , '1.0' , '1.0' , '0.0' , '2.0' ] ,
+    expected_values = [ [ 'exact' , 'TP' , 'FP' , 'TN' , 'FN' ] ,
+                        [ 'micro-average' , '1.0' , '1.0' , '0.0' , '2.0' ] ,
                         [ 'a.xml' , '1.0' , '0.0' , '0.0' , '1.0' ] ,
                         [ 'a.xml x Sentence' , '1.0' , '0.0' , '0.0' , '1.0' ] ,
                         [ 'b.xml' , '0.0' , '1.0' , '0.0' , '1.0' ]  ,
@@ -224,7 +228,8 @@ def changing_delim_to_variable( capsys , new_delim ):
     ##
     scoring_metrics.print_score_summary( score_card , file_mapping ,
                                          sample_config , sample_config ,
-                                         args )
+                                         fuzzy_flag = 'exact' ,
+                                         args = args )
     default_delim_out, err = capsys.readouterr()
     ##
     converted_out = re.sub( args.delim ,
@@ -233,7 +238,8 @@ def changing_delim_to_variable( capsys , new_delim ):
     args.delim = new_delim
     scoring_metrics.print_score_summary( score_card , file_mapping ,
                                          sample_config , sample_config ,
-                                         args )
+                                         fuzzy_flag = 'exact' ,
+                                         args = args )
     new_delim_out, err = capsys.readouterr()
     assert converted_out == new_delim_out
     if( new_delim == '\t' ):
@@ -260,14 +266,14 @@ def test_aggregate_summary_counts( capsys ):
     score_card , args , sample_config , \
       file_mapping = initialize_for_print_summary_test()
     ##
-    scoring_metrics.print_counts_summary( type_counts = score_card ,
+    scoring_metrics.print_counts_summary( type_counts = score_card[ 'exact' ] ,
                                           file_mapping = file_mapping ,
                                           test_config = sample_config ,
                                           args = args )
     agg_out, err = capsys.readouterr()
     ##
     expected_values = [ [ '#########' , 'Sentence' ] ,
-                        [ 'aggregate' , '4' ] ]
+                        [ 'micro-average' , '4' ] ]
     for expected_values in expected_values:
         print( args.delim.join( '{}'.format( m ) for m in expected_values ) )
     expected_out, err = capsys.readouterr()
@@ -280,14 +286,14 @@ def test_by_file_summary_counts( capsys ):
       file_mapping = initialize_for_print_summary_test()
     args.by_file = True
     ##
-    scoring_metrics.print_counts_summary( type_counts = score_card ,
+    scoring_metrics.print_counts_summary( type_counts = score_card[ 'exact' ] ,
                                           file_mapping = file_mapping ,
                                           test_config = sample_config ,
                                           args = args )
     by_type_out, err = capsys.readouterr()
     ##
     expected_values = [ [ '#########' , 'Sentence' ] ,
-                        [ 'aggregate' , '4' ] ,
+                        [ 'micro-average' , '4' ] ,
                         [ 'a.xml' , '2' ] ,
                         [ 'b.xml' , '2' ] ]
     for expected_values in expected_values:
@@ -316,19 +322,19 @@ def test_evaluate_positions_copy_match():
                                                end_attribute = 'end' )
     test_om = gold_om
     test_ss = gold_ss
-    score_card = \
-      scoring_metrics.evaluate_positions( ingest_file ,
-                                          score_card ,
-                                          gold_ss = gold_ss ,
-                                          test_ss = test_ss ,
-                                          ignore_whitespace = False )
+    scoring_metrics.evaluate_positions( ingest_file ,
+                                        score_card ,
+                                        gold_ss = gold_ss ,
+                                        test_ss = test_ss ,
+                                        ignore_whitespace = False )
     ##
     expected_score_card = scoring_metrics.new_score_card()
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ ingest_file , '87' , '97' , 'DateTime' , 'TP' ]
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ ingest_file , '2404' , '2410' , 'DateTime' , 'TP' ]
-    assert_frame_equal( score_card , expected_score_card )
+    assert_frame_equal( score_card[ 'exact' ] ,
+                        expected_score_card[ 'exact' ] )
 
 
 def test_evaluate_positions_empty_gold_ss():
@@ -349,18 +355,18 @@ def test_evaluate_positions_empty_gold_ss():
                                                tag_name = 'DateTime' ,
                                                begin_attribute = 'start' ,
                                                end_attribute = 'end' )
-    score_card = \
-      scoring_metrics.evaluate_positions( ingest_file ,
-                                          score_card ,
-                                          gold_ss = gold_ss ,
-                                          test_ss = test_ss )
+    scoring_metrics.evaluate_positions( ingest_file ,
+                                        score_card ,
+                                        gold_ss = gold_ss ,
+                                        test_ss = test_ss )
     ##
     expected_score_card = scoring_metrics.new_score_card()
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ ingest_file , '87' , '97' , 'DateTime' , 'FP' ]
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ ingest_file , '2404' , '2410' , 'DateTime' , 'FP' ]
-    assert_frame_equal( score_card , expected_score_card )
+    assert_frame_equal( score_card[ 'exact' ] ,
+                        expected_score_card[ 'exact' ] )
 
 
 def test_evaluate_positions_empty_test_ss():
@@ -381,18 +387,18 @@ def test_evaluate_positions_empty_test_ss():
                                                end_attribute = 'end' )
     test_om = {}
     test_ss = {}
-    score_card = \
-      scoring_metrics.evaluate_positions( ingest_file ,
-                                          score_card ,
-                                          gold_ss = gold_ss ,
-                                          test_ss = test_ss )
+    scoring_metrics.evaluate_positions( ingest_file ,
+                                        score_card ,
+                                        gold_ss = gold_ss ,
+                                        test_ss = test_ss )
     ##
     expected_score_card = scoring_metrics.new_score_card()
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ ingest_file , '87' , '97' , 'DateTime' , 'FN' ]
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ ingest_file , '2404' , '2410' , 'DateTime' , 'FN' ]
-    assert_frame_equal( score_card , expected_score_card )
+    assert_frame_equal( score_card[ 'exact' ] ,
+                        expected_score_card[ 'exact' ] )
 
 
 def test_evaluate_positions_empty_dictionaries():
@@ -403,14 +409,14 @@ def test_evaluate_positions_empty_dictionaries():
     gold_ss = {}
     test_om = {}
     test_ss = {}
-    score_card = \
-      scoring_metrics.evaluate_positions( ingest_file ,
-                                          score_card ,
-                                          gold_ss = gold_ss ,
-                                          test_ss = test_ss )
+    scoring_metrics.evaluate_positions( ingest_file ,
+                                        score_card ,
+                                        gold_ss = gold_ss ,
+                                        test_ss = test_ss )
     ##
     expected_score_card = scoring_metrics.new_score_card()
-    assert_frame_equal( score_card , expected_score_card )
+    assert_frame_equal( score_card[ 'exact' ] ,
+                        expected_score_card[ 'exact' ] )
 
 
 def test_evaluate_positions_tweak_annotation_dictionary_heed_whitespace():
@@ -439,21 +445,21 @@ def test_evaluate_positions_tweak_annotation_dictionary_heed_whitespace():
                                                   begin_attribute = 'start' ,
                                                   end_attribute = 'end' )
     test_ss[ '87' ][ 0 ][ 'begin_pos' ] = '73'
-    score_card = \
-      scoring_metrics.evaluate_positions( ingest_file ,
-                                          score_card ,
-                                          gold_ss = gold_ss ,
-                                          test_ss = test_ss ,
-                                          ignore_whitespace = False )
+    scoring_metrics.evaluate_positions( ingest_file ,
+                                        score_card ,
+                                        gold_ss = gold_ss ,
+                                        test_ss = test_ss ,
+                                        ignore_whitespace = False )
     ##
     expected_score_card = scoring_metrics.new_score_card()
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ ingest_file , '2404' , '2410' , 'DateTime' , 'TP' ]
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ ingest_file , '87' , '97' , 'DateTime' , 'FN' ]
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ ingest_file , '73' , '97' , 'DateTime' , 'FP' ]
-    assert_frame_equal( score_card , expected_score_card )
+    assert_frame_equal( score_card[ 'exact' ] ,
+                        expected_score_card[ 'exact' ] )
 
 
 def test_evaluate_positions_tweak_annotation_dictionary_ignore_whitespace():
@@ -482,19 +488,19 @@ def test_evaluate_positions_tweak_annotation_dictionary_ignore_whitespace():
                                                   begin_attribute = 'start' ,
                                                   end_attribute = 'end' )
     test_ss[ '87' ][ 0 ][ 'begin_pos' ] = '73'
-    score_card = \
-      scoring_metrics.evaluate_positions( ingest_file ,
-                                          score_card ,
-                                          gold_ss = gold_ss ,
-                                          test_ss = test_ss ,
-                                          ignore_whitespace = True )
+    scoring_metrics.evaluate_positions( ingest_file ,
+                                        score_card ,
+                                        gold_ss = gold_ss ,
+                                        test_ss = test_ss ,
+                                        ignore_whitespace = True )
     ##
     expected_score_card = scoring_metrics.new_score_card()
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ ingest_file , '70' , '80' , 'DateTime' , 'TP' ]
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ ingest_file , '2006' , '2011' , 'DateTime' , 'TP' ]
-    assert_frame_equal( score_card , expected_score_card )
+    assert_frame_equal( score_card[ 'exact' ] ,
+                        expected_score_card[ 'exact' ] )
 
 
 def prepare_evaluate_positions_structs():
@@ -532,19 +538,19 @@ def test_evaluate_positions_missing_mapped_keys_with_heed_whitespace():
     del gold_ss[ "2404" ][ 0 ][ "end_pos_mapped" ]
     del test_ss[ "2404" ][ 0 ][ "begin_pos_mapped" ]
     del test_ss[ "2404" ][ 0 ][ "end_pos_mapped" ]
-    score_card = \
-      scoring_metrics.evaluate_positions( ingest_file ,
-                                          score_card ,
-                                          gold_ss = gold_ss ,
-                                          test_ss = test_ss ,
-                                          ignore_whitespace = False )
+    scoring_metrics.evaluate_positions( ingest_file ,
+                                        score_card ,
+                                        gold_ss = gold_ss ,
+                                        test_ss = test_ss ,
+                                        ignore_whitespace = False )
     ##
     expected_score_card = scoring_metrics.new_score_card()
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ ingest_file , '87' , '97' , 'DateTime' , 'TP' ]
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ ingest_file , '2404' , '2410' , 'DateTime' , 'TP' ]
-    assert_frame_equal( score_card , expected_score_card )
+    assert_frame_equal( score_card[ 'exact' ] ,
+                        expected_score_card[ 'exact' ] )
 
 
 def test_evaluate_positions_missing_gold_begin_mapped_key():
@@ -552,19 +558,19 @@ def test_evaluate_positions_missing_gold_begin_mapped_key():
     ingest_file , gold_ss , test_ss = \
       prepare_evaluate_positions_structs()
     del gold_ss[ "2404" ][ 0 ][ "begin_pos_mapped" ]
-    score_card = \
-      scoring_metrics.evaluate_positions( ingest_file ,
-                                          score_card ,
-                                          gold_ss = gold_ss ,
-                                          test_ss = test_ss ,
-                                          ignore_whitespace = True )
+    scoring_metrics.evaluate_positions( ingest_file ,
+                                        score_card ,
+                                        gold_ss = gold_ss ,
+                                        test_ss = test_ss ,
+                                        ignore_whitespace = True )
     ##
     expected_score_card = scoring_metrics.new_score_card()
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ ingest_file , '70' , '80' , 'DateTime' , 'TP' ]
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ ingest_file , '2006' , '2011' , 'DateTime' , 'FP' ]
-    assert_frame_equal( score_card , expected_score_card )
+    assert_frame_equal( score_card[ 'exact' ] ,
+                        expected_score_card[ 'exact' ] )
 
 
 def test_evaluate_positions_missing_gold_end_mapped_key():
@@ -572,19 +578,19 @@ def test_evaluate_positions_missing_gold_end_mapped_key():
     ingest_file , gold_ss , test_ss = \
       prepare_evaluate_positions_structs()
     del gold_ss[ "2404" ][ 0 ][ "end_pos_mapped" ]
-    score_card = \
-      scoring_metrics.evaluate_positions( ingest_file ,
-                                          score_card ,
-                                          gold_ss = gold_ss ,
-                                          test_ss = test_ss ,
-                                          ignore_whitespace = True )
+    scoring_metrics.evaluate_positions( ingest_file ,
+                                        score_card ,
+                                        gold_ss = gold_ss ,
+                                        test_ss = test_ss ,
+                                        ignore_whitespace = True )
     ##
     expected_score_card = scoring_metrics.new_score_card()
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ ingest_file , '70' , '80' , 'DateTime' , 'TP' ]
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ ingest_file , '2006' , '2011' , 'DateTime' , 'FP' ]
-    assert_frame_equal( score_card , expected_score_card )
+    assert_frame_equal( score_card[ 'exact' ] ,
+                        expected_score_card[ 'exact' ] )
 
 
 def test_evaluate_positions_missing_test_begin_mapped_key():
@@ -592,19 +598,19 @@ def test_evaluate_positions_missing_test_begin_mapped_key():
     ingest_file , gold_ss , test_ss = \
       prepare_evaluate_positions_structs()
     del test_ss[ "2404" ][ 0 ][ "begin_pos_mapped" ]
-    score_card = \
-      scoring_metrics.evaluate_positions( ingest_file ,
-                                          score_card ,
-                                          gold_ss = gold_ss ,
-                                          test_ss = test_ss ,
-                                          ignore_whitespace = True )
+    scoring_metrics.evaluate_positions( ingest_file ,
+                                        score_card ,
+                                        gold_ss = gold_ss ,
+                                        test_ss = test_ss ,
+                                        ignore_whitespace = True )
     ##
     expected_score_card = scoring_metrics.new_score_card()
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ ingest_file , '70' , '80' , 'DateTime' , 'TP' ]
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ ingest_file , '2006' , '2011' , 'DateTime' , 'FN' ]
-    assert_frame_equal( score_card , expected_score_card )
+    assert_frame_equal( score_card[ 'exact' ] ,
+                        expected_score_card[ 'exact' ] )
 
 
 def test_evaluate_positions_missing_test_end_mapped_key():
@@ -612,19 +618,19 @@ def test_evaluate_positions_missing_test_end_mapped_key():
     ingest_file , gold_ss , test_ss = \
       prepare_evaluate_positions_structs()
     del test_ss[ "2404" ][ 0 ][ "end_pos_mapped" ]
-    score_card = \
-      scoring_metrics.evaluate_positions( ingest_file ,
-                                          score_card ,
-                                          gold_ss = gold_ss ,
-                                          test_ss = test_ss ,
-                                          ignore_whitespace = True )
+    scoring_metrics.evaluate_positions( ingest_file ,
+                                        score_card ,
+                                        gold_ss = gold_ss ,
+                                        test_ss = test_ss ,
+                                        ignore_whitespace = True )
     ##
     expected_score_card = scoring_metrics.new_score_card()
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ ingest_file , '70' , '80' , 'DateTime' , 'TP' ]
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ ingest_file , '2006' , '2011' , 'DateTime' , 'FN' ]
-    assert_frame_equal( score_card , expected_score_card )
+    assert_frame_equal( score_card[ 'exact' ] ,
+                        expected_score_card[ 'exact' ] )
 
 
 #############################################
@@ -645,21 +651,21 @@ def test_evaluate_positions_nested_annotations_gold_first_match():
                                                          tag_name = "Age" )
     gold_ss[ "87" ].append( new_entry )
     ##
-    score_card = \
-      scoring_metrics.evaluate_positions( ingest_file ,
-                                          score_card ,
-                                          gold_ss = gold_ss ,
-                                          test_ss = test_ss ,
-                                          ignore_whitespace = False )
+    scoring_metrics.evaluate_positions( ingest_file ,
+                                        score_card ,
+                                        gold_ss = gold_ss ,
+                                        test_ss = test_ss ,
+                                        ignore_whitespace = False )
     ##
     expected_score_card = scoring_metrics.new_score_card()
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ ingest_file , '87' , '97' , 'DateTime' , 'TP' ]
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ ingest_file , '2404' , '2410' , 'DateTime' , 'TP' ]
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ ingest_file , '87' , '97' , 'Age' , 'FN' ]
-    assert_frame_equal( score_card , expected_score_card )
+    assert_frame_equal( score_card[ 'exact' ] ,
+                        expected_score_card[ 'exact' ] )
 
 
 def test_evaluate_positions_nested_annotations_gold_second_match():
@@ -675,21 +681,21 @@ def test_evaluate_positions_nested_annotations_gold_second_match():
                                                          tag_name = "Age" )
     gold_ss[ "87" ].append( new_entry )
     ##
-    score_card = \
-      scoring_metrics.evaluate_positions( ingest_file ,
-                                          score_card ,
-                                          gold_ss = gold_ss ,
-                                          test_ss = test_ss ,
-                                          ignore_whitespace = False )
+    scoring_metrics.evaluate_positions( ingest_file ,
+                                        score_card ,
+                                        gold_ss = gold_ss ,
+                                        test_ss = test_ss ,
+                                        ignore_whitespace = False )
     ##
     expected_score_card = scoring_metrics.new_score_card()
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ ingest_file , '87' , '97' , 'DateTime' , 'TP' ]
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ ingest_file , '2404' , '2410' , 'DateTime' , 'TP' ]
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ ingest_file , '87' , '97' , 'Age' , 'FN' ]
-    assert_frame_equal( score_card , expected_score_card )
+    assert_frame_equal( score_card[ 'exact' ] ,
+                        expected_score_card[ 'exact' ] )
 
 
 def test_evaluate_positions_nested_annotations_test():
@@ -705,21 +711,21 @@ def test_evaluate_positions_nested_annotations_test():
                                                          tag_name = "Age" )
     test_ss[ "87" ].append( new_entry )
     ##
-    score_card = \
-      scoring_metrics.evaluate_positions( ingest_file ,
-                                          score_card ,
-                                          gold_ss = gold_ss ,
-                                          test_ss = test_ss ,
-                                          ignore_whitespace = False )
+    scoring_metrics.evaluate_positions( ingest_file ,
+                                        score_card ,
+                                        gold_ss = gold_ss ,
+                                        test_ss = test_ss ,
+                                        ignore_whitespace = False )
     ##
     expected_score_card = scoring_metrics.new_score_card()
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ ingest_file , '87' , '97' , 'DateTime' , 'TP' ]
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ ingest_file , '2404' , '2410' , 'DateTime' , 'TP' ]
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ ingest_file , '87' , '97' , 'Age' , 'FP' ]
-    assert_frame_equal( score_card , expected_score_card )
+    assert_frame_equal( score_card[ 'exact' ] ,
+                        expected_score_card[ 'exact' ] )
 
 
 def test_evaluate_positions_nested_annotations_gold_and_test():
@@ -736,21 +742,22 @@ def test_evaluate_positions_nested_annotations_gold_and_test():
     gold_ss[ "87" ].append( new_entry )
     test_ss[ "87" ].append( new_entry )
     ##
-    score_card = \
-      scoring_metrics.evaluate_positions( ingest_file ,
-                                          score_card ,
-                                          gold_ss = gold_ss ,
-                                          test_ss = test_ss ,
-                                          ignore_whitespace = False )
+    scoring_metrics.evaluate_positions( ingest_file ,
+                                        score_card ,
+                                        gold_ss = gold_ss ,
+                                        test_ss = test_ss ,
+                                        ignore_whitespace = False )
     ##
     expected_score_card = scoring_metrics.new_score_card()
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ ingest_file , '87' , '97' , 'DateTime' , 'TP' ]
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ ingest_file , '87' , '97' , 'Age' , 'TP' ]
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ ingest_file , '2404' , '2410' , 'DateTime' , 'TP' ]
-    assert_frame_equal( score_card , expected_score_card )
+    assert_frame_equal( score_card[ 'exact' ] ,
+                        expected_score_card[ 'exact' ] )
+
 
 
 
@@ -796,28 +803,18 @@ def prepare_evaluate_positions_offset_alignment( test_filename ):
 
 
 def prepare_offset_alignment_score_cards( filename , gold_ss , test_ss ):
-    score_card = scoring_metrics.new_score_card()
-    exact_score_card = scoring_metrics.evaluate_positions( filename ,
-                                                           score_card ,
-                                                           gold_ss ,
-                                                           test_ss ,
-                                                           fuzzy_flag = 'exact' ,
-                                                           ignore_whitespace = True )
-    score_card = scoring_metrics.new_score_card()
-    contained_score_card = scoring_metrics.evaluate_positions( filename ,
-                                                               score_card ,
-                                                               gold_ss ,
-                                                               test_ss ,
-                                                               fuzzy_flag = 'fully-contained' ,
-                                                               ignore_whitespace = True )
-    score_card = scoring_metrics.new_score_card()
-    partial_score_card = scoring_metrics.evaluate_positions( filename ,
-                                                             score_card ,
-                                                             gold_ss ,
-                                                             test_ss ,
-                                                             fuzzy_flag = 'partial' ,
-                                                             ignore_whitespace = True )
-    return exact_score_card , contained_score_card , partial_score_card 
+    fuzzy_flags = [ 'exact' ,
+                    'fully-contained' ,
+                    'partial' ]
+    score_card = scoring_metrics.new_score_card( fuzzy_flags = fuzzy_flags )
+    for fuzzy_flag in fuzzy_flags:
+        scoring_metrics.evaluate_positions( filename ,
+                                            score_card ,
+                                            gold_ss ,
+                                            test_ss ,
+                                            fuzzy_flag = fuzzy_flag ,
+                                            ignore_whitespace = True )
+    return score_card , fuzzy_flags
 
 
 def test_exact_match_overlap():
@@ -826,21 +823,25 @@ def test_exact_match_overlap():
         prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
     assert gold_ss == test_ss
     ##
-    exact_score_card , contained_score_card , partial_score_card = \
+    system_score_card , fuzzy_flags = \
       prepare_offset_alignment_score_cards( test_filename ,
                                             gold_ss ,
                                             test_ss )
+    expected_score_card = \
+      scoring_metrics.new_score_card( fuzzy_flags = fuzzy_flags )
     ## exact match only
-    expected_score_card = scoring_metrics.new_score_card()
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ test_filename , '19' , '21' , 'Age' , 'TP' ]
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ test_filename , '32' , '48' , 'DateTime' , 'TP' ]
-    assert_frame_equal( exact_score_card , expected_score_card )
     ## fully-contained matches
-    assert_frame_equal( contained_score_card , expected_score_card )
+    expected_score_card[ 'fully-contained' ] = expected_score_card[ 'exact' ]
     ## overlapping matches
-    assert_frame_equal( partial_score_card , expected_score_card )
+    expected_score_card[ 'partial' ] = expected_score_card[ 'exact' ]
+    ##
+    for fuzzy_flag in fuzzy_flags:
+        assert_frame_equal( system_score_card[ fuzzy_flag ] ,
+                            expected_score_card[ fuzzy_flag ] )
 
 
 def test_match_overlap_contained_on_both_sides():
@@ -849,28 +850,30 @@ def test_match_overlap_contained_on_both_sides():
         prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
     assert gold_ss != test_ss
     ##
-    exact_score_card , contained_score_card , partial_score_card = \
+    system_score_card , fuzzy_flags = \
       prepare_offset_alignment_score_cards( test_filename ,
                                             gold_ss ,
                                             test_ss )
+    expected_score_card = \
+      scoring_metrics.new_score_card( fuzzy_flags = fuzzy_flags )
     ## exact match only
-    expected_score_card = scoring_metrics.new_score_card()
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ test_filename , '19' , '21' , 'Age' , 'TP' ]
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ test_filename , '32' , '48' , 'DateTime' , 'FN' ]
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ test_filename , '30' , 'EOF' , 'DateTime' , 'FP' ]
-    assert_frame_equal( exact_score_card , expected_score_card )
     ## fully-contained matches
-    expected_score_card = scoring_metrics.new_score_card()
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'fully-contained' ].loc[ expected_score_card[ 'fully-contained' ].shape[ 0 ] ] = \
       [ test_filename , '19' , '21' , 'Age' , 'TP' ]
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'fully-contained' ].loc[ expected_score_card[ 'fully-contained' ].shape[ 0 ] ] = \
       [ test_filename , '32' , '48' , 'DateTime' , 'TP' ]
-    assert_frame_equal( contained_score_card , expected_score_card )
     ## overlapping matches
-    assert_frame_equal( partial_score_card , expected_score_card )
+    expected_score_card[ 'partial' ] = expected_score_card[ 'fully-contained' ]
+    ##
+    for fuzzy_flag in fuzzy_flags:
+        assert_frame_equal( system_score_card[ fuzzy_flag ] ,
+                            expected_score_card[ fuzzy_flag ] )
 
 
 def test_match_overlap_contained_on_left():
@@ -879,28 +882,30 @@ def test_match_overlap_contained_on_left():
         prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
     assert gold_ss != test_ss
     ##
-    exact_score_card , contained_score_card , partial_score_card = \
+    system_score_card , fuzzy_flags = \
       prepare_offset_alignment_score_cards( test_filename ,
                                             gold_ss ,
                                             test_ss )
+    expected_score_card = \
+      scoring_metrics.new_score_card( fuzzy_flags = fuzzy_flags )
     ## exact match only
-    expected_score_card = scoring_metrics.new_score_card()
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ test_filename , '19' , '21' , 'Age' , 'TP' ]
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ test_filename , '32' , '48' , 'DateTime' , 'FN' ]
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ test_filename , '30' , '48' , 'DateTime' , 'FP' ]
-    assert_frame_equal( exact_score_card , expected_score_card )
     ## fully-contained matches
-    expected_score_card = scoring_metrics.new_score_card()
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'fully-contained' ].loc[ expected_score_card[ 'fully-contained' ].shape[ 0 ] ] = \
       [ test_filename , '19' , '21' , 'Age' , 'TP' ]
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'fully-contained' ].loc[ expected_score_card[ 'fully-contained' ].shape[ 0 ] ] = \
       [ test_filename , '32' , '48' , 'DateTime' , 'TP' ]
-    assert_frame_equal( contained_score_card , expected_score_card )
     ## overlapping matches
-    assert_frame_equal( partial_score_card , expected_score_card )
+    expected_score_card[ 'partial' ] = expected_score_card[ 'fully-contained' ]
+    ##
+    for fuzzy_flag in fuzzy_flags:
+        assert_frame_equal( system_score_card[ fuzzy_flag ] ,
+                            expected_score_card[ fuzzy_flag ] )
 
 
 def test_match_overlap_contained_on_right():
@@ -909,28 +914,30 @@ def test_match_overlap_contained_on_right():
         prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
     assert gold_ss != test_ss
     ##
-    exact_score_card , contained_score_card , partial_score_card = \
+    system_score_card , fuzzy_flags = \
       prepare_offset_alignment_score_cards( test_filename ,
                                             gold_ss ,
                                             test_ss )
+    expected_score_card = \
+      scoring_metrics.new_score_card( fuzzy_flags = fuzzy_flags )
     ## exact match only
-    expected_score_card = scoring_metrics.new_score_card()
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ test_filename , '19' , '21' , 'Age' , 'TP' ]
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ test_filename , '32' , '48' , 'DateTime' , 'FN' ]
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ test_filename , '32' , 'EOF' , 'DateTime' , 'FP' ]
-    assert_frame_equal( exact_score_card , expected_score_card )
     ## fully-contained matches
-    expected_score_card = scoring_metrics.new_score_card()
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'fully-contained' ].loc[ expected_score_card[ 'fully-contained' ].shape[ 0 ] ] = \
       [ test_filename , '19' , '21' , 'Age' , 'TP' ]
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'fully-contained' ].loc[ expected_score_card[ 'fully-contained' ].shape[ 0 ] ] = \
       [ test_filename , '32' , '48' , 'DateTime' , 'TP' ]
-    assert_frame_equal( contained_score_card , expected_score_card )
     ## overlapping matches
-    assert_frame_equal( partial_score_card , expected_score_card )
+    expected_score_card[ 'partial' ] = expected_score_card[ 'fully-contained' ]
+    ##
+    for fuzzy_flag in fuzzy_flags:
+        assert_frame_equal( system_score_card[ fuzzy_flag ] ,
+                            expected_score_card[ fuzzy_flag ] )
 
 
 def test_match_overlap_partial_on_both_sides():
@@ -939,28 +946,30 @@ def test_match_overlap_partial_on_both_sides():
         prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
     assert gold_ss != test_ss
     ##
-    exact_score_card , contained_score_card , partial_score_card = \
+    system_score_card , fuzzy_flags = \
       prepare_offset_alignment_score_cards( test_filename ,
                                             gold_ss ,
                                             test_ss )
+    expected_score_card = \
+      scoring_metrics.new_score_card( fuzzy_flags = fuzzy_flags )
     ## exact match only
-    expected_score_card = scoring_metrics.new_score_card()
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ test_filename , '19' , '21' , 'Age' , 'TP' ]
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ test_filename , '32' , '48' , 'DateTime' , 'FN' ]
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ test_filename , '40' , '43' , 'DateTime' , 'FP' ]
-    assert_frame_equal( exact_score_card , expected_score_card )
     ## fully-contained matches
-    assert_frame_equal( contained_score_card , expected_score_card )
+    expected_score_card[ 'fully-contained' ] = expected_score_card[ 'exact' ]
     ## overlapping matches
-    expected_score_card = scoring_metrics.new_score_card()
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'partial' ].loc[ expected_score_card[ 'partial' ].shape[ 0 ] ] = \
       [ test_filename , '19' , '21' , 'Age' , 'TP' ]
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'partial' ].loc[ expected_score_card[ 'partial' ].shape[ 0 ] ] = \
       [ test_filename , '32' , '48' , 'DateTime' , 'TP' ]
-    assert_frame_equal( partial_score_card , expected_score_card )
+    ##
+    for fuzzy_flag in fuzzy_flags:
+        assert_frame_equal( system_score_card[ fuzzy_flag ] ,
+                            expected_score_card[ fuzzy_flag ] )
 
 
 def test_match_overlap_partial_on_left():
@@ -969,28 +978,30 @@ def test_match_overlap_partial_on_left():
         prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
     assert gold_ss != test_ss
     ##
-    exact_score_card , contained_score_card , partial_score_card = \
+    system_score_card , fuzzy_flags = \
       prepare_offset_alignment_score_cards( test_filename ,
                                             gold_ss ,
                                             test_ss )
+    expected_score_card = \
+      scoring_metrics.new_score_card( fuzzy_flags = fuzzy_flags )
     ## exact match only
-    expected_score_card = scoring_metrics.new_score_card()
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ test_filename , '19' , '21' , 'Age' , 'TP' ]
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ test_filename , '32' , '48' , 'DateTime' , 'FN' ]
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ test_filename , '40' , '48' , 'DateTime' , 'FP' ]
-    assert_frame_equal( exact_score_card , expected_score_card )
     ## fully-contained matches
-    assert_frame_equal( contained_score_card , expected_score_card )
+    expected_score_card[ 'fully-contained' ] = expected_score_card[ 'exact' ]
     ## overlapping matches
-    expected_score_card = scoring_metrics.new_score_card()
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'partial' ].loc[ expected_score_card[ 'partial' ].shape[ 0 ] ] = \
       [ test_filename , '19' , '21' , 'Age' , 'TP' ]
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'partial' ].loc[ expected_score_card[ 'partial' ].shape[ 0 ] ] = \
       [ test_filename , '32' , '48' , 'DateTime' , 'TP' ]
-    assert_frame_equal( partial_score_card , expected_score_card )
+    ##
+    for fuzzy_flag in fuzzy_flags:
+        assert_frame_equal( system_score_card[ fuzzy_flag ] ,
+                            expected_score_card[ fuzzy_flag ] )
 
 
 def test_match_overlap_partial_on_right():
@@ -999,28 +1010,30 @@ def test_match_overlap_partial_on_right():
         prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
     assert gold_ss != test_ss
     ##
-    exact_score_card , contained_score_card , partial_score_card = \
+    system_score_card , fuzzy_flags = \
       prepare_offset_alignment_score_cards( test_filename ,
                                             gold_ss ,
                                             test_ss )
+    expected_score_card = \
+      scoring_metrics.new_score_card( fuzzy_flags = fuzzy_flags )
     ## exact match only
-    expected_score_card = scoring_metrics.new_score_card()
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ test_filename , '19' , '21' , 'Age' , 'TP' ]
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ test_filename , '32' , '48' , 'DateTime' , 'FN' ]
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ test_filename , '32' , '43' , 'DateTime' , 'FP' ]
-    assert_frame_equal( exact_score_card , expected_score_card )
     ## fully-contained matches
-    assert_frame_equal( contained_score_card , expected_score_card )
+    expected_score_card[ 'fully-contained' ] = expected_score_card[ 'exact' ]
     ## overlapping matches
-    expected_score_card = scoring_metrics.new_score_card()
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'partial' ].loc[ expected_score_card[ 'partial' ].shape[ 0 ] ] = \
       [ test_filename , '19' , '21' , 'Age' , 'TP' ]
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'partial' ].loc[ expected_score_card[ 'partial' ].shape[ 0 ] ] = \
       [ test_filename , '32' , '48' , 'DateTime' , 'TP' ]
-    assert_frame_equal( partial_score_card , expected_score_card )
+    ##
+    for fuzzy_flag in fuzzy_flags:
+        assert_frame_equal( system_score_card[ fuzzy_flag ] ,
+                            expected_score_card[ fuzzy_flag ] )
 
 
 def test_match_overlap_partial_on_left_contained_on_right():
@@ -1029,28 +1042,30 @@ def test_match_overlap_partial_on_left_contained_on_right():
         prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
     assert gold_ss != test_ss
     ##
-    exact_score_card , contained_score_card , partial_score_card = \
+    system_score_card , fuzzy_flags = \
       prepare_offset_alignment_score_cards( test_filename ,
                                             gold_ss ,
                                             test_ss )
+    expected_score_card = \
+      scoring_metrics.new_score_card( fuzzy_flags = fuzzy_flags )
     ## exact match only
-    expected_score_card = scoring_metrics.new_score_card()
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ test_filename , '19' , '21' , 'Age' , 'TP' ]
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ test_filename , '32' , '48' , 'DateTime' , 'FN' ]
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ test_filename , '40' , 'EOF' , 'DateTime' , 'FP' ]
-    assert_frame_equal( exact_score_card , expected_score_card )
     ## fully-contained matches
-    assert_frame_equal( contained_score_card , expected_score_card )
+    expected_score_card[ 'fully-contained' ] = expected_score_card[ 'exact' ]
     ## overlapping matches
-    expected_score_card = scoring_metrics.new_score_card()
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'partial' ].loc[ expected_score_card[ 'partial' ].shape[ 0 ] ] = \
       [ test_filename , '19' , '21' , 'Age' , 'TP' ]
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'partial' ].loc[ expected_score_card[ 'partial' ].shape[ 0 ] ] = \
       [ test_filename , '32' , '48' , 'DateTime' , 'TP' ]
-    assert_frame_equal( partial_score_card , expected_score_card )
+    ##
+    for fuzzy_flag in fuzzy_flags:
+        assert_frame_equal( system_score_card[ fuzzy_flag ] ,
+                            expected_score_card[ fuzzy_flag ] )
 
 
 def test_match_overlap_partial_on_right_contained_on_left():
@@ -1059,28 +1074,30 @@ def test_match_overlap_partial_on_right_contained_on_left():
         prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
     assert gold_ss != test_ss
     ##
-    exact_score_card , contained_score_card , partial_score_card = \
+    system_score_card , fuzzy_flags = \
       prepare_offset_alignment_score_cards( test_filename ,
                                             gold_ss ,
                                             test_ss )
+    expected_score_card = \
+      scoring_metrics.new_score_card( fuzzy_flags = fuzzy_flags )
     ## exact match only
-    expected_score_card = scoring_metrics.new_score_card()
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ test_filename , '19' , '21' , 'Age' , 'TP' ]
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ test_filename , '32' , '48' , 'DateTime' , 'FN' ]
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ test_filename , '30' , '43' , 'DateTime' , 'FP' ]
-    assert_frame_equal( exact_score_card , expected_score_card )
     ## fully-contained matches
-    assert_frame_equal( contained_score_card , expected_score_card )
+    expected_score_card[ 'fully-contained' ] = expected_score_card[ 'exact' ]
     ## overlapping matches
-    expected_score_card = scoring_metrics.new_score_card()
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'partial' ].loc[ expected_score_card[ 'partial' ].shape[ 0 ] ] = \
       [ test_filename , '19' , '21' , 'Age' , 'TP' ]
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'partial' ].loc[ expected_score_card[ 'partial' ].shape[ 0 ] ] = \
       [ test_filename , '32' , '48' , 'DateTime' , 'TP' ]
-    assert_frame_equal( partial_score_card , expected_score_card )
+    ##
+    for fuzzy_flag in fuzzy_flags:
+        assert_frame_equal( system_score_card[ fuzzy_flag ] ,
+                            expected_score_card[ fuzzy_flag ] )
 
 
 def test_match_overlap_type_mismatch():
@@ -1089,25 +1106,29 @@ def test_match_overlap_type_mismatch():
         prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
     assert gold_ss != test_ss
     ##
-    exact_score_card , contained_score_card , partial_score_card = \
+    system_score_card , fuzzy_flags = \
       prepare_offset_alignment_score_cards( test_filename ,
                                             gold_ss ,
                                             test_ss )
+    expected_score_card = \
+      scoring_metrics.new_score_card( fuzzy_flags = fuzzy_flags )
     ## exact match only
-    expected_score_card = scoring_metrics.new_score_card()
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ test_filename , '19' , '21' , 'Age' , 'FN' ]
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ test_filename , '19' , '21' , 'DateTime' , 'FP' ]
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ test_filename , '32' , '48' , 'DateTime' , 'FN' ]
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ test_filename , '32' , '48' , 'Age' , 'FP' ]
-    assert_frame_equal( exact_score_card , expected_score_card )
     ## fully-contained matches
-    assert_frame_equal( contained_score_card , expected_score_card )
+    expected_score_card[ 'fully-contained' ] = expected_score_card[ 'exact' ]
     ## overlapping matches
-    assert_frame_equal( partial_score_card , expected_score_card )
+    expected_score_card[ 'partial' ] = expected_score_card[ 'exact' ]
+    ##
+    for fuzzy_flag in fuzzy_flags:
+        assert_frame_equal( system_score_card[ fuzzy_flag ] ,
+                            expected_score_card[ fuzzy_flag ] )
 
 
 def test_match_overlap_type_mismatch_contained_on_left():
@@ -1116,25 +1137,29 @@ def test_match_overlap_type_mismatch_contained_on_left():
         prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
     assert gold_ss != test_ss
     ##
-    exact_score_card , contained_score_card , partial_score_card = \
+    system_score_card , fuzzy_flags = \
       prepare_offset_alignment_score_cards( test_filename ,
                                             gold_ss ,
                                             test_ss )
+    expected_score_card = \
+      scoring_metrics.new_score_card( fuzzy_flags = fuzzy_flags )
     ## exact match only
-    expected_score_card = scoring_metrics.new_score_card()
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ test_filename , '19' , '21' , 'Age' , 'FN' ]
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ test_filename , '19' , '21' , 'DateTime' , 'FP' ]
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ test_filename , '32' , '48' , 'DateTime' , 'FN' ]
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ test_filename , '30' , '48' , 'Age' , 'FP' ]
-    assert_frame_equal( exact_score_card , expected_score_card )
     ## fully-contained matches
-    assert_frame_equal( contained_score_card , expected_score_card )
+    expected_score_card[ 'fully-contained' ] = expected_score_card[ 'exact' ]
     ## overlapping matches
-    assert_frame_equal( partial_score_card , expected_score_card )
+    expected_score_card[ 'partial' ] = expected_score_card[ 'exact' ]
+    ##
+    for fuzzy_flag in fuzzy_flags:
+        assert_frame_equal( system_score_card[ fuzzy_flag ] ,
+                            expected_score_card[ fuzzy_flag ] )
 
 
 def test_match_overlap_type_mismatch_contained_on_right():
@@ -1143,25 +1168,29 @@ def test_match_overlap_type_mismatch_contained_on_right():
         prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
     assert gold_ss != test_ss
     ##
-    exact_score_card , contained_score_card , partial_score_card = \
+    system_score_card , fuzzy_flags = \
       prepare_offset_alignment_score_cards( test_filename ,
                                             gold_ss ,
                                             test_ss )
+    expected_score_card = \
+      scoring_metrics.new_score_card( fuzzy_flags = fuzzy_flags )
     ## exact match only
-    expected_score_card = scoring_metrics.new_score_card()
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ test_filename , '19' , '21' , 'Age' , 'FN' ]
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ test_filename , '19' , '21' , 'DateTime' , 'FP' ]
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ test_filename , '32' , '48' , 'DateTime' , 'FN' ]
-    expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
       [ test_filename , '32' , 'EOF' , 'Age' , 'FP' ]
-    assert_frame_equal( exact_score_card , expected_score_card )
     ## fully-contained matches
-    assert_frame_equal( contained_score_card , expected_score_card )
+    expected_score_card[ 'fully-contained' ] = expected_score_card[ 'exact' ]
     ## overlapping matches
-    assert_frame_equal( partial_score_card , expected_score_card )
+    expected_score_card[ 'partial' ] = expected_score_card[ 'exact' ]
+    ##
+    for fuzzy_flag in fuzzy_flags:
+        assert_frame_equal( system_score_card[ fuzzy_flag ] ,
+                            expected_score_card[ fuzzy_flag ] )
 
 
 
