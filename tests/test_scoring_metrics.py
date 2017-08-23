@@ -19,8 +19,8 @@ def add_missing_fields( test_type ):
     score_card = scoring_metrics.new_score_card()
     new_types = score_card[ 'exact' ].keys()
     assert test_type not in new_types
-    score_summary = scoring_metrics.add_missing_fields( score_card )
-    score_types = score_summary.keys()
+    scoring_metrics.add_missing_fields( score_card )
+    score_types = score_card.keys()
     assert test_type in score_types
 
 def test_add_missing_fields_TP():
