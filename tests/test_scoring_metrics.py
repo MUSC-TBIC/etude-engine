@@ -146,8 +146,6 @@ def test_unique_score_key_summary_stats( capsys ):
     expected_out, err = capsys.readouterr()
     by_type_out = by_type_out.strip()
     expected_out = expected_out.strip()
-    with open( '/tmp/bob.txt' , 'w' ) as fp:
-        fp.write( '{}\n\n{}'.format( by_type_out , expected_out ) )
     assert by_type_out == expected_out
 
 
