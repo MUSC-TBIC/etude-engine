@@ -60,7 +60,8 @@ def extract_annotations_xml( ingest_file ,
                              namespaces = {} ,
                              begin_attribute = None ,
                              end_attribute = None ,
-                             text_attribute = None ):
+                             text_attribute = None ,
+                             optional_attributes = [] ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     found_annots = {}
     strict_starts = {}
@@ -109,6 +110,9 @@ def extract_annotations_xml( ingest_file ,
             strict_starts[ begin_pos ].append( new_entry )
         else:
             strict_starts[ begin_pos ] = [ new_entry ]
+        ##
+        for optional_attr in optional_attributes:
+            new_entry[ optional_attr ] = annot.get( optional_attr )
     ## 
     return strict_starts
 
@@ -361,7 +365,9 @@ def extract_annotations( ingest_file ,
                                          begin_attribute = \
                                            pattern[ 'begin_attr' ] ,
                                          end_attribute = \
-                                           pattern[ 'end_attr' ] ) )
+                                           pattern[ 'end_attr' ] ,
+                                         optional_attributes = \
+                                           pattern[ 'optional_attributes' ] ) )
         else:
             print( 'WARNING:  Skipping pattern because it is missing essential elements:\n\n{}'.format( pattern ) )
     file_dictionary = dict( raw_content = raw_content ,

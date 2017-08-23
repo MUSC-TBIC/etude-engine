@@ -254,6 +254,23 @@ def test_raw_content_extraction_from_plaintext():
     assert 'content_attribute' not in document_data
 
 
+## Required and Optional Attribute Extraction
+
+def test_optional_attributes():
+    filename = 'config/webanno_problems_allergies_xmi.conf'
+    score_values = [ '.*' ]
+    namespaces , document_data , patterns = \
+      args_and_configs.process_config( config_file = filename ,
+                                       score_key = 'Short Name' ,
+                                       score_values = score_values )
+    assert 'Conditional' in patterns[ 0 ][ 'optional_attributes' ] 
+    assert 'Generic' in patterns[ 0 ][ 'optional_attributes' ] 
+    assert 'Historical' in patterns[ 0 ][ 'optional_attributes' ] 
+    assert 'Negated' in patterns[ 0 ][ 'optional_attributes' ] 
+    assert 'NotPatient' in patterns[ 0 ][ 'optional_attributes' ] 
+    assert 'Uncertain' in patterns[ 0 ][ 'optional_attributes' ] 
+
+
 #############################################
 ## Helper functions to help in setting up tests
 #############################################
