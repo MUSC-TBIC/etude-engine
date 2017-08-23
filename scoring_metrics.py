@@ -267,7 +267,6 @@ def evaluate_positions( gold_filename ,
           [ gold_filename , test_start , test_end , test_type , 'FP' ]
     ##
     log.debug( "Leaving '{}'".format( sys._getframe().f_code.co_name ) )
-    return score_card
 
 ##
 ## All functions related to printing and calculating scoring metrics
@@ -430,12 +429,12 @@ def print_score_summary( score_card , file_mapping ,
                             args.delim.join( '{}'.format( m ) for m in args.metrics_list ) ) )
     ##
     metrics = norm_summary( score_card[ 'Score' ].value_counts() ,
-                            row_name = 'aggregate' , args = args )
+                            row_name = 'micro-average' , args = args )
     print( args.delim.join( '{}'.format( m ) for m in metrics ) )
     ##
     if( args.corpus_out ):
         update_output_dictionary( args.corpus_out ,
-                                  [ 'metrics' , 'aggregate' ] ,
+                                  [ 'metrics' , 'micro-average' ] ,
                                   args.metrics_list ,
                                   metrics[ 1: ] )
     ##
@@ -454,14 +453,14 @@ def print_score_summary( score_card , file_mapping ,
             out_file = '{}/{}'.format( args.gold_out ,
                                        filename )
             update_output_dictionary( out_file ,
-                                      [ 'metrics' , 'aggregate' ] ,
+                                      [ 'metrics' , 'micro-average' ] ,
                                       args.metrics_list ,
                                       metrics[ 1: ] )
         if( args.test_out ):
             out_file = '{}/{}'.format( args.test_out ,
                                        file_mapping[ filename ] )
             update_output_dictionary( out_file ,
-                                      [ 'metrics' , 'aggregate' ] ,
+                                      [ 'metrics' , 'micro-average' ] ,
                                       args.metrics_list ,
                                       metrics[ 1: ] )
         ##
@@ -519,7 +518,7 @@ def print_score_summary( score_card , file_mapping ,
                             args = args )
             if( args.by_type_and_file ):
                 print( args.delim.join( '{}'.format( m ) for m in metrics ) )
-
+    ##
     log.debug( "Leaving '{}'".format( sys._getframe().f_code.co_name ) )
 
 
@@ -542,7 +541,7 @@ def print_counts_summary( type_counts , file_mapping ,
             type_matches.append( aggregate_type_counts[ unique_type ] )
         else:
             type_matches.append( 0 )
-    print( '{}{}{}'.format( 'aggregate' ,
+    print( '{}{}{}'.format( 'micro-average' ,
                             args.delim ,
                             args.delim.join( '{}'.format( m ) for m in type_matches ) ) )
     ##

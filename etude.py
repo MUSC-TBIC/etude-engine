@@ -299,13 +299,12 @@ def score_ref_set( gold_ns , gold_dd , gold_patterns , gold_folder ,
                 log.error( 'Uncaught exception in extract_annotations:  {}'.format( e ) )
         ##
         try:
-            score_card = \
-              scoring_metrics.evaluate_positions( gold_filename ,
-                                                  score_card ,
-                                                  gold_ss ,
-                                                  test_ss ,
-                                                  fuzzy_flag = args.fuzzy_flag ,
-                                                  ignore_whitespace = args.ignore_whitespace )
+            scoring_metrics.evaluate_positions( gold_filename ,
+                                                score_card ,
+                                                gold_ss ,
+                                                test_ss ,
+                                                fuzzy_flag = args.fuzzy_flag ,
+                                                ignore_whitespace = args.ignore_whitespace )
         except:
             e = sys.exc_info()[0]
             log.error( 'Uncaught exception in evaluate_positions:  {}'.format( e ) )

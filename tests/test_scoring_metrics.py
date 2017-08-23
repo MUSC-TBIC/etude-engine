@@ -138,7 +138,7 @@ def test_unique_score_key_summary_stats( capsys ):
     by_type_out, err = capsys.readouterr()
     ##
     expected_values = [ [ '#########' , 'TP' , 'FP' , 'TN' , 'FN' ] ,
-                        [ 'aggregate' , '1.0' , '1.0' , '0.0' , '2.0' ] ,
+                        [ 'micro-average' , '1.0' , '1.0' , '0.0' , '2.0' ] ,
                         [ 'Sentence' , '1.0' , '1.0' , '0.0' , '2.0' ] ]
     for expected_values in expected_values:
         print( args.delim.join( '{}'.format( m ) for m in expected_values ) )
@@ -159,7 +159,7 @@ def test_by_type_and_file_score_key_summary_stats( capsys ):
     by_type_out, err = capsys.readouterr()
     ##
     expected_values = [ [ '#########' , 'TP' , 'FP' , 'TN' , 'FN' ] ,
-                        [ 'aggregate' , '1.0' , '1.0' , '0.0' , '2.0' ] ,
+                        [ 'micro-average' , '1.0' , '1.0' , '0.0' , '2.0' ] ,
                         [ 'Sentence' , '1.0' , '1.0' , '0.0' , '2.0' ] ,
                         [ 'Sentence x a.xml' , '1.0' , '0.0' , '0.0' , '1.0' ] ,
                         [ 'Sentence x b.xml' , '0.0' , '1.0' , '0.0' , '1.0' ] ]
@@ -182,7 +182,7 @@ def test_by_file_summary_stats( capsys ):
     by_type_out, err = capsys.readouterr()
     ##
     expected_values = [ [ '#########' , 'TP' , 'FP' , 'TN' , 'FN' ] ,
-                        [ 'aggregate' , '1.0' , '1.0' , '0.0' , '2.0' ] ,
+                        [ 'micro-average' , '1.0' , '1.0' , '0.0' , '2.0' ] ,
                         [ 'a.xml' , '1.0' , '0.0' , '0.0' , '1.0' ]  ,
                         [ 'b.xml' , '0.0' , '1.0' , '0.0' , '1.0' ] ]
     for expected_values in expected_values:
@@ -204,7 +204,7 @@ def test_by_file_and_type_summary_stats( capsys ):
     by_type_out, err = capsys.readouterr()
     ##
     expected_values = [ [ '#########' , 'TP' , 'FP' , 'TN' , 'FN' ] ,
-                        [ 'aggregate' , '1.0' , '1.0' , '0.0' , '2.0' ] ,
+                        [ 'micro-average' , '1.0' , '1.0' , '0.0' , '2.0' ] ,
                         [ 'a.xml' , '1.0' , '0.0' , '0.0' , '1.0' ] ,
                         [ 'a.xml x Sentence' , '1.0' , '0.0' , '0.0' , '1.0' ] ,
                         [ 'b.xml' , '0.0' , '1.0' , '0.0' , '1.0' ]  ,
@@ -267,7 +267,7 @@ def test_aggregate_summary_counts( capsys ):
     agg_out, err = capsys.readouterr()
     ##
     expected_values = [ [ '#########' , 'Sentence' ] ,
-                        [ 'aggregate' , '4' ] ]
+                        [ 'micro-average' , '4' ] ]
     for expected_values in expected_values:
         print( args.delim.join( '{}'.format( m ) for m in expected_values ) )
     expected_out, err = capsys.readouterr()
@@ -287,7 +287,7 @@ def test_by_file_summary_counts( capsys ):
     by_type_out, err = capsys.readouterr()
     ##
     expected_values = [ [ '#########' , 'Sentence' ] ,
-                        [ 'aggregate' , '4' ] ,
+                        [ 'micro-average' , '4' ] ,
                         [ 'a.xml' , '2' ] ,
                         [ 'b.xml' , '2' ] ]
     for expected_values in expected_values:
@@ -316,12 +316,11 @@ def test_evaluate_positions_copy_match():
                                                end_attribute = 'end' )
     test_om = gold_om
     test_ss = gold_ss
-    score_card = \
-      scoring_metrics.evaluate_positions( ingest_file ,
-                                          score_card ,
-                                          gold_ss = gold_ss ,
-                                          test_ss = test_ss ,
-                                          ignore_whitespace = False )
+    scoring_metrics.evaluate_positions( ingest_file ,
+                                        score_card ,
+                                        gold_ss = gold_ss ,
+                                        test_ss = test_ss ,
+                                        ignore_whitespace = False )
     ##
     expected_score_card = scoring_metrics.new_score_card()
     expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
@@ -349,11 +348,10 @@ def test_evaluate_positions_empty_gold_ss():
                                                tag_name = 'DateTime' ,
                                                begin_attribute = 'start' ,
                                                end_attribute = 'end' )
-    score_card = \
-      scoring_metrics.evaluate_positions( ingest_file ,
-                                          score_card ,
-                                          gold_ss = gold_ss ,
-                                          test_ss = test_ss )
+    scoring_metrics.evaluate_positions( ingest_file ,
+                                        score_card ,
+                                        gold_ss = gold_ss ,
+                                        test_ss = test_ss )
     ##
     expected_score_card = scoring_metrics.new_score_card()
     expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
@@ -381,11 +379,10 @@ def test_evaluate_positions_empty_test_ss():
                                                end_attribute = 'end' )
     test_om = {}
     test_ss = {}
-    score_card = \
-      scoring_metrics.evaluate_positions( ingest_file ,
-                                          score_card ,
-                                          gold_ss = gold_ss ,
-                                          test_ss = test_ss )
+    scoring_metrics.evaluate_positions( ingest_file ,
+                                        score_card ,
+                                        gold_ss = gold_ss ,
+                                        test_ss = test_ss )
     ##
     expected_score_card = scoring_metrics.new_score_card()
     expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
@@ -403,11 +400,10 @@ def test_evaluate_positions_empty_dictionaries():
     gold_ss = {}
     test_om = {}
     test_ss = {}
-    score_card = \
-      scoring_metrics.evaluate_positions( ingest_file ,
-                                          score_card ,
-                                          gold_ss = gold_ss ,
-                                          test_ss = test_ss )
+    scoring_metrics.evaluate_positions( ingest_file ,
+                                        score_card ,
+                                        gold_ss = gold_ss ,
+                                        test_ss = test_ss )
     ##
     expected_score_card = scoring_metrics.new_score_card()
     assert_frame_equal( score_card , expected_score_card )
@@ -439,12 +435,11 @@ def test_evaluate_positions_tweak_annotation_dictionary_heed_whitespace():
                                                   begin_attribute = 'start' ,
                                                   end_attribute = 'end' )
     test_ss[ '87' ][ 0 ][ 'begin_pos' ] = '73'
-    score_card = \
-      scoring_metrics.evaluate_positions( ingest_file ,
-                                          score_card ,
-                                          gold_ss = gold_ss ,
-                                          test_ss = test_ss ,
-                                          ignore_whitespace = False )
+    scoring_metrics.evaluate_positions( ingest_file ,
+                                        score_card ,
+                                        gold_ss = gold_ss ,
+                                        test_ss = test_ss ,
+                                        ignore_whitespace = False )
     ##
     expected_score_card = scoring_metrics.new_score_card()
     expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
@@ -482,12 +477,11 @@ def test_evaluate_positions_tweak_annotation_dictionary_ignore_whitespace():
                                                   begin_attribute = 'start' ,
                                                   end_attribute = 'end' )
     test_ss[ '87' ][ 0 ][ 'begin_pos' ] = '73'
-    score_card = \
-      scoring_metrics.evaluate_positions( ingest_file ,
-                                          score_card ,
-                                          gold_ss = gold_ss ,
-                                          test_ss = test_ss ,
-                                          ignore_whitespace = True )
+    scoring_metrics.evaluate_positions( ingest_file ,
+                                        score_card ,
+                                        gold_ss = gold_ss ,
+                                        test_ss = test_ss ,
+                                        ignore_whitespace = True )
     ##
     expected_score_card = scoring_metrics.new_score_card()
     expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
@@ -532,12 +526,11 @@ def test_evaluate_positions_missing_mapped_keys_with_heed_whitespace():
     del gold_ss[ "2404" ][ 0 ][ "end_pos_mapped" ]
     del test_ss[ "2404" ][ 0 ][ "begin_pos_mapped" ]
     del test_ss[ "2404" ][ 0 ][ "end_pos_mapped" ]
-    score_card = \
-      scoring_metrics.evaluate_positions( ingest_file ,
-                                          score_card ,
-                                          gold_ss = gold_ss ,
-                                          test_ss = test_ss ,
-                                          ignore_whitespace = False )
+    scoring_metrics.evaluate_positions( ingest_file ,
+                                        score_card ,
+                                        gold_ss = gold_ss ,
+                                        test_ss = test_ss ,
+                                        ignore_whitespace = False )
     ##
     expected_score_card = scoring_metrics.new_score_card()
     expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
@@ -552,12 +545,11 @@ def test_evaluate_positions_missing_gold_begin_mapped_key():
     ingest_file , gold_ss , test_ss = \
       prepare_evaluate_positions_structs()
     del gold_ss[ "2404" ][ 0 ][ "begin_pos_mapped" ]
-    score_card = \
-      scoring_metrics.evaluate_positions( ingest_file ,
-                                          score_card ,
-                                          gold_ss = gold_ss ,
-                                          test_ss = test_ss ,
-                                          ignore_whitespace = True )
+    scoring_metrics.evaluate_positions( ingest_file ,
+                                        score_card ,
+                                        gold_ss = gold_ss ,
+                                        test_ss = test_ss ,
+                                        ignore_whitespace = True )
     ##
     expected_score_card = scoring_metrics.new_score_card()
     expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
@@ -572,12 +564,11 @@ def test_evaluate_positions_missing_gold_end_mapped_key():
     ingest_file , gold_ss , test_ss = \
       prepare_evaluate_positions_structs()
     del gold_ss[ "2404" ][ 0 ][ "end_pos_mapped" ]
-    score_card = \
-      scoring_metrics.evaluate_positions( ingest_file ,
-                                          score_card ,
-                                          gold_ss = gold_ss ,
-                                          test_ss = test_ss ,
-                                          ignore_whitespace = True )
+    scoring_metrics.evaluate_positions( ingest_file ,
+                                        score_card ,
+                                        gold_ss = gold_ss ,
+                                        test_ss = test_ss ,
+                                        ignore_whitespace = True )
     ##
     expected_score_card = scoring_metrics.new_score_card()
     expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
@@ -592,12 +583,11 @@ def test_evaluate_positions_missing_test_begin_mapped_key():
     ingest_file , gold_ss , test_ss = \
       prepare_evaluate_positions_structs()
     del test_ss[ "2404" ][ 0 ][ "begin_pos_mapped" ]
-    score_card = \
-      scoring_metrics.evaluate_positions( ingest_file ,
-                                          score_card ,
-                                          gold_ss = gold_ss ,
-                                          test_ss = test_ss ,
-                                          ignore_whitespace = True )
+    scoring_metrics.evaluate_positions( ingest_file ,
+                                        score_card ,
+                                        gold_ss = gold_ss ,
+                                        test_ss = test_ss ,
+                                        ignore_whitespace = True )
     ##
     expected_score_card = scoring_metrics.new_score_card()
     expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
@@ -612,12 +602,11 @@ def test_evaluate_positions_missing_test_end_mapped_key():
     ingest_file , gold_ss , test_ss = \
       prepare_evaluate_positions_structs()
     del test_ss[ "2404" ][ 0 ][ "end_pos_mapped" ]
-    score_card = \
-      scoring_metrics.evaluate_positions( ingest_file ,
-                                          score_card ,
-                                          gold_ss = gold_ss ,
-                                          test_ss = test_ss ,
-                                          ignore_whitespace = True )
+    scoring_metrics.evaluate_positions( ingest_file ,
+                                        score_card ,
+                                        gold_ss = gold_ss ,
+                                        test_ss = test_ss ,
+                                        ignore_whitespace = True )
     ##
     expected_score_card = scoring_metrics.new_score_card()
     expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
@@ -645,12 +634,11 @@ def test_evaluate_positions_nested_annotations_gold_first_match():
                                                          tag_name = "Age" )
     gold_ss[ "87" ].append( new_entry )
     ##
-    score_card = \
-      scoring_metrics.evaluate_positions( ingest_file ,
-                                          score_card ,
-                                          gold_ss = gold_ss ,
-                                          test_ss = test_ss ,
-                                          ignore_whitespace = False )
+    scoring_metrics.evaluate_positions( ingest_file ,
+                                        score_card ,
+                                        gold_ss = gold_ss ,
+                                        test_ss = test_ss ,
+                                        ignore_whitespace = False )
     ##
     expected_score_card = scoring_metrics.new_score_card()
     expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
@@ -675,12 +663,11 @@ def test_evaluate_positions_nested_annotations_gold_second_match():
                                                          tag_name = "Age" )
     gold_ss[ "87" ].append( new_entry )
     ##
-    score_card = \
-      scoring_metrics.evaluate_positions( ingest_file ,
-                                          score_card ,
-                                          gold_ss = gold_ss ,
-                                          test_ss = test_ss ,
-                                          ignore_whitespace = False )
+    scoring_metrics.evaluate_positions( ingest_file ,
+                                        score_card ,
+                                        gold_ss = gold_ss ,
+                                        test_ss = test_ss ,
+                                        ignore_whitespace = False )
     ##
     expected_score_card = scoring_metrics.new_score_card()
     expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
@@ -705,12 +692,11 @@ def test_evaluate_positions_nested_annotations_test():
                                                          tag_name = "Age" )
     test_ss[ "87" ].append( new_entry )
     ##
-    score_card = \
-      scoring_metrics.evaluate_positions( ingest_file ,
-                                          score_card ,
-                                          gold_ss = gold_ss ,
-                                          test_ss = test_ss ,
-                                          ignore_whitespace = False )
+    scoring_metrics.evaluate_positions( ingest_file ,
+                                        score_card ,
+                                        gold_ss = gold_ss ,
+                                        test_ss = test_ss ,
+                                        ignore_whitespace = False )
     ##
     expected_score_card = scoring_metrics.new_score_card()
     expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
@@ -736,12 +722,11 @@ def test_evaluate_positions_nested_annotations_gold_and_test():
     gold_ss[ "87" ].append( new_entry )
     test_ss[ "87" ].append( new_entry )
     ##
-    score_card = \
-      scoring_metrics.evaluate_positions( ingest_file ,
-                                          score_card ,
-                                          gold_ss = gold_ss ,
-                                          test_ss = test_ss ,
-                                          ignore_whitespace = False )
+    scoring_metrics.evaluate_positions( ingest_file ,
+                                        score_card ,
+                                        gold_ss = gold_ss ,
+                                        test_ss = test_ss ,
+                                        ignore_whitespace = False )
     ##
     expected_score_card = scoring_metrics.new_score_card()
     expected_score_card.loc[ expected_score_card.shape[ 0 ] ] = \
@@ -796,27 +781,27 @@ def prepare_evaluate_positions_offset_alignment( test_filename ):
 
 
 def prepare_offset_alignment_score_cards( filename , gold_ss , test_ss ):
-    score_card = scoring_metrics.new_score_card()
-    exact_score_card = scoring_metrics.evaluate_positions( filename ,
-                                                           score_card ,
-                                                           gold_ss ,
-                                                           test_ss ,
-                                                           fuzzy_flag = 'exact' ,
-                                                           ignore_whitespace = True )
-    score_card = scoring_metrics.new_score_card()
-    contained_score_card = scoring_metrics.evaluate_positions( filename ,
-                                                               score_card ,
-                                                               gold_ss ,
-                                                               test_ss ,
-                                                               fuzzy_flag = 'fully-contained' ,
-                                                               ignore_whitespace = True )
-    score_card = scoring_metrics.new_score_card()
-    partial_score_card = scoring_metrics.evaluate_positions( filename ,
-                                                             score_card ,
-                                                             gold_ss ,
-                                                             test_ss ,
-                                                             fuzzy_flag = 'partial' ,
-                                                             ignore_whitespace = True )
+    exact_score_card = scoring_metrics.new_score_card()
+    scoring_metrics.evaluate_positions( filename ,
+                                        exact_score_card ,
+                                        gold_ss ,
+                                        test_ss ,
+                                        fuzzy_flag = 'exact' ,
+                                        ignore_whitespace = True )
+    contained_score_card = scoring_metrics.new_score_card()
+    scoring_metrics.evaluate_positions( filename ,
+                                        contained_score_card ,
+                                        gold_ss ,
+                                        test_ss ,
+                                        fuzzy_flag = 'fully-contained' ,
+                                        ignore_whitespace = True )
+    partial_score_card = scoring_metrics.new_score_card()
+    scoring_metrics.evaluate_positions( filename ,
+                                        partial_score_card ,
+                                        gold_ss ,
+                                        test_ss ,
+                                        fuzzy_flag = 'partial' ,
+                                        ignore_whitespace = True )
     return exact_score_card , contained_score_card , partial_score_card 
 
 
