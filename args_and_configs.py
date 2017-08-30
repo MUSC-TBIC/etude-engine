@@ -42,11 +42,11 @@ unstructured data extraction.
                                      'F1' ] ,
                          help = "List of metrics to return, in order" )
 
-    parser.add_argument( "--fuzzy-match" ,
-                         dest = 'fuzzy_flag' ,
-                         default = 'exact' ,
+    parser.add_argument( "--fuzzy-match-flags" , nargs = "+" ,
+                         dest = 'fuzzy_flags' ,
+                         default = [ 'exact' ] ,
                          choices = [ 'exact' , 'fully-contained' , 'partial' ] ,
-                         help = "Set the strictness of matching offsets." )
+                         help = "List of strictness levels to use in matching offsets." )
 
     parser.add_argument("-d", 
                         dest = 'delim' ,
@@ -171,59 +171,89 @@ def extract_document_data( document_data ,
     return document_data
 
 
+def extract_xpath_patterns( annotations ,
+                            config , sect ,
+                            display_name ,
+                            key_value ,
+                            score_values ,
+                            verbose = False ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
+    ## Loop through all the provided score_values to see if any
+    ## provided values match the currently extracted value
+    for score_value in score_values:
+        if( re.search( score_value , key_value ) ):
+            pattern_entry = dict( type = key_value ,
+                                  long_name = sect.strip() ,
+                                  xpath = config.get( sect , 'XPath' ) ,
+                                  display_name = display_name ,
+                                  short_name = config.get( sect ,
+                                                           'Short Name' ) ,
+                                  begin_attr = config.get( sect ,
+                                                           'Begin Attr' ) ,
+                                  end_attr = config.get( sect ,
+                                                         'End Attr' ) ,
+                                  optional_attributes = [] )
+            if( config.has_option( sect , 'Opt Attr' ) ):
+                optional_attributes = config.get( sect , 'Opt Attr' )
+                pattern_entry[ 'optional_attributes' ] = \
+                  optional_attributes.split( ',' )
+            annotations.append( pattern_entry )
+            break
+    log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
+
+
+def extract_delimited_patterns( annotations ,
+                                config , sect ,
+                                display_name ,
+                                key_value ,
+                                score_values ,
+                                verbose = False ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
+    ## Loop through all the provided score_values to see if any
+    ## provided values match the currently extracted value
+    for score_value in score_values:
+        if( re.search( score_value , key_value ) ):
+            annotations.append( dict( type = key_value ,
+                                      long_name = sect.strip() ,
+                                      delimiter = config.get( sect ,
+                                                              'Delimiter' ) ,
+                                      display_name = display_name ,
+                                      short_name = config.get( sect ,
+                                                               'Short Name' ) ) )
+            break
+    log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
+
+
 def extract_patterns( annotations ,
                       config , sect ,
                       score_key ,
                       score_values ,
                       verbose = False ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
+    display_name = '{} ({})'.format( sect.strip() ,
+                                     config.get( sect , 'Short Name' ) )
+    if( score_key == 'Long Name' or
+        score_key == 'Section' ):
+        key_value = sect.strip()
+    else:
+        key_value = config.get( sect , score_key )
     if( config.has_option( sect , 'XPath' ) and
         config.has_option( sect , 'Begin Attr' ) and
         config.has_option( sect , 'End Attr' ) ):
-        display_name = '{} ({})'.format( sect.strip() ,
-                                         config.get( sect , 'Short Name' ) )
-        if( score_key == 'Long Name' or
-            score_key == 'Section' ):
-            key_value = sect.strip()
-        else:
-            key_value = config.get( sect , score_key )
-        ## Loop through all the provided score_values to see if any
-        ## provided values match the currently extracted value
-        for score_value in score_values:
-            if( re.search( score_value , key_value ) ):
-                annotations.append( dict( type = key_value ,
-                                          long_name = sect.strip() ,
-                                          xpath = config.get( sect , 'XPath' ) ,
-                                          display_name = display_name ,
-                                          short_name = config.get( sect ,
-                                                                   'Short Name' ) ,
-                                          begin_attr = config.get( sect ,
-                                                                   'Begin Attr' ) ,
-                                          end_attr = config.get( sect ,
-                                                                 'End Attr' ) ) )
-                break
+        extract_xpath_patterns( annotations ,
+                                config , sect ,
+                                display_name ,
+                                key_value ,
+                                score_values ,
+                                verbose )
     elif( config.has_option( sect , 'Delimiter' ) ):
-        display_name = '{} ({})'.format( sect.strip() ,
-                                         config.get( sect , 'Short Name' ) )
-        if( score_key == 'Long Name' or
-            score_key == 'Section' ):
-            key_value = sect.strip()
-        else:
-            key_value = config.get( sect , score_key )
-        ## Loop through all the provided score_values to see if any
-        ## provided values match the currently extracted value
-        for score_value in score_values:
-            if( re.search( score_value , key_value ) ):
-                annotations.append( dict( type = key_value ,
-                                          long_name = sect.strip() ,
-                                          delimiter = config.get( sect ,
-                                                                  'Delimiter' ) ,
-                                          display_name = display_name ,
-                                          short_name = config.get( sect ,
-                                                                   'Short Name' ) ) )
-                break
+        extract_delimited_patterns( annotations ,
+                                    config , sect ,
+                                    display_name ,
+                                    key_value ,
+                                    score_values ,
+                                    verbose )
     log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
-    return annotations
 
 
 def process_config( config_file ,
@@ -238,21 +268,24 @@ def process_config( config_file ,
     document_data = {}
     for sect in config.sections():
         if( sect.strip() == 'XML Namespaces' ):
-            namespaces = extract_namespaces( namespaces , config , sect )
+            namespaces = extract_namespaces( namespaces ,
+                                             config ,
+                                             sect )
         elif( sect.strip() == 'Document Data' ):
-            document_data = extract_document_data( document_data , config , sect )
+            document_data = extract_document_data( document_data ,
+                                                   config ,
+                                                   sect )
         else:
-            annotations = extract_patterns( annotations ,
-                                            config , sect ,
-                                            score_key ,
-                                            score_values ,
-                                            verbose = verbose )
-    if( verbose ):
-        verbose_msg = 'Values defined by the config \'{}\':\n' + \
-                      '\tns\t=\t{}\n' + \
-                      '\tdocument data\t=\t{}\n' + \
-                      '\tpatterns\t=\t{}\n'
-        print( verbose_msg.format( config_file ,
+            extract_patterns( annotations ,
+                              config , sect ,
+                              score_key ,
+                              score_values ,
+                              verbose = verbose )
+    verbose_msg = 'Values defined by the config \'{}\':\n' + \
+                  '\tns\t=\t{}\n' + \
+                  '\tdocument data\t=\t{}\n' + \
+                  '\tpatterns\t=\t{}\n'
+    log.debug( verbose_msg.format( config_file ,
                                    namespaces ,
                                    document_data ,
                                    annotations ) )

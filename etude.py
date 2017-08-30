@@ -31,7 +31,8 @@ def count_ref_set( test_ns , test_patterns , test_folder ,
     """
     Count annotation occurrences in the test folder
     """
-    type_counts = scoring_metrics.new_score_card()
+    type_counts = scoring_metrics.new_score_card( fuzzy_flags = \
+                                                  args.fuzzy_flags )
     confusion_matrix = {}
     tests = set([os.path.basename(x) for x in glob.glob( test_folder +
                                                          file_prefix +
@@ -228,8 +229,9 @@ def score_ref_set( gold_ns , gold_dd , gold_patterns , gold_folder ,
     """
     Score the test folder against the gold folder.
     """
-    score_card = scoring_metrics.new_score_card()
-    
+    score_card = scoring_metrics.new_score_card( fuzzy_flags = \
+                                                 args.fuzzy_flags )
+    ##
     confusion_matrix = {}
     try:
         match_count , file_mapping = collect_files( gold_folder , test_folder ,
@@ -299,22 +301,25 @@ def score_ref_set( gold_ns , gold_dd , gold_patterns , gold_folder ,
                 log.error( 'Uncaught exception in extract_annotations:  {}'.format( e ) )
         ##
         try:
-            score_card = \
-              scoring_metrics.evaluate_positions( gold_filename ,
-                                                  score_card ,
-                                                  gold_ss ,
-                                                  test_ss ,
-                                                  fuzzy_flag = args.fuzzy_flag ,
-                                                  ignore_whitespace = args.ignore_whitespace )
+            for fuzzy_flag in args.fuzzy_flags:
+                scoring_metrics.evaluate_positions( gold_filename ,
+                                                    score_card ,
+                                                    gold_ss ,
+                                                    test_ss ,
+                                                    fuzzy_flag = fuzzy_flag ,
+                                                    ignore_whitespace = \
+                                                      args.ignore_whitespace )
         except:
             e = sys.exc_info()[0]
             log.error( 'Uncaught exception in evaluate_positions:  {}'.format( e ) )
     ##
     try:
-        scoring_metrics.print_score_summary( score_card ,
-                                             file_mapping ,
-                                             gold_patterns , test_patterns ,
-                                             args )
+        for fuzzy_flag in args.fuzzy_flags:
+            scoring_metrics.print_score_summary( score_card ,
+                                                 file_mapping ,
+                                                 gold_patterns , test_patterns ,
+                                                 fuzzy_flag = fuzzy_flag ,
+                                                 args = args )
     except:
         e = sys.exc_info()[0]
         log.error( 'Uncaught exception in print_score_summary:  {}'.format( e ) )

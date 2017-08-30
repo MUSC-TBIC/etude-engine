@@ -205,6 +205,109 @@ def test_extracting_sentences_from_CTAKES4_OpenNLP1_8():
     assert len( strict_starts ) == 82
 
 
+## Passing attributes through
+
+
+def test_extracting_no_optional_attributes():
+    ingest_file = 'tests/data/013_Conditional_Problem.xmi'
+    config_file = 'config/webanno_problems_allergies_xmi.conf'
+    namespaces , document_data , patterns = \
+      args_and_configs.process_config( config_file = config_file ,
+                                       score_key = 'Short Name' ,
+                                       score_values = [ '.*' ] )
+    strict_starts = \
+      text_extraction.extract_annotations_xml( ingest_file ,
+                                               offset_mapping = {} ,
+                                               annotation_path = \
+                                                 './custom:Problems' ,
+                                               tag_name = 'Problem' ,
+                                               namespaces = namespaces ,
+                                               begin_attribute = 'begin' ,
+                                               end_attribute = 'end' ,
+                                               optional_attributes = [] )
+    expected_output = \
+      { '181' :  [ { 'type': 'Problem' ,
+                      'begin_pos': '181' ,
+                      'end_pos': '188' ,
+                      'raw_text': None } ] ,
+        '218' : [ { 'type': 'Problem' ,
+                   'begin_pos': '218' ,
+                   'end_pos': '224' ,
+                   'raw_text': None } ]
+      }
+    assert strict_starts == expected_output
+
+
+def test_extracting_with_and_without_optional_attributes():
+    ingest_file = 'tests/data/013_Conditional_Problem.xmi'
+    config_file = 'config/webanno_problems_allergies_xmi.conf'
+    namespaces , document_data , patterns = \
+      args_and_configs.process_config( config_file = config_file ,
+                                       score_key = 'Short Name' ,
+                                       score_values = [ '.*' ] )
+    strict_starts_no_opt_attributes = \
+      text_extraction.extract_annotations_xml( ingest_file ,
+                                               offset_mapping = {} ,
+                                               annotation_path = \
+                                                 './custom:Problems' ,
+                                               tag_name = 'Problem' ,
+                                               namespaces = namespaces ,
+                                               begin_attribute = 'begin' ,
+                                               end_attribute = 'end' ,
+                                               optional_attributes = [] )
+    strict_starts_with_opt_attributes = \
+      text_extraction.extract_annotations_xml( ingest_file ,
+                                               offset_mapping = {} ,
+                                               annotation_path = \
+                                                 './custom:Problems' ,
+                                               tag_name = 'Problem' ,
+                                               namespaces = namespaces ,
+                                               begin_attribute = 'begin' ,
+                                               end_attribute = 'end' ,
+                                               optional_attributes = \
+                                                 patterns[ 0 ][ 'optional_attributes' ] )
+    expected_output_no_opt_attributes = \
+      { '181' :  [ { 'type': 'Problem' ,
+                      'begin_pos': '181' ,
+                      'end_pos': '188' ,
+                      'raw_text': None } ] ,
+        '218' : [ { 'type': 'Problem' ,
+                   'begin_pos': '218' ,
+                   'end_pos': '224' ,
+                   'raw_text': None } ]
+      }
+    expected_output_with_opt_attributes = \
+      { '181' :  [ { 'type': 'Problem' ,
+                     'begin_pos': '181' ,
+                     'end_pos': '188' ,
+                     'raw_text': None ,
+                     'Conditional' : 'true' ,
+                     'Generic' : 'false' ,
+                     'Historical' : 'false' ,
+                     'Negated' : 'false' ,
+                     'NotPatient' : 'true' ,
+                     'Uncertain' : 'false' } ] ,
+        '218' : [ { 'type': 'Problem' ,
+                    'begin_pos': '218' ,
+                    'end_pos': '224' ,
+                    'raw_text': None ,
+                    'Conditional' : 'false' ,
+                    'Generic' : 'false' ,
+                    'Historical' : 'true' ,
+                    'Negated' : 'false' ,
+                    'NotPatient' : 'false' ,
+                    'Uncertain' : 'true' } ]
+      }
+    assert strict_starts_no_opt_attributes == \
+        expected_output_no_opt_attributes
+    assert strict_starts_with_opt_attributes == \
+        expected_output_with_opt_attributes
+    assert strict_starts_no_opt_attributes != \
+        expected_output_with_opt_attributes
+    assert strict_starts_with_opt_attributes != \
+        expected_output_no_opt_attributes
+
+
 #############################################
 ## Test writing to disk
 #############################################

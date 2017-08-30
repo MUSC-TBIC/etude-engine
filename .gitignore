@@ -7,3 +7,6 @@
 .coverage
 .ipynb_checkpoints
 __pycache__
+
+coverage.xml
+htmlcov/
