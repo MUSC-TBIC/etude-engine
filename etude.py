@@ -326,7 +326,7 @@ def score_ref_set( gold_ns , gold_dd , gold_patterns , gold_folder ,
     log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
 
 
-if __name__ == "__main__":
+def init_args():
     ##
     args = args_and_configs.get_arguments( sys.argv[ 1: ] )
     ##
@@ -354,7 +354,7 @@ if __name__ == "__main__":
                                                     'test_input' ,
                                                     'test_out' ,
                                                     'score_key' ,
-                                                    'fuzzy_flag' ] ,
+                                                    'fuzzy_flags' ] ,
                                                   [ args.gold_config ,
                                                     args.gold_input ,
                                                     args.gold_out ,
@@ -362,7 +362,12 @@ if __name__ == "__main__":
                                                     args.test_input ,
                                                     args.test_out ,
                                                     args.score_key ,
-                                                    args.fuzzy_flag ] )
+                                                    args.fuzzy_flags ] )
+    return args
+
+if __name__ == "__main__":
+    ##
+    args = init_args()
     ## Extract and process the two input file configs
     try:
         gold_ns , gold_dd , gold_patterns = \

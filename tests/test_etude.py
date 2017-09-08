@@ -1,5 +1,48 @@
 
+import sys
+
 import etude
+
+#############################################
+## Early initialization and set-up
+#############################################
+
+def test_default_init_args():
+    from mock import patch
+    test_args = [ 'etude.py' ,
+                  '--gold-input' , '/tmp/gold' ,
+                  '--test-input' , '/tmp/test' ]
+    with patch.object( sys , 'argv' , test_args ):
+        args = etude.init_args()
+        assert args.gold_input == '/tmp/gold'
+        assert args.test_input == '/tmp/test'
+        assert args.corpus_out == None
+        assert args.verbose == False
+
+def test_init_args_verbose():
+    from mock import patch
+    test_args = [ 'etude.py' ,
+                  '--gold-input' , '/tmp/gold' ,
+                  '--test-input' , '/tmp/test' ,
+                  '--verbose' ]
+    with patch.object( sys , 'argv' , test_args ):
+        args = etude.init_args()
+        with open( '/tmp/bob.txt' , 'w' ) as fp:
+            fp.write( '{}'.format( args ) )
+        assert args.verbose == True
+
+def test_init_args_corpus_out():
+    from mock import patch
+    test_args = [ 'etude.py' ,
+                  '--gold-input' , '/tmp/gold' ,
+                  '--test-input' , '/tmp/test' ,
+                  '--corpus-out' , '/tmp/corpusOut' ]
+    with patch.object( sys , 'argv' , test_args ):
+        args = etude.init_args()
+        with open( '/tmp/bob.txt' , 'a' ) as fp:
+            fp.write( '{}'.format( args ) )
+        assert args.corpus_out == '/tmp/corpusOut'
+
 
 #############################################
 ## Test file/corpus io
