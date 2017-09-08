@@ -69,36 +69,36 @@ def count_ref_set( test_ns , test_patterns , test_folder ,
     log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
 
 
-def collect_files( gold_folder , test_folder ,
+def collect_files( reference_folder , test_folder ,
                    file_prefix , file_suffix ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     file_mapping = {}
     match_count = 0
     ##
-    golds = set([os.path.basename(x) for x in glob.glob( gold_folder +
-                                                         file_prefix +
-                                                         '*' +
-                                                         file_suffix[ 0 ] )])
-    for gold_filename in sorted( golds ):
+    reference_filenames = set([os.path.basename(x) for x in glob.glob( reference_folder +
+                                                                       file_prefix +
+                                                                       '*' +
+                                                                       file_suffix[ 0 ] )])
+    for reference_filename in sorted( reference_filenames ):
         if( len( file_suffix ) == 1 ):
-            test_filename = gold_filename
+            test_filename = reference_filename
         else:
             test_filename = re.sub( file_suffix[ 0 ].lstrip() + '$' ,
                                     file_suffix[ 1 ].lstrip() ,
-                                    gold_filename )
+                                    reference_filename )
         if( os.path.exists( '{}/{}'.format( test_folder ,
                                             test_filename ) ) ):
             match_count += 1
-            file_mapping[ gold_filename ] = test_filename
+            file_mapping[ reference_filename ] = test_filename
         else:
             ## TODO - log on missing test file
-            file_mapping[ gold_filename ] = None
+            file_mapping[ reference_filename ] = None
     ##
     log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
     return( match_count , file_mapping )
 
 
-def count_chars_profile( gold_ns , gold_dd , gold_folder ,
+def count_chars_profile( reference_ns , reference_dd , reference_folder ,
                          test_ns , test_dd , test_folder ,
                          args ,
                          file_prefix = '/' ,
@@ -108,7 +108,7 @@ def count_chars_profile( gold_ns , gold_dd , gold_folder ,
     Extract a character profile for each document and corpus as a whole.
     """
     try:
-        match_count , file_mapping = collect_files( gold_folder , test_folder ,
+        match_count , file_mapping = collect_files( reference_folder , test_folder ,
                                                     file_prefix , file_suffix )
     except:
         e = sys.exc_info()[0]
@@ -116,33 +116,33 @@ def count_chars_profile( gold_ns , gold_dd , gold_folder ,
     ##
     if( match_count == 0 ):
         ## Empty dictionaries evaluate to False so testing bool can tell us if
-        ## any gold documents exist
+        ## any reference documents exist
         if( bool( file_mapping ) ):
             print( 'ERROR:  No documents found in test directory:  {}'.format( test_folder ) )
         else:
-            print( 'ERROR:  No documents found in gold directory:  {}'.format( gold_folder ) )
+            print( 'ERROR:  No documents found in reference directory:  {}'.format( reference_folder ) )
         return( None )
     ##
     progress = progressbar.ProgressBar( max_value = match_count ,
                                         redirect_stderr = True )
-    for gold_filename in progress( sorted( file_mapping.keys() ) ):
-        if( args.gold_out == None ):
-            gold_out_file = None
+    for reference_filename in progress( sorted( file_mapping.keys() ) ):
+        if( args.reference_out == None ):
+            reference_out_file = None
         else:
             ## TODO - add filename translation services
-            gold_out_file = '{}/{}'.format( args.gold_out ,
-                                               gold_filename )
+            reference_out_file = '{}/{}'.format( args.reference_out ,
+                                                 reference_filename )
         ##
         try:
-            gold_chars = \
-              text_extraction.extract_chars( '{}/{}'.format( gold_folder ,
-                                                             gold_filename ) ,
-                                             namespaces = gold_ns ,
-                                             document_data = gold_dd )
+            reference_chars = \
+              text_extraction.extract_chars( '{}/{}'.format( reference_folder ,
+                                                             reference_filename ) ,
+                                             namespaces = reference_ns ,
+                                             document_data = reference_dd )
         except:
             e = sys.exc_info()[0]
             log.error( 'Uncaught exception in extract_chars:  {}'.format( e ) )
-        test_filename = file_mapping[ gold_filename ]
+        test_filename = file_mapping[ reference_filename ]
         if( test_filename == None ):
             test_chars = {}
         else:
@@ -167,49 +167,49 @@ def count_chars_profile( gold_ns , gold_dd , gold_folder ,
     log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
 
 
-def align_tokens(  gold_folder ,
+def align_tokens(  reference_folder ,
                    test_folder ,
                    args ,
                    file_prefix = '/' ,
                    file_suffix = '.xml' ):
     """
-    Align gold and test documents by token for comparison
+    Align reference and test documents by token for comparison
     """
-    match_count , file_mapping = collect_files( gold_folder , test_folder ,
+    match_count , file_mapping = collect_files( reference_folder , test_folder ,
                                                 file_prefix , file_suffix )
     ##
     if( match_count == 0 ):
         ## Empty dictionaries evaluate to False so testing bool can tell us if
-        ## any gold documents exist
+        ## any reference documents exist
         if( bool( file_mapping ) ):
             print( 'ERROR:  No documents found in test directory:  {}'.format( test_folder ) )
         else:
-            print( 'ERROR:  No documents found in gold directory:  {}'.format( gold_folder ) )
+            print( 'ERROR:  No documents found in reference directory:  {}'.format( reference_folder ) )
         return( None )
     ##
     progress = progressbar.ProgressBar( max_value = match_count ,
                                         redirect_stderr = True )
-    for gold_filename in progress( sorted( file_mapping.keys() ) ):
-        if( args.gold_out == None ):
-            gold_out_file = None
+    for reference_filename in progress( sorted( file_mapping.keys() ) ):
+        if( args.reference_out == None ):
+            reference_out_file = None
         else:
             ## TODO - add filename translation services
-            gold_out_file = '{}/{}'.format( args.gold_out ,
-                                            gold_filename )
+            reference_out_file = '{}/{}'.format( args.reference_out ,
+                                                 reference_filename )
         ##
-        gold_dictionary = {}
-        with open( '{}/{}'.format( gold_folder , gold_filename ) , 'r' ) as fp:
-            gold_dictionary = json.load( fp )
-        text_extraction.align_tokens_on_whitespace( gold_dictionary ,
-                                                    gold_out_file )
-        test_filename = file_mapping[ gold_filename ]
+        reference_dictionary = {}
+        with open( '{}/{}'.format( reference_folder , reference_filename ) , 'r' ) as fp:
+            reference_dictionary = json.load( fp )
+        text_extraction.align_tokens_on_whitespace( reference_dictionary ,
+                                                    reference_out_file )
+        test_filename = file_mapping[ reference_filename ]
         if( test_filename != None ):
             if( args.test_out == None ):
                 test_out_file = None
             else:
                 ## TODO - add filename translation services
                 test_out_file = '{}/{}'.format( args.test_out ,
-                                                gold_filename )
+                                                reference_filename )
             ##
             test_dictionary = {}
             with open( '{}/{}'.format( test_folder ,
@@ -220,21 +220,21 @@ def align_tokens(  gold_folder ,
     ##
 
 
-def score_ref_set( gold_ns , gold_dd , gold_patterns , gold_folder ,
+def score_ref_set( reference_ns , reference_dd , reference_patterns , reference_folder ,
                    test_ns , test_dd , test_patterns , test_folder ,
                    args ,
                    file_prefix = '/' ,
                    file_suffix = '.xml' ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     """
-    Score the test folder against the gold folder.
+    Score the test folder against the reference folder.
     """
     score_card = scoring_metrics.new_score_card( fuzzy_flags = \
                                                  args.fuzzy_flags )
     ##
     confusion_matrix = {}
     try:
-        match_count , file_mapping = collect_files( gold_folder , test_folder ,
+        match_count , file_mapping = collect_files( reference_folder , test_folder ,
                                                     file_prefix , file_suffix )
     except:
         e = sys.exc_info()[0]
@@ -242,38 +242,38 @@ def score_ref_set( gold_ns , gold_dd , gold_patterns , gold_folder ,
     ##
     if( match_count == 0 ):
         ## Empty dictionaries evaluate to False so testing bool can tell us if
-        ## any gold documents exist
+        ## any reference documents exist
         if( bool( file_mapping ) ):
             log.error( 'No documents found in test directory:  {}'.format( test_folder ) )
         else:
-            log.error( 'No documents found in gold directory:  {}'.format( gold_folder ) )
+            log.error( 'No documents found in reference directory:  {}'.format( reference_folder ) )
         return( None )
     ##
     progress = progressbar.ProgressBar( max_value = match_count ,
                                         redirect_stderr = True )
-    for gold_filename in progress( sorted( file_mapping.keys() ) ):
-        if( args.gold_out == None ):
-            gold_out_file = None
+    for reference_filename in progress( sorted( file_mapping.keys() ) ):
+        if( args.reference_out == None ):
+            reference_out_file = None
         else:
             ## TODO - add filename translation services
-            gold_out_file = '{}/{}'.format( args.gold_out ,
-                                            gold_filename )
+            reference_out_file = '{}/{}'.format( args.reference_out ,
+                                                 reference_filename )
         ##
         try:
-            gold_full_path = '{}/{}'.format( gold_folder ,
-                                             gold_filename )
-            gold_om , gold_ss = \
-              text_extraction.extract_annotations( gold_full_path ,
-                                                   namespaces = gold_ns ,
-                                                   document_data = gold_dd ,
-                                                   patterns = gold_patterns ,
+            reference_full_path = '{}/{}'.format( reference_folder ,
+                                                  reference_filename )
+            reference_om , reference_ss = \
+              text_extraction.extract_annotations( reference_full_path ,
+                                                   namespaces = reference_ns ,
+                                                   document_data = reference_dd ,
+                                                   patterns = reference_patterns ,
                                                    ignore_whitespace = \
                                                      args.ignore_whitespace ,
-                                                   out_file = gold_out_file )
+                                                   out_file = reference_out_file )
         except:
             e = sys.exc_info()[0]
             log.error( 'Uncaught exception in extract_annotations:  {}'.format( e ) )
-        test_filename = file_mapping[ gold_filename ]
+        test_filename = file_mapping[ reference_filename ]
         if( test_filename == None ):
             test_om = {}
             test_ss = {}
@@ -302,9 +302,9 @@ def score_ref_set( gold_ns , gold_dd , gold_patterns , gold_folder ,
         ##
         try:
             for fuzzy_flag in args.fuzzy_flags:
-                scoring_metrics.evaluate_positions( gold_filename ,
+                scoring_metrics.evaluate_positions( reference_filename ,
                                                     score_card ,
-                                                    gold_ss ,
+                                                    reference_ss ,
                                                     test_ss ,
                                                     fuzzy_flag = fuzzy_flag ,
                                                     ignore_whitespace = \
@@ -317,7 +317,7 @@ def score_ref_set( gold_ns , gold_dd , gold_patterns , gold_folder ,
         for fuzzy_flag in args.fuzzy_flags:
             scoring_metrics.print_score_summary( score_card ,
                                                  file_mapping ,
-                                                 gold_patterns , test_patterns ,
+                                                 reference_patterns , test_patterns ,
                                                  fuzzy_flag = fuzzy_flag ,
                                                  args = args )
     except:
@@ -347,17 +347,17 @@ def init_args():
         ## Add a few important arguments
         scoring_metrics.update_output_dictionary( args.corpus_out ,
                                                   [ 'args' ] ,
-                                                  [ 'gold_config' ,
-                                                    'gold_input' ,
-                                                    'gold_out' ,
+                                                  [ 'reference_config' ,
+                                                    'reference_input' ,
+                                                    'reference_out' ,
                                                     'test_config' ,
                                                     'test_input' ,
                                                     'test_out' ,
                                                     'score_key' ,
                                                     'fuzzy_flags' ] ,
-                                                  [ args.gold_config ,
-                                                    args.gold_input ,
-                                                    args.gold_out ,
+                                                  [ args.reference_config ,
+                                                    args.reference_input ,
+                                                    args.reference_out ,
                                                     args.test_config ,
                                                     args.test_input ,
                                                     args.test_out ,
@@ -370,8 +370,8 @@ if __name__ == "__main__":
     args = init_args()
     ## Extract and process the two input file configs
     try:
-        gold_ns , gold_dd , gold_patterns = \
-          args_and_configs.process_config( config_file = args.gold_config ,
+        reference_ns , reference_dd , reference_patterns = \
+          args_and_configs.process_config( config_file = args.reference_config ,
                                            score_key = args.score_key ,
                                            score_values = args.score_values ,
                                            verbose = args.verbose )
@@ -396,17 +396,17 @@ if __name__ == "__main__":
             e = sys.exc_info()[0]
             log.error( 'Uncaught exception in count_ref_set:  {}'.format( e ) )
     elif( args.align_tokens ):
-        align_tokens( gold_folder = os.path.abspath( args.gold_input ) ,
+        align_tokens( reference_folder = os.path.abspath( args.reference_input ) ,
                       test_folder = os.path.abspath( args.test_input ) ,
                       args = args ,
                       file_prefix = args.file_prefix ,
                       file_suffix = args.file_suffix )
     else:
         try:
-            score_ref_set( gold_ns = gold_ns ,
-                           gold_dd = gold_dd ,
-                           gold_patterns = gold_patterns ,
-                           gold_folder = os.path.abspath( args.gold_input ) ,
+            score_ref_set( reference_ns = reference_ns ,
+                           reference_dd = reference_dd ,
+                           reference_patterns = reference_patterns ,
+                           reference_folder = os.path.abspath( args.reference_input ) ,
                            test_ns = test_ns ,
                            test_dd = test_dd ,
                            test_patterns = test_patterns ,

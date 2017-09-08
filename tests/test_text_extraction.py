@@ -86,7 +86,7 @@ def test_plaintext_split_on_spaces_with_initial_space():
 #############################################
 
 def test_extracting_datetime_from_0005_gs():
-    ingest_file = 'tests/data/i2b2_2016_track-1_gold/0005_gs.xml'
+    ingest_file = 'tests/data/i2b2_2016_track-1_reference/0005_gs.xml'
     strict_starts = \
       text_extraction.extract_annotations_xml( ingest_file ,
                                                offset_mapping = {} ,
@@ -108,7 +108,7 @@ def test_extracting_datetime_from_0005_gs():
     assert strict_starts == expected_output
 
 def test_default_namespace_same_as_empty():
-    ingest_file = 'tests/data/i2b2_2016_track-1_gold/0005_gs.xml'
+    ingest_file = 'tests/data/i2b2_2016_track-1_reference/0005_gs.xml'
     strict_starts_default = \
       text_extraction.extract_annotations_xml( ingest_file ,
                                                   offset_mapping = {} ,
@@ -130,7 +130,7 @@ def test_default_namespace_same_as_empty():
 
 
 def test_extracting_sentences_from_0005_gs():
-    ingest_file = 'tests/data/i2b2_2016_track-1_gold/0005_gs.xml'
+    ingest_file = 'tests/data/i2b2_2016_track-1_reference/0005_gs.xml'
     config_file = 'config/uima_sentences.conf'
     namespaces , document_data , patterns = \
       args_and_configs.process_config( config_file = config_file ,
@@ -313,8 +313,8 @@ def test_extracting_with_and_without_optional_attributes():
 #############################################
 
 def test_writing_dictionary_for_datetime_from_0005_gs():
-    ingest_file = 'tests/data/i2b2_2016_track-1_gold/0005_gs.xml'
-    reference_file = 'tests/data/i2b2_2016_track-1_gold_out/0005_gs.xml'
+    ingest_file = 'tests/data/i2b2_2016_track-1_reference/0005_gs.xml'
+    reference_file = 'tests/data/i2b2_2016_track-1_reference_out/0005_gs.xml'
     config_file = 'config/i2b2_2016_track-1.conf'
     try:
         tmp_descriptor, tmp_file = tempfile.mkstemp()
@@ -342,8 +342,8 @@ def test_writing_dictionary_for_datetime_from_0005_gs():
 
 ## TODO - add tests for ingore_whitespace == True | False
 def test_of_presaved_dictionary_for_complex_patterns():
-    ingest_file = 'tests/data/i2b2_2016_track-1_gold/0005_gs.xml'
-    presaved_file = 'tests/data/i2b2_2016_track-1_gold_out/0005_gs.xml'
+    ingest_file = 'tests/data/i2b2_2016_track-1_reference/0005_gs.xml'
+    presaved_file = 'tests/data/i2b2_2016_track-1_reference_out/0005_gs.xml'
     config_file = 'config/i2b2_2016_track-1.conf'
     document_data = dict( cdata_xpath = './TEXT' )
     namespaces , document_data , patterns = \
@@ -362,7 +362,7 @@ def test_of_presaved_dictionary_for_complex_patterns():
 
 
 def test_of_identity_read_write_of_dictionary_for_complex_patterns():
-    ingest_file = 'tests/data/i2b2_2016_track-1_gold/0005_gs.xml'
+    ingest_file = 'tests/data/i2b2_2016_track-1_reference/0005_gs.xml'
     config_file = 'config/i2b2_2016_track-1.conf'
     document_data = dict( cdata_xpath = './TEXT' )
     namespaces , document_data , patterns = \
@@ -387,7 +387,7 @@ def test_of_identity_read_write_of_dictionary_for_complex_patterns():
 #############################################
 
 def test_empty_extraction_of_doc_content_from_0005_gs():
-    ingest_file = 'tests/data/i2b2_2016_track-1_gold/0016_gs.xml'
+    ingest_file = 'tests/data/i2b2_2016_track-1_reference/0016_gs.xml'
     ## Look for a path that doesn't exist so that we get an empty return
     test_dd = dict( cdata_xpath = '/dev/null' )
     raw_content , offset_mapping = \
@@ -398,7 +398,7 @@ def test_empty_extraction_of_doc_content_from_0005_gs():
     assert offset_mapping == expected_output
 
 def test_extracting_doc_content_from_0005_gs():
-    ingest_file = 'tests/data/i2b2_2016_track-1_gold/0016_gs.xml'
+    ingest_file = 'tests/data/i2b2_2016_track-1_reference/0016_gs.xml'
     test_dd = dict( cdata_xpath = './TEXT' )
     raw_content , offset_mapping = \
       text_extraction.extract_chars( ingest_file ,
@@ -426,7 +426,7 @@ def test_extracting_doc_content_from_995723_sentences_xmi():
 
 
 def test_offset_mapping_matches_pos_mapped_automatically():
-    ingest_file = 'tests/data/i2b2_2016_track-1_gold/0005_gs.xml'
+    ingest_file = 'tests/data/i2b2_2016_track-1_reference/0005_gs.xml'
     document_data = dict( cdata_xpath = './TEXT' )
     raw_content , offset_mapping = \
       text_extraction.extract_chars( ingest_file ,
@@ -460,7 +460,7 @@ def test_offset_mapping_matches_pos_mapped_automatically():
 
 
 def test_offset_mapping_matches_pos_mapped_manually():
-    ingest_file = 'tests/data/i2b2_2016_track-1_gold/0005_gs.xml'
+    ingest_file = 'tests/data/i2b2_2016_track-1_reference/0005_gs.xml'
     document_data = dict( cdata_xpath = './TEXT' )
     raw_content , offset_mapping = \
       text_extraction.extract_chars( ingest_file ,
