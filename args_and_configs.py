@@ -23,9 +23,9 @@ unstructured data extraction.
     ## --file-pattern "" regex pattern fed to glob for selecting files
     ##                   (maybe call this --file-filter?)
     
-    parser.add_argument( '--gold-input' , required = True ,
-                        dest = "gold_input",
-                        help = "Directory containing gold reference set" )
+    parser.add_argument( '--reference-input' , required = True ,
+                         dest = "reference_input",
+                         help = "Directory containing reference reference set" )
     parser.add_argument( '--test-input' , required = True ,
                         dest = "test_input",
                         help = "Directory containing reference set to score" )
@@ -67,10 +67,10 @@ unstructured data extraction.
                          help = "Print metrics by file nested within annotation type" ,
                          action = "store_true" )
 
-    parser.add_argument("--gold-config", 
-                        dest = 'gold_config' ,
-                        default = 'config/i2b2_2016_track-1.conf' ,
-                        help="Configuration file that describes the gold format" )
+    parser.add_argument( "--reference-config", 
+                         dest = 'reference_config' ,
+                         default = 'config/i2b2_2016_track-1.conf' ,
+                         help = 'Configuration file that describes the reference format' )
     parser.add_argument("--test-config", 
                         dest = 'test_config' ,
                         default = 'config/i2b2_2016_track-1.conf' ,
@@ -95,12 +95,12 @@ unstructured data extraction.
     parser.add_argument("--file-suffix", nargs = '+' ,
                         dest = 'file_suffix' ,
                         default = [ '.xml' ] ,
-                        help="Suffix used for filename matching.  You can provide a second argument if the test file suffixes don't match the gold file suffixes. The span of the gold filename that matches the file suffix will be replaced with the contents of the second suffix string.  This replacement is useful when the gold and test differ in terms of file endings (e.g., '001.txt' -> '001.xmi')" )
+                        help="Suffix used for filename matching.  You can provide a second argument if the test file suffixes don't match the reference file suffixes. The span of the reference filename that matches the file suffix will be replaced with the contents of the second suffix string.  This replacement is useful when the reference and test differ in terms of file endings (e.g., '001.txt' -> '001.xmi')" )
 
-    parser.add_argument( '--gold-out' ,
-                         dest = 'gold_out' ,
+    parser.add_argument( '--reference-out' ,
+                         dest = 'reference_out' ,
                          default = None ,
-                         help = 'When provided, write the dictionary of extracted gold annotations to disk in this directory' )
+                         help = 'When provided, write the dictionary of extracted reference annotations to disk in this directory' )
     
     parser.add_argument( '--test-out' ,
                          dest = 'test_out' ,
