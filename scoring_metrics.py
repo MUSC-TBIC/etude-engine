@@ -448,6 +448,8 @@ def print_score_summary( score_card , file_mapping ,
                                   args.metrics_list ,
                                   metrics[ 1: ] )
     ##
+    file_aggregate_metrics = None
+    non_empty_files = 0
     for filename in file_list:
         if( args.corpus_out ):
             update_output_dictionary( args.corpus_out ,
@@ -460,6 +462,16 @@ def print_score_summary( score_card , file_mapping ,
                                 row_name = filename , args = args )
         if( args.by_file or args.by_file_and_type ):
             print( args.delim.join( '{}'.format( m ) for m in metrics ) )
+            ## Only update macro-average if some annotation in this file exists
+            ## in either reference or system output
+            if( sum( file_value_counts ) > 0 ):
+                non_empty_files += 1
+                if( file_aggregate_metrics == None ):
+                    file_aggregate_metrics = metrics[ 1: ]
+                else:
+                    file_aggregate_metrics = \
+                      [ sum( pair ) for pair in zip( file_aggregate_metrics ,
+                                                     metrics[ 1: ] ) ]
         if( args.reference_out ):
             out_file = '{}/{}'.format( args.reference_out ,
                                        filename )
@@ -512,6 +524,25 @@ def print_score_summary( score_card , file_mapping ,
                                             'by-type' , unique_type ] ,
                                           args.metrics_list ,
                                           metrics[ 1: ] )
+    if( non_empty_files > 0 ):
+        macro_averaged_metrics = [ 'macro-average by file' ]
+        for key , value in zip( args.metrics_list , file_aggregate_metrics ):
+            if( key == 'TP' or
+                key == 'FP' or
+                key == 'FN' or
+                key == 'FP' ):
+                macro_averaged_metrics.append( value )
+            else:
+                macro_averaged_metrics.append( value / non_empty_files )
+        if( args.by_file or args.by_file_and_type ):
+            print( args.delim.join( '{}'.format( m ) for m in macro_averaged_metrics ) )
+        if( args.corpus_out ):
+            update_output_dictionary( args.corpus_out ,
+                                      [ 'metrics' ,
+                                        fuzzy_flag ,
+                                        'macro-averages' , 'file' ] ,
+                                      args.metrics_list ,
+                                      macro_averaged_metrics[ 1: ] )
     ##
     unique_types = Set()
     type_aggregate_metrics = None
