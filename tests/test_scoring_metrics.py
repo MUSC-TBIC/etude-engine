@@ -140,7 +140,8 @@ def test_unique_score_key_summary_stats( capsys ):
     ##
     expected_values = [ [ 'exact' , 'TP' , 'FP' , 'TN' , 'FN' ] ,
                         [ 'micro-average' , '1.0' , '1.0' , '0.0' , '2.0' ] ,
-                        [ 'Sentence' , '1.0' , '1.0' , '0.0' , '2.0' ] ]
+                        [ 'Sentence' , '1.0' , '1.0' , '0.0' , '2.0' ] ,
+                        [ 'macro-average by type' , '1.0' , '1.0' , '0.0' , '2.0' ] ]
     for expected_values in expected_values:
         print( args.delim.join( '{}'.format( m ) for m in expected_values ) )
     expected_out, err = capsys.readouterr()
@@ -164,7 +165,8 @@ def test_by_type_and_file_score_key_summary_stats( capsys ):
                         [ 'micro-average' , '1.0' , '1.0' , '0.0' , '2.0' ] ,
                         [ 'Sentence' , '1.0' , '1.0' , '0.0' , '2.0' ] ,
                         [ 'Sentence x a.xml' , '1.0' , '0.0' , '0.0' , '1.0' ] ,
-                        [ 'Sentence x b.xml' , '0.0' , '1.0' , '0.0' , '1.0' ] ]
+                        [ 'Sentence x b.xml' , '0.0' , '1.0' , '0.0' , '1.0' ] ,
+                        [ 'macro-average by type' , '1.0' , '1.0' , '0.0' , '2.0' ] ]
     for expected_values in expected_values:
         print( args.delim.join( '{}'.format( m ) for m in expected_values ) )
     expected_out, err = capsys.readouterr()

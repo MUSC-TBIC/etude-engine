@@ -455,7 +455,8 @@ def print_score_summary( score_card , file_mapping ,
                                       [ filename ] ,
                                       [ file_mapping[ filename ] ] )
         this_file = ( score_card[ fuzzy_flag ][ 'File' ] == filename )
-        metrics = norm_summary( score_card[ fuzzy_flag ][ this_file ][ 'Score' ].value_counts() ,
+        file_value_counts = score_card[ fuzzy_flag ][ this_file ][ 'Score' ].value_counts()
+        metrics = norm_summary( file_value_counts ,
                                 row_name = filename , args = args )
         if( args.by_file or args.by_file_and_type ):
             print( args.delim.join( '{}'.format( m ) for m in metrics ) )
@@ -485,8 +486,10 @@ def print_score_summary( score_card , file_mapping ,
             this_type = \
               (  ( score_card[ fuzzy_flag ][ 'File' ] == filename ) &
                  ( score_card[ fuzzy_flag ][ 'Type' ] == unique_type ) )
+            type_value_counts = \
+              score_card[ fuzzy_flag ][ this_type ][ 'Score' ].value_counts()
             metrics = \
-              norm_summary( score_card[ fuzzy_flag ][ this_type ][ 'Score' ].value_counts() ,
+              norm_summary( type_value_counts ,
                             row_name = filename + ' x ' + unique_type ,
                             args = args )
             if( args.by_file_and_type ):
@@ -511,15 +514,28 @@ def print_score_summary( score_card , file_mapping ,
                                           metrics[ 1: ] )
     ##
     unique_types = Set()
+    type_aggregate_metrics = None
+    non_empty_types = 0
     for pattern in reference_config:
         unique_types.add( pattern[ 'type' ] )
     for unique_type in sorted( unique_types ):
         this_type = ( score_card[ fuzzy_flag ][ 'Type' ] == unique_type )
-        metrics = norm_summary( score_card[ fuzzy_flag ][ this_type ][ 'Score' ].value_counts() ,
+        type_value_counts = score_card[ fuzzy_flag ][ this_type ][ 'Score' ].value_counts()
+        metrics = norm_summary( type_value_counts ,
                                 row_name = unique_type ,
                                 args = args )
         if( args.by_type or args.by_type_and_file ):
             print( args.delim.join( '{}'.format( m ) for m in metrics ) )
+            ## Only update macro-average if some of this type exist
+            ## in either reference or system output
+            if( sum( type_value_counts ) > 0 ):
+                non_empty_types += 1
+                if( type_aggregate_metrics == None ):
+                    type_aggregate_metrics = metrics[ 1: ]
+                else:
+                    type_aggregate_metrics = \
+                      [ sum( pair ) for pair in zip( type_aggregate_metrics ,
+                                                     metrics[ 1: ] ) ]
         if( args.corpus_out ):
             update_output_dictionary( args.corpus_out ,
                                       [ 'metrics' ,
@@ -532,12 +548,33 @@ def print_score_summary( score_card , file_mapping ,
             this_file = \
               (  ( score_card[ fuzzy_flag ][ 'File' ] == filename ) &
                  ( score_card[ fuzzy_flag ][ 'Type' ] == unique_type ) )
+            file_value_counts = \
+              score_card[ fuzzy_flag ][ this_file ][ 'Score' ].value_counts()
             metrics = \
-              norm_summary( score_card[ fuzzy_flag ][ this_file ][ 'Score' ].value_counts() ,
+              norm_summary( file_value_counts ,
                             row_name = unique_type + ' x ' + filename ,
                             args = args )
             if( args.by_type_and_file ):
                 print( args.delim.join( '{}'.format( m ) for m in metrics ) )
+    if( non_empty_types > 0 ):
+        macro_averaged_metrics = [ 'macro-average by type' ]
+        for key , value in zip( args.metrics_list , type_aggregate_metrics ):
+            if( key == 'TP' or
+                key == 'FP' or
+                key == 'FN' or
+                key == 'FP' ):
+                macro_averaged_metrics.append( value )
+            else:
+                macro_averaged_metrics.append( value / non_empty_types )
+        if( args.by_type or args.by_type_and_file ):
+            print( args.delim.join( '{}'.format( m ) for m in macro_averaged_metrics ) )
+        if( args.corpus_out ):
+            update_output_dictionary( args.corpus_out ,
+                                      [ 'metrics' ,
+                                        fuzzy_flag ,
+                                        'macro-averages' , 'type' ] ,
+                                      args.metrics_list ,
+                                      macro_averaged_metrics[ 1: ] )
     ##
     log.debug( "Leaving '{}'".format( sys._getframe().f_code.co_name ) )
 
