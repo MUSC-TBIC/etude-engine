@@ -250,14 +250,14 @@ zzz zz zzz zzzz @ z:zz zzzzzzzzzzzzzzz zzzz zzzzzzzzz zzzzzzzzz?: zzzz
 
 ]]></TEXT>
 <TAGS>
-<DATE id="P0" start="89" end="100" TYPE="DATE" comment=""/>
-<AGE id="P1" start="146" end="148" TYPE="AGE" comment=""/>
-<LOCATION id="P2" start="179" end="196" TYPE="HOSPITAL" comment=""/>
-<AGE id="P3" start="461" end="463" TYPE="AGE" comment=""/>
-<LOCATION id="P4" start="581" end="598" TYPE="HOSPITAL" comment=""/>
-<DATE id="P5" start="684" end="695" TYPE="DATE" comment=""/>
-<LOCATION id="P6" start="716" end="733" TYPE="HOSPITAL" comment=""/>
-<DATE id="P7" start="823" end="834" TYPE="DATE" comment=""/>
+<LOCATION id="P0" start="89" end="100" TYPE="HOSPITAL" comment=""/>
+<LOCATION id="P1" start="146" end="148" TYPE="HOSPITAL" comment=""/>
+<DATE id="P2" start="179" end="196" TYPE="DATE" comment=""/>
+<LOCATION id="P3" start="461" end="463" TYPE="HOSPITAL" comment=""/>
+<AGE id="P4" start="581" end="598" TYPE="AGE" comment=""/>
+<LOCATION id="P5" start="684" end="695" TYPE="HOSPITAL" comment=""/>
+<DATE id="P6" start="716" end="733" TYPE="DATE" comment=""/>
+<AGE id="P7" start="823" end="834" TYPE="AGE" comment=""/>
 <LOCATION id="P8" start="863" end="879" TYPE="HOSPITAL" comment=""/>
 <LOCATION id="P9" start="1140" end="1165" TYPE="HOSPITAL" comment=""/>
 <LOCATION id="P10" start="1167" end="1172" TYPE="CITY" comment=""/>

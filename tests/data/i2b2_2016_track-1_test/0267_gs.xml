@@ -276,47 +276,6 @@ zz. zzzzzzz zzzzzzzzzzzzzzzz zzzzzzzzz: zzz
 
 ]]></TEXT>
 <TAGS>
-<DATE id="P0" start="89" end="107" TYPE="DATE" comment=""/>
-<AGE id="P1" start="115" end="117" TYPE="AGE" comment=""/>
-<AGE id="P2" start="345" end="347" TYPE="AGE" comment=""/>
-<LOCATION id="P3" start="364" end="370" TYPE="COUNTRY" comment=""/>
-<DATE id="P4" start="445" end="449" TYPE="DATE" comment=""/>
-<LOCATION id="P5" start="467" end="476" TYPE="LOCATION-OTHER" comment=""/>
-<LOCATION id="P6" start="507" end="514" TYPE="HOSPITAL" comment=""/>
-<NAME id="P7" start="574" end="585" TYPE="DOCTOR" comment=""/>
-<AGE id="P8" start="869" end="871" TYPE="AGE" comment=""/>
-<PROFESSION id="P9" start="1127" end="1138" TYPE="PROFESSION" comment=""/>
-<PROFESSION id="P10" start="1167" end="1185" TYPE="PROFESSION" comment=""/>
-<PROFESSION id="P11" start="1409" end="1419" TYPE="PROFESSION" comment=""/>
-<DATE id="P12" start="1719" end="1723" TYPE="DATE" comment=""/>
-<PROFESSION id="P13" start="1852" end="1869" TYPE="PROFESSION" comment=""/>
-<LOCATION id="P14" start="2449" end="2469" TYPE="ORGANIZATION" comment=""/>
-<AGE id="P15" start="2625" end="2627" TYPE="AGE" comment=""/>
-<LOCATION id="P16" start="2758" end="2763" TYPE="COUNTRY" comment=""/>
-<PROFESSION id="P17" start="2893" end="2900" TYPE="PROFESSION" comment=""/>
-<NAME id="P18" start="3086" end="3092" TYPE="DOCTOR" comment=""/>
-<DATE id="P19" start="3424" end="3428" TYPE="DATE" comment=""/>
-<DATE id="P20" start="3429" end="3433" TYPE="DATE" comment=""/>
-<LOCATION id="P21" start="3589" end="3597" TYPE="CITY" comment=""/>
-<PROFESSION id="P22" start="3699" end="3706" TYPE="PROFESSION" comment=""/>
-<DATE id="P23" start="4125" end="4129" TYPE="DATE" comment=""/>
-<LOCATION id="P24" start="4141" end="4150" TYPE="LOCATION-OTHER" comment=""/>
-<LOCATION id="P25" start="4180" end="4188" TYPE="HOSPITAL" comment=""/>
-<PROFESSION id="P26" start="4270" end="4281" TYPE="PROFESSION" comment=""/>
-<LOCATION id="P27" start="4385" end="4394" TYPE="STATE" comment=""/>
-<DATE id="P28" start="5268" end="5272" TYPE="DATE" comment=""/>
-<LOCATION id="P29" start="5351" end="5359" TYPE="HOSPITAL" comment=""/>
-<DATE id="P30" start="5360" end="5364" TYPE="DATE" comment=""/>
-<DATE id="P31" start="8750" end="8754" TYPE="DATE" comment=""/>
-<DATE id="P32" start="8773" end="8777" TYPE="DATE" comment=""/>
-<DATE id="P33" start="8778" end="8782" TYPE="DATE" comment=""/>
-<LOCATION id="P34" start="8806" end="8811" TYPE="COUNTRY" comment=""/>
-<AGE id="P35" start="9443" end="9445" TYPE="AGE" comment=""/>
-<AGE id="P36" start="9465" end="9469" TYPE="AGE" comment=""/>
-<NAME id="P37" start="9657" end="9671" TYPE="DOCTOR" comment=""/>
-<LOCATION id="P38" start="10847" end="10853" TYPE="COUNTRY" comment=""/>
-<LOCATION id="P39" start="10872" end="10878" TYPE="COUNTRY" comment=""/>
-<AGE id="P40" start="10914" end="10922" TYPE="AGE" comment=""/>
 <PROFESSION id="P41" start="10947" end="10958" TYPE="PROFESSION" comment=""/>
 <LOCATION id="P42" start="10975" end="10981" TYPE="COUNTRY" comment=""/>
 <LOCATION id="P43" start="11318" end="11324" TYPE="COUNTRY" comment=""/>
