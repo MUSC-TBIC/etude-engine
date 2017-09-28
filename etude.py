@@ -267,8 +267,7 @@ def score_ref_set( reference_ns , reference_dd , reference_patterns , reference_
                                                    namespaces = reference_ns ,
                                                    document_data = reference_dd ,
                                                    patterns = reference_patterns ,
-                                                   ignore_whitespace = \
-                                                     args.ignore_whitespace ,
+                                                   skip_chars = args.skip_chars ,
                                                    out_file = reference_out_file )
         except:
             e = sys.exc_info()[0]
@@ -293,8 +292,8 @@ def score_ref_set( reference_ns , reference_dd , reference_patterns , reference_
                                                        namespaces = test_ns ,
                                                        document_data = test_dd ,
                                                        patterns = test_patterns ,
-                                                       ignore_whitespace = \
-                                                         args.ignore_whitespace ,
+                                                       skip_chars = \
+                                                         args.skip_chars ,
                                                        out_file = test_out_file )
             except:
                 e = sys.exc_info()[0]
@@ -302,13 +301,17 @@ def score_ref_set( reference_ns , reference_dd , reference_patterns , reference_
         ##
         try:
             for fuzzy_flag in args.fuzzy_flags:
+                if( args.skip_chars == None ):
+                    ignore_chars = False
+                else:
+                    ignore_chars = True
                 scoring_metrics.evaluate_positions( reference_filename ,
                                                     score_card ,
                                                     reference_ss ,
                                                     test_ss ,
                                                     fuzzy_flag = fuzzy_flag ,
-                                                    ignore_whitespace = \
-                                                      args.ignore_whitespace )
+                                                    use_mapped_chars = \
+                                                      ignore_chars )
         except:
             e = sys.exc_info()[0]
             log.error( 'Uncaught exception in evaluate_positions:  {}'.format( e ) )
@@ -337,6 +340,13 @@ def init_args():
         log.debug( "{}".format( args ) )
     else:
         log.basicConfig( format="%(levelname)s: %(message)s" )
+    ## Resolve conflicts between --ignore-whitespace, --heed-whitespace,
+    ## and --ignore-regex flags.  Essentially, if we set something in
+    ## skip_chars, use that.  Otherwise, if we tripped --ignore_whitespace
+    ## then set skip_chars accordingly
+    if( args.ignore_whitespace and
+        args.skip_chars == None ):
+        args.skip_chars = '[\s]'
     ## Initialize the corpuse settings, values, and metrics file
     ## if it was provided at the command line
     if( args.corpus_out ):

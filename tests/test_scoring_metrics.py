@@ -355,7 +355,7 @@ def test_evaluate_positions_copy_match():
                                         score_card ,
                                         reference_ss = reference_ss ,
                                         test_ss = test_ss ,
-                                        ignore_whitespace = False )
+                                        use_mapped_chars = False )
     ##
     expected_score_card = scoring_metrics.new_score_card()
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
@@ -478,7 +478,7 @@ def test_evaluate_positions_tweak_annotation_dictionary_heed_whitespace():
                                         score_card ,
                                         reference_ss = reference_ss ,
                                         test_ss = test_ss ,
-                                        ignore_whitespace = False )
+                                        use_mapped_chars = False )
     ##
     expected_score_card = scoring_metrics.new_score_card()
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
@@ -498,7 +498,8 @@ def test_evaluate_positions_tweak_annotation_dictionary_ignore_whitespace():
     raw_content , reference_om = \
       text_extraction.extract_chars( ingest_file ,
                                      namespaces = {} ,
-                                     document_data = document_data )
+                                     document_data = document_data ,
+                                     skip_chars = '[\s]' )
     reference_ss = \
       text_extraction.extract_annotations_xml( ingest_file ,
                                                   offset_mapping = reference_om ,
@@ -521,7 +522,7 @@ def test_evaluate_positions_tweak_annotation_dictionary_ignore_whitespace():
                                         score_card ,
                                         reference_ss = reference_ss ,
                                         test_ss = test_ss ,
-                                        ignore_whitespace = True )
+                                        use_mapped_chars = True )
     ##
     expected_score_card = scoring_metrics.new_score_card()
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
@@ -538,7 +539,8 @@ def prepare_evaluate_positions_structs():
     raw_content , reference_om = \
       text_extraction.extract_chars( ingest_file ,
                                      namespaces = {} ,
-                                     document_data = document_data )
+                                     document_data = document_data ,
+                                     skip_chars = '[\s]' )
     reference_ss = \
       text_extraction.extract_annotations_xml( ingest_file ,
                                                offset_mapping = reference_om ,
@@ -571,7 +573,7 @@ def test_evaluate_positions_missing_mapped_keys_with_heed_whitespace():
                                         score_card ,
                                         reference_ss = reference_ss ,
                                         test_ss = test_ss ,
-                                        ignore_whitespace = False )
+                                        use_mapped_chars = False )
     ##
     expected_score_card = scoring_metrics.new_score_card()
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
@@ -591,7 +593,7 @@ def test_evaluate_positions_missing_reference_begin_mapped_key():
                                         score_card ,
                                         reference_ss = reference_ss ,
                                         test_ss = test_ss ,
-                                        ignore_whitespace = True )
+                                        use_mapped_chars = True )
     ##
     expected_score_card = scoring_metrics.new_score_card()
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
@@ -611,7 +613,7 @@ def test_evaluate_positions_missing_reference_end_mapped_key():
                                         score_card ,
                                         reference_ss = reference_ss ,
                                         test_ss = test_ss ,
-                                        ignore_whitespace = True )
+                                        use_mapped_chars = True )
     ##
     expected_score_card = scoring_metrics.new_score_card()
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
@@ -631,7 +633,7 @@ def test_evaluate_positions_missing_test_begin_mapped_key():
                                         score_card ,
                                         reference_ss = reference_ss ,
                                         test_ss = test_ss ,
-                                        ignore_whitespace = True )
+                                        use_mapped_chars = True )
     ##
     expected_score_card = scoring_metrics.new_score_card()
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
@@ -651,7 +653,7 @@ def test_evaluate_positions_missing_test_end_mapped_key():
                                         score_card ,
                                         reference_ss = reference_ss ,
                                         test_ss = test_ss ,
-                                        ignore_whitespace = True )
+                                        use_mapped_chars = True )
     ##
     expected_score_card = scoring_metrics.new_score_card()
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
@@ -684,7 +686,7 @@ def test_evaluate_positions_nested_annotations_reference_first_match():
                                         score_card ,
                                         reference_ss = reference_ss ,
                                         test_ss = test_ss ,
-                                        ignore_whitespace = False )
+                                        use_mapped_chars = False )
     ##
     expected_score_card = scoring_metrics.new_score_card()
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
@@ -714,7 +716,7 @@ def test_evaluate_positions_nested_annotations_reference_second_match():
                                         score_card ,
                                         reference_ss = reference_ss ,
                                         test_ss = test_ss ,
-                                        ignore_whitespace = False )
+                                        use_mapped_chars = False )
     ##
     expected_score_card = scoring_metrics.new_score_card()
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
@@ -744,7 +746,7 @@ def test_evaluate_positions_nested_annotations_test():
                                         score_card ,
                                         reference_ss = reference_ss ,
                                         test_ss = test_ss ,
-                                        ignore_whitespace = False )
+                                        use_mapped_chars = False )
     ##
     expected_score_card = scoring_metrics.new_score_card()
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
@@ -775,7 +777,7 @@ def test_evaluate_positions_nested_annotations_reference_and_test():
                                         score_card ,
                                         reference_ss = reference_ss ,
                                         test_ss = test_ss ,
-                                        ignore_whitespace = False )
+                                        use_mapped_chars = False )
     ##
     expected_score_card = scoring_metrics.new_score_card()
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
@@ -805,7 +807,8 @@ def prepare_evaluate_positions_offset_alignment( test_filename ):
     raw_content , reference_om = \
       text_extraction.extract_chars( ingest_file = reference_filename ,
                                      namespaces = namespaces ,
-                                     document_data = document_data )
+                                     document_data = document_data ,
+                                     skip_chars = '[\s]' )
     test_om = reference_om
     tag_set = { 'DateTime' : './custom:PHI[@Time="DateTime"]' ,
                 'Age' : './custom:PHI[@Time="Age"]' }
@@ -842,7 +845,7 @@ def prepare_offset_alignment_score_cards( filename , reference_ss , test_ss ):
                                             reference_ss ,
                                             test_ss ,
                                             fuzzy_flag = fuzzy_flag ,
-                                            ignore_whitespace = True )
+                                            use_mapped_chars = True )
     return score_card , fuzzy_flags
 
 
