@@ -218,7 +218,7 @@ def split_content( raw_text , offset_mapping , skip_chars ):
 def extract_chars( ingest_file ,
                    namespaces ,
                    document_data ,
-                   skip_chars = '[\s]' ):
+                   skip_chars = None ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     offset_mapping = {}
     ##
@@ -274,13 +274,15 @@ def extract_chars( ingest_file ,
     return raw_text , offset_mapping
     
 
-def extract_plaintext( ingest_file ):
+def extract_plaintext( ingest_file , skip_chars ):
     offset_mapping = {}
     ##
     with open( ingest_file , 'r' ) as fp:
         raw_text = fp.read()
-    offset_mapping = split_content( raw_text ,
-                                    offset_mapping )
+    if( raw_text != None and skip_chars != None ):
+        offset_mapping = split_content( raw_text ,
+                                        offset_mapping ,
+                                        skip_chars )
     return raw_text , offset_mapping
 
 
@@ -331,7 +333,8 @@ def extract_annotations( ingest_file ,
         if( 'format' in document_data and
             document_data[ 'format' ] == 'txt' ):
             try:
-                raw_content , offset_mapping = extract_plaintext( ingest_file )
+                raw_content , offset_mapping = extract_plaintext( ingest_file ,
+                                                                  skip_chars )
             except:
                 e = sys.exc_info()[0]
                 log.error( 'Uncaught exception in extract_plaintext:  {}'.format( e ) )
@@ -339,7 +342,8 @@ def extract_annotations( ingest_file ,
             try:
                 raw_content , offset_mapping = extract_chars( ingest_file ,
                                                               namespaces ,
-                                                              document_data )
+                                                              document_data ,
+                                                              skip_chars )
             except:
                 e = sys.exc_info()[0]
                 log.error( 'Uncaught exception in extract_chars:  {}'.format( e ) )
