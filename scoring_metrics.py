@@ -229,9 +229,9 @@ def evaluate_positions( reference_filename ,
                         reference_ss ,
                         test_ss ,
                         fuzzy_flag = 'exact' ,
-                        ignore_whitespace = False ):
+                        use_mapped_chars = False ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
-    if( ignore_whitespace ):
+    if( use_mapped_chars ):
         start_key = 'begin_pos_mapped'
         end_key = 'end_pos_mapped'
     else:

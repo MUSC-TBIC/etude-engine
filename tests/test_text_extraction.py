@@ -327,7 +327,7 @@ def test_writing_dictionary_for_datetime_from_0005_gs():
                                              namespaces = namespaces ,
                                              document_data = document_data ,
                                              patterns = patterns ,
-                                             ignore_whitespace = True ,
+                                             skip_chars = True ,
                                              out_file = tmp_file )
         with open( reference_file , 'r' ) as rf:
             reloaded_reference = json.load( rf )
@@ -386,7 +386,7 @@ def test_of_identity_read_write_of_dictionary_for_complex_patterns():
 ## Test extracting document contents
 #############################################
 
-def test_empty_extraction_of_doc_content_from_0005_gs():
+def test_empty_extraction_of_doc_content_from_0016_gs():
     ingest_file = 'tests/data/i2b2_2016_track-1_reference/0016_gs.xml'
     ## Look for a path that doesn't exist so that we get an empty return
     test_dd = dict( cdata_xpath = '/dev/null' )
@@ -397,7 +397,7 @@ def test_empty_extraction_of_doc_content_from_0005_gs():
     expected_output = {}
     assert offset_mapping == expected_output
 
-def test_extracting_doc_content_from_0005_gs():
+def test_extracting_doc_content_from_0016_gs():
     ingest_file = 'tests/data/i2b2_2016_track-1_reference/0016_gs.xml'
     test_dd = dict( cdata_xpath = './TEXT' )
     raw_content , offset_mapping = \
@@ -408,6 +408,36 @@ def test_extracting_doc_content_from_0005_gs():
                         '1': None ,
                         '2': None ,
                         '3': '0', '4': '1', '5': '2', '6': None }
+    for index in [ "0" , "1" , "2" , "3" , "4" , "5" , "6" ]:
+        assert offset_mapping[ index ] == expected_output[ index ]
+
+def test_extracting_doc_content_from_0016_gs_skip_z_char():
+    ingest_file = 'tests/data/i2b2_2016_track-1_reference/0016_gs.xml'
+    test_dd = dict( cdata_xpath = './TEXT' )
+    raw_content , offset_mapping = \
+      text_extraction.extract_chars( ingest_file ,
+                                     namespaces = {} ,
+                                     document_data = test_dd ,
+                                     skip_chars = '[\sz]' )
+    expected_output = { '0': None ,
+                        '1': None ,
+                        '2': None ,
+                        '3': None , '4': None , '5': '0', '6': None }
+    for index in [ "0" , "1" , "2" , "3" , "4" , "5" , "6" ]:
+        assert offset_mapping[ index ] == expected_output[ index ]
+
+def test_extracting_doc_content_from_0016_gs_skip_zpipe_char():
+    ingest_file = 'tests/data/i2b2_2016_track-1_reference/0016_gs.xml'
+    test_dd = dict( cdata_xpath = './TEXT' )
+    raw_content , offset_mapping = \
+      text_extraction.extract_chars( ingest_file ,
+                                     namespaces = {} ,
+                                     document_data = test_dd ,
+                                     skip_chars = '[z|]' )
+    expected_output = { '0': '0' ,
+                        '1': '1' ,
+                        '2': '2' ,
+                        '3': None, '4': None, '5': None, '6': '3' }
     for index in [ "0" , "1" , "2" , "3" , "4" , "5" , "6" ]:
         assert offset_mapping[ index ] == expected_output[ index ]
 

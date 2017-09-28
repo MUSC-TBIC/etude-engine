@@ -199,13 +199,13 @@ def write_annotations_to_disk( annotations , out_file ):
     log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
 
 
-def split_content( raw_text , offset_mapping ):
+def split_content( raw_text , offset_mapping , skip_chars ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     list_of_chars = list( raw_text )
     init_offset = 0
     mapped_offset = 0
     for char in list_of_chars:
-        if( char.isspace() ):
+        if( re.match( skip_chars , char ) ):
             offset_mapping[ '{}'.format( init_offset ) ] = None
         else:
             offset_mapping[ '{}'.format( init_offset ) ] = '{}'.format( mapped_offset )
@@ -217,7 +217,8 @@ def split_content( raw_text , offset_mapping ):
 
 def extract_chars( ingest_file ,
                    namespaces ,
-                   document_data ):
+                   document_data ,
+                   skip_chars = '[\s]' ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     offset_mapping = {}
     ##
@@ -265,9 +266,10 @@ def extract_chars( ingest_file ,
                 log.warn( 'KeyError:  could not find attribute_name {} in the matched path \'{}\''.format( e , content_path ) )
                 raw_text = None
     ##
-    if( raw_text != None ):
+    if( raw_text != None and skip_chars != None ):
         offset_mapping = split_content( raw_text ,
-                                        offset_mapping )
+                                        offset_mapping ,
+                                        skip_chars )
     log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
     return raw_text , offset_mapping
     
@@ -318,7 +320,7 @@ def extract_annotations( ingest_file ,
                          namespaces ,
                          document_data ,
                          patterns ,
-                         ignore_whitespace = True ,
+                         skip_chars = None ,
                          out_file = None ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     raw_content = None
@@ -341,7 +343,7 @@ def extract_annotations( ingest_file ,
             except:
                 e = sys.exc_info()[0]
                 log.error( 'Uncaught exception in extract_chars:  {}'.format( e ) )
-    if( ignore_whitespace and raw_content == None ):
+    if( skip_chars and raw_content == None ):
         log.error( 'I could not find the raw content for this document but was asked to ignore its whitespace.  Add document data to the config file for extracting raw content or use the --heed-whitespace flag.' )
         log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
         return offset_mapping , annotations
