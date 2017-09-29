@@ -110,7 +110,12 @@ unstructured data extraction.
     parser.add_argument( '--corpus-out' ,
                          dest = 'corpus_out' ,
                          default = None ,
-                         help = 'When provided, write the dictionary of extracted corpus metrics to disk in this file' )
+                         help = 'When provided, write the dictionary of extracted corpus metrics to disk in this file (JSON)' )
+    
+    parser.add_argument( '--csv-out' ,
+                         dest = 'csv_out' ,
+                         default = None ,
+                         help = 'When provided, write the dictionary of extracted corpus metrics to disk in this file (Uses -d delimiter)' )
     
     parser.add_argument( '-c' , '--count-types' ,
                          dest = 'count_types' ,

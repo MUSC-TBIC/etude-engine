@@ -317,6 +317,9 @@ def score_ref_set( reference_ns , reference_dd , reference_patterns , reference_
             log.error( 'Uncaught exception in evaluate_positions:  {}'.format( e ) )
     ##
     try:
+        if( args.csv_out and
+            os.path.exists( args.csv_out ) ):
+            os.remove( args.csv_out )
         for fuzzy_flag in args.fuzzy_flags:
             scoring_metrics.print_score_summary( score_card ,
                                                  file_mapping ,
