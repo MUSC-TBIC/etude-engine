@@ -3,3 +3,4 @@ pandas
 progressbar2
 pytest
 pytest-cov
+mock

@@ -251,42 +251,5 @@ zzz [zzzzzz_zzz]
 
 ]]></TEXT>
 <TAGS>
-<AGE id="P0" start="191" end="193" TYPE="AGE" comment=""/>
-<DATE id="P1" start="539" end="552" TYPE="DATE" comment=""/>
-<DATE id="P2" start="663" end="675" TYPE="DATE" comment=""/>
-<DATE id="P3" start="780" end="790" TYPE="DATE" comment=""/>
-<LOCATION id="P4" start="1020" end="1040" TYPE="HOSPITAL" comment=""/>
-<LOCATION id="P5" start="2108" end="2121" TYPE="LOCATION-OTHER" comment=""/>
-<DATE id="P6" start="2762" end="2766" TYPE="DATE" comment=""/>
-<LOCATION id="P7" start="2821" end="2834" TYPE="LOCATION-OTHER" comment=""/>
-<LOCATION id="P8" start="3091" end="3112" TYPE="HOSPITAL" comment=""/>
-<DATE id="P9" start="3151" end="3155" TYPE="DATE" comment=""/>
-<NAME id="P10" start="3162" end="3173" TYPE="DOCTOR" comment=""/>
-<DATE id="P11" start="3175" end="3182" TYPE="DATE" comment=""/>
-<DATE id="P12" start="3185" end="3192" TYPE="DATE" comment=""/>
-<NAME id="P13" start="3203" end="3218" TYPE="DOCTOR" comment=""/>
-<DATE id="P14" start="3220" end="3227" TYPE="DATE" comment=""/>
-<DATE id="P15" start="3228" end="3235" TYPE="DATE" comment=""/>
-<AGE id="P16" start="6570" end="6572" TYPE="AGE" comment=""/>
-<DATE id="P17" start="6619" end="6623" TYPE="DATE" comment=""/>
-<DATE id="P18" start="6624" end="6628" TYPE="DATE" comment=""/>
-<AGE id="P19" start="6973" end="6975" TYPE="AGE" comment=""/>
-<NAME id="P20" start="7796" end="7811" TYPE="DOCTOR" comment=""/>
-<DATE id="P21" start="7879" end="7883" TYPE="DATE" comment=""/>
-<AGE id="P22" start="9756" end="9757" TYPE="AGE" comment=""/>
-<LOCATION id="P23" start="9922" end="9932" TYPE="COUNTRY" comment=""/>
-<NAME id="P24" start="10279" end="10287" TYPE="PATIENT" comment=""/>
-<AGE id="P25" start="10341" end="10343" TYPE="AGE" comment=""/>
-<AGE id="P26" start="10345" end="10347" TYPE="AGE" comment=""/>
-<AGE id="P27" start="10352" end="10354" TYPE="AGE" comment=""/>
-<LOCATION id="P28" start="10518" end="10525" TYPE="COUNTRY" comment=""/>
-<AGE id="P29" start="10548" end="10549" TYPE="AGE" comment=""/>
-<NAME id="P30" start="10604" end="10612" TYPE="PATIENT" comment=""/>
-<PROFESSION id="P31" start="10775" end="10782" TYPE="PROFESSION" comment=""/>
-<LOCATION id="P32" start="10787" end="10805" TYPE="ORGANIZATION" comment=""/>
-<PROFESSION id="P33" start="10833" end="10842" TYPE="PROFESSION" comment=""/>
-<DATE id="P34" start="14081" end="14088" TYPE="DATE" comment=""/>
-<AGE id="P35" start="14241" end="14243" TYPE="AGE" comment=""/>
-<LOCATION id="P36" start="15201" end="15211" TYPE="HOSPITAL" comment=""/>
 </TAGS>
 </NGRID_deId>

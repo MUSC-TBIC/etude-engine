@@ -65,18 +65,18 @@ def flatten_ss_dictionary( ss_dictionary ,
     return flat_entries
 
 
-def gold_annot_comparison_runner( score_card , gold_filename ,
-                                  gold_annot , gold_leftovers ,
-                                  test_entries ,
-                                  start_key , end_key ,
-                                  fuzzy_flag ):
+def reference_annot_comparison_runner( score_card , reference_filename ,
+                                       reference_annot , reference_leftovers ,
+                                       test_entries ,
+                                       start_key , end_key ,
+                                       fuzzy_flag ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     ## grab type and end position
-    gold_type , gold_start , gold_end = \
-      get_annotation_from_base_entry( gold_annot ,
+    reference_type , reference_start , reference_end = \
+      get_annotation_from_base_entry( reference_annot ,
                                       start_key ,
                                       end_key )
-    if( gold_type == None ):
+    if( reference_type == None ):
         ## If we couldn't extract a type, consider this
         ## an invalid annotations    
         return test_entries
@@ -98,53 +98,53 @@ def gold_annot_comparison_runner( score_card , gold_filename ,
             ## an invalid annotations
             continue
         ##
-        if( gold_start == test_start ):
+        if( reference_start == test_start ):
             ## If the types match...
-            if( gold_type == test_type ):
+            if( reference_type == test_type ):
                 ## ... and the end positions match, then we have a
                 ##     perfect match
-                if( gold_end == test_end ):
+                if( reference_end == test_end ):
                     score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
-                          [ gold_filename , gold_start , gold_end ,
-                            gold_type , 'TP' ]
+                          [ reference_filename , reference_start , reference_end ,
+                            reference_type , 'TP' ]
                 elif( test_end == 'EOF' or
-                      gold_end < test_end ):
-                    ## If the gold end position is prior to the system
+                      reference_end < test_end ):
+                    ## If the reference end position is prior to the system
                     ## determined end position, we consider this a
                     ## 'fully contained' match and also count it
                     ## as a win (until we score strict vs. lenient matches)
                     if( fuzzy_flag == 'exact' ):
                         score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
-                              [ gold_filename , gold_start , gold_end ,
-                                gold_type , 'FN' ]
+                              [ reference_filename , reference_start , reference_end ,
+                                reference_type , 'FN' ]
                         score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
-                              [ gold_filename , test_start , test_end ,
+                              [ reference_filename , test_start , test_end ,
                                 test_type , 'FP' ]
                     else:
                         score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
-                              [ gold_filename , gold_start , gold_end ,
-                                gold_type , 'TP' ]
+                              [ reference_filename , reference_start , reference_end ,
+                                reference_type , 'TP' ]
                 else:
                     ## otherwise, we missed some data that needs
                     ## to be captured.  For now, this is also
                     ## a win but will not always count.
                     if( fuzzy_flag == 'partial' ):
                         score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
-                              [ gold_filename , gold_start , gold_end ,
-                                gold_type , 'TP' ]
+                              [ reference_filename , reference_start , reference_end ,
+                                reference_type , 'TP' ]
                     else:
                         score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
-                              [ gold_filename , gold_start , gold_end ,
-                                gold_type , 'FN' ]
+                              [ reference_filename , reference_start , reference_end ,
+                                reference_type , 'FN' ]
                         score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
-                              [ gold_filename , test_start , test_end ,
+                              [ reference_filename , test_start , test_end ,
                                 test_type , 'FP' ]
             else:
                 score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
-                      [ gold_filename , gold_start , gold_end ,
-                        gold_type , 'FN' ]
+                      [ reference_filename , reference_start , reference_end ,
+                        reference_type , 'FN' ]
                 score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
-                      [ gold_filename , test_start , test_end ,
+                      [ reference_filename , test_start , test_end ,
                         test_type , 'FP' ]
             ## Everything within this block counts as a match
             ## so we need to remove the current test_annot from
@@ -152,38 +152,38 @@ def gold_annot_comparison_runner( score_card , gold_filename ,
             ## break out of the loop
             matched_flag = True
         elif( fuzzy_flag != 'exact' and
-              gold_end == test_end ):
+              reference_end == test_end ):
             ## The end offsets AND types may match...
-            if( gold_type == test_type ):
+            if( reference_type == test_type ):
                 ##
-                if( gold_start > test_start ):
-                    ## If the gold start position is after the system
+                if( reference_start > test_start ):
+                    ## If the reference start position is after the system
                     ## determined start position, we consider this a
                     ## 'fully contained' match and also count it
                     ## as a win
                     score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
-                      [ gold_filename , gold_start , gold_end ,
-                        gold_type , 'TP' ]
+                      [ reference_filename , reference_start , reference_end ,
+                        reference_type , 'TP' ]
                 else:
                     ## otherwise, we missed some data that needs
                     ## to be captured.  This is a partial win.
                     if( fuzzy_flag == 'partial' ):
                         score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
-                              [ gold_filename , gold_start , gold_end ,
-                                gold_type , 'TP' ]
+                              [ reference_filename , reference_start , reference_end ,
+                                reference_type , 'TP' ]
                     else:
                         score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
-                              [ gold_filename , gold_start , gold_end ,
-                                gold_type , 'FN' ]
+                              [ reference_filename , reference_start , reference_end ,
+                                reference_type , 'FN' ]
                         score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
-                              [ gold_filename , test_start , test_end ,
+                              [ reference_filename , test_start , test_end ,
                                 test_type , 'FP' ]
             else:
                 score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
-                      [ gold_filename , gold_start , gold_end ,
-                        gold_type , 'FN' ]
+                      [ reference_filename , reference_start , reference_end ,
+                        reference_type , 'FN' ]
                 score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
-                      [ gold_filename , test_start , test_end ,
+                      [ reference_filename , test_start , test_end ,
                         test_type , 'FP' ]
             ## Everything within this block counts as a match
             ## so we need to remove the current test_annot from
@@ -191,12 +191,12 @@ def gold_annot_comparison_runner( score_card , gold_filename ,
             ## break out of the loop
             matched_flag = True
         elif( fuzzy_flag != 'exact' and
-              ( test_start == 'SOF' or test_start < gold_start ) and
-              ( test_end == 'EOF' or test_end > gold_end ) and
-              gold_type == test_type ):
+              ( test_start == 'SOF' or test_start < reference_start ) and
+              ( test_end == 'EOF' or test_end > reference_end ) and
+              reference_type == test_type ):
             score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
-              [ gold_filename , gold_start , gold_end ,
-                gold_type , 'TP' ]
+              [ reference_filename , reference_start , reference_end ,
+                reference_type , 'TP' ]
             ## Everything within this block counts as a match
             ## so we need to remove the current test_annot from
             ## the list of possible matches in the future and
@@ -204,13 +204,13 @@ def gold_annot_comparison_runner( score_card , gold_filename ,
             matched_flag = True
         elif( fuzzy_flag == 'partial' and
               ( ( test_end == 'EOF' or
-                  test_end > gold_start ) or
+                  test_end > reference_start ) or
                 ( test_start == 'SOF' or
-                  test_start < gold_end ) ) and
-              gold_type == test_type ):
+                  test_start < reference_end ) ) and
+              reference_type == test_type ):
             score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
-              [ gold_filename , gold_start , gold_end ,
-                gold_type , 'TP' ]
+              [ reference_filename , reference_start , reference_end ,
+                reference_type , 'TP' ]
             ## Everything within this block counts as a match
             ## so we need to remove the current test_annot from
             ## the list of possible matches in the future and
@@ -219,19 +219,19 @@ def gold_annot_comparison_runner( score_card , gold_filename ,
         else:
             test_leftovers.append( test_annot )
     if( not matched_flag ):
-        gold_leftovers.append( gold_annot )
+        reference_leftovers.append( reference_annot )
     log.debug( "Leaving '{}'".format( sys._getframe().f_code.co_name ) )
     return test_leftovers
 
 
-def evaluate_positions( gold_filename ,
+def evaluate_positions( reference_filename ,
                         score_card ,
-                        gold_ss ,
+                        reference_ss ,
                         test_ss ,
                         fuzzy_flag = 'exact' ,
-                        ignore_whitespace = False ):
+                        use_mapped_chars = False ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
-    if( ignore_whitespace ):
+    if( use_mapped_chars ):
         start_key = 'begin_pos_mapped'
         end_key = 'end_pos_mapped'
     else:
@@ -240,28 +240,28 @@ def evaluate_positions( gold_filename ,
     ##
     log.debug( 'Anchoring positions at \'{}\' and \'{}\''.format( start_key ,
                                                                   end_key ) )
-    gold_entries = flatten_ss_dictionary( gold_ss , 'gold' )
+    reference_entries = flatten_ss_dictionary( reference_ss , 'reference' )
     test_entries = flatten_ss_dictionary( test_ss , 'test' )
     ##
-    gold_leftovers = []
+    reference_leftovers = []
     test_leftovers = test_entries
-    for gold_annot in gold_entries:
+    for reference_annot in reference_entries:
         test_leftovers = \
-          gold_annot_comparison_runner( score_card , gold_filename ,
-                                        gold_annot , gold_leftovers ,
-                                        test_entries ,
-                                        start_key , end_key ,
-                                        fuzzy_flag )
+          reference_annot_comparison_runner( score_card , reference_filename ,
+                                             reference_annot , reference_leftovers ,
+                                             test_entries ,
+                                             start_key , end_key ,
+                                             fuzzy_flag )
         test_entries = test_leftovers
-    ## any remaining entries in the gold set are FNs
-    for gold_annot in gold_leftovers:
+    ## any remaining entries in the reference set are FNs
+    for reference_annot in reference_leftovers:
         ## grab type and end position
-        gold_type , gold_start , gold_end = \
-          get_annotation_from_base_entry( gold_annot ,
+        reference_type , reference_start , reference_end = \
+          get_annotation_from_base_entry( reference_annot ,
                                           start_key ,
                                           end_key )
         score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
-          [ gold_filename , gold_start , gold_end , gold_type , 'FN' ]
+          [ reference_filename , reference_start , reference_end , reference_type , 'FN' ]
     for test_annot in test_leftovers:
         ## grab type and end position
         test_type , test_start , test_end = \
@@ -271,7 +271,7 @@ def evaluate_positions( gold_filename ,
         if( test_type == None ):
             continue
         score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
-          [ gold_filename , test_start , test_end , test_type , 'FP' ]
+          [ reference_filename , test_start , test_end , test_type , 'FP' ]
     ##
     log.debug( "Leaving '{}'".format( sys._getframe().f_code.co_name ) )
 
@@ -330,7 +330,7 @@ def add_missing_fields( score_summary ):
     log.debug( "Leaving '{}'".format( sys._getframe().f_code.co_name ) )
 
 
-def norm_summary( score_summary , row_name , args ):
+def norm_summary( score_summary , args ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     ## Source for definitions:
     ## -- https://en.wikipedia.org/wiki/Precision_and_recall#Definition_.28classification_context.29
@@ -371,7 +371,7 @@ def norm_summary( score_summary , row_name , args ):
         score_summary[ 'F1' ] = f_score( p = score_summary[ 'Precision' ] ,
                                          r = score_summary[ 'Recall' ] )
     ##
-    metrics = [ row_name ]
+    metrics = []
     for metric in args.metrics_list:
         metrics.append( score_summary[ metric ] )
     log.debug( "Leaving '{}'".format( sys._getframe().f_code.co_name ) )
@@ -422,23 +422,62 @@ def update_output_dictionary( out_file ,
                    indent = 4 )
     log.debug( "Leaving '{}'".format( sys._getframe().f_code.co_name ) )
 
+def update_csv_output( csv_out_filename , delimiter ,
+                       row_content ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
+    with open( csv_out_filename , 'a' ) as fp:
+        fp.write( '{}\n'.format( delimiter.join( row_content ) ) )
+    log.debug( "Leaving '{}'".format( sys._getframe().f_code.co_name ) )
+
+def output_metrics( class_data ,
+                    fuzzy_flag , metrics , delimiter , csv_out_filename ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
+    row_content = delimiter.join( '{}'.format( m ) for m in metrics )
+    if( len( class_data ) == 1 ):
+        row_name = class_data[ 0 ]
+    elif( len( class_data ) == 2 ):
+        row_name = class_data[ 1 ]
+    elif( len( class_data ) == 4 ):
+        row_name = '{} x {}'.format( class_data[ 1 ] ,
+                                     class_data[ 3 ] )
+    print( '{}{}{}'.format( row_name , delimiter , row_content ) )
+    ##
+    if( csv_out_filename ):
+        full_row = [ fuzzy_flag ]
+        for n in range( 0 , 4 ):
+            if( n >= len( class_data ) ):
+                full_row.append( '' )
+            else:
+                full_row.append( class_data[ n ] )
+        full_row.append( row_content )
+        update_csv_output( csv_out_filename , delimiter ,
+                           full_row )
+    log.debug( "Leaving '{}'".format( sys._getframe().f_code.co_name ) )
 
 def print_score_summary( score_card , file_mapping ,
-                         gold_config , test_config ,
+                         reference_config , test_config ,
                          fuzzy_flag ,
                          args ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     ## TODO - refactor score printing to a separate function
     ## TODO - add scores grouped by type
     file_list = sorted( file_mapping.keys() )
-    print( '{}{}{}{}'.format( '\n' ,
-                            fuzzy_flag ,
-                            args.delim ,
-                            args.delim.join( '{}'.format( m ) for m in args.metrics_list ) ) )
+    metrics_header_line = \
+      args.delim.join( '{}'.format( m ) for m in args.metrics_list )
+    print( '\n{}{}{}'.format( fuzzy_flag ,
+                              args.delim ,
+                              metrics_header_line ) )
+    if( args.csv_out ):
+        update_csv_output( args.csv_out , args.delim ,
+                           [ 'FuzzyFlag' ,
+                             'ClassType' , 'Class' ,
+                             'SubClassType' , 'SubClass' ,
+                             metrics_header_line ] )
     ##
     metrics = norm_summary( score_card[ fuzzy_flag ][ 'Score' ].value_counts() ,
-                            row_name = 'micro-average' , args = args )
-    print( args.delim.join( '{}'.format( m ) for m in metrics ) )
+                            args = args )
+    output_metrics( [ 'micro-average' ] ,
+                    fuzzy_flag , metrics , args.delim , args.csv_out )
     ##
     if( args.corpus_out ):
         update_output_dictionary( args.corpus_out ,
@@ -446,8 +485,10 @@ def print_score_summary( score_card , file_mapping ,
                                     fuzzy_flag ,
                                     'micro-average' ] ,
                                   args.metrics_list ,
-                                  metrics[ 1: ] )
+                                  metrics )
     ##
+    file_aggregate_metrics = None
+    non_empty_files = 0
     for filename in file_list:
         if( args.corpus_out ):
             update_output_dictionary( args.corpus_out ,
@@ -455,19 +496,30 @@ def print_score_summary( score_card , file_mapping ,
                                       [ filename ] ,
                                       [ file_mapping[ filename ] ] )
         this_file = ( score_card[ fuzzy_flag ][ 'File' ] == filename )
-        metrics = norm_summary( score_card[ fuzzy_flag ][ this_file ][ 'Score' ].value_counts() ,
-                                row_name = filename , args = args )
+        file_value_counts = score_card[ fuzzy_flag ][ this_file ][ 'Score' ].value_counts()
+        metrics = norm_summary( file_value_counts , args = args )
         if( args.by_file or args.by_file_and_type ):
-            print( args.delim.join( '{}'.format( m ) for m in metrics ) )
-        if( args.gold_out ):
-            out_file = '{}/{}'.format( args.gold_out ,
+            output_metrics( [ 'File' , filename ] ,
+                            fuzzy_flag , metrics , args.delim , args.csv_out )
+            ## Only update macro-average if some annotation in this file exists
+            ## in either reference or system output
+            if( sum( file_value_counts ) > 0 ):
+                non_empty_files += 1
+                if( file_aggregate_metrics == None ):
+                    file_aggregate_metrics = metrics
+                else:
+                    file_aggregate_metrics = \
+                      [ sum( pair ) for pair in zip( file_aggregate_metrics ,
+                                                     metrics ) ]
+        if( args.reference_out ):
+            out_file = '{}/{}'.format( args.reference_out ,
                                        filename )
             update_output_dictionary( out_file ,
                                       [ 'metrics' ,
                                         fuzzy_flag ,
                                         'micro-average' ] ,
                                       args.metrics_list ,
-                                      metrics[ 1: ] )
+                                      metrics )
         if( args.test_out ):
             out_file = '{}/{}'.format( args.test_out ,
                                        file_mapping[ filename ] )
@@ -476,30 +528,32 @@ def print_score_summary( score_card , file_mapping ,
                                         fuzzy_flag ,
                                         'micro-average' ] ,
                                       args.metrics_list ,
-                                      metrics[ 1: ] )
+                                      metrics )
         ##
         unique_types = Set()
-        for pattern in gold_config:
+        for pattern in reference_config:
             unique_types.add( pattern[ 'type' ] )
         for unique_type in sorted( unique_types ):
             this_type = \
               (  ( score_card[ fuzzy_flag ][ 'File' ] == filename ) &
                  ( score_card[ fuzzy_flag ][ 'Type' ] == unique_type ) )
+            type_value_counts = \
+              score_card[ fuzzy_flag ][ this_type ][ 'Score' ].value_counts()
             metrics = \
-              norm_summary( score_card[ fuzzy_flag ][ this_type ][ 'Score' ].value_counts() ,
-                            row_name = filename + ' x ' + unique_type ,
+              norm_summary( type_value_counts ,
                             args = args )
             if( args.by_file_and_type ):
-                print( args.delim.join( '{}'.format( m ) for m in metrics ) )
-            if( args.gold_out ):
-                out_file = '{}/{}'.format( args.gold_out ,
+                output_metrics( [ 'File' , filename , 'Type' , unique_type ] ,
+                                fuzzy_flag , metrics , args.delim , args.csv_out )
+            if( args.reference_out ):
+                out_file = '{}/{}'.format( args.reference_out ,
                                            filename )
                 update_output_dictionary( out_file ,
                                           [ 'metrics' ,
                                             fuzzy_flag ,
                                             'by-type' , unique_type ] ,
                                           args.metrics_list ,
-                                          metrics[ 1: ] )
+                                          metrics )
             if( args.test_out ):
                 out_file = '{}/{}'.format( args.test_out ,
                                            file_mapping[ filename ] )
@@ -509,35 +563,93 @@ def print_score_summary( score_card , file_mapping ,
                                             'by-type' , unique_type ] ,
                                           args.metrics_list ,
                                           metrics[ 1: ] )
+    if( non_empty_files > 0 ):
+        macro_averaged_metrics = []
+        for key , value in zip( args.metrics_list , file_aggregate_metrics ):
+            if( key == 'TP' or
+                key == 'FP' or
+                key == 'FN' or
+                key == 'FP' ):
+                macro_averaged_metrics.append( value )
+            else:
+                macro_averaged_metrics.append( value / non_empty_files )
+        if( args.by_file or args.by_file_and_type ):
+            output_metrics( [ 'macro-averages' , 'macro-average by file' ] ,
+                            fuzzy_flag , macro_averaged_metrics ,
+                            args.delim , args.csv_out )
+        if( args.corpus_out ):
+            update_output_dictionary( args.corpus_out ,
+                                      [ 'metrics' ,
+                                        fuzzy_flag ,
+                                        'macro-averages' , 'file' ] ,
+                                      args.metrics_list ,
+                                      macro_averaged_metrics[ 1: ] )
     ##
     unique_types = Set()
-    for pattern in gold_config:
+    type_aggregate_metrics = None
+    non_empty_types = 0
+    for pattern in reference_config:
         unique_types.add( pattern[ 'type' ] )
     for unique_type in sorted( unique_types ):
         this_type = ( score_card[ fuzzy_flag ][ 'Type' ] == unique_type )
-        metrics = norm_summary( score_card[ fuzzy_flag ][ this_type ][ 'Score' ].value_counts() ,
-                                row_name = unique_type ,
+        type_value_counts = score_card[ fuzzy_flag ][ this_type ][ 'Score' ].value_counts()
+        metrics = norm_summary( type_value_counts ,
                                 args = args )
         if( args.by_type or args.by_type_and_file ):
-            print( args.delim.join( '{}'.format( m ) for m in metrics ) )
+            output_metrics( [ 'Type' , unique_type ] ,
+                            fuzzy_flag , metrics , args.delim , args.csv_out )
+            ## Only update macro-average if some of this type exist
+            ## in either reference or system output
+            if( sum( type_value_counts ) > 0 ):
+                non_empty_types += 1
+                if( type_aggregate_metrics == None ):
+                    type_aggregate_metrics = metrics
+                else:
+                    type_aggregate_metrics = \
+                      [ sum( pair ) for pair in zip( type_aggregate_metrics ,
+                                                     metrics ) ]
         if( args.corpus_out ):
             update_output_dictionary( args.corpus_out ,
                                       [ 'metrics' ,
                                         fuzzy_flag ,
                                         'by-type' , unique_type ] ,
                                       args.metrics_list ,
-                                      metrics[ 1: ] )
+                                      metrics )
         ##
         for filename in file_list:
             this_file = \
               (  ( score_card[ fuzzy_flag ][ 'File' ] == filename ) &
                  ( score_card[ fuzzy_flag ][ 'Type' ] == unique_type ) )
+            file_value_counts = \
+              score_card[ fuzzy_flag ][ this_file ][ 'Score' ].value_counts()
             metrics = \
-              norm_summary( score_card[ fuzzy_flag ][ this_file ][ 'Score' ].value_counts() ,
-                            row_name = unique_type + ' x ' + filename ,
+              norm_summary( file_value_counts ,
                             args = args )
             if( args.by_type_and_file ):
-                print( args.delim.join( '{}'.format( m ) for m in metrics ) )
+                output_metrics( [ 'Type' , unique_type ,
+                                  'File' , filename ] ,
+                                fuzzy_flag , metrics , args.delim , args.csv_out )
+    if( non_empty_types > 0 ):
+        macro_averaged_metrics = []
+        for key , value in zip( args.metrics_list , type_aggregate_metrics ):
+            if( key == 'TP' or
+                key == 'FP' or
+                key == 'FN' or
+                key == 'FP' ):
+                macro_averaged_metrics.append( value )
+            else:
+                macro_averaged_metrics.append( value / non_empty_types )
+        if( args.by_type or args.by_type_and_file ):
+            output_metrics( [ 'macro-averages' , 'macro-average by type' ] ,
+                            fuzzy_flag , macro_averaged_metrics ,
+                            args.delim , args.csv_out )
+        if( args.corpus_out ):
+            update_output_dictionary( args.corpus_out ,
+                                      [ 'metrics' ,
+                                        fuzzy_flag ,
+                                        'macro-averages' , 'type' ] ,
+                                      args.metrics_list ,
+                                      macro_averaged_metrics )
     ##
     log.debug( "Leaving '{}'".format( sys._getframe().f_code.co_name ) )
 

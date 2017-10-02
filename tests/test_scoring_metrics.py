@@ -116,7 +116,7 @@ def initialize_for_print_summary_test():
       [ 'a.xml' , 0 , 1 , 'Sentence' , 'FN' ]
     score_card[ 'exact' ].loc[ score_card[ 'exact' ].shape[ 0 ] ] = \
       [ 'b.xml' , 0 , 1 , 'Sentence' , 'FN' ]
-    command_line_args = [ '--gold-input' , 'tests/data/i2b2_2016_track-1_gold' ,
+    command_line_args = [ '--reference-input' , 'tests/data/i2b2_2016_track-1_reference' ,
                           '--test-input' , 'tests/data/i2b2_2016_track-1_test' ]
     args = args_and_configs.get_arguments( command_line_args )
     sample_config = [ { 'type' : 'Sentence' ,
@@ -140,7 +140,8 @@ def test_unique_score_key_summary_stats( capsys ):
     ##
     expected_values = [ [ 'exact' , 'TP' , 'FP' , 'TN' , 'FN' ] ,
                         [ 'micro-average' , '1.0' , '1.0' , '0.0' , '2.0' ] ,
-                        [ 'Sentence' , '1.0' , '1.0' , '0.0' , '2.0' ] ]
+                        [ 'Sentence' , '1.0' , '1.0' , '0.0' , '2.0' ] ,
+                        [ 'macro-average by type' , '1.0' , '1.0' , '0.0' , '2.0' ] ]
     for expected_values in expected_values:
         print( args.delim.join( '{}'.format( m ) for m in expected_values ) )
     expected_out, err = capsys.readouterr()
@@ -164,7 +165,8 @@ def test_by_type_and_file_score_key_summary_stats( capsys ):
                         [ 'micro-average' , '1.0' , '1.0' , '0.0' , '2.0' ] ,
                         [ 'Sentence' , '1.0' , '1.0' , '0.0' , '2.0' ] ,
                         [ 'Sentence x a.xml' , '1.0' , '0.0' , '0.0' , '1.0' ] ,
-                        [ 'Sentence x b.xml' , '0.0' , '1.0' , '0.0' , '1.0' ] ]
+                        [ 'Sentence x b.xml' , '0.0' , '1.0' , '0.0' , '1.0' ] ,
+                        [ 'macro-average by type' , '1.0' , '1.0' , '0.0' , '2.0' ] ]
     for expected_values in expected_values:
         print( args.delim.join( '{}'.format( m ) for m in expected_values ) )
     expected_out, err = capsys.readouterr()
@@ -187,7 +189,33 @@ def test_by_file_summary_stats( capsys ):
     expected_values = [ [ 'exact' , 'TP' , 'FP' , 'TN' , 'FN' ] ,
                         [ 'micro-average' , '1.0' , '1.0' , '0.0' , '2.0' ] ,
                         [ 'a.xml' , '1.0' , '0.0' , '0.0' , '1.0' ]  ,
-                        [ 'b.xml' , '0.0' , '1.0' , '0.0' , '1.0' ] ]
+                        [ 'b.xml' , '0.0' , '1.0' , '0.0' , '1.0' ] ,
+                        [ 'macro-average by file' , '1.0' , '1.0' , '0.0' , '2.0' ] ]
+    for expected_values in expected_values:
+        print( args.delim.join( '{}'.format( m ) for m in expected_values ) )
+    expected_out, err = capsys.readouterr()
+    by_type_out = by_type_out.strip()
+    expected_out = expected_out.strip()
+    assert by_type_out == expected_out
+
+
+def test_by_file_f_metrics( capsys ):
+    score_card , args , sample_config , \
+      file_mapping = initialize_for_print_summary_test()
+    args.metrics_list = [ 'Precision' , 'Recall' , 'F1' ]
+    args.by_file = True
+    ##
+    scoring_metrics.print_score_summary( score_card , file_mapping ,
+                                         sample_config , sample_config ,
+                                         fuzzy_flag = 'exact' ,
+                                         args = args )
+    by_type_out, err = capsys.readouterr()
+    ##
+    expected_values = [ [ 'exact' , 'Precision' , 'Recall' , 'F1' ] ,
+                        [ 'micro-average' , '0.5' , '0.333333333333' , '0.4' ] ,
+                        [ 'a.xml' , '1.0' , '0.5' , '0.666666666667' ]  ,
+                        [ 'b.xml' , '0.0' , '0.0' , '0.0' ] ,
+                        [ 'macro-average by file' , '0.5' , '0.25' , '0.333333333333' ] ]
     for expected_values in expected_values:
         print( args.delim.join( '{}'.format( m ) for m in expected_values ) )
     expected_out, err = capsys.readouterr()
@@ -212,7 +240,8 @@ def test_by_file_and_type_summary_stats( capsys ):
                         [ 'a.xml' , '1.0' , '0.0' , '0.0' , '1.0' ] ,
                         [ 'a.xml x Sentence' , '1.0' , '0.0' , '0.0' , '1.0' ] ,
                         [ 'b.xml' , '0.0' , '1.0' , '0.0' , '1.0' ]  ,
-                        [ 'b.xml x Sentence' , '0.0' , '1.0' , '0.0' , '1.0' ] ]
+                        [ 'b.xml x Sentence' , '0.0' , '1.0' , '0.0' , '1.0' ] ,
+                        [ 'macro-average by file' , '1.0' , '1.0' , '0.0' , '2.0' ] ]
     for expected_values in expected_values:
         print( args.delim.join( '{}'.format( m ) for m in expected_values ) )
     expected_out, err = capsys.readouterr()
@@ -306,27 +335,27 @@ def test_by_file_summary_counts( capsys ):
 
 def test_evaluate_positions_copy_match():
     score_card = scoring_metrics.new_score_card()
-    ingest_file = 'tests/data/i2b2_2016_track-1_gold/0005_gs.xml'
+    ingest_file = 'tests/data/i2b2_2016_track-1_reference/0005_gs.xml'
     document_data = dict( cdata_xpath = './TEXT' )
-    raw_content , gold_om = \
+    raw_content , reference_om = \
       text_extraction.extract_chars( ingest_file ,
                                      namespaces = {} ,
                                      document_data = document_data )
-    gold_ss = \
+    reference_ss = \
       text_extraction.extract_annotations_xml( ingest_file ,
-                                               offset_mapping = gold_om ,
+                                               offset_mapping = reference_om ,
                                                annotation_path = \
                                                   './TAGS/DATE' ,
                                                tag_name = 'DateTime' ,
                                                begin_attribute = 'start' ,
                                                end_attribute = 'end' )
-    test_om = gold_om
-    test_ss = gold_ss
+    test_om = reference_om
+    test_ss = reference_ss
     scoring_metrics.evaluate_positions( ingest_file ,
                                         score_card ,
-                                        gold_ss = gold_ss ,
+                                        reference_ss = reference_ss ,
                                         test_ss = test_ss ,
-                                        ignore_whitespace = False )
+                                        use_mapped_chars = False )
     ##
     expected_score_card = scoring_metrics.new_score_card()
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
@@ -337,19 +366,19 @@ def test_evaluate_positions_copy_match():
                         expected_score_card[ 'exact' ] )
 
 
-def test_evaluate_positions_empty_gold_ss():
+def test_evaluate_positions_empty_reference_ss():
     score_card = scoring_metrics.new_score_card()
-    ingest_file = 'tests/data/i2b2_2016_track-1_gold/0005_gs.xml'
+    ingest_file = 'tests/data/i2b2_2016_track-1_reference/0005_gs.xml'
     document_data = dict( cdata_xpath = './TEXT' )
-    gold_om = {}
-    gold_ss = {}
+    reference_om = {}
+    reference_ss = {}
     raw_content , test_om = \
       text_extraction.extract_chars( ingest_file ,
                                      namespaces = {} ,
                                      document_data = document_data )
     test_ss = \
       text_extraction.extract_annotations_xml( ingest_file ,
-                                               offset_mapping = gold_om ,
+                                               offset_mapping = reference_om ,
                                                annotation_path = \
                                                   './TAGS/DATE' ,
                                                tag_name = 'DateTime' ,
@@ -357,7 +386,7 @@ def test_evaluate_positions_empty_gold_ss():
                                                end_attribute = 'end' )
     scoring_metrics.evaluate_positions( ingest_file ,
                                         score_card ,
-                                        gold_ss = gold_ss ,
+                                        reference_ss = reference_ss ,
                                         test_ss = test_ss )
     ##
     expected_score_card = scoring_metrics.new_score_card()
@@ -371,15 +400,15 @@ def test_evaluate_positions_empty_gold_ss():
 
 def test_evaluate_positions_empty_test_ss():
     score_card = scoring_metrics.new_score_card()
-    ingest_file = 'tests/data/i2b2_2016_track-1_gold/0005_gs.xml'
+    ingest_file = 'tests/data/i2b2_2016_track-1_reference/0005_gs.xml'
     document_data = dict( cdata_xpath = './TEXT' )
-    raw_content , gold_om = \
+    raw_content , reference_om = \
       text_extraction.extract_chars( ingest_file ,
                                      namespaces = {} ,
                                      document_data = document_data )
-    gold_ss = \
+    reference_ss = \
       text_extraction.extract_annotations_xml( ingest_file ,
-                                               offset_mapping = gold_om ,
+                                               offset_mapping = reference_om ,
                                                annotation_path = \
                                                   './TAGS/DATE' ,
                                                tag_name = 'DateTime' ,
@@ -389,7 +418,7 @@ def test_evaluate_positions_empty_test_ss():
     test_ss = {}
     scoring_metrics.evaluate_positions( ingest_file ,
                                         score_card ,
-                                        gold_ss = gold_ss ,
+                                        reference_ss = reference_ss ,
                                         test_ss = test_ss )
     ##
     expected_score_card = scoring_metrics.new_score_card()
@@ -403,15 +432,15 @@ def test_evaluate_positions_empty_test_ss():
 
 def test_evaluate_positions_empty_dictionaries():
     score_card = scoring_metrics.new_score_card()
-    ingest_file = 'tests/data/i2b2_2016_track-1_gold/0005_gs.xml'
+    ingest_file = 'tests/data/i2b2_2016_track-1_reference/0005_gs.xml'
     document_data = dict( cdata_xpath = './TEXT' )
-    gold_om = {}
-    gold_ss = {}
+    reference_om = {}
+    reference_ss = {}
     test_om = {}
     test_ss = {}
     scoring_metrics.evaluate_positions( ingest_file ,
                                         score_card ,
-                                        gold_ss = gold_ss ,
+                                        reference_ss = reference_ss ,
                                         test_ss = test_ss )
     ##
     expected_score_card = scoring_metrics.new_score_card()
@@ -421,24 +450,24 @@ def test_evaluate_positions_empty_dictionaries():
 
 def test_evaluate_positions_tweak_annotation_dictionary_heed_whitespace():
     score_card = scoring_metrics.new_score_card()
-    ingest_file = 'tests/data/i2b2_2016_track-1_gold/0005_gs.xml'
+    ingest_file = 'tests/data/i2b2_2016_track-1_reference/0005_gs.xml'
     document_data = dict( cdata_xpath = './TEXT' )
-    raw_content , gold_om = \
+    raw_content , reference_om = \
       text_extraction.extract_chars( ingest_file ,
                                      namespaces = {} ,
                                      document_data = document_data )
-    gold_ss = \
+    reference_ss = \
       text_extraction.extract_annotations_xml( ingest_file ,
-                                                  offset_mapping = gold_om ,
+                                                  offset_mapping = reference_om ,
                                                   annotation_path = \
                                                       './TAGS/DATE' ,
                                                   tag_name = 'DateTime' ,
                                                   begin_attribute = 'start' ,
                                                   end_attribute = 'end' )
-    test_om = gold_om
+    test_om = reference_om
     test_ss = \
       text_extraction.extract_annotations_xml( ingest_file ,
-                                                  offset_mapping = gold_om ,
+                                                  offset_mapping = reference_om ,
                                                   annotation_path = \
                                                       './TAGS/DATE' ,
                                                   tag_name = 'DateTime' ,
@@ -447,9 +476,9 @@ def test_evaluate_positions_tweak_annotation_dictionary_heed_whitespace():
     test_ss[ '87' ][ 0 ][ 'begin_pos' ] = '73'
     scoring_metrics.evaluate_positions( ingest_file ,
                                         score_card ,
-                                        gold_ss = gold_ss ,
+                                        reference_ss = reference_ss ,
                                         test_ss = test_ss ,
-                                        ignore_whitespace = False )
+                                        use_mapped_chars = False )
     ##
     expected_score_card = scoring_metrics.new_score_card()
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
@@ -464,24 +493,25 @@ def test_evaluate_positions_tweak_annotation_dictionary_heed_whitespace():
 
 def test_evaluate_positions_tweak_annotation_dictionary_ignore_whitespace():
     score_card = scoring_metrics.new_score_card()
-    ingest_file = 'tests/data/i2b2_2016_track-1_gold/0005_gs.xml'
+    ingest_file = 'tests/data/i2b2_2016_track-1_reference/0005_gs.xml'
     document_data = dict( cdata_xpath = './TEXT' )
-    raw_content , gold_om = \
+    raw_content , reference_om = \
       text_extraction.extract_chars( ingest_file ,
                                      namespaces = {} ,
-                                     document_data = document_data )
-    gold_ss = \
+                                     document_data = document_data ,
+                                     skip_chars = '[\s]' )
+    reference_ss = \
       text_extraction.extract_annotations_xml( ingest_file ,
-                                                  offset_mapping = gold_om ,
+                                                  offset_mapping = reference_om ,
                                                   annotation_path = \
                                                       './TAGS/DATE' ,
                                                   tag_name = 'DateTime' ,
                                                   begin_attribute = 'start' ,
                                                   end_attribute = 'end' )
-    test_om = gold_om
+    test_om = reference_om
     test_ss = \
       text_extraction.extract_annotations_xml( ingest_file ,
-                                                  offset_mapping = gold_om ,
+                                                  offset_mapping = reference_om ,
                                                   annotation_path = \
                                                       './TAGS/DATE' ,
                                                   tag_name = 'DateTime' ,
@@ -490,9 +520,9 @@ def test_evaluate_positions_tweak_annotation_dictionary_ignore_whitespace():
     test_ss[ '87' ][ 0 ][ 'begin_pos' ] = '73'
     scoring_metrics.evaluate_positions( ingest_file ,
                                         score_card ,
-                                        gold_ss = gold_ss ,
+                                        reference_ss = reference_ss ,
                                         test_ss = test_ss ,
-                                        ignore_whitespace = True )
+                                        use_mapped_chars = True )
     ##
     expected_score_card = scoring_metrics.new_score_card()
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
@@ -504,21 +534,22 @@ def test_evaluate_positions_tweak_annotation_dictionary_ignore_whitespace():
 
 
 def prepare_evaluate_positions_structs():
-    ingest_file = 'tests/data/i2b2_2016_track-1_gold/0005_gs.xml'
+    ingest_file = 'tests/data/i2b2_2016_track-1_reference/0005_gs.xml'
     document_data = dict( cdata_xpath = './TEXT' )
-    raw_content , gold_om = \
+    raw_content , reference_om = \
       text_extraction.extract_chars( ingest_file ,
                                      namespaces = {} ,
-                                     document_data = document_data )
-    gold_ss = \
+                                     document_data = document_data ,
+                                     skip_chars = '[\s]' )
+    reference_ss = \
       text_extraction.extract_annotations_xml( ingest_file ,
-                                               offset_mapping = gold_om ,
+                                               offset_mapping = reference_om ,
                                                annotation_path = \
                                                   './TAGS/DATE' ,
                                                tag_name = 'DateTime' ,
                                                begin_attribute = 'start' ,
                                                end_attribute = 'end' )
-    test_om = gold_om
+    test_om = reference_om
     test_ss = \
       text_extraction.extract_annotations_xml( ingest_file ,
                                                offset_mapping = test_om ,
@@ -527,22 +558,22 @@ def prepare_evaluate_positions_structs():
                                                tag_name = 'DateTime' ,
                                                begin_attribute = 'start' ,
                                                end_attribute = 'end' )
-    return ingest_file , gold_ss , test_ss
+    return ingest_file , reference_ss , test_ss
 
 
 def test_evaluate_positions_missing_mapped_keys_with_heed_whitespace():
     score_card = scoring_metrics.new_score_card()
-    ingest_file , gold_ss , test_ss = \
+    ingest_file , reference_ss , test_ss = \
       prepare_evaluate_positions_structs()
-    del gold_ss[ "2404" ][ 0 ][ "begin_pos_mapped" ]
-    del gold_ss[ "2404" ][ 0 ][ "end_pos_mapped" ]
+    del reference_ss[ "2404" ][ 0 ][ "begin_pos_mapped" ]
+    del reference_ss[ "2404" ][ 0 ][ "end_pos_mapped" ]
     del test_ss[ "2404" ][ 0 ][ "begin_pos_mapped" ]
     del test_ss[ "2404" ][ 0 ][ "end_pos_mapped" ]
     scoring_metrics.evaluate_positions( ingest_file ,
                                         score_card ,
-                                        gold_ss = gold_ss ,
+                                        reference_ss = reference_ss ,
                                         test_ss = test_ss ,
-                                        ignore_whitespace = False )
+                                        use_mapped_chars = False )
     ##
     expected_score_card = scoring_metrics.new_score_card()
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
@@ -553,16 +584,16 @@ def test_evaluate_positions_missing_mapped_keys_with_heed_whitespace():
                         expected_score_card[ 'exact' ] )
 
 
-def test_evaluate_positions_missing_gold_begin_mapped_key():
+def test_evaluate_positions_missing_reference_begin_mapped_key():
     score_card = scoring_metrics.new_score_card()
-    ingest_file , gold_ss , test_ss = \
+    ingest_file , reference_ss , test_ss = \
       prepare_evaluate_positions_structs()
-    del gold_ss[ "2404" ][ 0 ][ "begin_pos_mapped" ]
+    del reference_ss[ "2404" ][ 0 ][ "begin_pos_mapped" ]
     scoring_metrics.evaluate_positions( ingest_file ,
                                         score_card ,
-                                        gold_ss = gold_ss ,
+                                        reference_ss = reference_ss ,
                                         test_ss = test_ss ,
-                                        ignore_whitespace = True )
+                                        use_mapped_chars = True )
     ##
     expected_score_card = scoring_metrics.new_score_card()
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
@@ -573,16 +604,16 @@ def test_evaluate_positions_missing_gold_begin_mapped_key():
                         expected_score_card[ 'exact' ] )
 
 
-def test_evaluate_positions_missing_gold_end_mapped_key():
+def test_evaluate_positions_missing_reference_end_mapped_key():
     score_card = scoring_metrics.new_score_card()
-    ingest_file , gold_ss , test_ss = \
+    ingest_file , reference_ss , test_ss = \
       prepare_evaluate_positions_structs()
-    del gold_ss[ "2404" ][ 0 ][ "end_pos_mapped" ]
+    del reference_ss[ "2404" ][ 0 ][ "end_pos_mapped" ]
     scoring_metrics.evaluate_positions( ingest_file ,
                                         score_card ,
-                                        gold_ss = gold_ss ,
+                                        reference_ss = reference_ss ,
                                         test_ss = test_ss ,
-                                        ignore_whitespace = True )
+                                        use_mapped_chars = True )
     ##
     expected_score_card = scoring_metrics.new_score_card()
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
@@ -595,14 +626,14 @@ def test_evaluate_positions_missing_gold_end_mapped_key():
 
 def test_evaluate_positions_missing_test_begin_mapped_key():
     score_card = scoring_metrics.new_score_card()
-    ingest_file , gold_ss , test_ss = \
+    ingest_file , reference_ss , test_ss = \
       prepare_evaluate_positions_structs()
     del test_ss[ "2404" ][ 0 ][ "begin_pos_mapped" ]
     scoring_metrics.evaluate_positions( ingest_file ,
                                         score_card ,
-                                        gold_ss = gold_ss ,
+                                        reference_ss = reference_ss ,
                                         test_ss = test_ss ,
-                                        ignore_whitespace = True )
+                                        use_mapped_chars = True )
     ##
     expected_score_card = scoring_metrics.new_score_card()
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
@@ -615,14 +646,14 @@ def test_evaluate_positions_missing_test_begin_mapped_key():
 
 def test_evaluate_positions_missing_test_end_mapped_key():
     score_card = scoring_metrics.new_score_card()
-    ingest_file , gold_ss , test_ss = \
+    ingest_file , reference_ss , test_ss = \
       prepare_evaluate_positions_structs()
     del test_ss[ "2404" ][ 0 ][ "end_pos_mapped" ]
     scoring_metrics.evaluate_positions( ingest_file ,
                                         score_card ,
-                                        gold_ss = gold_ss ,
+                                        reference_ss = reference_ss ,
                                         test_ss = test_ss ,
-                                        ignore_whitespace = True )
+                                        use_mapped_chars = True )
     ##
     expected_score_card = scoring_metrics.new_score_card()
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
@@ -638,9 +669,9 @@ def test_evaluate_positions_missing_test_end_mapped_key():
 #############################################
 
 
-def test_evaluate_positions_nested_annotations_gold_first_match():
+def test_evaluate_positions_nested_annotations_reference_first_match():
     score_card = scoring_metrics.new_score_card()
-    ingest_file , gold_ss , test_ss = \
+    ingest_file , reference_ss , test_ss = \
       prepare_evaluate_positions_structs()
     ##
     new_entry = text_extraction.create_annotation_entry( begin_pos = "87" ,
@@ -649,13 +680,13 @@ def test_evaluate_positions_nested_annotations_gold_first_match():
                                                          end_pos_mapped = "80" ,
                                                          raw_text = None ,
                                                          tag_name = "Age" )
-    gold_ss[ "87" ].append( new_entry )
+    reference_ss[ "87" ].append( new_entry )
     ##
     scoring_metrics.evaluate_positions( ingest_file ,
                                         score_card ,
-                                        gold_ss = gold_ss ,
+                                        reference_ss = reference_ss ,
                                         test_ss = test_ss ,
-                                        ignore_whitespace = False )
+                                        use_mapped_chars = False )
     ##
     expected_score_card = scoring_metrics.new_score_card()
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
@@ -668,9 +699,9 @@ def test_evaluate_positions_nested_annotations_gold_first_match():
                         expected_score_card[ 'exact' ] )
 
 
-def test_evaluate_positions_nested_annotations_gold_second_match():
+def test_evaluate_positions_nested_annotations_reference_second_match():
     score_card = scoring_metrics.new_score_card()
-    ingest_file , gold_ss , test_ss = \
+    ingest_file , reference_ss , test_ss = \
       prepare_evaluate_positions_structs()
     ##
     new_entry = text_extraction.create_annotation_entry( begin_pos = "87" ,
@@ -679,13 +710,13 @@ def test_evaluate_positions_nested_annotations_gold_second_match():
                                                          end_pos_mapped = "80" ,
                                                          raw_text = None ,
                                                          tag_name = "Age" )
-    gold_ss[ "87" ].append( new_entry )
+    reference_ss[ "87" ].append( new_entry )
     ##
     scoring_metrics.evaluate_positions( ingest_file ,
                                         score_card ,
-                                        gold_ss = gold_ss ,
+                                        reference_ss = reference_ss ,
                                         test_ss = test_ss ,
-                                        ignore_whitespace = False )
+                                        use_mapped_chars = False )
     ##
     expected_score_card = scoring_metrics.new_score_card()
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
@@ -700,7 +731,7 @@ def test_evaluate_positions_nested_annotations_gold_second_match():
 
 def test_evaluate_positions_nested_annotations_test():
     score_card = scoring_metrics.new_score_card()
-    ingest_file , gold_ss , test_ss = \
+    ingest_file , reference_ss , test_ss = \
       prepare_evaluate_positions_structs()
     ##
     new_entry = text_extraction.create_annotation_entry( begin_pos = "87" ,
@@ -713,9 +744,9 @@ def test_evaluate_positions_nested_annotations_test():
     ##
     scoring_metrics.evaluate_positions( ingest_file ,
                                         score_card ,
-                                        gold_ss = gold_ss ,
+                                        reference_ss = reference_ss ,
                                         test_ss = test_ss ,
-                                        ignore_whitespace = False )
+                                        use_mapped_chars = False )
     ##
     expected_score_card = scoring_metrics.new_score_card()
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
@@ -728,9 +759,9 @@ def test_evaluate_positions_nested_annotations_test():
                         expected_score_card[ 'exact' ] )
 
 
-def test_evaluate_positions_nested_annotations_gold_and_test():
+def test_evaluate_positions_nested_annotations_reference_and_test():
     score_card = scoring_metrics.new_score_card()
-    ingest_file , gold_ss , test_ss = \
+    ingest_file , reference_ss , test_ss = \
       prepare_evaluate_positions_structs()
     ##
     new_entry = text_extraction.create_annotation_entry( begin_pos = "87" ,
@@ -739,14 +770,14 @@ def test_evaluate_positions_nested_annotations_gold_and_test():
                                                          end_pos_mapped = "80" ,
                                                          raw_text = None ,
                                                          tag_name = "Age" )
-    gold_ss[ "87" ].append( new_entry )
+    reference_ss[ "87" ].append( new_entry )
     test_ss[ "87" ].append( new_entry )
     ##
     scoring_metrics.evaluate_positions( ingest_file ,
                                         score_card ,
-                                        gold_ss = gold_ss ,
+                                        reference_ss = reference_ss ,
                                         test_ss = test_ss ,
-                                        ignore_whitespace = False )
+                                        use_mapped_chars = False )
     ##
     expected_score_card = scoring_metrics.new_score_card()
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
@@ -766,26 +797,27 @@ def test_evaluate_positions_nested_annotations_gold_and_test():
 #############################################
 
 def prepare_evaluate_positions_offset_alignment( test_filename ):
-    gold_filename = 'tests/data/offset_matching/the_doctors_age_gold.xmi'
+    reference_filename = 'tests/data/offset_matching/the_doctors_age_reference.xmi'
     namespaces = { 'cas' :
                    "http:///uima/cas.ecore" ,
                    'custom' :
                    "http:///webanno/custom.ecore" }
     document_data = dict( tag_xpath = './cas:Sofa' ,
                           content_attribute = 'sofaString' )
-    raw_content , gold_om = \
-      text_extraction.extract_chars( ingest_file = gold_filename ,
+    raw_content , reference_om = \
+      text_extraction.extract_chars( ingest_file = reference_filename ,
                                      namespaces = namespaces ,
-                                     document_data = document_data )
-    test_om = gold_om
+                                     document_data = document_data ,
+                                     skip_chars = '[\s]' )
+    test_om = reference_om
     tag_set = { 'DateTime' : './custom:PHI[@Time="DateTime"]' ,
                 'Age' : './custom:PHI[@Time="Age"]' }
-    gold_ss = {}
+    reference_ss = {}
     test_ss = {}
     for tag_name in tag_set:
-        gold_ss.update( 
-         text_extraction.extract_annotations_xml( gold_filename ,
-                                                  offset_mapping = gold_om ,
+        reference_ss.update( 
+         text_extraction.extract_annotations_xml( reference_filename ,
+                                                  offset_mapping = reference_om ,
                                                   annotation_path = tag_set[ tag_name ] ,
                                                   tag_name = tag_name ,
                                                   namespaces = namespaces ,
@@ -799,10 +831,10 @@ def prepare_evaluate_positions_offset_alignment( test_filename ):
                                                   namespaces = namespaces ,
                                                   begin_attribute = 'begin' ,
                                                   end_attribute = 'end' ) )
-    return gold_ss , test_ss
+    return reference_ss , test_ss
 
 
-def prepare_offset_alignment_score_cards( filename , gold_ss , test_ss ):
+def prepare_offset_alignment_score_cards( filename , reference_ss , test_ss ):
     fuzzy_flags = [ 'exact' ,
                     'fully-contained' ,
                     'partial' ]
@@ -810,22 +842,22 @@ def prepare_offset_alignment_score_cards( filename , gold_ss , test_ss ):
     for fuzzy_flag in fuzzy_flags:
         scoring_metrics.evaluate_positions( filename ,
                                             score_card ,
-                                            gold_ss ,
+                                            reference_ss ,
                                             test_ss ,
                                             fuzzy_flag = fuzzy_flag ,
-                                            ignore_whitespace = True )
+                                            use_mapped_chars = True )
     return score_card , fuzzy_flags
 
 
 def test_exact_match_overlap():
-    test_filename = 'tests/data/offset_matching/the_doctors_age_gold.xmi'
-    gold_ss , test_ss = \
+    test_filename = 'tests/data/offset_matching/the_doctors_age_reference.xmi'
+    reference_ss , test_ss = \
         prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
-    assert gold_ss == test_ss
+    assert reference_ss == test_ss
     ##
     system_score_card , fuzzy_flags = \
       prepare_offset_alignment_score_cards( test_filename ,
-                                            gold_ss ,
+                                            reference_ss ,
                                             test_ss )
     expected_score_card = \
       scoring_metrics.new_score_card( fuzzy_flags = fuzzy_flags )
@@ -846,13 +878,13 @@ def test_exact_match_overlap():
 
 def test_match_overlap_contained_on_both_sides():
     test_filename = 'tests/data/offset_matching/the_doctors_age_contained_on_both_sides.xmi'
-    gold_ss , test_ss = \
+    reference_ss , test_ss = \
         prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
-    assert gold_ss != test_ss
+    assert reference_ss != test_ss
     ##
     system_score_card , fuzzy_flags = \
       prepare_offset_alignment_score_cards( test_filename ,
-                                            gold_ss ,
+                                            reference_ss ,
                                             test_ss )
     expected_score_card = \
       scoring_metrics.new_score_card( fuzzy_flags = fuzzy_flags )
@@ -878,13 +910,13 @@ def test_match_overlap_contained_on_both_sides():
 
 def test_match_overlap_contained_on_left():
     test_filename = 'tests/data/offset_matching/the_doctors_age_contained_on_left.xmi'
-    gold_ss , test_ss = \
+    reference_ss , test_ss = \
         prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
-    assert gold_ss != test_ss
+    assert reference_ss != test_ss
     ##
     system_score_card , fuzzy_flags = \
       prepare_offset_alignment_score_cards( test_filename ,
-                                            gold_ss ,
+                                            reference_ss ,
                                             test_ss )
     expected_score_card = \
       scoring_metrics.new_score_card( fuzzy_flags = fuzzy_flags )
@@ -910,13 +942,13 @@ def test_match_overlap_contained_on_left():
 
 def test_match_overlap_contained_on_right():
     test_filename = 'tests/data/offset_matching/the_doctors_age_contained_on_right.xmi'
-    gold_ss , test_ss = \
+    reference_ss , test_ss = \
         prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
-    assert gold_ss != test_ss
+    assert reference_ss != test_ss
     ##
     system_score_card , fuzzy_flags = \
       prepare_offset_alignment_score_cards( test_filename ,
-                                            gold_ss ,
+                                            reference_ss ,
                                             test_ss )
     expected_score_card = \
       scoring_metrics.new_score_card( fuzzy_flags = fuzzy_flags )
@@ -942,13 +974,13 @@ def test_match_overlap_contained_on_right():
 
 def test_match_overlap_partial_on_both_sides():
     test_filename = 'tests/data/offset_matching/the_doctors_age_partial_on_both_sides.xmi'
-    gold_ss , test_ss = \
+    reference_ss , test_ss = \
         prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
-    assert gold_ss != test_ss
+    assert reference_ss != test_ss
     ##
     system_score_card , fuzzy_flags = \
       prepare_offset_alignment_score_cards( test_filename ,
-                                            gold_ss ,
+                                            reference_ss ,
                                             test_ss )
     expected_score_card = \
       scoring_metrics.new_score_card( fuzzy_flags = fuzzy_flags )
@@ -974,13 +1006,13 @@ def test_match_overlap_partial_on_both_sides():
 
 def test_match_overlap_partial_on_left():
     test_filename = 'tests/data/offset_matching/the_doctors_age_partial_on_left.xmi'
-    gold_ss , test_ss = \
+    reference_ss , test_ss = \
         prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
-    assert gold_ss != test_ss
+    assert reference_ss != test_ss
     ##
     system_score_card , fuzzy_flags = \
       prepare_offset_alignment_score_cards( test_filename ,
-                                            gold_ss ,
+                                            reference_ss ,
                                             test_ss )
     expected_score_card = \
       scoring_metrics.new_score_card( fuzzy_flags = fuzzy_flags )
@@ -1006,13 +1038,13 @@ def test_match_overlap_partial_on_left():
 
 def test_match_overlap_partial_on_right():
     test_filename = 'tests/data/offset_matching/the_doctors_age_partial_on_right.xmi'
-    gold_ss , test_ss = \
+    reference_ss , test_ss = \
         prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
-    assert gold_ss != test_ss
+    assert reference_ss != test_ss
     ##
     system_score_card , fuzzy_flags = \
       prepare_offset_alignment_score_cards( test_filename ,
-                                            gold_ss ,
+                                            reference_ss ,
                                             test_ss )
     expected_score_card = \
       scoring_metrics.new_score_card( fuzzy_flags = fuzzy_flags )
@@ -1038,13 +1070,13 @@ def test_match_overlap_partial_on_right():
 
 def test_match_overlap_partial_on_left_contained_on_right():
     test_filename = 'tests/data/offset_matching/the_doctors_age_partial_on_left_contained_on_right.xmi'
-    gold_ss , test_ss = \
+    reference_ss , test_ss = \
         prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
-    assert gold_ss != test_ss
+    assert reference_ss != test_ss
     ##
     system_score_card , fuzzy_flags = \
       prepare_offset_alignment_score_cards( test_filename ,
-                                            gold_ss ,
+                                            reference_ss ,
                                             test_ss )
     expected_score_card = \
       scoring_metrics.new_score_card( fuzzy_flags = fuzzy_flags )
@@ -1070,13 +1102,13 @@ def test_match_overlap_partial_on_left_contained_on_right():
 
 def test_match_overlap_partial_on_right_contained_on_left():
     test_filename = 'tests/data/offset_matching/the_doctors_age_partial_on_right_contained_on_left.xmi'
-    gold_ss , test_ss = \
+    reference_ss , test_ss = \
         prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
-    assert gold_ss != test_ss
+    assert reference_ss != test_ss
     ##
     system_score_card , fuzzy_flags = \
       prepare_offset_alignment_score_cards( test_filename ,
-                                            gold_ss ,
+                                            reference_ss ,
                                             test_ss )
     expected_score_card = \
       scoring_metrics.new_score_card( fuzzy_flags = fuzzy_flags )
@@ -1102,13 +1134,13 @@ def test_match_overlap_partial_on_right_contained_on_left():
 
 def test_match_overlap_type_mismatch():
     test_filename = 'tests/data/offset_matching/the_doctors_age_type_mismatch.xmi'
-    gold_ss , test_ss = \
+    reference_ss , test_ss = \
         prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
-    assert gold_ss != test_ss
+    assert reference_ss != test_ss
     ##
     system_score_card , fuzzy_flags = \
       prepare_offset_alignment_score_cards( test_filename ,
-                                            gold_ss ,
+                                            reference_ss ,
                                             test_ss )
     expected_score_card = \
       scoring_metrics.new_score_card( fuzzy_flags = fuzzy_flags )
@@ -1133,13 +1165,13 @@ def test_match_overlap_type_mismatch():
 
 def test_match_overlap_type_mismatch_contained_on_left():
     test_filename = 'tests/data/offset_matching/the_doctors_age_type_mismatch_contained_on_left.xmi'
-    gold_ss , test_ss = \
+    reference_ss , test_ss = \
         prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
-    assert gold_ss != test_ss
+    assert reference_ss != test_ss
     ##
     system_score_card , fuzzy_flags = \
       prepare_offset_alignment_score_cards( test_filename ,
-                                            gold_ss ,
+                                            reference_ss ,
                                             test_ss )
     expected_score_card = \
       scoring_metrics.new_score_card( fuzzy_flags = fuzzy_flags )
@@ -1164,13 +1196,13 @@ def test_match_overlap_type_mismatch_contained_on_left():
 
 def test_match_overlap_type_mismatch_contained_on_right():
     test_filename = 'tests/data/offset_matching/the_doctors_age_type_mismatch_contained_on_right.xmi'
-    gold_ss , test_ss = \
+    reference_ss , test_ss = \
         prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
-    assert gold_ss != test_ss
+    assert reference_ss != test_ss
     ##
     system_score_card , fuzzy_flags = \
       prepare_offset_alignment_score_cards( test_filename ,
-                                            gold_ss ,
+                                            reference_ss ,
                                             test_ss )
     expected_score_card = \
       scoring_metrics.new_score_card( fuzzy_flags = fuzzy_flags )
