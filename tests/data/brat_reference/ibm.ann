@@ -1,0 +1,5 @@
+T1	Organization 0 43	International Business Machines Corporation
+T2	Organization 45 48	IBM
+T3	Organization 52 60	Big Blue
+*	Equiv T1 T2 T3
+#1	AnnotatorNotes T1	this annotation is suspect
