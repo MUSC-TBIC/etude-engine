@@ -133,7 +133,7 @@ unstructured data extraction.
                          help = "Create an offset mapping from the raw document that ignores whitespaces in the offset index (Turned on by default; the counter argument to --heed-whitespace)" ,
                          action = "store_true" )
     
-    parser.add_argument( '--skip-chars' , nargs = '+' ,
+    parser.add_argument( '--skip-chars' ,
                          dest = 'skip_chars' ,
                          default = None ,
                          help = "A configurable variant of --ignore-whitespace. The provided regex determines all characters to be ignored in the offset indices." )

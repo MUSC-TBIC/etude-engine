@@ -27,8 +27,6 @@ def test_init_args_verbose():
                   '--verbose' ]
     with patch.object( sys , 'argv' , test_args ):
         args = etude.init_args()
-        with open( '/tmp/bob.txt' , 'w' ) as fp:
-            fp.write( '{}'.format( args ) )
         assert args.verbose == True
 
 def test_init_args_corpus_out():
@@ -39,9 +37,52 @@ def test_init_args_corpus_out():
                   '--corpus-out' , '/tmp/corpusOut' ]
     with patch.object( sys , 'argv' , test_args ):
         args = etude.init_args()
-        with open( '/tmp/bob.txt' , 'a' ) as fp:
-            fp.write( '{}'.format( args ) )
         assert args.corpus_out == '/tmp/corpusOut'
+
+def test_init_args_heed_whitespace():
+    from mock import patch
+    test_args = [ 'etude.py' ,
+                  '--reference-input' , '/tmp/reference' ,
+                  '--test-input' , '/tmp/test' ,
+                  '--heed-whitespace' ]
+    with patch.object( sys , 'argv' , test_args ):
+        args = etude.init_args()
+        assert args.ignore_whitespace == False
+        assert args.skip_chars == None
+
+def test_init_args_ignore_whitespace():
+    from mock import patch
+    test_args = [ 'etude.py' ,
+                  '--reference-input' , '/tmp/reference' ,
+                  '--test-input' , '/tmp/test' ,
+                  '--ignore-whitespace' ]
+    with patch.object( sys , 'argv' , test_args ):
+        args = etude.init_args()
+        assert args.ignore_whitespace == True
+        assert args.skip_chars == '[\s]'
+
+def test_init_args_skip_chars():
+    from mock import patch
+    test_args = [ 'etude.py' ,
+                  '--reference-input' , '/tmp/reference' ,
+                  '--test-input' , '/tmp/test' ,
+                  '--skip-chars' , '[z\|]' ]
+    with patch.object( sys , 'argv' , test_args ):
+        args = etude.init_args()
+        assert args.ignore_whitespace == True
+        assert args.skip_chars == '[z\|]'
+
+def test_init_args_skip_chars_and_whitespace_flag():
+    from mock import patch
+    test_args = [ 'etude.py' ,
+                  '--reference-input' , '/tmp/reference' ,
+                  '--test-input' , '/tmp/test' ,
+                  '--ignore-whitespace' ,
+                  '--skip-chars' , '[z\|]' ]
+    with patch.object( sys , 'argv' , test_args ):
+        args = etude.init_args()
+        assert args.ignore_whitespace == True
+        assert args.skip_chars == '[z\|]'
 
 
 #############################################
