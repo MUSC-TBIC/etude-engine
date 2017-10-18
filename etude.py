@@ -249,6 +249,25 @@ def score_ref_set( reference_ns , reference_dd , reference_patterns , reference_
             log.error( 'No documents found in reference directory:  {}'.format( reference_folder ) )
         return( None )
     ##
+    if( args.reference_out != None and
+        not os.path.exists( args.reference_out ) ):
+        log.warn( 'Creating reference output folder because it does not exist:  {}'.format( args.reference_out ) )
+        try:
+            os.makedirs( args.reference_out )
+        except OSError as e:
+            log.error( 'OSError caught while trying to create test output folder:  {}'.format( e ) )
+        except IOError as e:
+            log.error( 'IOError caught while trying to create reference output folder:  {}'.format( e ) )
+    if( args.test_out != None and
+        not os.path.exists( args.test_out ) ):
+        log.warn( 'Creating test output folder because it does not exist:  {}'.format( args.test_out ) )
+        try:
+            os.makedirs( args.test_out )
+        except OSError as e:
+            log.error( 'OSError caught while trying to create test output folder:  {}'.format( e ) )
+        except IOError as e:
+            log.error( 'IOError caught while trying to create test output folder:  {}'.format( e ) )
+    ##
     progress = progressbar.ProgressBar( max_value = match_count ,
                                         redirect_stderr = True )
     for reference_filename in progress( sorted( file_mapping.keys() ) ):
