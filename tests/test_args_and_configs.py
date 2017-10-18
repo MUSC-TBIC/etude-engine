@@ -216,6 +216,24 @@ def test_plaintext_document_format():
     assert document_data[ 'format' ] == 'txt'
 
 
+def test_brat_standoff_format():
+    filename = 'config/brat_problems_allergies_standoff.conf'
+    score_values = [ '.*' ]
+    namespaces , document_data , patterns = \
+      args_and_configs.process_config( config_file = filename ,
+                                       score_key = 'Short Name' ,
+                                       score_values = score_values )
+    for pattern in patterns:
+        assert pattern[ 'short_name' ] == 'Problem' or pattern[ 'short_name' ] == 'Allergen'
+        assert pattern[ 'type_prefix' ] == 'T'
+        assert pattern[ 'optional_attributes' ] == [ 'Conditional' ,
+                                                     'Generic' ,
+                                                     'Historical' ,
+                                                     'Negated' ,
+                                                     'NotPatient' ,
+                                                     'Uncertain' ]
+
+
 ## Raw Content
 
 def test_raw_content_extraction_from_cdata():

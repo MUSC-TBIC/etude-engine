@@ -234,6 +234,33 @@ def extract_delimited_patterns( annotations ,
     log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
 
 
+def extract_brat_patterns( annotations ,
+                           config , sect ,
+                           display_name ,
+                           key_value ,
+                           score_values ,
+                           verbose = False ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
+    ## Loop through all the provided score_values to see if any
+    ## provided values match the currently extracted value
+    for score_value in score_values:
+        if( re.search( score_value , key_value ) ):
+            pattern_entry = dict( type = key_value ,
+                                  long_name = sect.strip() ,
+                                  type_prefix = config.get( sect ,
+                                                            'Type Prefix' ) ,
+                                  display_name = display_name ,
+                                  short_name = config.get( sect ,
+                                                           'Short Name' ) )
+            if( config.has_option( sect , 'Opt Attr' ) ):
+                optional_attributes = config.get( sect , 'Opt Attr' )
+                pattern_entry[ 'optional_attributes' ] = \
+                  optional_attributes.split( ',' )
+            annotations.append( pattern_entry )
+            break
+    log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
+
+
 def extract_patterns( annotations ,
                       config , sect ,
                       score_key ,
@@ -263,6 +290,13 @@ def extract_patterns( annotations ,
                                     key_value ,
                                     score_values ,
                                     verbose )
+    elif( config.has_option( sect , 'Type Prefix' ) ):
+        extract_brat_patterns( annotations ,
+                               config , sect ,
+                               display_name ,
+                               key_value ,
+                               score_values ,
+                               verbose )        
     log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
 
 
