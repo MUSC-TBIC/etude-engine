@@ -383,6 +383,8 @@ def extract_annotations( ingest_file ,
     ##
     try:
         write_annotations_to_disk( file_dictionary , out_file )
+    except IOError as e:
+        log.error( 'IOError caught in write_annotations_to_disk:  {}'.format( e ) )
     except:
         e = sys.exc_info()[0]
         log.error( 'Uncaught exception in write_annotations_to_disk:  {}'.format( e ) )
