@@ -467,7 +467,8 @@ def print_score_summary( score_card , file_mapping ,
     print( '\n{}{}{}'.format( fuzzy_flag ,
                               args.delim ,
                               metrics_header_line ) )
-    if( args.csv_out ):
+    if( args.csv_out and
+        not os.path.exists( args.csv_out ) ):
         update_csv_output( args.csv_out , args.delim ,
                            [ 'FuzzyFlag' ,
                              'ClassType' , 'Class' ,
