@@ -116,6 +116,73 @@ def extract_annotations_xml( ingest_file ,
     ## 
     return strict_starts
 
+def extract_annotations_brat_standoff( ingest_file ,
+                                       offset_mapping ,
+                                       type_prefix ,
+                                       tag_name ,
+                                       optional_attributes = [] ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
+    annots_by_index = dict()
+    ##
+    try:
+        with open( ingest_file , 'r' ) as fp:
+            for line in fp:
+                line = line.rstrip()
+                ## T1	Organization 0 43	International Business Machines Corporation
+                matches = re.match( '^' + type_prefix + '([0-9]+)\s+(\w+)\s+([0-9]+)\s+([0-9]+)\s+(.*)' ,
+                                    line )
+                if( matches and matches.group( 2 ) == tag_name ):
+                    match_index = matches.group( 1 )
+                    begin_pos = matches.group( 3 )
+                    begin_pos_mapped = map_position( offset_mapping , begin_pos , 1 )
+                    end_pos = matches.group( 4 )
+                    end_pos_mapped = map_position( offset_mapping , end_pos , -1 )
+                    raw_text = matches.group( 5 )
+                    new_entry = create_annotation_entry( begin_pos = begin_pos ,
+                                                         begin_pos_mapped = begin_pos_mapped ,
+                                                         end_pos = end_pos ,
+                                                         end_pos_mapped = end_pos_mapped ,
+                                                         raw_text = raw_text ,
+                                                         tag_name = tag_name )
+                    new_entry[ 'match_index' ] = '{}{}'.format( type_prefix , match_index )
+                    for optional_attr in optional_attributes:
+                        ## TODO - quick hack to match attributes (see below)
+                        key = optional_attr.lower()
+                        if( key == 'notpatient' ):
+                            key = 'not_patient'
+                        new_entry[ key ] = 'false'
+                    ##
+                    annots_by_index[ new_entry[ 'match_index' ] ] = new_entry
+                    continue
+                ##
+                ## A1	Negated T34
+                matches = re.match( '^A([0-9]+)\s+(\w+)\s+([A-Z][0-9]+)$' ,
+                                    line )
+                if( matches ):
+                    match_index = matches.group( 3 )
+                    attribute = matches.group( 2 )
+                    if( attribute in optional_attributes and
+                        match_index in annots_by_index.keys() ):
+                        ## TODO - quick hack to match attributes (see above)
+                        key = attribute.lower()
+                        if( key == 'notpatient' ):
+                            key = 'not_patient'
+                        annots_by_index[ match_index ][ key ] = 'true'
+                        continue
+    except IOError, e:
+        log.warn( 'I had a problem reading the standoff notation file ({}).\n\tReported Error:  {}'.format( ingest_file ,
+                                                                                                            e ) )
+        log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
+    strict_starts = {}
+    for match_index in annots_by_index:
+        new_entry = annots_by_index[ match_index ]
+        begin_pos = new_entry[ 'begin_pos' ]
+        if( begin_pos in strict_starts.keys() ):
+            strict_starts[ begin_pos ].append( new_entry )
+        else:
+            strict_starts[ begin_pos ] = [ new_entry ]
+    return strict_starts
+
 
 def extract_annotations_plaintext( offset_mapping ,
                                    raw_content ,
@@ -338,6 +405,19 @@ def extract_annotations( ingest_file ,
             except:
                 e = sys.exc_info()[0]
                 log.error( 'Uncaught exception in extract_plaintext:  {}'.format( e ) )
+        elif( 'format' in document_data and
+              document_data[ 'format' ] == '.ann .txt' ):
+            ## TODO use format to change filename according to pattern
+            ## document_data[ 'format' ]
+            plaintext_alternate_file = re.sub( '.ann$' ,
+                                               '.txt' ,
+                                               ingest_file )
+            try:
+                raw_content , offset_mapping = extract_plaintext( plaintext_alternate_file ,
+                                                                  skip_chars )
+            except:
+                e = sys.exc_info()[0]
+                log.error( 'Uncaught exception in extract_plaintext:  {}'.format( e ) )
         else:
             try:
                 raw_content , offset_mapping = extract_chars( ingest_file ,
@@ -359,6 +439,15 @@ def extract_annotations( ingest_file ,
                                                delimiter = \
                                                  pattern[ 'delimiter' ] ,
                                                tag_name = pattern[ 'type' ] ) )
+        elif( 'type_prefix' in pattern ):
+            annotations.update( 
+                extract_annotations_brat_standoff( ingest_file ,
+                                                   offset_mapping = offset_mapping ,
+                                                   type_prefix = \
+                                                     pattern[ 'type_prefix' ] ,
+                                                   tag_name = pattern[ 'type' ] ,
+                                                   optional_attributes = \
+                                                   pattern[ 'optional_attributes' ] ) )
         elif( 'xpath' in pattern and
               'begin_attr' in pattern and
               'end_attr' in pattern ):
