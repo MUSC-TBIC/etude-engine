@@ -47,6 +47,8 @@ def count_ref_set( test_ns , test_patterns , test_folder ,
               text_extraction.extract_annotations( test_full_path ,
                                                    namespaces = test_ns ,
                                                    patterns = test_patterns )
+        except TypeError , e:
+            log.error( 'TypeError exception in extract_annotations:  {}'.format( e ) )
         except:
             e = sys.exc_info()[0]
             log.error( 'Uncaught exception in extract_annotations:  {}'.format( e ) )
@@ -288,6 +290,8 @@ def score_ref_set( reference_ns , reference_dd , reference_patterns , reference_
                                                    patterns = reference_patterns ,
                                                    skip_chars = args.skip_chars ,
                                                    out_file = reference_out_file )
+        except TypeError , e:
+            log.error( 'TypeError exception in extract_annotations:  {}'.format( e ) )
         except:
             e = sys.exc_info()[0]
             log.error( 'Uncaught exception in extract_annotations:  {}'.format( e ) )
@@ -314,6 +318,8 @@ def score_ref_set( reference_ns , reference_dd , reference_patterns , reference_
                                                        skip_chars = \
                                                          args.skip_chars ,
                                                        out_file = test_out_file )
+            except TypeError , e:
+                log.error( 'TypeError exception in extract_annotations:  {}'.format( e ) )
             except:
                 e = sys.exc_info()[0]
                 log.error( 'Uncaught exception in extract_annotations:  {}'.format( e ) )
@@ -331,6 +337,8 @@ def score_ref_set( reference_ns , reference_dd , reference_patterns , reference_
                                                     fuzzy_flag = fuzzy_flag ,
                                                     use_mapped_chars = \
                                                       ignore_chars )
+        except UnboundLocalError , e:
+            log.error( 'UnboundLocalError exception in extract_annotations:  {}'.format( e ) )
         except:
             e = sys.exc_info()[0]
             log.error( 'Uncaught exception in evaluate_positions:  {}'.format( e ) )
