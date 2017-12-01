@@ -72,7 +72,8 @@ def count_ref_set( test_ns , test_patterns , test_folder ,
 
 
 def collect_files( reference_folder , test_folder ,
-                   file_prefix , file_suffix ):
+                   file_prefix , file_suffix ,
+                   skip_missing_files_flag ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     file_mapping = {}
     match_count = 0
@@ -93,8 +94,11 @@ def collect_files( reference_folder , test_folder ,
             match_count += 1
             file_mapping[ reference_filename ] = test_filename
         else:
-            ## TODO - log on missing test file
-            file_mapping[ reference_filename ] = None
+            if( skip_missing_files_flag ):
+                    log.debug( "Skipping file because no test equivalent:  {} -/-> {}".format( reference_filename ,
+                                                                                               test_filename ) )
+            else:
+                file_mapping[ reference_filename ] = None
     ##
     log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
     return( match_count , file_mapping )
@@ -111,7 +115,8 @@ def count_chars_profile( reference_ns , reference_dd , reference_folder ,
     """
     try:
         match_count , file_mapping = collect_files( reference_folder , test_folder ,
-                                                    file_prefix , file_suffix )
+                                                    file_prefix , file_suffix ,
+                                                    args.skip_missing_files )
     except:
         e = sys.exc_info()[0]
         log.error( 'Uncaught exception in collect_files:  {}'.format( e ) )
@@ -178,7 +183,8 @@ def align_tokens(  reference_folder ,
     Align reference and test documents by token for comparison
     """
     match_count , file_mapping = collect_files( reference_folder , test_folder ,
-                                                file_prefix , file_suffix )
+                                                file_prefix , file_suffix ,
+                                                args.skip_missing_files )
     ##
     if( match_count == 0 ):
         ## Empty dictionaries evaluate to False so testing bool can tell us if
@@ -237,7 +243,8 @@ def score_ref_set( reference_ns , reference_dd , reference_patterns , reference_
     confusion_matrix = {}
     try:
         match_count , file_mapping = collect_files( reference_folder , test_folder ,
-                                                    file_prefix , file_suffix )
+                                                    file_prefix , file_suffix ,
+                                                    args.skip_missing_files )
     except:
         e = sys.exc_info()[0]
         log.error( 'Uncaught exception in collect_files:  {}'.format( e ) )

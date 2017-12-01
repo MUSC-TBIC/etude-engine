@@ -142,6 +142,17 @@ unstructured data extraction.
                          dest = 'ignore_whitespace' ,
                          help = "Include all whitespace in the offset mapping from the raw document (the counter argument to --ignore-whitespace)" ,
                          action = "store_false" )
+
+    parser.add_argument( '--skip-missing-files' ,
+                         default = True ,
+                         dest = 'skip_missing_files' ,
+                         help = "Don't analyze or score a reference file if the equivalent system output file is missing (Turned on by default; the counter argument to --score-missing-files)" ,
+                         action = "store_true" )
+    
+    parser.add_argument( '--score-missing-files' ,
+                         dest = 'skip_missing_files' ,
+                         help = "Score all reference files even if the equivalent system output file can't be found (the counter argument to --skip-missing-files)" ,
+                         action = "store_false" )
     ##
     return parser
 

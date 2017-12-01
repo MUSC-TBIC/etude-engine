@@ -27,6 +27,25 @@ def test_heed_whitespace_flag_usage():
     args = args_and_configs.get_arguments( command_line_args )
     assert args.ignore_whitespace == True
 
+def test_skip_missing_test_files_usage():
+    command_line_args = [ '--reference-input' , 'tests/data/i2b2_2016_track-1_reference' ,
+                          '--test-input' , 'tests/data/i2b2_2016_track-1_test' ,
+                          '--skip-missing-files' ]
+    args = args_and_configs.get_arguments( command_line_args )
+    assert args.skip_missing_files == True
+    ## Performance should be identical to default
+    command_line_args = [ '--reference-input' , 'tests/data/i2b2_2016_track-1_reference' ,
+                          '--test-input' , 'tests/data/i2b2_2016_track-1_test' ]
+    args = args_and_configs.get_arguments( command_line_args )
+    assert args.skip_missing_files == True
+
+def test_score_missing_test_files_usage():
+    command_line_args = [ '--reference-input' , 'tests/data/i2b2_2016_track-1_reference' ,
+                          '--test-input' , 'tests/data/i2b2_2016_track-1_test' ,
+                          '--score-missing-files' ]
+    args = args_and_configs.get_arguments( command_line_args )
+    assert args.skip_missing_files == False
+
 
 #############################################
 ## Test loading and reading of config files
