@@ -531,7 +531,7 @@ def print_score_summary( score_card , file_mapping ,
                                         'micro-average' ] ,
                                       args.metrics_list ,
                                       metrics )
-        if( args.test_out ):
+        if( args.test_out and file_mapping[ filename ] != None ):
             out_file = '{}/{}'.format( args.test_out ,
                                        file_mapping[ filename ] )
             update_output_dictionary( out_file ,
@@ -565,7 +565,7 @@ def print_score_summary( score_card , file_mapping ,
                                             'by-type' , unique_type ] ,
                                           args.metrics_list ,
                                           metrics )
-            if( args.test_out ):
+            if( args.test_out and file_mapping[ filename ] != None ):
                 out_file = '{}/{}'.format( args.test_out ,
                                            file_mapping[ filename ] )
                 update_output_dictionary( out_file ,
