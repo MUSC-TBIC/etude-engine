@@ -248,8 +248,115 @@ def test_by_file_and_type_summary_stats( capsys ):
     by_type_out = by_type_out.strip()
     expected_out = expected_out.strip()
     assert by_type_out == expected_out
-    
-    
+
+
+def test_by_file_and_type_to_reference_file_summary_stats( capsys ):
+    score_card , args , sample_config , \
+      file_mapping = initialize_for_print_summary_test()
+    args.metrics_list = [ 'Precision' , 'Recall' , 'F1' ]
+    args.by_file_and_type = True
+    ##
+    try:
+        args.reference_out = tempfile.mkdtemp()
+        scoring_metrics.print_score_summary( score_card , file_mapping ,
+                                             sample_config , sample_config ,
+                                             fuzzy_flag = 'exact' ,
+                                             args = args )
+        ##
+        for filename in [ 'a.xml' , 'b.xml' ]:
+            ref_file = '{}/{}'.format( 'tests/data/print_summary_reference_out' ,
+                                       filename )
+            test_file = '{}/{}'.format( args.reference_out ,
+                                        filename )
+            with open( ref_file , 'r' ) as fp:
+                reference_json = json.load( fp )
+            with open( test_file , 'r' ) as fp:
+                reloaded_json = json.load( fp )
+            assert reference_json == reloaded_json
+            os.remove( test_file )
+    finally:
+        ## If this returns a OSError: [Errno 66] Directory not empty,
+        ## then the asserts in the previous try statement failed. Treat
+        ## it as a test failure not a try/catch problem.
+        os.rmdir( args.reference_out )
+
+
+def test_by_file_and_type_to_test_file_summary_stats( capsys ):
+    score_card , args , sample_config , \
+      file_mapping = initialize_for_print_summary_test()
+    args.metrics_list = [ 'Precision' , 'Recall' , 'F1' ]
+    args.by_file_and_type = True
+    ##
+    try:
+        args.test_out = tempfile.mkdtemp()
+        scoring_metrics.print_score_summary( score_card , file_mapping ,
+                                             sample_config , sample_config ,
+                                             fuzzy_flag = 'exact' ,
+                                             args = args )
+        ##
+        for filename in [ 'a.xml' , 'b.xml' ]:
+            ref_file = '{}/{}'.format( 'tests/data/print_summary_test_out' ,
+                                       filename )
+            test_file = '{}/{}'.format( args.test_out ,
+                                        filename )
+            with open( ref_file , 'r' ) as fp:
+                reference_json = json.load( fp )
+            with open( test_file , 'r' ) as fp:
+                reloaded_json = json.load( fp )
+            assert reference_json == reloaded_json
+            os.remove( test_file )
+    finally:
+        ## If this returns a OSError: [Errno 66] Directory not empty,
+        ## then the asserts in the previous try statement failed. Treat
+        ## it as a test failure not a try/catch problem.
+        os.rmdir( args.test_out )
+
+
+def test_csv_out_header_creation( capsys ):
+    score_card , args , sample_config , \
+      file_mapping = initialize_for_print_summary_test()
+    args.metrics_list = [ 'Precision' , 'Recall' , 'F1' ]
+    ##
+    try:
+        tmp_descriptor, tmp_file = tempfile.mkstemp()
+        os.close( tmp_descriptor )
+        args.csv_out = tmp_file
+        os.remove( args.csv_out )
+        assert os.path.exists( args.csv_out ) == False
+        scoring_metrics.print_score_summary( score_card , file_mapping ,
+                                             sample_config , sample_config ,
+                                             fuzzy_flag = 'exact' ,
+                                             args = args )
+        ##
+        expected_values = [ 'FuzzyFlag' , 'ClassType' , 'Class' , 'SubClassType' , 'SubClass' ,
+                            'Precision' , 'Recall' , 'F1' ]
+        with open( tmp_file , 'r' ) as fp:
+            head_line = fp.readline().strip()
+            assert head_line == args.delim.join( '{}'.format( m ) for m in expected_values )
+    finally:
+        os.remove( tmp_file )
+
+
+def test_csv_out_append_if_present( capsys ):
+    score_card , args , sample_config , \
+      file_mapping = initialize_for_print_summary_test()
+    args.metrics_list = [ 'TP' , 'FP' , 'Precision' , 'Recall' , 'F1' ]
+    ## This flavor of named temporary file is automatically created, which should
+    ## trigger the logic branching that tests if the csv_out file is already
+    ## present
+    with tempfile.NamedTemporaryFile() as tmpfile_handle:
+        args.csv_out = tmpfile_handle.name
+        scoring_metrics.print_score_summary( score_card , file_mapping ,
+                                             sample_config , sample_config ,
+                                             fuzzy_flag = 'exact' ,
+                                             args = args )
+        ##
+        expected_values = [ 'exact' , 'micro-average' , '' , '' , '' ,
+                            '1.0' , '1.0' , '0.5' , '0.333333333333' , '0.4' ]
+        with open( tmpfile_handle.name , 'r' ) as fp:
+            head_line = fp.readline().strip()
+            assert head_line == args.delim.join( '{}'.format( m ) for m in expected_values )
+
 
 def changing_delim_to_variable( capsys , new_delim ):
     score_card , args , sample_config , \
@@ -1127,6 +1234,62 @@ def test_match_overlap_partial_on_right_contained_on_left():
     expected_score_card[ 'partial' ].loc[ expected_score_card[ 'partial' ].shape[ 0 ] ] = \
       [ test_filename , '32' , '48' , 'DateTime' , 'TP' ]
     ##
+    for fuzzy_flag in fuzzy_flags:
+        assert_frame_equal( system_score_card[ fuzzy_flag ] ,
+                            expected_score_card[ fuzzy_flag ] )
+
+
+def test_match_overlap_partial_leftside_outlier():
+    test_filename = 'tests/data/offset_matching/the_doctors_age_partial_leftside_outlier.xmi'
+    reference_ss , test_ss = \
+        prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
+    assert reference_ss != test_ss
+    ##
+    system_score_card , fuzzy_flags = \
+      prepare_offset_alignment_score_cards( test_filename ,
+                                            reference_ss ,
+                                            test_ss )
+    expected_score_card = \
+      scoring_metrics.new_score_card( fuzzy_flags = fuzzy_flags )
+    ## exact match only
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
+      [ test_filename , '19' , '21' , 'Age' , 'TP' ]
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
+      [ test_filename , '32' , '48' , 'DateTime' , 'FN' ]
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
+      [ test_filename , '30' , '31' , 'DateTime' , 'FP' ]
+    ## fully-contained matches
+    expected_score_card[ 'fully-contained' ] = expected_score_card[ 'exact' ]
+    ## overlapping matches
+    expected_score_card[ 'partial' ] = expected_score_card[ 'exact' ]
+    for fuzzy_flag in fuzzy_flags:
+        assert_frame_equal( system_score_card[ fuzzy_flag ] ,
+                            expected_score_card[ fuzzy_flag ] )
+
+
+def test_match_overlap_partial_rightside_outlier():
+    test_filename = 'tests/data/offset_matching/the_doctors_age_partial_rightside_outlier.xmi'
+    reference_ss , test_ss = \
+        prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
+    assert reference_ss != test_ss
+    ##
+    system_score_card , fuzzy_flags = \
+      prepare_offset_alignment_score_cards( test_filename ,
+                                            reference_ss ,
+                                            test_ss )
+    expected_score_card = \
+      scoring_metrics.new_score_card( fuzzy_flags = fuzzy_flags )
+    ## exact match only
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
+      [ test_filename , '32' , '48' , 'DateTime' , 'TP' ]
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
+      [ test_filename , '19' , '21' , 'Age' , 'FN' ]
+    expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
+      [ test_filename , '23' , '26' , 'Age' , 'FP' ]
+    ## fully-contained matches
+    expected_score_card[ 'fully-contained' ] = expected_score_card[ 'exact' ]
+    ## overlapping matches
+    expected_score_card[ 'partial' ] = expected_score_card[ 'exact' ]
     for fuzzy_flag in fuzzy_flags:
         assert_frame_equal( system_score_card[ fuzzy_flag ] ,
                             expected_score_card[ fuzzy_flag ] )

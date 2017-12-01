@@ -27,6 +27,25 @@ def test_heed_whitespace_flag_usage():
     args = args_and_configs.get_arguments( command_line_args )
     assert args.ignore_whitespace == True
 
+def test_skip_missing_test_files_usage():
+    command_line_args = [ '--reference-input' , 'tests/data/i2b2_2016_track-1_reference' ,
+                          '--test-input' , 'tests/data/i2b2_2016_track-1_test' ,
+                          '--skip-missing-files' ]
+    args = args_and_configs.get_arguments( command_line_args )
+    assert args.skip_missing_files == True
+    ## Performance should be identical to default
+    command_line_args = [ '--reference-input' , 'tests/data/i2b2_2016_track-1_reference' ,
+                          '--test-input' , 'tests/data/i2b2_2016_track-1_test' ]
+    args = args_and_configs.get_arguments( command_line_args )
+    assert args.skip_missing_files == True
+
+def test_score_missing_test_files_usage():
+    command_line_args = [ '--reference-input' , 'tests/data/i2b2_2016_track-1_reference' ,
+                          '--test-input' , 'tests/data/i2b2_2016_track-1_test' ,
+                          '--score-missing-files' ]
+    args = args_and_configs.get_arguments( command_line_args )
+    assert args.skip_missing_files == False
+
 
 #############################################
 ## Test loading and reading of config files
@@ -216,6 +235,24 @@ def test_plaintext_document_format():
     assert document_data[ 'format' ] == 'txt'
 
 
+def test_brat_standoff_format():
+    filename = 'config/brat_problems_allergies_standoff.conf'
+    score_values = [ '.*' ]
+    namespaces , document_data , patterns = \
+      args_and_configs.process_config( config_file = filename ,
+                                       score_key = 'Short Name' ,
+                                       score_values = score_values )
+    for pattern in patterns:
+        assert pattern[ 'short_name' ] == 'Problem' or pattern[ 'short_name' ] == 'Allergen'
+        assert pattern[ 'type_prefix' ] == 'T'
+        assert pattern[ 'optional_attributes' ] == [ 'Conditional' ,
+                                                     'Generic' ,
+                                                     'Historical' ,
+                                                     'Negated' ,
+                                                     'NotPatient' ,
+                                                     'Uncertain' ]
+
+
 ## Raw Content
 
 def test_raw_content_extraction_from_cdata():
@@ -263,12 +300,12 @@ def test_optional_attributes():
       args_and_configs.process_config( config_file = filename ,
                                        score_key = 'Short Name' ,
                                        score_values = score_values )
-    assert 'Conditional' in patterns[ 0 ][ 'optional_attributes' ] 
-    assert 'Generic' in patterns[ 0 ][ 'optional_attributes' ] 
-    assert 'Historical' in patterns[ 0 ][ 'optional_attributes' ] 
-    assert 'Negated' in patterns[ 0 ][ 'optional_attributes' ] 
-    assert 'NotPatient' in patterns[ 0 ][ 'optional_attributes' ] 
-    assert 'Uncertain' in patterns[ 0 ][ 'optional_attributes' ] 
+    assert 'conditional' in patterns[ 0 ][ 'optional_attributes' ] 
+    assert 'generic' in patterns[ 0 ][ 'optional_attributes' ] 
+    assert 'historical' in patterns[ 0 ][ 'optional_attributes' ] 
+    assert 'negated' in patterns[ 0 ][ 'optional_attributes' ] 
+    assert 'not_patient' in patterns[ 0 ][ 'optional_attributes' ] 
+    assert 'uncertain' in patterns[ 0 ][ 'optional_attributes' ] 
 
 
 #############################################

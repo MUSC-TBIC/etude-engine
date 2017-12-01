@@ -65,6 +65,14 @@ def flatten_ss_dictionary( ss_dictionary ,
     return flat_entries
 
 
+def update_score_card( condition , score_card , fuzzy_flag ,
+                       filename , start_pos , end_pos , type ,
+                       ref_annot = None , test_annot = None ):
+    score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
+      [ filename , start_pos , end_pos ,
+        type , condition ]
+
+
 def reference_annot_comparison_runner( score_card , reference_filename ,
                                        reference_annot , reference_leftovers ,
                                        test_entries ,
@@ -104,9 +112,9 @@ def reference_annot_comparison_runner( score_card , reference_filename ,
                 ## ... and the end positions match, then we have a
                 ##     perfect match
                 if( reference_end == test_end ):
-                    score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
-                          [ reference_filename , reference_start , reference_end ,
-                            reference_type , 'TP' ]
+                    update_score_card( 'TP' , score_card , fuzzy_flag ,
+                                       reference_filename , reference_start , reference_end ,
+                                       reference_type , reference_annot , test_annot )
                 elif( test_end == 'EOF' or
                       reference_end < test_end ):
                     ## If the reference end position is prior to the system
@@ -114,38 +122,38 @@ def reference_annot_comparison_runner( score_card , reference_filename ,
                     ## 'fully contained' match and also count it
                     ## as a win (until we score strict vs. lenient matches)
                     if( fuzzy_flag == 'exact' ):
-                        score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
-                              [ reference_filename , reference_start , reference_end ,
-                                reference_type , 'FN' ]
-                        score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
-                              [ reference_filename , test_start , test_end ,
-                                test_type , 'FP' ]
+                        update_score_card( 'FN' , score_card , fuzzy_flag ,
+                                       reference_filename , reference_start , reference_end ,
+                                       reference_type , reference_annot , test_annot )
+                        update_score_card( 'FP' , score_card , fuzzy_flag ,
+                                           reference_filename , test_start , test_end ,
+                                           test_type , reference_annot , test_annot )
                     else:
-                        score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
-                              [ reference_filename , reference_start , reference_end ,
-                                reference_type , 'TP' ]
+                        update_score_card( 'TP' , score_card , fuzzy_flag ,
+                                           reference_filename , reference_start , reference_end ,
+                                           reference_type , reference_annot , test_annot )
                 else:
                     ## otherwise, we missed some data that needs
                     ## to be captured.  For now, this is also
                     ## a win but will not always count.
                     if( fuzzy_flag == 'partial' ):
-                        score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
-                              [ reference_filename , reference_start , reference_end ,
-                                reference_type , 'TP' ]
+                        update_score_card( 'TP' , score_card , fuzzy_flag ,
+                                           reference_filename , reference_start , reference_end ,
+                                           reference_type , reference_annot , test_annot )
                     else:
-                        score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
-                              [ reference_filename , reference_start , reference_end ,
-                                reference_type , 'FN' ]
-                        score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
-                              [ reference_filename , test_start , test_end ,
-                                test_type , 'FP' ]
+                        update_score_card( 'FN' , score_card , fuzzy_flag ,
+                                       reference_filename , reference_start , reference_end ,
+                                       reference_type , reference_annot , test_annot )
+                        update_score_card( 'FP' , score_card , fuzzy_flag ,
+                                           reference_filename , test_start , test_end ,
+                                           test_type , reference_annot , test_annot )
             else:
-                score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
-                      [ reference_filename , reference_start , reference_end ,
-                        reference_type , 'FN' ]
-                score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
-                      [ reference_filename , test_start , test_end ,
-                        test_type , 'FP' ]
+                update_score_card( 'FN' , score_card , fuzzy_flag ,
+                                   reference_filename , reference_start , reference_end ,
+                                   reference_type , reference_annot , test_annot )
+                update_score_card( 'FP' , score_card , fuzzy_flag ,
+                                   reference_filename , test_start , test_end ,
+                                   test_type , reference_annot , test_annot )
             ## Everything within this block counts as a match
             ## so we need to remove the current test_annot from
             ## the list of possible matches in the future and
@@ -161,30 +169,30 @@ def reference_annot_comparison_runner( score_card , reference_filename ,
                     ## determined start position, we consider this a
                     ## 'fully contained' match and also count it
                     ## as a win
-                    score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
-                      [ reference_filename , reference_start , reference_end ,
-                        reference_type , 'TP' ]
+                    update_score_card( 'TP' , score_card , fuzzy_flag ,
+                                       reference_filename , reference_start , reference_end ,
+                                       reference_type , reference_annot , test_annot )
                 else:
                     ## otherwise, we missed some data that needs
                     ## to be captured.  This is a partial win.
                     if( fuzzy_flag == 'partial' ):
-                        score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
-                              [ reference_filename , reference_start , reference_end ,
-                                reference_type , 'TP' ]
+                        update_score_card( 'TP' , score_card , fuzzy_flag ,
+                                           reference_filename , reference_start , reference_end ,
+                                           reference_type , reference_annot , test_annot )
                     else:
-                        score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
-                              [ reference_filename , reference_start , reference_end ,
-                                reference_type , 'FN' ]
-                        score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
-                              [ reference_filename , test_start , test_end ,
-                                test_type , 'FP' ]
+                        update_score_card( 'FN' , score_card , fuzzy_flag ,
+                                           reference_filename , reference_start , reference_end ,
+                                           reference_type , reference_annot , test_annot )
+                        update_score_card( 'FP' , score_card , fuzzy_flag ,
+                                           reference_filename , test_start , test_end ,
+                                           test_type , reference_annot , test_annot )
             else:
-                score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
-                      [ reference_filename , reference_start , reference_end ,
-                        reference_type , 'FN' ]
-                score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
-                      [ reference_filename , test_start , test_end ,
-                        test_type , 'FP' ]
+                update_score_card( 'FN' , score_card , fuzzy_flag ,
+                                   reference_filename , reference_start , reference_end ,
+                                   reference_type , reference_annot , test_annot )
+                update_score_card( 'FP' , score_card , fuzzy_flag ,
+                                   reference_filename , test_start , test_end ,
+                                   test_type , reference_annot , test_annot )
             ## Everything within this block counts as a match
             ## so we need to remove the current test_annot from
             ## the list of possible matches in the future and
@@ -194,23 +202,23 @@ def reference_annot_comparison_runner( score_card , reference_filename ,
               ( test_start == 'SOF' or test_start < reference_start ) and
               ( test_end == 'EOF' or test_end > reference_end ) and
               reference_type == test_type ):
-            score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
-              [ reference_filename , reference_start , reference_end ,
-                reference_type , 'TP' ]
+            update_score_card( 'TP' , score_card , fuzzy_flag ,
+                               reference_filename , reference_start , reference_end ,
+                               reference_type , reference_annot , test_annot )
             ## Everything within this block counts as a match
             ## so we need to remove the current test_annot from
             ## the list of possible matches in the future and
             ## break out of the loop
             matched_flag = True
         elif( fuzzy_flag == 'partial' and
-              ( ( test_end == 'EOF' or
+              ( ( ( test_end == 'EOF' or test_end <= reference_end ) and
                   test_end > reference_start ) or
-                ( test_start == 'SOF' or
+                ( ( test_start == 'SOF' or test_start >= reference_start ) and
                   test_start < reference_end ) ) and
               reference_type == test_type ):
-            score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
-              [ reference_filename , reference_start , reference_end ,
-                reference_type , 'TP' ]
+            update_score_card( 'TP' , score_card , fuzzy_flag ,
+                               reference_filename , reference_start , reference_end ,
+                               reference_type , reference_annot , test_annot )
             ## Everything within this block counts as a match
             ## so we need to remove the current test_annot from
             ## the list of possible matches in the future and
@@ -260,8 +268,9 @@ def evaluate_positions( reference_filename ,
           get_annotation_from_base_entry( reference_annot ,
                                           start_key ,
                                           end_key )
-        score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
-          [ reference_filename , reference_start , reference_end , reference_type , 'FN' ]
+        update_score_card( 'FN' , score_card , fuzzy_flag ,
+                           reference_filename , reference_start , reference_end ,
+                           reference_type , reference_annot , None )
     for test_annot in test_leftovers:
         ## grab type and end position
         test_type , test_start , test_end = \
@@ -270,8 +279,9 @@ def evaluate_positions( reference_filename ,
                                           end_key )
         if( test_type == None ):
             continue
-        score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
-          [ reference_filename , test_start , test_end , test_type , 'FP' ]
+        update_score_card( 'FP' , score_card , fuzzy_flag ,
+                           reference_filename , test_start , test_end ,
+                           test_type , None , test_annot )
     ##
     log.debug( "Leaving '{}'".format( sys._getframe().f_code.co_name ) )
 
@@ -467,7 +477,8 @@ def print_score_summary( score_card , file_mapping ,
     print( '\n{}{}{}'.format( fuzzy_flag ,
                               args.delim ,
                               metrics_header_line ) )
-    if( args.csv_out ):
+    if( args.csv_out and
+        not os.path.exists( args.csv_out ) ):
         update_csv_output( args.csv_out , args.delim ,
                            [ 'FuzzyFlag' ,
                              'ClassType' , 'Class' ,
@@ -520,7 +531,7 @@ def print_score_summary( score_card , file_mapping ,
                                         'micro-average' ] ,
                                       args.metrics_list ,
                                       metrics )
-        if( args.test_out ):
+        if( args.test_out and file_mapping[ filename ] != None ):
             out_file = '{}/{}'.format( args.test_out ,
                                        file_mapping[ filename ] )
             update_output_dictionary( out_file ,
@@ -554,7 +565,7 @@ def print_score_summary( score_card , file_mapping ,
                                             'by-type' , unique_type ] ,
                                           args.metrics_list ,
                                           metrics )
-            if( args.test_out ):
+            if( args.test_out and file_mapping[ filename ] != None ):
                 out_file = '{}/{}'.format( args.test_out ,
                                            file_mapping[ filename ] )
                 update_output_dictionary( out_file ,
@@ -562,7 +573,7 @@ def print_score_summary( score_card , file_mapping ,
                                             fuzzy_flag ,
                                             'by-type' , unique_type ] ,
                                           args.metrics_list ,
-                                          metrics[ 1: ] )
+                                          metrics )
     if( non_empty_files > 0 ):
         macro_averaged_metrics = []
         for key , value in zip( args.metrics_list , file_aggregate_metrics ):

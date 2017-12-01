@@ -281,22 +281,22 @@ def test_extracting_with_and_without_optional_attributes():
                      'begin_pos': '181' ,
                      'end_pos': '188' ,
                      'raw_text': None ,
-                     'Conditional' : 'true' ,
-                     'Generic' : 'false' ,
-                     'Historical' : 'false' ,
-                     'Negated' : 'false' ,
-                     'NotPatient' : 'true' ,
-                     'Uncertain' : 'false' } ] ,
+                     'conditional' : 'true' ,
+                     'generic' : 'false' ,
+                     'historical' : 'false' ,
+                     'negated' : 'false' ,
+                     'not_patient' : 'true' ,
+                     'uncertain' : 'false' } ] ,
         '218' : [ { 'type': 'Problem' ,
                     'begin_pos': '218' ,
                     'end_pos': '224' ,
                     'raw_text': None ,
-                    'Conditional' : 'false' ,
-                    'Generic' : 'false' ,
-                    'Historical' : 'true' ,
-                    'Negated' : 'false' ,
-                    'NotPatient' : 'false' ,
-                    'Uncertain' : 'true' } ]
+                    'conditional' : 'false' ,
+                    'generic' : 'false' ,
+                    'historical' : 'true' ,
+                    'negated' : 'false' ,
+                    'not_patient' : 'false' ,
+                    'uncertain' : 'true' } ]
       }
     assert strict_starts_no_opt_attributes == \
         expected_output_no_opt_attributes
@@ -345,7 +345,6 @@ def test_of_presaved_dictionary_for_complex_patterns():
     ingest_file = 'tests/data/i2b2_2016_track-1_reference/0005_gs.xml'
     presaved_file = 'tests/data/i2b2_2016_track-1_reference_out/0005_gs.xml'
     config_file = 'config/i2b2_2016_track-1.conf'
-    document_data = dict( cdata_xpath = './TEXT' )
     namespaces , document_data , patterns = \
       args_and_configs.process_config( config_file = config_file ,
                                        score_key = 'Short Name' ,
@@ -365,7 +364,6 @@ def test_of_presaved_dictionary_for_complex_patterns():
 def test_of_identity_read_write_of_dictionary_for_complex_patterns():
     ingest_file = 'tests/data/i2b2_2016_track-1_reference/0005_gs.xml'
     config_file = 'config/i2b2_2016_track-1.conf'
-    document_data = dict( cdata_xpath = './TEXT' )
     namespaces , document_data , patterns = \
       args_and_configs.process_config( config_file = config_file ,
                                        score_key = 'Short Name' ,
@@ -383,6 +381,77 @@ def test_of_identity_read_write_of_dictionary_for_complex_patterns():
         assert reloaded_json[ 'annotations' ] == strict_starts
         assert os.path.exists( tmpfile_handle.name )
     assert os.path.exists( tmpfile_handle.name ) == False
+
+## TODO - add real delimited ingest file for testing
+# def test_of_identity_read_write_of_dictionary_for_delimited_patterns():
+#     ingest_file = 'tests/data/i2b2_2016_track-1_reference/0005_gs.xml'
+#     config_file = 'config/plaintext_sentences.conf'
+#     namespaces , document_data , patterns = \
+#       args_and_configs.process_config( config_file = config_file ,
+#                                        score_key = 'Short Name' ,
+#                                        score_values = [ '.*' ] )
+#     with tempfile.NamedTemporaryFile() as tmpfile_handle:
+#         assert os.path.exists( tmpfile_handle.name )
+#         offset_mapping , strict_starts = \
+#           text_extraction.extract_annotations( ingest_file ,
+#                                                namespaces = namespaces ,
+#                                                document_data = document_data ,
+#                                                patterns = patterns ,
+#                                                skip_chars = '[\s]' ,
+#                                                out_file = tmpfile_handle.name )
+#         reloaded_json = json.load( tmpfile_handle )
+#         assert reloaded_json[ 'annotations' ] == strict_starts
+#         assert os.path.exists( tmpfile_handle.name )
+#     assert os.path.exists( tmpfile_handle.name ) == False
+
+def test_empty_contents_of_write_of_dictionary_for_brat_patterns():
+    ingest_file = 'tests/data/brat_reference/ibm.ann'
+    config_file = 'config/brat_problems_allergies_standoff.conf'
+    namespaces , document_data , patterns = \
+      args_and_configs.process_config( config_file = config_file ,
+                                       score_key = 'Short Name' ,
+                                       score_values = [ '.*' ] )
+    with tempfile.NamedTemporaryFile() as tmpfile_handle:
+        assert os.path.exists( tmpfile_handle.name )
+        offset_mapping , strict_starts = \
+          text_extraction.extract_annotations( ingest_file ,
+                                               namespaces = namespaces ,
+                                               document_data = document_data ,
+                                               patterns = patterns ,
+                                               skip_chars = '[\s]' ,
+                                               out_file = tmpfile_handle.name )
+        assert strict_starts == {}
+        assert os.path.exists( tmpfile_handle.name )
+    assert os.path.exists( tmpfile_handle.name ) == False
+
+def test_contents_of_write_of_dictionary_for_brat_patterns():
+    ingest_file = 'tests/data/brat_reference/problems_and_allergens.ann'
+    config_file = 'config/brat_problems_allergies_standoff.conf'
+    namespaces , document_data , patterns = \
+      args_and_configs.process_config( config_file = config_file ,
+                                       score_key = 'Short Name' ,
+                                       score_values = [ '.*' ] )
+    with tempfile.NamedTemporaryFile() as tmpfile_handle:
+        assert os.path.exists( tmpfile_handle.name )
+        offset_mapping , strict_starts = \
+          text_extraction.extract_annotations( ingest_file ,
+                                               namespaces = namespaces ,
+                                               document_data = document_data ,
+                                               patterns = patterns ,
+                                               skip_chars = '[\s]' ,
+                                               out_file = tmpfile_handle.name )
+        reloaded_json = json.load( tmpfile_handle )
+        assert reloaded_json[ 'annotations' ] == strict_starts
+        ## T34	Problem 474 493	shortness of breath
+        ## A1	Negated T34
+        assert strict_starts[ '474' ][ 0 ][ 'begin_pos' ] == '474'
+        assert strict_starts[ '474' ][ 0 ][ 'end_pos' ] == '493'
+        assert strict_starts[ '474' ][ 0 ][ 'raw_text' ] == 'shortness of breath'
+        assert strict_starts[ '474' ][ 0 ][ 'historical' ] == 'false'
+        assert strict_starts[ '474' ][ 0 ][ 'negated' ] == 'true'
+        assert os.path.exists( tmpfile_handle.name )
+    assert os.path.exists( tmpfile_handle.name ) == False
+
 
 #############################################
 ## Test extracting document contents
@@ -525,5 +594,55 @@ def test_offset_mapping_matches_pos_mapped_manually():
     assert strict_starts[ '2404' ][ 0 ][ 'end_pos' ] == '2410'
     assert strict_starts[ '2404' ][ 0 ][ 'end_pos_mapped' ] == \
         offset_mapping[ '2409' ]
+
+
+def test_brat_standoff_extraction():
+    ingest_file = 'tests/data/brat_reference/ibm.ann'
+    document_data = dict( format = '.ann .txt' )
+    raw_content , offset_mapping = \
+      text_extraction.extract_chars( ingest_file ,
+                                     namespaces = {} ,
+                                     document_data = document_data ,
+                                     skip_chars = '[\s]' )
+    strict_starts = \
+      text_extraction.extract_annotations_brat_standoff( ingest_file ,
+                                                         offset_mapping = offset_mapping ,
+                                                         type_prefix = 'T' ,
+                                                         tag_name = 'Organization' )
+    ##
+    assert strict_starts[ '0' ][ 0 ][ 'begin_pos' ] == '0'
+    assert strict_starts[ '0' ][ 0 ][ 'end_pos' ] == '43'
+    assert strict_starts[ '0' ][ 0 ][ 'raw_text' ] == 'International Business Machines Corporation'
+    ##
+    assert strict_starts[ '45' ][ 0 ][ 'begin_pos' ] == '45'
+    assert strict_starts[ '45' ][ 0 ][ 'end_pos' ] == '48'
+    ##
+    assert strict_starts[ '52' ][ 0 ][ 'raw_text' ] == 'Big Blue'
+
+
+
+def test_brat_standoff_extraction_with_attributes():
+    ingest_file = 'tests/data/brat_reference/problems_and_allergens.ann'
+    document_data = dict( format = '.ann .txt' )
+    raw_content , offset_mapping = \
+      text_extraction.extract_chars( ingest_file ,
+                                     namespaces = {} ,
+                                     document_data = document_data ,
+                                     skip_chars = '[\s]' )
+    strict_starts = \
+      text_extraction.extract_annotations_brat_standoff( ingest_file ,
+                                                         offset_mapping = offset_mapping ,
+                                                         type_prefix = 'T' ,
+                                                         tag_name = 'Problem' ,
+                                                         optional_attributes = [ 'Conditional' ,
+                                                                                 'Generic' ,
+                                                                                 'Historical' ,
+                                                                                 'Negated' ,
+                                                                                 'NotPatient' ,
+                                                                                 'Uncertain' ] )
+    ##
+    assert strict_starts[ '474' ][ 0 ][ 'begin_pos' ] == '474'
+    assert strict_starts[ '474' ][ 0 ][ 'end_pos' ] == '493'
+    assert strict_starts[ '474' ][ 0 ][ 'raw_text' ] == 'shortness of breath'
 
 

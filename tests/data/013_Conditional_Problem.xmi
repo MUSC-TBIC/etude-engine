@@ -3,8 +3,8 @@
          xmlns:cas="http:///uima/cas.ecore" 
          xmlns:custom="http:///webanno/custom.ecore" 
          xmi:version="2.0">
-    <custom:Problems xmi:id="782" sofa="12" begin="181" end="188" Conditional="true" Generic="false" Historical="false" Negated="false" NotPatient="true" Uncertain="false"/>
-    <custom:Problems xmi:id="792" sofa="12" begin="218" end="224" Conditional="false" Generic="false" Historical="true" Negated="false" NotPatient="false" Uncertain="true"/>
+    <custom:Problems xmi:id="782" sofa="12" begin="181" end="188" conditional="true" generic="false" historical="false" negated="false" not_patient="true" uncertain="false"/>
+    <custom:Problems xmi:id="792" sofa="12" begin="218" end="224" conditional="false" generic="false" historical="true" negated="false" not_patient="false" uncertain="true"/>
     <cas:Sofa xmi:id="12" sofaNum="1" sofaID="_InitialView" mimeType="text" sofaString="Conditional Problem&#10;===================&#10;&#10;Check conditional if the patient experiences the problem only under certain conditions.&#10;&#10;.&#10;&#10;Examples&#10;--------&#10;&#10;*&#9;Patient has had increasing dyspnea on exertion&#10;&#10;*&#9;opiates cause nausea&#10;&#10;.&#10;&#10;Worksheet&#10;---------&#10;&#10;*&#9;Patient has had increasing dyspnea on exertion&#10;&#10;*&#9;opiates cause nausea&#10;&#10;"/>
     <cas:View sofa="12" members="1 19 23 27 31 35 39 43 47 51 55 59 63 67 71 80 89 98 107 116 125 134 143 152 161 170 179 188 197 206 215 224 233 242 251 260 269 278 287 296 305 314 323 332 341 350 359 368 377 386 395 404 413 422 431 440 449 458 467 476 485 494 503 512 521 530 539 548 557 566 575 584 593 602 611 620 629 638 647 656 665 674 683 692 701 710 719 728 737 746 755 764 773 782 792 802 816 809"/>
 </xmi:XMI>
