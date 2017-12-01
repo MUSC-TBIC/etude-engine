@@ -281,12 +281,12 @@ def test_optional_attributes():
       args_and_configs.process_config( config_file = filename ,
                                        score_key = 'Short Name' ,
                                        score_values = score_values )
-    assert 'Conditional' in patterns[ 0 ][ 'optional_attributes' ] 
-    assert 'Generic' in patterns[ 0 ][ 'optional_attributes' ] 
-    assert 'Historical' in patterns[ 0 ][ 'optional_attributes' ] 
-    assert 'Negated' in patterns[ 0 ][ 'optional_attributes' ] 
-    assert 'NotPatient' in patterns[ 0 ][ 'optional_attributes' ] 
-    assert 'Uncertain' in patterns[ 0 ][ 'optional_attributes' ] 
+    assert 'conditional' in patterns[ 0 ][ 'optional_attributes' ] 
+    assert 'generic' in patterns[ 0 ][ 'optional_attributes' ] 
+    assert 'historical' in patterns[ 0 ][ 'optional_attributes' ] 
+    assert 'negated' in patterns[ 0 ][ 'optional_attributes' ] 
+    assert 'not_patient' in patterns[ 0 ][ 'optional_attributes' ] 
+    assert 'uncertain' in patterns[ 0 ][ 'optional_attributes' ] 
 
 
 #############################################
