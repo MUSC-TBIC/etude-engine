@@ -211,9 +211,9 @@ def reference_annot_comparison_runner( score_card , reference_filename ,
             ## break out of the loop
             matched_flag = True
         elif( fuzzy_flag == 'partial' and
-              ( ( test_end == 'EOF' or
+              ( ( ( test_end == 'EOF' or test_end <= reference_end ) and
                   test_end > reference_start ) or
-                ( test_start == 'SOF' or
+                ( ( test_start == 'SOF' or test_start >= reference_start ) and
                   test_start < reference_end ) ) and
               reference_type == test_type ):
             update_score_card( 'TP' , score_card , fuzzy_flag ,
@@ -573,7 +573,7 @@ def print_score_summary( score_card , file_mapping ,
                                             fuzzy_flag ,
                                             'by-type' , unique_type ] ,
                                           args.metrics_list ,
-                                          metrics[ 1: ] )
+                                          metrics )
     if( non_empty_files > 0 ):
         macro_averaged_metrics = []
         for key , value in zip( args.metrics_list , file_aggregate_metrics ):
