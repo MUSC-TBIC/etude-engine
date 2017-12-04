@@ -212,6 +212,210 @@ def test_skip_missing_XPath():
     for pattern in patterns:
         assert pattern[ 'long_name' ] != "Other Person Name"
 
+
+def test_union_patterns_exact_match():
+    filename = 'config/i2b2_2016_track-1.conf'
+    score_values = [ '(Patient|Provider)' ]
+    namespaces , document_data , ref_patterns = \
+      args_and_configs.process_config( config_file = filename ,
+                                       score_key = 'Short Name' ,
+                                       score_values = score_values )
+    score_values = [ '(Patient|Provider)' ]
+    namespaces , document_data , test_patterns = \
+      args_and_configs.process_config( config_file = filename ,
+                                       score_key = 'Short Name' ,
+                                       score_values = score_values )
+    ref_patterns , test_patterns = \
+      args_and_configs.align_patterns( ref_patterns , test_patterns )
+    for ref_pattern in ref_patterns:
+        match_flag = False
+        for test_pattern in test_patterns:
+            if( test_pattern[ 'type' ] == ref_pattern[ 'type' ] ):
+                match_flag = True
+                assert test_pattern[ 'type' ] == ref_pattern[ 'type' ]
+                break
+        if( match_flag == False ):
+            assert ref_pattern[ 'type' ] == False
+    for test_pattern in test_patterns:
+        match_flag = False
+        for ref_pattern in ref_patterns:
+            if( test_pattern[ 'type' ] == ref_pattern[ 'type' ] ):
+                match_flag = True
+                assert test_pattern[ 'type' ] == ref_pattern[ 'type' ]
+                break
+        if( match_flag == False ):
+            assert test_pattern[ 'type' ] == False
+
+
+def test_union_patterns_more_in_ref():
+    filename = 'config/i2b2_2016_track-1.conf'
+    score_values = [ '(Patient|Provider)' ]
+    namespaces , document_data , ref_patterns = \
+      args_and_configs.process_config( config_file = filename ,
+                                       score_key = 'Short Name' ,
+                                       score_values = score_values )
+    score_values = [ '(Patient)' ]
+    namespaces , document_data , test_patterns = \
+      args_and_configs.process_config( config_file = filename ,
+                                       score_key = 'Short Name' ,
+                                       score_values = score_values )
+    ref_patterns , test_patterns = \
+      args_and_configs.align_patterns( ref_patterns , test_patterns )
+    for ref_pattern in ref_patterns:
+        match_flag = False
+        for test_pattern in test_patterns:
+            if( test_pattern[ 'type' ] == ref_pattern[ 'type' ] ):
+                match_flag = True
+                test_pattern[ 'type' ] == ref_pattern[ 'type' ]
+                break
+        if( match_flag == False ):
+            assert ref_pattern[ 'type' ] == False
+    for test_pattern in test_patterns:
+        match_flag = False
+        for ref_pattern in ref_patterns:
+            if( test_pattern[ 'type' ] == ref_pattern[ 'type' ] ):
+                match_flag = True
+                test_pattern[ 'type' ] == ref_pattern[ 'type' ]
+                break
+        if( match_flag == False ):
+            assert test_pattern[ 'type' ] == False
+
+
+def test_union_patterns_more_in_test():
+    filename = 'config/i2b2_2016_track-1.conf'
+    score_values = [ '(Patient)' ]
+    namespaces , document_data , ref_patterns = \
+      args_and_configs.process_config( config_file = filename ,
+                                       score_key = 'Short Name' ,
+                                       score_values = score_values )
+    score_values = [ '(Patient|Provider)' ]
+    namespaces , document_data , test_patterns = \
+      args_and_configs.process_config( config_file = filename ,
+                                       score_key = 'Short Name' ,
+                                       score_values = score_values )
+    ref_patterns , test_patterns = \
+      args_and_configs.align_patterns( ref_patterns , test_patterns )
+    for ref_pattern in ref_patterns:
+        match_flag = False
+        for test_pattern in test_patterns:
+            if( test_pattern[ 'type' ] == ref_pattern[ 'type' ] ):
+                match_flag = True
+                test_pattern[ 'type' ] == ref_pattern[ 'type' ]
+                break
+        if( match_flag == False ):
+            assert ref_pattern[ 'type' ] == False
+    for test_pattern in test_patterns:
+        match_flag = False
+        for ref_pattern in ref_patterns:
+            if( test_pattern[ 'type' ] == ref_pattern[ 'type' ] ):
+                match_flag = True
+                test_pattern[ 'type' ] == ref_pattern[ 'type' ]
+                break
+        if( match_flag == False ):
+            assert test_pattern[ 'type' ] == False
+
+
+def test_union_patterns_venn_diagram():
+    filename = 'config/i2b2_2016_track-1.conf'
+    score_values = [ '(Patient|Provider|StreetCity)' ]
+    namespaces , document_data , ref_patterns = \
+      args_and_configs.process_config( config_file = filename ,
+                                       score_key = 'Short Name' ,
+                                       score_values = score_values )
+    score_values = [ '(Patient|Provider|StateCountry)' ]
+    namespaces , document_data , test_patterns = \
+      args_and_configs.process_config( config_file = filename ,
+                                       score_key = 'Short Name' ,
+                                       score_values = score_values )
+    ref_patterns , test_patterns = \
+      args_and_configs.align_patterns( ref_patterns , test_patterns )
+    for ref_pattern in ref_patterns:
+        match_flag = False
+        for test_pattern in test_patterns:
+            if( test_pattern[ 'type' ] == ref_pattern[ 'type' ] ):
+                match_flag = True
+                test_pattern[ 'type' ] == ref_pattern[ 'type' ]
+                break
+        if( match_flag == False ):
+            assert ref_pattern[ 'type' ] == False
+    for test_pattern in test_patterns:
+        match_flag = False
+        for ref_pattern in ref_patterns:
+            if( test_pattern[ 'type' ] == ref_pattern[ 'type' ] ):
+                match_flag = True
+                test_pattern[ 'type' ] == ref_pattern[ 'type' ]
+                break
+        if( match_flag == False ):
+            assert test_pattern[ 'type' ] == False
+
+
+def test_union_patterns_empty_ref():
+    filename = 'config/i2b2_2016_track-1.conf'
+    score_values = [ 'I.Do.Not.Exist' ]
+    namespaces , document_data , ref_patterns = \
+      args_and_configs.process_config( config_file = filename ,
+                                       score_key = 'Short Name' ,
+                                       score_values = score_values )
+    score_values = [ '(Patient|Provider)' ]
+    namespaces , document_data , test_patterns = \
+      args_and_configs.process_config( config_file = filename ,
+                                       score_key = 'Short Name' ,
+                                       score_values = score_values )
+    ref_patterns , test_patterns = \
+      args_and_configs.align_patterns( ref_patterns , test_patterns )
+    for ref_pattern in ref_patterns:
+        match_flag = False
+        for test_pattern in test_patterns:
+            if( test_pattern[ 'type' ] == ref_pattern[ 'type' ] ):
+                match_flag = True
+                test_pattern[ 'type' ] == ref_pattern[ 'type' ]
+                break
+        if( match_flag == False ):
+            assert ref_pattern[ 'type' ] == False
+    for test_pattern in test_patterns:
+        match_flag = False
+        for ref_pattern in ref_patterns:
+            if( test_pattern[ 'type' ] == ref_pattern[ 'type' ] ):
+                match_flag = True
+                test_pattern[ 'type' ] == ref_pattern[ 'type' ]
+                break
+        if( match_flag == False ):
+            assert test_pattern[ 'type' ] == False
+
+
+def test_union_patterns_empty_test():
+    filename = 'config/i2b2_2016_track-1.conf'
+    score_values = [ '(Patient|Provider)' ]
+    namespaces , document_data , ref_patterns = \
+      args_and_configs.process_config( config_file = filename ,
+                                       score_key = 'Short Name' ,
+                                       score_values = score_values )
+    score_values = [ 'I.Do.No.Exist' ]
+    namespaces , document_data , test_patterns = \
+      args_and_configs.process_config( config_file = filename ,
+                                       score_key = 'Short Name' ,
+                                       score_values = score_values )
+    ref_patterns , test_patterns = \
+      args_and_configs.align_patterns( ref_patterns , test_patterns )
+    for ref_pattern in ref_patterns:
+        match_flag = False
+        for test_pattern in test_patterns:
+            if( test_pattern[ 'type' ] == ref_pattern[ 'type' ] ):
+                match_flag = True
+                test_pattern[ 'type' ] == ref_pattern[ 'type' ]
+                break
+        if( match_flag == False ):
+            assert ref_pattern[ 'type' ] == False
+    for test_pattern in test_patterns:
+        match_flag = False
+        for ref_pattern in ref_patterns:
+            if( test_pattern[ 'type' ] == ref_pattern[ 'type' ] ):
+                match_flag = True
+                test_pattern[ 'type' ] == ref_pattern[ 'type' ]
+                break
+        if( match_flag == False ):
+            assert test_pattern[ 'type' ] == False
+
 ## Document Data
 
 

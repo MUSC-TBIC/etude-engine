@@ -427,6 +427,12 @@ if __name__ == "__main__":
                                            score_key = args.score_key ,
                                            score_values = args.score_values ,
                                            verbose = args.verbose )
+        reference_patterns , test_patterns = \
+          args_and_configs.align_patterns( reference_patterns , test_patterns )
+        if( len( reference_patterns ) == 0 ):
+            log.error( 'Zero annotation patterns found in reference config after filtering against system output config.' )
+        if( len( test_patterns ) == 0 ):
+            log.error( 'Zero annotation patterns found in system output config after filtering against reference config.' )            
     except:
         e = sys.exc_info()[0]
         log.error( 'Uncaught exception in process_config:  {}'.format( e ) )
