@@ -16,6 +16,12 @@ unstructured data extraction.
                          help = "print more information" ,
                          action = "store_true" )
 
+    parser.add_argument( '--progressbar-output' ,
+                         dest = 'progressbar_output' ,
+                         default = 'stderr' ,
+                         choices = [ 'stderr' , 'stdout' , 'none' ] ,
+                         help = "Pipe the progress bar to stderr, stdout, or neither" )
+    
     ## TODO -
     ## --sample % of files to randomly sample from
     ## --head X grab the first files from the directory

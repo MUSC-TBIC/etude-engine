@@ -3,7 +3,7 @@ from __future__ import print_function
 import sys
 import logging as log
 
-import progressbar
+from tqdm import tqdm
 
 import glob
 import os
@@ -130,9 +130,9 @@ def count_chars_profile( reference_ns , reference_dd , reference_folder ,
             print( 'ERROR:  No documents found in reference directory:  {}'.format( reference_folder ) )
         return( None )
     ##
-    progress = progressbar.ProgressBar( max_value = match_count ,
-                                        redirect_stderr = True )
-    for reference_filename in progress( sorted( file_mapping.keys() ) ):
+    for reference_filename in tqdm( sorted( file_mapping.keys() ) ,
+                                    file = args.progressbar_file ,
+                                    disable = args.progressbar_disabled ):
         if( args.reference_out == None ):
             reference_out_file = None
         else:
@@ -195,9 +195,9 @@ def align_tokens(  reference_folder ,
             print( 'ERROR:  No documents found in reference directory:  {}'.format( reference_folder ) )
         return( None )
     ##
-    progress = progressbar.ProgressBar( max_value = match_count ,
-                                        redirect_stderr = True )
-    for reference_filename in progress( sorted( file_mapping.keys() ) ):
+    for reference_filename in tqdm( sorted( file_mapping.keys() ) ,
+                                    file = args.progressbar_file ,
+                                    disable = args.progressbar_disabled ):
         if( args.reference_out == None ):
             reference_out_file = None
         else:
@@ -235,12 +235,17 @@ def score_ref_set( reference_ns , reference_dd , reference_patterns , reference_
                    file_suffix = '.xml' ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     """
-    Score the test folder against the reference folder.
+    Score the system output (test) folder against the reference folder.
     """
     score_card = scoring_metrics.new_score_card( fuzzy_flags = \
                                                  args.fuzzy_flags )
     ##
     confusion_matrix = {}
+    ##########################
+    ## Create mapping between
+    ## folders to see which
+    ## files in each set need
+    ## to be compared
     try:
         match_count , file_mapping = collect_files( reference_folder , test_folder ,
                                                     file_prefix , file_suffix ,
@@ -257,14 +262,17 @@ def score_ref_set( reference_ns , reference_dd , reference_patterns , reference_
         else:
             log.error( 'No documents found in reference directory:  {}'.format( reference_folder ) )
         return( None )
-    ##
+    ##########################
+    ## Create output folders
+    ## for saving the results
+    ## of our analysis
     if( args.reference_out != None and
         not os.path.exists( args.reference_out ) ):
         log.warn( 'Creating reference output folder because it does not exist:  {}'.format( args.reference_out ) )
         try:
             os.makedirs( args.reference_out )
         except OSError as e:
-            log.error( 'OSError caught while trying to create test output folder:  {}'.format( e ) )
+            log.error( 'OSError caught while trying to create reference output folder:  {}'.format( e ) )
         except IOError as e:
             log.error( 'IOError caught while trying to create reference output folder:  {}'.format( e ) )
     if( args.test_out != None and
@@ -277,9 +285,9 @@ def score_ref_set( reference_ns , reference_dd , reference_patterns , reference_
         except IOError as e:
             log.error( 'IOError caught while trying to create test output folder:  {}'.format( e ) )
     ##
-    progress = progressbar.ProgressBar( max_value = match_count ,
-                                        redirect_stderr = True )
-    for reference_filename in progress( sorted( file_mapping.keys() ) ):
+    for reference_filename in tqdm( sorted( file_mapping.keys() ) ,
+                                    file = args.progressbar_file ,
+                                    disable = args.progressbar_disabled ):
         if( args.reference_out == None ):
             reference_out_file = None
         else:
@@ -369,7 +377,7 @@ def score_ref_set( reference_ns , reference_dd , reference_patterns , reference_
 def init_args():
     ##
     args = args_and_configs.get_arguments( sys.argv[ 1: ] )
-    ##
+    ## Set up logging
     if args.verbose:
         log.basicConfig( format = "%(levelname)s: %(message)s" ,
                          level = log.DEBUG )
@@ -377,6 +385,16 @@ def init_args():
         log.debug( "{}".format( args ) )
     else:
         log.basicConfig( format="%(levelname)s: %(message)s" )
+    ## Configure progressbar peformance
+    if( args.progressbar_output == 'none' ):
+        args.progressbar_disabled = True
+        args.progressbar_file = None
+    else:
+        args.progressbar_disabled = False
+        if( args.progressbar_output == 'stderr' ):
+            args.progressbar_file = sys.stderr
+        elif( args.progressbar_output == 'stdout' ):
+            args.progressbar_file = sys.stdout
     ## Resolve conflicts between --ignore-whitespace, --heed-whitespace,
     ## and --ignore-regex flags.  Essentially, if we set something in
     ## skip_chars, use that.  Otherwise, if we tripped --ignore_whitespace
