@@ -133,12 +133,9 @@ def count_chars_profile( reference_ns , reference_dd , reference_folder ,
     for reference_filename in tqdm( sorted( file_mapping.keys() ) ,
                                     file = args.progressbar_file ,
                                     disable = args.progressbar_disabled ):
-        if( args.reference_out == None ):
-            reference_out_file = None
-        else:
-            ## TODO - add filename translation services
-            reference_out_file = '{}/{}'.format( args.reference_out ,
-                                                 reference_filename )
+        ##
+        reference_out_file = generate_out_file( args.reference_out ,
+                                                reference_filename )
         ##
         try:
             reference_chars = \
@@ -153,12 +150,9 @@ def count_chars_profile( reference_ns , reference_dd , reference_folder ,
         if( test_filename == None ):
             test_chars = {}
         else:
-            if( args.test_out == None ):
-                test_out_file = None
-            else:
-                ## TODO - add filename translation services
-                test_out_file = '{}/{}'.format( args.test_out ,
-                                                   test_filename )
+            ##
+            test_out_file = generate_out_file( args.test_out ,
+                                               test_filename )
             ##
             try:
                 test_full_path = '{}/{}'.format( test_folder ,
@@ -198,12 +192,9 @@ def align_tokens(  reference_folder ,
     for reference_filename in tqdm( sorted( file_mapping.keys() ) ,
                                     file = args.progressbar_file ,
                                     disable = args.progressbar_disabled ):
-        if( args.reference_out == None ):
-            reference_out_file = None
-        else:
-            ## TODO - add filename translation services
-            reference_out_file = '{}/{}'.format( args.reference_out ,
-                                                 reference_filename )
+        ##
+        reference_out_file = generate_out_file( args.reference_out ,
+                                                reference_filename )
         ##
         reference_dictionary = {}
         with open( '{}/{}'.format( reference_folder , reference_filename ) , 'r' ) as fp:
@@ -212,12 +203,9 @@ def align_tokens(  reference_folder ,
                                                     reference_out_file )
         test_filename = file_mapping[ reference_filename ]
         if( test_filename != None ):
-            if( args.test_out == None ):
-                test_out_file = None
-            else:
-                ## TODO - add filename translation services
-                test_out_file = '{}/{}'.format( args.test_out ,
-                                                reference_filename )
+            ##
+            test_out_file = generate_out_file( args.test_out ,
+                                               reference_filename )
             ##
             test_dictionary = {}
             with open( '{}/{}'.format( test_folder ,
@@ -226,6 +214,76 @@ def align_tokens(  reference_folder ,
             text_extraction.align_tokens_on_whitespace( test_dictionary ,
                                                         test_out_file )
     ##
+
+
+def get_file_mapping( reference_folder , test_folder ,
+                      file_prefix , file_suffix ,
+                      skip_missing_files_flag ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
+    """
+    Create mapping between folders to see which files in each set need to be compared
+    """
+    try:
+        match_count , file_mapping = collect_files( reference_folder , test_folder ,
+                                                    file_prefix , file_suffix ,
+                                                    skip_missing_files_flag )
+    except:
+        e = sys.exc_info()[0]
+        log.error( 'Uncaught exception in collect_files:  {}'.format( e ) )
+    ##
+    if( match_count == 0 ):
+        ## Empty dictionaries evaluate to False so testing bool can tell us if
+        ## any reference documents exist
+        if( bool( file_mapping ) ):
+            log.error( 'No documents found in test directory:  {}'.format( test_folder ) )
+        else:
+            log.error( 'No documents found in reference directory:  {}'.format( reference_folder ) )
+        return( None )
+    ##
+    log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
+    return( file_mapping )
+
+
+def create_output_folders( reference_out , test_out ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
+    """
+    Create output folders for saving the results of our analysis
+    """
+    ##########################
+    ## Reference folders
+    if( reference_out != None and
+        not os.path.exists( reference_out ) ):
+        log.warn( 'Creating reference output folder because it does not exist:  {}'.format( reference_out ) )
+        try:
+            os.makedirs( reference_out )
+        except OSError as e:
+            log.error( 'OSError caught while trying to create reference output folder:  {}'.format( e ) )
+        except IOError as e:
+            log.error( 'IOError caught while trying to create reference output folder:  {}'.format( e ) )
+    ##########################
+    ## Test (system output) folders
+    if( test_out != None and
+        not os.path.exists( test_out ) ):
+        log.warn( 'Creating test output folder because it does not exist:  {}'.format( test_out ) )
+        try:
+            os.makedirs( test_out )
+        except OSError as e:
+            log.error( 'OSError caught while trying to create test output folder:  {}'.format( e ) )
+        except IOError as e:
+            log.error( 'IOError caught while trying to create test output folder:  {}'.format( e ) )
+    #########
+    log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
+
+
+def generate_out_file( output_dir , input_filename ):
+    """
+    Generate a well-formed full file path for writing output stats
+    """
+    if( args.reference_out == None ):
+        return( None )
+    else:
+        return( '{}/{}'.format( args.reference_out ,
+                                reference_filename ) )
 
 
 def score_ref_set( reference_ns , reference_dd , reference_patterns , reference_folder ,
@@ -242,58 +300,21 @@ def score_ref_set( reference_ns , reference_dd , reference_patterns , reference_
     ##
     confusion_matrix = {}
     ##########################
-    ## Create mapping between
-    ## folders to see which
-    ## files in each set need
-    ## to be compared
-    try:
-        match_count , file_mapping = collect_files( reference_folder , test_folder ,
-                                                    file_prefix , file_suffix ,
-                                                    args.skip_missing_files )
-    except:
-        e = sys.exc_info()[0]
-        log.error( 'Uncaught exception in collect_files:  {}'.format( e ) )
-    ##
-    if( match_count == 0 ):
-        ## Empty dictionaries evaluate to False so testing bool can tell us if
-        ## any reference documents exist
-        if( bool( file_mapping ) ):
-            log.error( 'No documents found in test directory:  {}'.format( test_folder ) )
-        else:
-            log.error( 'No documents found in reference directory:  {}'.format( reference_folder ) )
+    file_mapping = get_file_mapping( reference_folder , test_folder ,
+                                     file_prefix , file_suffix ,
+                                     args.skip_missing_files )
+    if( file_mapping == None ):
+        ## There was a problem mapping files between directories so abort
         return( None )
     ##########################
-    ## Create output folders
-    ## for saving the results
-    ## of our analysis
-    if( args.reference_out != None and
-        not os.path.exists( args.reference_out ) ):
-        log.warn( 'Creating reference output folder because it does not exist:  {}'.format( args.reference_out ) )
-        try:
-            os.makedirs( args.reference_out )
-        except OSError as e:
-            log.error( 'OSError caught while trying to create reference output folder:  {}'.format( e ) )
-        except IOError as e:
-            log.error( 'IOError caught while trying to create reference output folder:  {}'.format( e ) )
-    if( args.test_out != None and
-        not os.path.exists( args.test_out ) ):
-        log.warn( 'Creating test output folder because it does not exist:  {}'.format( args.test_out ) )
-        try:
-            os.makedirs( args.test_out )
-        except OSError as e:
-            log.error( 'OSError caught while trying to create test output folder:  {}'.format( e ) )
-        except IOError as e:
-            log.error( 'IOError caught while trying to create test output folder:  {}'.format( e ) )
-    ##
+    create_output_folders( args.reference_out , args.test_out )
+    ##########################
     for reference_filename in tqdm( sorted( file_mapping.keys() ) ,
                                     file = args.progressbar_file ,
                                     disable = args.progressbar_disabled ):
-        if( args.reference_out == None ):
-            reference_out_file = None
-        else:
-            ## TODO - add filename translation services
-            reference_out_file = '{}/{}'.format( args.reference_out ,
-                                                 reference_filename )
+        ##
+        reference_out_file = generate_out_file( args.reference_out ,
+                                                reference_filename )
         ##
         try:
             reference_full_path = '{}/{}'.format( reference_folder ,
@@ -315,12 +336,9 @@ def score_ref_set( reference_ns , reference_dd , reference_patterns , reference_
             test_om = {}
             test_ss = {}
         else:
-            if( args.test_out == None ):
-                test_out_file = None
-            else:
-                ## TODO - add filename translation services
-                test_out_file = '{}/{}'.format( args.test_out ,
-                                                test_filename )
+            ##
+            test_out_file = generate_out_file( args.test_out ,
+                                               test_filename )
             ##
             test_full_path = '{}/{}'.format( test_folder ,
                                              test_filename )
