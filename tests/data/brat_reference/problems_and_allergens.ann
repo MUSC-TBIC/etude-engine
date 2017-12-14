@@ -1,0 +1,92 @@
+T8	Problem 3830 3852	Essential hypertension
+N8	Reference T8 freePA3L:C0085580	essential hypertension
+T9	Problem 155 167	Hypertension
+N9	Reference T9 freePA3L:C0020538	hypertension
+T10	Problem 240 252	hypertension
+N10	Reference T10 freePA3L:C0020538	hypertension
+T11	Problem 1691 1703	Hypertension
+N11	Reference T11 freePA3L:C0020538	hypertension
+T12	Problem 1278 1299	difficulty swallowing
+N12	Reference T12 freePA3L:C0011168	difficulty swallowing
+T13	Problem 783 814	Gastroesophageal Reflux Disease
+N13	Reference T13 freePA3L:C0017168	gastroesophageal reflux disease
+T14	Problem 1810 1841	gastroesophageal reflux disease
+N14	Reference T14 freePA3L:C0017168	gastroesophageal reflux disease
+T15	Problem 4487 4518	gastroesophageal reflux disease
+N15	Reference T15 freePA3L:C0017168	gastroesophageal reflux disease
+T16	Problem 816 820	GERD
+T17	Allergen 878 882	GERD
+T18	Allergen 1804 1808	GERD
+T19	Allergen 4481 4485	GERD
+T20	Problem 3258 3278	respiratory distress
+N20	Reference T20 freePA3L:C0476273	respiratory distress
+T21	Problem 1602 1616	Osteoarthritis
+N21	Reference T21 freePA3L:C0029408	osteoarthritis
+T22	Problem 952 966	abdominal pain
+N22	Reference T22 freePA3L:C0000737	abdominal pain
+T23	Problem 2642 2656	abdominal pain
+N23	Reference T23 freePA3L:C0000737	abdominal pain
+T24	Problem 1622 1636	Kidney failure
+N24	Reference T24 freePA3L:C0035078	kidney failure
+T25	Problem 2690 2699	back pain
+N25	Reference T25 freePA3L:C0004604	back pain
+T26	Problem 2744 2753	headaches
+N26	Reference T26 freePA3L:C0018681	headaches
+T27	Problem 502 510	Headache
+N27	Reference T27 freePA3L:C0018681	headache
+T28	Problem 1308 1319	Weight loss
+N28	Reference T28 freePA3L:C0043096	weight loss
+T29	Problem 4346 4352	sepsis
+N29	Reference T29 freePA3L:C0036690	sepsis
+T30	Problem 1267 1276	Dysphagia
+N30	Reference T30 freePA3L:C0011168	dysphagia
+T31	Problem 3943 3956	Breast cancer
+N31	Reference T31 freePA3L:C0006142	breast cancer
+T32	Problem 4011 4024	breast cancer
+N32	Reference T32 freePA3L:C0006142	breast cancer
+T33	Problem 2414 2419	fever
+N33	Reference T33 freePA3L:C0015967	fever
+T34	Problem 474 493	shortness of breath
+N34	Reference T34 freePA3L:C0013404	shortness of breath
+T35	Problem 2493 2512	shortness of breath
+N35	Reference T35 freePA3L:C0013404	shortness of breath
+T36	Problem 2621 2627	nausea
+N36	Reference T36 freePA3L:C0027497	nausea
+T37	Problem 609 617	weakness
+N37	Reference T37 freePA3L:C0004093	weakness
+T38	Problem 1213 1224	hematemesis
+N38	Reference T38 freePA3L:C0018926	hematemesis
+T39	Problem 1162 1170	Vomiting
+N39	Reference T39 freePA3L:C0042963	vomiting
+T41	Problem 2629 2637	vomiting
+N41	Reference T41 freePA3L:C0042963	vomiting
+T42	Problem 2730 2739	dizziness
+N42	Reference T42 freePA3L:C0012833	dizziness
+T43	Problem 2987 2990	JVD
+N43	Reference T43 freePA3L:C0425687	jvd
+A1	Negated T34
+A2	Negated T27
+A3	Negated T37
+A4	Negated T28
+A5	Negated T39
+A6	Negated T40
+A7	Negated T38
+A8	Negated T30
+A9	Negated T12
+A10	Negated T33
+A11	Negated T35
+A12	Negated T36
+A13	Negated T41
+A14	Negated T23
+A15	Negated T25
+A16	Negated T42
+A17	Negated T26
+A18	Negated T43
+A19	Negated T20
+A20	Historical T29
+T2	Problem 2559 2569	chest pain
+T3	Problem 448 458	Chest pain
+N2	Reference T2 freePA3L:C0002962	ischemic chest pain
+N3	Reference T3 freePA3L:C0002962	ischemic chest pain
+A21	Negated T2
+A22	Negated T3

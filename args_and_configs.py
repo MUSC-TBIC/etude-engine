@@ -133,7 +133,7 @@ unstructured data extraction.
                          help = "Create an offset mapping from the raw document that ignores whitespaces in the offset index (Turned on by default; the counter argument to --heed-whitespace)" ,
                          action = "store_true" )
     
-    parser.add_argument( '--skip-chars' , nargs = '+' ,
+    parser.add_argument( '--skip-chars' ,
                          dest = 'skip_chars' ,
                          default = None ,
                          help = "A configurable variant of --ignore-whitespace. The provided regex determines all characters to be ignored in the offset indices." )
@@ -141,6 +141,17 @@ unstructured data extraction.
     parser.add_argument( '--heed-whitespace' ,
                          dest = 'ignore_whitespace' ,
                          help = "Include all whitespace in the offset mapping from the raw document (the counter argument to --ignore-whitespace)" ,
+                         action = "store_false" )
+
+    parser.add_argument( '--skip-missing-files' ,
+                         default = True ,
+                         dest = 'skip_missing_files' ,
+                         help = "Don't analyze or score a reference file if the equivalent system output file is missing (Turned on by default; the counter argument to --score-missing-files)" ,
+                         action = "store_true" )
+    
+    parser.add_argument( '--score-missing-files' ,
+                         dest = 'skip_missing_files' ,
+                         help = "Score all reference files even if the equivalent system output file can't be found (the counter argument to --skip-missing-files)" ,
                          action = "store_false" )
     ##
     return parser
@@ -234,6 +245,33 @@ def extract_delimited_patterns( annotations ,
     log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
 
 
+def extract_brat_patterns( annotations ,
+                           config , sect ,
+                           display_name ,
+                           key_value ,
+                           score_values ,
+                           verbose = False ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
+    ## Loop through all the provided score_values to see if any
+    ## provided values match the currently extracted value
+    for score_value in score_values:
+        if( re.search( score_value , key_value ) ):
+            pattern_entry = dict( type = key_value ,
+                                  long_name = sect.strip() ,
+                                  type_prefix = config.get( sect ,
+                                                            'Type Prefix' ) ,
+                                  display_name = display_name ,
+                                  short_name = config.get( sect ,
+                                                           'Short Name' ) )
+            if( config.has_option( sect , 'Opt Attr' ) ):
+                optional_attributes = config.get( sect , 'Opt Attr' )
+                pattern_entry[ 'optional_attributes' ] = \
+                  optional_attributes.split( ',' )
+            annotations.append( pattern_entry )
+            break
+    log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
+
+
 def extract_patterns( annotations ,
                       config , sect ,
                       score_key ,
@@ -263,6 +301,13 @@ def extract_patterns( annotations ,
                                     key_value ,
                                     score_values ,
                                     verbose )
+    elif( config.has_option( sect , 'Type Prefix' ) ):
+        extract_brat_patterns( annotations ,
+                               config , sect ,
+                               display_name ,
+                               key_value ,
+                               score_values ,
+                               verbose )        
     log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
 
 
@@ -302,3 +347,29 @@ def process_config( config_file ,
     ##
     log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
     return namespaces , document_data , annotations
+
+
+def align_patterns( reference_patterns , test_patterns ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
+    filtered_ref = []
+    filtered_test = []
+    for ref_pattern in reference_patterns:
+        match_flag = False
+        for test_pattern in test_patterns:
+            if( test_pattern[ 'type' ] == ref_pattern[ 'type' ] ):
+                match_flag = True
+                filtered_ref.append( ref_pattern )
+                break
+        if( match_flag == False ):
+            log.warn( 'Could not find system output pattern matching type \'{}\' from reference config'.format( ref_pattern[ 'type' ] ) )
+    for test_pattern in test_patterns:
+        match_flag = False
+        for ref_pattern in reference_patterns:
+            if( test_pattern[ 'type' ] == ref_pattern[ 'type' ] ):
+                match_flag = True
+                filtered_test.append( test_pattern )
+                break
+        if( match_flag == False ):
+            log.warn( 'Could not find reference pattern matching type \'{}\' from system output config'.format( test_pattern[ 'type' ] ) )
+    log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
+    return filtered_ref , filtered_test

@@ -47,6 +47,8 @@ def count_ref_set( test_ns , test_patterns , test_folder ,
               text_extraction.extract_annotations( test_full_path ,
                                                    namespaces = test_ns ,
                                                    patterns = test_patterns )
+        except TypeError , e:
+            log.error( 'TypeError exception in extract_annotations:  {}'.format( e ) )
         except:
             e = sys.exc_info()[0]
             log.error( 'Uncaught exception in extract_annotations:  {}'.format( e ) )
@@ -70,7 +72,8 @@ def count_ref_set( test_ns , test_patterns , test_folder ,
 
 
 def collect_files( reference_folder , test_folder ,
-                   file_prefix , file_suffix ):
+                   file_prefix , file_suffix ,
+                   skip_missing_files_flag ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     file_mapping = {}
     match_count = 0
@@ -91,8 +94,11 @@ def collect_files( reference_folder , test_folder ,
             match_count += 1
             file_mapping[ reference_filename ] = test_filename
         else:
-            ## TODO - log on missing test file
-            file_mapping[ reference_filename ] = None
+            if( skip_missing_files_flag ):
+                    log.debug( "Skipping file because no test equivalent:  {} -/-> {}".format( reference_filename ,
+                                                                                               test_filename ) )
+            else:
+                file_mapping[ reference_filename ] = None
     ##
     log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
     return( match_count , file_mapping )
@@ -109,7 +115,8 @@ def count_chars_profile( reference_ns , reference_dd , reference_folder ,
     """
     try:
         match_count , file_mapping = collect_files( reference_folder , test_folder ,
-                                                    file_prefix , file_suffix )
+                                                    file_prefix , file_suffix ,
+                                                    args.skip_missing_files )
     except:
         e = sys.exc_info()[0]
         log.error( 'Uncaught exception in collect_files:  {}'.format( e ) )
@@ -176,7 +183,8 @@ def align_tokens(  reference_folder ,
     Align reference and test documents by token for comparison
     """
     match_count , file_mapping = collect_files( reference_folder , test_folder ,
-                                                file_prefix , file_suffix )
+                                                file_prefix , file_suffix ,
+                                                args.skip_missing_files )
     ##
     if( match_count == 0 ):
         ## Empty dictionaries evaluate to False so testing bool can tell us if
@@ -235,7 +243,8 @@ def score_ref_set( reference_ns , reference_dd , reference_patterns , reference_
     confusion_matrix = {}
     try:
         match_count , file_mapping = collect_files( reference_folder , test_folder ,
-                                                    file_prefix , file_suffix )
+                                                    file_prefix , file_suffix ,
+                                                    args.skip_missing_files )
     except:
         e = sys.exc_info()[0]
         log.error( 'Uncaught exception in collect_files:  {}'.format( e ) )
@@ -248,6 +257,25 @@ def score_ref_set( reference_ns , reference_dd , reference_patterns , reference_
         else:
             log.error( 'No documents found in reference directory:  {}'.format( reference_folder ) )
         return( None )
+    ##
+    if( args.reference_out != None and
+        not os.path.exists( args.reference_out ) ):
+        log.warn( 'Creating reference output folder because it does not exist:  {}'.format( args.reference_out ) )
+        try:
+            os.makedirs( args.reference_out )
+        except OSError as e:
+            log.error( 'OSError caught while trying to create test output folder:  {}'.format( e ) )
+        except IOError as e:
+            log.error( 'IOError caught while trying to create reference output folder:  {}'.format( e ) )
+    if( args.test_out != None and
+        not os.path.exists( args.test_out ) ):
+        log.warn( 'Creating test output folder because it does not exist:  {}'.format( args.test_out ) )
+        try:
+            os.makedirs( args.test_out )
+        except OSError as e:
+            log.error( 'OSError caught while trying to create test output folder:  {}'.format( e ) )
+        except IOError as e:
+            log.error( 'IOError caught while trying to create test output folder:  {}'.format( e ) )
     ##
     progress = progressbar.ProgressBar( max_value = match_count ,
                                         redirect_stderr = True )
@@ -269,6 +297,8 @@ def score_ref_set( reference_ns , reference_dd , reference_patterns , reference_
                                                    patterns = reference_patterns ,
                                                    skip_chars = args.skip_chars ,
                                                    out_file = reference_out_file )
+        except TypeError , e:
+            log.error( 'TypeError exception in extract_annotations:  {}'.format( e ) )
         except:
             e = sys.exc_info()[0]
             log.error( 'Uncaught exception in extract_annotations:  {}'.format( e ) )
@@ -295,6 +325,8 @@ def score_ref_set( reference_ns , reference_dd , reference_patterns , reference_
                                                        skip_chars = \
                                                          args.skip_chars ,
                                                        out_file = test_out_file )
+            except TypeError , e:
+                log.error( 'TypeError exception in extract_annotations:  {}'.format( e ) )
             except:
                 e = sys.exc_info()[0]
                 log.error( 'Uncaught exception in extract_annotations:  {}'.format( e ) )
@@ -312,6 +344,8 @@ def score_ref_set( reference_ns , reference_dd , reference_patterns , reference_
                                                     fuzzy_flag = fuzzy_flag ,
                                                     use_mapped_chars = \
                                                       ignore_chars )
+        except UnboundLocalError , e:
+            log.error( 'UnboundLocalError exception in extract_annotations:  {}'.format( e ) )
         except:
             e = sys.exc_info()[0]
             log.error( 'Uncaught exception in evaluate_positions:  {}'.format( e ) )
@@ -393,6 +427,12 @@ if __name__ == "__main__":
                                            score_key = args.score_key ,
                                            score_values = args.score_values ,
                                            verbose = args.verbose )
+        reference_patterns , test_patterns = \
+          args_and_configs.align_patterns( reference_patterns , test_patterns )
+        if( len( reference_patterns ) == 0 ):
+            log.error( 'Zero annotation patterns found in reference config after filtering against system output config.' )
+        if( len( test_patterns ) == 0 ):
+            log.error( 'Zero annotation patterns found in system output config after filtering against reference config.' )            
     except:
         e = sys.exc_info()[0]
         log.error( 'Uncaught exception in process_config:  {}'.format( e ) )

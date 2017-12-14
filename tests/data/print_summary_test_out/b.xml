@@ -1,0 +1,18 @@
+{
+    "metrics": {
+        "exact": {
+            "by-type": {
+                "Sentence": {
+                    "Recall": 0.0, 
+                    "Precision": 0.0, 
+                    "F1": 0.0
+                }
+            }, 
+            "micro-average": {
+                "Recall": 0.0, 
+                "Precision": 0.0, 
+                "F1": 0.0
+            }
+        }
+    }
+}
