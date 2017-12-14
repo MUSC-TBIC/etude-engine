@@ -398,7 +398,7 @@ def test_changing_delim_to_pipe( capsys ):
 ## Test print_count_summary()
 #############################################
 
-def test_aggregate_summary_counts( capsys ):
+def TODO_aggregate_summary_counts( capsys ):
     score_card , args , sample_config , \
       file_mapping = initialize_for_print_summary_test()
     ##
@@ -417,7 +417,7 @@ def test_aggregate_summary_counts( capsys ):
     expected_out = expected_out.strip()
     assert agg_out == expected_out
 
-def test_by_file_summary_counts( capsys ):
+def TODO_by_file_summary_counts( capsys ):
     score_card , args , sample_config , \
       file_mapping = initialize_for_print_summary_test()
     args.by_file = True

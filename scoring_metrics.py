@@ -440,7 +440,9 @@ def update_csv_output( csv_out_filename , delimiter ,
     log.debug( "Leaving '{}'".format( sys._getframe().f_code.co_name ) )
 
 def output_metrics( class_data ,
-                    fuzzy_flag , metrics , delimiter , csv_out_filename ):
+                    fuzzy_flag , metrics ,
+                    delimiter_prefix , delimiter ,
+                    stdout_flag , csv_out_filename ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     row_content = delimiter.join( '{}'.format( m ) for m in metrics )
     if( len( class_data ) == 1 ):
@@ -450,7 +452,8 @@ def output_metrics( class_data ,
     elif( len( class_data ) == 4 ):
         row_name = '{} x {}'.format( class_data[ 1 ] ,
                                      class_data[ 3 ] )
-    print( '{}{}{}'.format( row_name , delimiter , row_content ) )
+    if( stdout_flag ):
+        print( '{}{}{}{}'.format( delimiter_prefix , row_name , delimiter , row_content ) )
     ##
     if( csv_out_filename ):
         full_row = [ fuzzy_flag ]
@@ -462,7 +465,91 @@ def output_metrics( class_data ,
         full_row.append( row_content )
         update_csv_output( csv_out_filename , delimiter ,
                            full_row )
+    #########
     log.debug( "Leaving '{}'".format( sys._getframe().f_code.co_name ) )
+
+
+def print_confusion_matrix_shell( confusion_matrix ,
+                                  file_mapping ,
+                                  reference_patterns , test_patterns ,
+                                  args ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
+    try:
+        for fuzzy_flag in args.fuzzy_flags:
+            print_confusion_matrix( confusion_matrix ,
+                                    file_mapping ,
+                                    reference_patterns , test_patterns ,
+                                    fuzzy_flag = fuzzy_flag ,
+                                    args = args )
+    except KeyError , e:
+        log.error( 'KeyError exception in print_confusion_matrix:  {}'.format( e ) )
+    except NameError , e:
+        log.error( 'NameError exception in print_confusion_matrix:  {}'.format( e ) )
+    except:
+        e = sys.exc_info()[0]
+        log.error( 'Uncaught exception in print_confusion_matrix:  {}'.format( e ) )
+    #########
+    log.debug( "Leaving '{}'".format( sys._getframe().f_code.co_name ) )
+
+
+def print_confusion_matrix( confusion_matrix ,
+                            file_mapping ,
+                            reference_config , test_config ,
+                            fuzzy_flag ,
+                            args ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
+    file_list = sorted( file_mapping.keys() )
+    unique_ref_types = Set()
+    unique_test_types = Set()
+    unique_ref_types.add( '*FP*' )
+    unique_test_types.add( '*FN*' )
+    for pattern in reference_config:
+        unique_ref_types.add( pattern[ 'type' ] )
+        unique_test_types.add( pattern[ 'type' ] )
+    type_header_line = \
+      args.delim.join( '{}'.format( m ) for m in sorted( unique_ref_types ) )
+    if( args.print_confusion_matrix ):
+        print( '\n{}{}{}{}'.format( args.delim_prefix ,
+                                    fuzzy_flag ,
+                                    args.delim ,
+                                    type_header_line ) )
+    ## Fill in any missing values
+    for ref_type in sorted( unique_ref_types ):
+        if( ref_type not in confusion_matrix[ fuzzy_flag ] ):
+            confusion_matrix[ fuzzy_flag ][ ref_type ] = {}
+        for test_type in sorted( unique_test_types ):
+            if( test_type not in confusion_matrix[ fuzzy_flag ][ ref_type ] ):
+                confusion_matrix[ fuzzy_flag ][ ref_type ][ test_type ] = ''
+    ##
+    for test_type in sorted( unique_test_types ):
+        type_counts = \
+          args.delim.join( '{}'.format( confusion_matrix[ fuzzy_flag ][ ref_type ][ test_type ] ) for ref_type in sorted( unique_ref_types ) )
+        if( args.print_confusion_matrix ):
+            print( '{}{}{}{}'.format( args.delim_prefix ,
+                                      test_type ,
+                                      args.delim ,
+                                      type_counts ) )
+    #########
+    log.debug( "Leaving '{}'".format( sys._getframe().f_code.co_name ) )
+
+
+def print_score_summary_shell( score_card , file_mapping ,
+                               reference_config , test_config ,
+                               args ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
+    try:
+        for fuzzy_flag in args.fuzzy_flags:
+            print_score_summary( score_card ,
+                                 file_mapping ,
+                                 reference_config , test_config ,
+                                 fuzzy_flag = fuzzy_flag ,
+                                 args = args )
+    except:
+        e = sys.exc_info()[0]
+        log.error( 'Uncaught exception in print_score_summary:  {}'.format( e ) )
+    #########
+    log.debug( "Leaving '{}'".format( sys._getframe().f_code.co_name ) )
+
 
 def print_score_summary( score_card , file_mapping ,
                          reference_config , test_config ,
@@ -474,9 +561,11 @@ def print_score_summary( score_card , file_mapping ,
     file_list = sorted( file_mapping.keys() )
     metrics_header_line = \
       args.delim.join( '{}'.format( m ) for m in args.metrics_list )
-    print( '\n{}{}{}'.format( fuzzy_flag ,
-                              args.delim ,
-                              metrics_header_line ) )
+    if( args.print_metrics ):
+        print( '\n{}{}{}{}'.format( args.delim_prefix ,
+                                    fuzzy_flag ,
+                                    args.delim ,
+                                    metrics_header_line ) )
     if( args.csv_out and
         not os.path.exists( args.csv_out ) ):
         update_csv_output( args.csv_out , args.delim ,
@@ -488,7 +577,9 @@ def print_score_summary( score_card , file_mapping ,
     metrics = norm_summary( score_card[ fuzzy_flag ][ 'Score' ].value_counts() ,
                             args = args )
     output_metrics( [ 'micro-average' ] ,
-                    fuzzy_flag , metrics , args.delim , args.csv_out )
+                    fuzzy_flag , metrics ,
+                    args.delim_prefix , args.delim ,
+                    args.print_metrics , args.csv_out )
     ##
     if( args.corpus_out ):
         update_output_dictionary( args.corpus_out ,
@@ -511,7 +602,9 @@ def print_score_summary( score_card , file_mapping ,
         metrics = norm_summary( file_value_counts , args = args )
         if( args.by_file or args.by_file_and_type ):
             output_metrics( [ 'File' , filename ] ,
-                            fuzzy_flag , metrics , args.delim , args.csv_out )
+                            fuzzy_flag , metrics ,
+                            args.delim_prefix , args.delim ,
+                            args.print_metrics , args.csv_out )
             ## Only update macro-average if some annotation in this file exists
             ## in either reference or system output
             if( sum( file_value_counts ) > 0 ):
@@ -555,7 +648,9 @@ def print_score_summary( score_card , file_mapping ,
                             args = args )
             if( args.by_file_and_type ):
                 output_metrics( [ 'File' , filename , 'Type' , unique_type ] ,
-                                fuzzy_flag , metrics , args.delim , args.csv_out )
+                                fuzzy_flag , metrics ,
+                                args.delim_prefix , args.delim ,
+                                args.print_metrics , args.csv_out )
             if( args.reference_out ):
                 out_file = '{}/{}'.format( args.reference_out ,
                                            filename )
@@ -587,7 +682,8 @@ def print_score_summary( score_card , file_mapping ,
         if( args.by_file or args.by_file_and_type ):
             output_metrics( [ 'macro-averages' , 'macro-average by file' ] ,
                             fuzzy_flag , macro_averaged_metrics ,
-                            args.delim , args.csv_out )
+                            args.delim_prefix , args.delim ,
+                            args.print_metrics , args.csv_out )
         if( args.corpus_out ):
             update_output_dictionary( args.corpus_out ,
                                       [ 'metrics' ,
@@ -608,7 +704,9 @@ def print_score_summary( score_card , file_mapping ,
                                 args = args )
         if( args.by_type or args.by_type_and_file ):
             output_metrics( [ 'Type' , unique_type ] ,
-                            fuzzy_flag , metrics , args.delim , args.csv_out )
+                            fuzzy_flag , metrics ,
+                            args.delim_prefix , args.delim ,
+                            args.print_metrics , args.csv_out )
             ## Only update macro-average if some of this type exist
             ## in either reference or system output
             if( sum( type_value_counts ) > 0 ):
@@ -639,7 +737,9 @@ def print_score_summary( score_card , file_mapping ,
             if( args.by_type_and_file ):
                 output_metrics( [ 'Type' , unique_type ,
                                   'File' , filename ] ,
-                                fuzzy_flag , metrics , args.delim , args.csv_out )
+                                fuzzy_flag , metrics ,
+                                args.delim_prefix , args.delim ,
+                                args.print_metrics , args.csv_out )
     if( non_empty_types > 0 ):
         macro_averaged_metrics = []
         for key , value in zip( args.metrics_list , type_aggregate_metrics ):
@@ -653,7 +753,8 @@ def print_score_summary( score_card , file_mapping ,
         if( args.by_type or args.by_type_and_file ):
             output_metrics( [ 'macro-averages' , 'macro-average by type' ] ,
                             fuzzy_flag , macro_averaged_metrics ,
-                            args.delim , args.csv_out )
+                            args.delim_prefix , args.delim ,
+                            args.print_metrics , args.csv_out )
         if( args.corpus_out ):
             update_output_dictionary( args.corpus_out ,
                                       [ 'metrics' ,
@@ -661,46 +762,5 @@ def print_score_summary( score_card , file_mapping ,
                                         'macro-averages' , 'type' ] ,
                                       args.metrics_list ,
                                       macro_averaged_metrics )
-    ##
+    #########
     log.debug( "Leaving '{}'".format( sys._getframe().f_code.co_name ) )
-
-
-def print_counts_summary( type_counts , file_mapping ,
-                          test_config ,
-                          args ):
-    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
-    file_list = sorted( file_mapping.keys() )
-    unique_types = Set()
-    for pattern in test_config:
-        unique_types.add( pattern[ 'type' ] )        
-    print( '{}{}{}'.format( '\n#########' ,
-                            args.delim ,
-                            args.delim.join( '{}'.format( t ) for t in unique_types ) ) )
-    ##
-    aggregate_type_counts = type_counts[ 'Type' ].value_counts()
-    type_matches = []
-    for unique_type in sorted( unique_types ):
-        if( unique_type in aggregate_type_counts.keys() ):
-            type_matches.append( aggregate_type_counts[ unique_type ] )
-        else:
-            type_matches.append( 0 )
-    print( '{}{}{}'.format( 'micro-average' ,
-                            args.delim ,
-                            args.delim.join( '{}'.format( m ) for m in type_matches ) ) )
-    ##
-    if( args.by_file ):
-        for filename in file_list:
-            this_file = ( type_counts[ 'File' ] == filename )
-            file_type_counts = type_counts[ this_file ][ 'Type' ].value_counts()
-            type_matches = []
-            for unique_type in sorted( unique_types ):
-                if( unique_type in file_type_counts.keys() ):
-                    type_matches.append( file_type_counts[ unique_type ] )
-                else:
-                    type_matches.append( 0 )
-            print( '{}{}{}'.format( filename ,
-                                    args.delim ,
-                                    args.delim.join( '{}'.format( m ) for m in type_matches ) ) )
-    log.debug( "Leaving '{}'".format( sys._getframe().f_code.co_name ) )
-
-
