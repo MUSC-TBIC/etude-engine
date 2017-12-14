@@ -68,6 +68,7 @@ def count_ref_set( test_ns , test_patterns , test_folder ,
     except:
         e = sys.exc_info()[0]
         log.error( 'Uncaught exception in print_counts_summary:  {}'.format( e ) )
+    #########
     log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
 
 
@@ -364,6 +365,7 @@ def score_ref_set( reference_ns , reference_dd , reference_patterns , reference_
                 else:
                     ignore_chars = True
                 scoring_metrics.evaluate_positions( reference_filename ,
+                                                    confusion_matrix ,
                                                     score_card ,
                                                     reference_ss ,
                                                     test_ss ,
@@ -376,19 +378,23 @@ def score_ref_set( reference_ns , reference_dd , reference_patterns , reference_
             e = sys.exc_info()[0]
             log.error( 'Uncaught exception in evaluate_positions:  {}'.format( e ) )
     ##
-    try:
-        if( args.csv_out and
-            os.path.exists( args.csv_out ) ):
-            os.remove( args.csv_out )
-        for fuzzy_flag in args.fuzzy_flags:
-            scoring_metrics.print_score_summary( score_card ,
-                                                 file_mapping ,
-                                                 reference_patterns , test_patterns ,
-                                                 fuzzy_flag = fuzzy_flag ,
-                                                 args = args )
-    except:
-        e = sys.exc_info()[0]
-        log.error( 'Uncaught exception in print_score_summary:  {}'.format( e ) )
+    if( args.csv_out and
+        os.path.exists( args.csv_out ) ):
+        os.remove( args.csv_out )
+    ##
+    # scoring_metrics.print_counts_summary_shell( confusion_matrix ,
+    #                                             file_mapping ,
+    #                                             reference_patterns , test_patterns ,
+    #                                             args = args )
+    scoring_metrics.print_confusion_matrix_shell( confusion_matrix ,
+                                                  file_mapping ,
+                                                  reference_patterns , test_patterns ,
+                                                  args = args )
+    scoring_metrics.print_score_summary_shell( score_card ,
+                                               file_mapping ,
+                                               reference_patterns , test_patterns ,
+                                               args = args )
+    #########
     log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
 
 
@@ -473,18 +479,7 @@ if __name__ == "__main__":
         e = sys.exc_info()[0]
         log.error( 'Uncaught exception in process_config:  {}'.format( e ) )
     ##
-    if( args.count_types ):
-        try:
-            count_ref_set( test_ns = test_ns ,
-                           test_patterns = test_patterns ,
-                           test_folder = os.path.abspath( args.test_input ) ,
-                           args = args ,
-                           file_prefix = args.file_prefix ,
-                           file_suffix = args.file_suffix[ len( args.file_suffix ) - 1 ].lstrip() )
-        except:
-            e = sys.exc_info()[0]
-            log.error( 'Uncaught exception in count_ref_set:  {}'.format( e ) )
-    elif( args.align_tokens ):
+    if( args.align_tokens ):
         align_tokens( reference_folder = os.path.abspath( args.reference_input ) ,
                       test_folder = os.path.abspath( args.test_input ) ,
                       args = args ,
