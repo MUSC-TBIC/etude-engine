@@ -87,8 +87,8 @@ def collect_files( reference_folder , test_folder ,
         if( len( file_suffix ) == 1 ):
             test_filename = reference_filename
         else:
-            test_filename = re.sub( file_suffix[ 0 ].lstrip() + '$' ,
-                                    file_suffix[ 1 ].lstrip() ,
+            test_filename = re.sub( file_suffix[ 0 ] + '$' ,
+                                    file_suffix[ 1 ] ,
                                     reference_filename )
         if( os.path.exists( '{}/{}'.format( test_folder ,
                                             test_filename ) ) ):
@@ -426,6 +426,12 @@ def init_args():
     if( args.ignore_whitespace and
         args.skip_chars == None ):
         args.skip_chars = '[\s]'
+    ## lstrip hack added to handle prefixes and suffixes with dashes
+    ##   https://stackoverflow.com/questions/16174992/cant-get-argparse-to-read-quoted-string-with-dashes-in-it
+    args.file_prefix = args.file_prefix.lstrip()
+    args.file_suffix[ 0 ] = args.file_suffix[ 0 ].lstrip()
+    if( len( args.file_suffix ) == 2 ):
+        args.file_suffix[ 1 ] = args.file_suffix[ 1 ].lstrip()
     ## Initialize the corpuse settings, values, and metrics file
     ## if it was provided at the command line
     if( args.corpus_out ):
