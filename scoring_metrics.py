@@ -65,6 +65,27 @@ def flatten_ss_dictionary( ss_dictionary ,
     return flat_entries
 
 
+def update_confusion_matrix( confusion_matrix , fuzzy_flag ,
+                             ref_type , test_type ):
+    ##########################
+    ## Before we touch a cell
+    ## in the confusion matrix,
+    ## we need to make sure that
+    ## the full path to it exists
+    if( fuzzy_flag not in confusion_matrix ):
+        confusion_matrix[ fuzzy_flag ] = {}
+    ##
+    if( ref_type not in confusion_matrix[ fuzzy_flag ] ):
+        confusion_matrix[ fuzzy_flag ][ ref_type ] = {}
+    ##
+    if( test_type not in confusion_matrix[ fuzzy_flag ][ ref_type ] ):
+        confusion_matrix[ fuzzy_flag ][ ref_type ][ test_type ] = 0
+    ##########################
+    ## Update the correct cell
+    ## of the confusion matrix
+    confusion_matrix[ fuzzy_flag ][ ref_type ][ test_type ] += 1
+
+
 def update_score_card( condition , score_card , fuzzy_flag ,
                        filename , start_pos , end_pos , type ,
                        ref_annot = None , test_annot = None ):
@@ -73,8 +94,66 @@ def update_score_card( condition , score_card , fuzzy_flag ,
         type , condition ]
 
 
-def reference_annot_comparison_runner( score_card , reference_filename ,
-                                       reference_annot , reference_leftovers ,
+def exact_comparison_runner( reference_filename , confusion_matrix , score_card , 
+                             reference_annot ,
+                             test_entries ,
+                             start_key , end_key ,
+                             fuzzy_flag ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
+    ## grab type and end position
+    reference_type , reference_start , reference_end = \
+      get_annotation_from_base_entry( reference_annot ,
+                                      start_key ,
+                                      end_key )
+    if( reference_type == None ):
+        ## If we couldn't extract a type, consider this
+        ## an invalid annotations    
+        return( False , test_entries )
+    ## Loop through all the test annotations
+    ## that haven't been matched yet
+    test_leftovers = []
+    matched_flag = False
+    for test_annot in test_entries:
+        ## TODO - nesting comparisons, multiple overlaps
+        if( matched_flag ):
+            test_leftovers.append( test_annot )
+            continue
+        ## grab type and end position
+        test_type , test_start , test_end = \
+          get_annotation_from_base_entry( test_annot ,
+                                          start_key ,
+                                          end_key )
+        if( test_type == None ):
+            ## If we couldn't extract a type, consider this
+            ## an invalid annotation
+            continue
+        if( reference_start == test_start and
+            reference_end == test_end ):
+            matched_flag = True
+            update_confusion_matrix( confusion_matrix , fuzzy_flag , reference_type , test_type )
+            ## If the types match...
+            if( reference_type == test_type ):
+                ## ... and the end positions match, then we have a
+                ##     perfect match
+                update_score_card( 'TP' , score_card , fuzzy_flag ,
+                                   reference_filename , reference_start , reference_end ,
+                                   reference_type , reference_annot , test_annot )
+            else:
+                update_score_card( 'FN' , score_card , fuzzy_flag ,
+                                   reference_filename , reference_start , reference_end ,
+                                   reference_type , reference_annot , test_annot )
+                update_score_card( 'FP' , score_card , fuzzy_flag ,
+                                   reference_filename , test_start , test_end ,
+                                   test_type , reference_annot , test_annot )
+        else:
+            test_leftovers.append( test_annot )
+    #########
+    log.debug( "Leaving '{}'".format( sys._getframe().f_code.co_name ) )
+    return( matched_flag , test_leftovers )
+
+
+def fully_contained_comparison_runner( reference_filename , confusion_matrix , score_card , 
+                                       reference_annot ,
                                        test_entries ,
                                        start_key , end_key ,
                                        fuzzy_flag ):
@@ -87,12 +166,13 @@ def reference_annot_comparison_runner( score_card , reference_filename ,
     if( reference_type == None ):
         ## If we couldn't extract a type, consider this
         ## an invalid annotations    
-        return test_entries
+        return( False , test_entries )
     ## Loop through all the test annotations
     ## that haven't been matched yet
     test_leftovers = []
     matched_flag = False
     for test_annot in test_entries:
+        ## TODO - nesting comparisons, multiple overlaps
         if( matched_flag ):
             test_leftovers.append( test_annot )
             continue
@@ -103,50 +183,19 @@ def reference_annot_comparison_runner( score_card , reference_filename ,
                                           end_key )
         if( test_type == None ):
             ## If we couldn't extract a type, consider this
-            ## an invalid annotations
+            ## an invalid annotation
             continue
-        ##
-        if( reference_start == test_start ):
+        if( ( test_start == 'SOF' or
+              test_start <= reference_start ) and
+            ( test_end == 'EOF' or
+              reference_end <= test_end ) ):
+            matched_flag = True
+            update_confusion_matrix( confusion_matrix , fuzzy_flag , reference_type , test_type )
             ## If the types match...
             if( reference_type == test_type ):
-                ## ... and the end positions match, then we have a
-                ##     perfect match
-                if( reference_end == test_end ):
-                    update_score_card( 'TP' , score_card , fuzzy_flag ,
-                                       reference_filename , reference_start , reference_end ,
-                                       reference_type , reference_annot , test_annot )
-                elif( test_end == 'EOF' or
-                      reference_end < test_end ):
-                    ## If the reference end position is prior to the system
-                    ## determined end position, we consider this a
-                    ## 'fully contained' match and also count it
-                    ## as a win (until we score strict vs. lenient matches)
-                    if( fuzzy_flag == 'exact' ):
-                        update_score_card( 'FN' , score_card , fuzzy_flag ,
-                                       reference_filename , reference_start , reference_end ,
-                                       reference_type , reference_annot , test_annot )
-                        update_score_card( 'FP' , score_card , fuzzy_flag ,
-                                           reference_filename , test_start , test_end ,
-                                           test_type , reference_annot , test_annot )
-                    else:
-                        update_score_card( 'TP' , score_card , fuzzy_flag ,
-                                           reference_filename , reference_start , reference_end ,
-                                           reference_type , reference_annot , test_annot )
-                else:
-                    ## otherwise, we missed some data that needs
-                    ## to be captured.  For now, this is also
-                    ## a win but will not always count.
-                    if( fuzzy_flag == 'partial' ):
-                        update_score_card( 'TP' , score_card , fuzzy_flag ,
-                                           reference_filename , reference_start , reference_end ,
-                                           reference_type , reference_annot , test_annot )
-                    else:
-                        update_score_card( 'FN' , score_card , fuzzy_flag ,
-                                       reference_filename , reference_start , reference_end ,
-                                       reference_type , reference_annot , test_annot )
-                        update_score_card( 'FP' , score_card , fuzzy_flag ,
-                                           reference_filename , test_start , test_end ,
-                                           test_type , reference_annot , test_annot )
+                update_score_card( 'TP' , score_card , fuzzy_flag ,
+                                   reference_filename , reference_start , reference_end ,
+                                   reference_type , reference_annot , test_annot )
             else:
                 update_score_card( 'FN' , score_card , fuzzy_flag ,
                                    reference_filename , reference_start , reference_end ,
@@ -154,85 +203,112 @@ def reference_annot_comparison_runner( score_card , reference_filename ,
                 update_score_card( 'FP' , score_card , fuzzy_flag ,
                                    reference_filename , test_start , test_end ,
                                    test_type , reference_annot , test_annot )
-            ## Everything within this block counts as a match
-            ## so we need to remove the current test_annot from
-            ## the list of possible matches in the future and
-            ## break out of the loop
-            matched_flag = True
-        elif( fuzzy_flag != 'exact' and
-              reference_end == test_end ):
-            ## The end offsets AND types may match...
-            if( reference_type == test_type ):
-                ##
-                if( reference_start > test_start ):
-                    ## If the reference start position is after the system
-                    ## determined start position, we consider this a
-                    ## 'fully contained' match and also count it
-                    ## as a win
-                    update_score_card( 'TP' , score_card , fuzzy_flag ,
-                                       reference_filename , reference_start , reference_end ,
-                                       reference_type , reference_annot , test_annot )
-                else:
-                    ## otherwise, we missed some data that needs
-                    ## to be captured.  This is a partial win.
-                    if( fuzzy_flag == 'partial' ):
-                        update_score_card( 'TP' , score_card , fuzzy_flag ,
-                                           reference_filename , reference_start , reference_end ,
-                                           reference_type , reference_annot , test_annot )
-                    else:
-                        update_score_card( 'FN' , score_card , fuzzy_flag ,
-                                           reference_filename , reference_start , reference_end ,
-                                           reference_type , reference_annot , test_annot )
-                        update_score_card( 'FP' , score_card , fuzzy_flag ,
-                                           reference_filename , test_start , test_end ,
-                                           test_type , reference_annot , test_annot )
-            else:
-                update_score_card( 'FN' , score_card , fuzzy_flag ,
-                                   reference_filename , reference_start , reference_end ,
-                                   reference_type , reference_annot , test_annot )
-                update_score_card( 'FP' , score_card , fuzzy_flag ,
-                                   reference_filename , test_start , test_end ,
-                                   test_type , reference_annot , test_annot )
-            ## Everything within this block counts as a match
-            ## so we need to remove the current test_annot from
-            ## the list of possible matches in the future and
-            ## break out of the loop
-            matched_flag = True
-        elif( fuzzy_flag != 'exact' and
-              ( test_start == 'SOF' or test_start < reference_start ) and
-              ( test_end == 'EOF' or test_end > reference_end ) and
-              reference_type == test_type ):
-            update_score_card( 'TP' , score_card , fuzzy_flag ,
-                               reference_filename , reference_start , reference_end ,
-                               reference_type , reference_annot , test_annot )
-            ## Everything within this block counts as a match
-            ## so we need to remove the current test_annot from
-            ## the list of possible matches in the future and
-            ## break out of the loop
-            matched_flag = True
-        elif( fuzzy_flag == 'partial' and
-              ( ( ( test_end == 'EOF' or test_end <= reference_end ) and
-                  test_end > reference_start ) or
-                ( ( test_start == 'SOF' or test_start >= reference_start ) and
-                  test_start < reference_end ) ) and
-              reference_type == test_type ):
-            update_score_card( 'TP' , score_card , fuzzy_flag ,
-                               reference_filename , reference_start , reference_end ,
-                               reference_type , reference_annot , test_annot )
-            ## Everything within this block counts as a match
-            ## so we need to remove the current test_annot from
-            ## the list of possible matches in the future and
-            ## break out of the loop
-            matched_flag = True
         else:
             test_leftovers.append( test_annot )
-    if( not matched_flag ):
-        reference_leftovers.append( reference_annot )
+    #########
     log.debug( "Leaving '{}'".format( sys._getframe().f_code.co_name ) )
-    return test_leftovers
+    return( matched_flag , test_leftovers )
+
+
+def partial_comparison_runner( reference_filename , confusion_matrix , score_card , 
+                               reference_annot ,
+                               test_entries ,
+                               start_key , end_key ,
+                               fuzzy_flag ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
+    ## grab type and end position
+    reference_type , reference_start , reference_end = \
+      get_annotation_from_base_entry( reference_annot ,
+                                      start_key ,
+                                      end_key )
+    if( reference_type == None ):
+        ## If we couldn't extract a type, consider this
+        ## an invalid annotations    
+        return( False , test_entries )
+    ## Loop through all the test annotations
+    ## that haven't been matched yet
+    test_leftovers = []
+    matched_flag = False
+    for test_annot in test_entries:
+        ## TODO - nesting comparisons, multiple overlaps
+        if( matched_flag ):
+            test_leftovers.append( test_annot )
+            continue
+        ## grab type and end position
+        test_type , test_start , test_end = \
+          get_annotation_from_base_entry( test_annot ,
+                                          start_key ,
+                                          end_key )
+        if( test_type == None ):
+            ## If we couldn't extract a type, consider this
+            ## an invalid annotation
+            continue
+        if( ( ( reference_start == 'SOF' or
+                reference_start <= test_start ) and
+              ( reference_end == 'EOF' or
+                reference_end > test_start ) ) or
+            ( ( reference_start == 'SOF' or
+                reference_start < test_end ) and
+              ( reference_end == 'EOF' or
+                reference_end >= test_end ) ) ):
+            matched_flag = True
+            update_confusion_matrix( confusion_matrix , fuzzy_flag , reference_type , test_type )
+            ## If the types match...
+            if( reference_type == test_type ):
+                update_score_card( 'TP' , score_card , fuzzy_flag ,
+                                   reference_filename , reference_start , reference_end ,
+                                   reference_type , reference_annot , test_annot )
+            else:
+                update_score_card( 'FN' , score_card , fuzzy_flag ,
+                                   reference_filename , reference_start , reference_end ,
+                                   reference_type , reference_annot , test_annot )
+                update_score_card( 'FP' , score_card , fuzzy_flag ,
+                                   reference_filename , test_start , test_end ,
+                                   test_type , reference_annot , test_annot )
+        else:
+            test_leftovers.append( test_annot )
+    #########
+    log.debug( "Leaving '{}'".format( sys._getframe().f_code.co_name ) )
+    return( matched_flag , test_leftovers )
+
+
+def reference_annot_comparison_runner( reference_filename , confusion_matrix , score_card , 
+                                       reference_annot , 
+                                       test_entries ,
+                                       start_key , end_key ,
+                                       fuzzy_flag ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
+    reference_matched, test_leftovers = exact_comparison_runner( reference_filename ,
+                                                                 confusion_matrix ,
+                                                                 score_card , 
+                                                                 reference_annot ,
+                                                                 test_entries ,
+                                                                 start_key , end_key ,
+                                                                 fuzzy_flag )
+    if( fuzzy_flag == 'exact' or
+        reference_matched ):
+        return( reference_matched , test_leftovers )
+    reference_matched, test_leftovers = fully_contained_comparison_runner( reference_filename ,
+                                                                           confusion_matrix ,
+                                                                           score_card , 
+                                                                           reference_annot ,
+                                                                           test_leftovers ,
+                                                                           start_key , end_key ,
+                                                                           fuzzy_flag )
+    if( fuzzy_flag == 'fully-contained' or
+        reference_matched ):
+        return( reference_matched , test_leftovers )
+    reference_matched , test_leftovers = partial_comparison_runner( reference_filename ,
+                                                confusion_matrix , score_card , 
+                                                reference_annot ,
+                                                test_leftovers ,
+                                                start_key , end_key ,
+                                                fuzzy_flag )
+    return( reference_matched , test_leftovers )
 
 
 def evaluate_positions( reference_filename ,
+                        confusion_matrix ,
                         score_card ,
                         reference_ss ,
                         test_ss ,
@@ -251,26 +327,27 @@ def evaluate_positions( reference_filename ,
     reference_entries = flatten_ss_dictionary( reference_ss , 'reference' )
     test_entries = flatten_ss_dictionary( test_ss , 'test' )
     ##
-    reference_leftovers = []
     test_leftovers = test_entries
     for reference_annot in reference_entries:
-        test_leftovers = \
-          reference_annot_comparison_runner( score_card , reference_filename ,
-                                             reference_annot , reference_leftovers ,
+        reference_matched , test_leftovers = \
+          reference_annot_comparison_runner( reference_filename , confusion_matrix , score_card ,
+                                             reference_annot ,
                                              test_entries ,
                                              start_key , end_key ,
                                              fuzzy_flag )
         test_entries = test_leftovers
+        if( not reference_matched ):
+            ## grab type and end position
+            reference_type , reference_start , reference_end = \
+              get_annotation_from_base_entry( reference_annot ,
+                                              start_key ,
+                                              end_key )
+            if( reference_type != None ):
+                update_confusion_matrix( confusion_matrix , fuzzy_flag , reference_type , '*FN*' )
+                update_score_card( 'FN' , score_card , fuzzy_flag ,
+                                   reference_filename , reference_start , reference_end ,
+                                   reference_type , reference_annot , None )
     ## any remaining entries in the reference set are FNs
-    for reference_annot in reference_leftovers:
-        ## grab type and end position
-        reference_type , reference_start , reference_end = \
-          get_annotation_from_base_entry( reference_annot ,
-                                          start_key ,
-                                          end_key )
-        update_score_card( 'FN' , score_card , fuzzy_flag ,
-                           reference_filename , reference_start , reference_end ,
-                           reference_type , reference_annot , None )
     for test_annot in test_leftovers:
         ## grab type and end position
         test_type , test_start , test_end = \
@@ -279,6 +356,7 @@ def evaluate_positions( reference_filename ,
                                           end_key )
         if( test_type == None ):
             continue
+        update_confusion_matrix( confusion_matrix , fuzzy_flag , '*FP*' , test_type )
         update_score_card( 'FP' , score_card , fuzzy_flag ,
                            reference_filename , test_start , test_end ,
                            test_type , None , test_annot )
