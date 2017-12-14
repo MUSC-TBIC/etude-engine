@@ -16,6 +16,12 @@ unstructured data extraction.
                          help = "print more information" ,
                          action = "store_true" )
 
+    parser.add_argument( '--progressbar-output' ,
+                         dest = 'progressbar_output' ,
+                         default = 'stderr' ,
+                         choices = [ 'stderr' , 'stdout' , 'none' ] ,
+                         help = "Pipe the progress bar to stderr, stdout, or neither" )
+    
     ## TODO -
     ## --sample % of files to randomly sample from
     ## --head X grab the first files from the directory
@@ -48,10 +54,15 @@ unstructured data extraction.
                          choices = [ 'exact' , 'fully-contained' , 'partial' ] ,
                          help = "List of strictness levels to use in matching offsets." )
 
-    parser.add_argument("-d", 
+    parser.add_argument( "-d" , "--delim" , 
                         dest = 'delim' ,
                         default = '\t' ,
                         help="Delimiter used in all output streams" )
+
+    parser.add_argument( "--delim-prefix" , 
+                        dest = 'delim_prefix' ,
+                        default = '' ,
+                        help="Prefix string printed before each line in the output streams" )
 
     parser.add_argument( '--by-file' , dest = 'by_file' ,
                          help = "Print metrics by file" ,
@@ -117,10 +128,35 @@ unstructured data extraction.
                          default = None ,
                          help = 'When provided, write the dictionary of extracted corpus metrics to disk in this file (Uses -d delimiter)' )
     
-    parser.add_argument( '-c' , '--count-types' ,
-                         dest = 'count_types' ,
-                         help = "Count pattern types in each test file" ,
+    parser.add_argument( '--print-counts' , default = False ,
+                         dest = 'print_counts' ,
+                         help = "Print to stdout the count of annotation types in each file" ,
                          action = "store_true" )
+    
+    parser.add_argument( '--no-counts' ,
+                         dest = 'print_counts' ,
+                         help = "Suppress the count of annotation types in each file" ,
+                         action = "store_false" )
+    
+    parser.add_argument( '--print-confusion-matrix' , default = False ,
+                         dest = 'print_confusion_matrix' ,
+                         help = "Print to stdout the confusion matrix between annotation types" ,
+                         action = "store_true" )
+    
+    parser.add_argument( '--no-confusion-matrix' ,
+                         dest = 'print_confusion_matrix' ,
+                         help = "Suppress the confusion matrix between annotation types" ,
+                         action = "store_false" )
+    
+    parser.add_argument( '--print-metrics' , default = True ,
+                         dest = 'print_metrics' ,
+                         help = "Print to stdout the metrics (provided via --metrics-list) scored" ,
+                         action = "store_true" )
+
+    parser.add_argument( '--no-metrics' ,
+                         dest = 'print_metrics' ,
+                         help = "Suppress the metrics (provided via --metrics-list) scored" ,
+                         action = "store_false" )
 
     parser.add_argument( '--align-tokens' ,
                          dest = 'align_tokens' ,
