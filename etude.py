@@ -280,9 +280,11 @@ def generate_out_file( output_dir , input_filename ):
     """
     Generate a well-formed full file path for writing output stats
     """
-    if( args.reference_out == None ):
+    if( output_dir == None ):
         return( None )
     else:
+        ## TODO - replace this and all path generation strings with
+        ##        OS generic version
         return( '{}/{}'.format( args.reference_out ,
                                 reference_filename ) )
 
@@ -504,6 +506,8 @@ if __name__ == "__main__":
                            args = args ,
                            file_prefix = args.file_prefix ,
                            file_suffix = args.file_suffix )
+        except NameError, e:
+            log.error( 'NameError in score_ref_set:  {}'.format( e ) )
         except:
             e = sys.exc_info()[0]
             log.error( 'Uncaught exception in score_ref_set:  {}'.format( e ) )

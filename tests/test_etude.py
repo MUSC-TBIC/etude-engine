@@ -146,3 +146,9 @@ def test_skip_empty_test_directory():
                            skip_missing_files_flag = True )
     assert match_count == 0
     assert file_mapping == {}
+
+def test_out_filepath_with_none():
+    assert etude.generate_out_file( None , 'foo.txt' ) == None
+
+def test_out_filepath_with_output_dir():
+    assert etude.generate_out_file( '/tmp/bar' , 'foo.txt' ) == '/tmp/bar/foo'
