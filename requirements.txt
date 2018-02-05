@@ -1,6 +1,6 @@
 numpy
 pandas
-progressbar2
+tqdm
 pytest
 pytest-cov
 mock

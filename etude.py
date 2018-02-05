@@ -3,7 +3,7 @@ from __future__ import print_function
 import sys
 import logging as log
 
-import progressbar
+from tqdm import tqdm
 
 import glob
 import os
@@ -68,6 +68,7 @@ def count_ref_set( test_ns , test_patterns , test_folder ,
     except:
         e = sys.exc_info()[0]
         log.error( 'Uncaught exception in print_counts_summary:  {}'.format( e ) )
+    #########
     log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
 
 
@@ -86,8 +87,8 @@ def collect_files( reference_folder , test_folder ,
         if( len( file_suffix ) == 1 ):
             test_filename = reference_filename
         else:
-            test_filename = re.sub( file_suffix[ 0 ].lstrip() + '$' ,
-                                    file_suffix[ 1 ].lstrip() ,
+            test_filename = re.sub( file_suffix[ 0 ] + '$' ,
+                                    file_suffix[ 1 ] ,
                                     reference_filename )
         if( os.path.exists( '{}/{}'.format( test_folder ,
                                             test_filename ) ) ):
@@ -130,15 +131,12 @@ def count_chars_profile( reference_ns , reference_dd , reference_folder ,
             print( 'ERROR:  No documents found in reference directory:  {}'.format( reference_folder ) )
         return( None )
     ##
-    progress = progressbar.ProgressBar( max_value = match_count ,
-                                        redirect_stderr = True )
-    for reference_filename in progress( sorted( file_mapping.keys() ) ):
-        if( args.reference_out == None ):
-            reference_out_file = None
-        else:
-            ## TODO - add filename translation services
-            reference_out_file = '{}/{}'.format( args.reference_out ,
-                                                 reference_filename )
+    for reference_filename in tqdm( sorted( file_mapping.keys() ) ,
+                                    file = args.progressbar_file ,
+                                    disable = args.progressbar_disabled ):
+        ##
+        reference_out_file = generate_out_file( args.reference_out ,
+                                                reference_filename )
         ##
         try:
             reference_chars = \
@@ -153,12 +151,9 @@ def count_chars_profile( reference_ns , reference_dd , reference_folder ,
         if( test_filename == None ):
             test_chars = {}
         else:
-            if( args.test_out == None ):
-                test_out_file = None
-            else:
-                ## TODO - add filename translation services
-                test_out_file = '{}/{}'.format( args.test_out ,
-                                                   test_filename )
+            ##
+            test_out_file = generate_out_file( args.test_out ,
+                                               test_filename )
             ##
             try:
                 test_full_path = '{}/{}'.format( test_folder ,
@@ -195,15 +190,12 @@ def align_tokens(  reference_folder ,
             print( 'ERROR:  No documents found in reference directory:  {}'.format( reference_folder ) )
         return( None )
     ##
-    progress = progressbar.ProgressBar( max_value = match_count ,
-                                        redirect_stderr = True )
-    for reference_filename in progress( sorted( file_mapping.keys() ) ):
-        if( args.reference_out == None ):
-            reference_out_file = None
-        else:
-            ## TODO - add filename translation services
-            reference_out_file = '{}/{}'.format( args.reference_out ,
-                                                 reference_filename )
+    for reference_filename in tqdm( sorted( file_mapping.keys() ) ,
+                                    file = args.progressbar_file ,
+                                    disable = args.progressbar_disabled ):
+        ##
+        reference_out_file = generate_out_file( args.reference_out ,
+                                                reference_filename )
         ##
         reference_dictionary = {}
         with open( '{}/{}'.format( reference_folder , reference_filename ) , 'r' ) as fp:
@@ -212,12 +204,9 @@ def align_tokens(  reference_folder ,
                                                     reference_out_file )
         test_filename = file_mapping[ reference_filename ]
         if( test_filename != None ):
-            if( args.test_out == None ):
-                test_out_file = None
-            else:
-                ## TODO - add filename translation services
-                test_out_file = '{}/{}'.format( args.test_out ,
-                                                reference_filename )
+            ##
+            test_out_file = generate_out_file( args.test_out ,
+                                               reference_filename )
             ##
             test_dictionary = {}
             with open( '{}/{}'.format( test_folder ,
@@ -228,23 +217,17 @@ def align_tokens(  reference_folder ,
     ##
 
 
-def score_ref_set( reference_ns , reference_dd , reference_patterns , reference_folder ,
-                   test_ns , test_dd , test_patterns , test_folder ,
-                   args ,
-                   file_prefix = '/' ,
-                   file_suffix = '.xml' ):
+def get_file_mapping( reference_folder , test_folder ,
+                      file_prefix , file_suffix ,
+                      skip_missing_files_flag ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     """
-    Score the test folder against the reference folder.
+    Create mapping between folders to see which files in each set need to be compared
     """
-    score_card = scoring_metrics.new_score_card( fuzzy_flags = \
-                                                 args.fuzzy_flags )
-    ##
-    confusion_matrix = {}
     try:
         match_count , file_mapping = collect_files( reference_folder , test_folder ,
                                                     file_prefix , file_suffix ,
-                                                    args.skip_missing_files )
+                                                    skip_missing_files_flag )
     except:
         e = sys.exc_info()[0]
         log.error( 'Uncaught exception in collect_files:  {}'.format( e ) )
@@ -258,34 +241,81 @@ def score_ref_set( reference_ns , reference_dd , reference_patterns , reference_
             log.error( 'No documents found in reference directory:  {}'.format( reference_folder ) )
         return( None )
     ##
-    if( args.reference_out != None and
-        not os.path.exists( args.reference_out ) ):
-        log.warn( 'Creating reference output folder because it does not exist:  {}'.format( args.reference_out ) )
+    log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
+    return( file_mapping )
+
+
+def create_output_folders( reference_out , test_out ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
+    """
+    Create output folders for saving the results of our analysis
+    """
+    ##########################
+    ## Reference folders
+    if( reference_out != None and
+        not os.path.exists( reference_out ) ):
+        log.warn( 'Creating reference output folder because it does not exist:  {}'.format( reference_out ) )
         try:
-            os.makedirs( args.reference_out )
+            os.makedirs( reference_out )
         except OSError as e:
-            log.error( 'OSError caught while trying to create test output folder:  {}'.format( e ) )
+            log.error( 'OSError caught while trying to create reference output folder:  {}'.format( e ) )
         except IOError as e:
             log.error( 'IOError caught while trying to create reference output folder:  {}'.format( e ) )
-    if( args.test_out != None and
-        not os.path.exists( args.test_out ) ):
-        log.warn( 'Creating test output folder because it does not exist:  {}'.format( args.test_out ) )
+    ##########################
+    ## Test (system output) folders
+    if( test_out != None and
+        not os.path.exists( test_out ) ):
+        log.warn( 'Creating test output folder because it does not exist:  {}'.format( test_out ) )
         try:
-            os.makedirs( args.test_out )
+            os.makedirs( test_out )
         except OSError as e:
             log.error( 'OSError caught while trying to create test output folder:  {}'.format( e ) )
         except IOError as e:
             log.error( 'IOError caught while trying to create test output folder:  {}'.format( e ) )
+    #########
+    log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
+
+
+def generate_out_file( output_dir , input_filename ):
+    """
+    Generate a well-formed full file path for writing output stats
+    """
+    if( args.reference_out == None ):
+        return( None )
+    else:
+        return( '{}/{}'.format( args.reference_out ,
+                                reference_filename ) )
+
+
+def score_ref_set( reference_ns , reference_dd , reference_patterns , reference_folder ,
+                   test_ns , test_dd , test_patterns , test_folder ,
+                   args ,
+                   file_prefix = '/' ,
+                   file_suffix = '.xml' ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
+    """
+    Score the system output (test) folder against the reference folder.
+    """
+    score_card = scoring_metrics.new_score_card( fuzzy_flags = \
+                                                 args.fuzzy_flags )
     ##
-    progress = progressbar.ProgressBar( max_value = match_count ,
-                                        redirect_stderr = True )
-    for reference_filename in progress( sorted( file_mapping.keys() ) ):
-        if( args.reference_out == None ):
-            reference_out_file = None
-        else:
-            ## TODO - add filename translation services
-            reference_out_file = '{}/{}'.format( args.reference_out ,
-                                                 reference_filename )
+    confusion_matrix = {}
+    ##########################
+    file_mapping = get_file_mapping( reference_folder , test_folder ,
+                                     file_prefix , file_suffix ,
+                                     args.skip_missing_files )
+    if( file_mapping == None ):
+        ## There was a problem mapping files between directories so abort
+        return( None )
+    ##########################
+    create_output_folders( args.reference_out , args.test_out )
+    ##########################
+    for reference_filename in tqdm( sorted( file_mapping.keys() ) ,
+                                    file = args.progressbar_file ,
+                                    disable = args.progressbar_disabled ):
+        ##
+        reference_out_file = generate_out_file( args.reference_out ,
+                                                reference_filename )
         ##
         try:
             reference_full_path = '{}/{}'.format( reference_folder ,
@@ -307,12 +337,9 @@ def score_ref_set( reference_ns , reference_dd , reference_patterns , reference_
             test_om = {}
             test_ss = {}
         else:
-            if( args.test_out == None ):
-                test_out_file = None
-            else:
-                ## TODO - add filename translation services
-                test_out_file = '{}/{}'.format( args.test_out ,
-                                                test_filename )
+            ##
+            test_out_file = generate_out_file( args.test_out ,
+                                               test_filename )
             ##
             test_full_path = '{}/{}'.format( test_folder ,
                                              test_filename )
@@ -338,6 +365,7 @@ def score_ref_set( reference_ns , reference_dd , reference_patterns , reference_
                 else:
                     ignore_chars = True
                 scoring_metrics.evaluate_positions( reference_filename ,
+                                                    confusion_matrix ,
                                                     score_card ,
                                                     reference_ss ,
                                                     test_ss ,
@@ -350,26 +378,30 @@ def score_ref_set( reference_ns , reference_dd , reference_patterns , reference_
             e = sys.exc_info()[0]
             log.error( 'Uncaught exception in evaluate_positions:  {}'.format( e ) )
     ##
-    try:
-        if( args.csv_out and
-            os.path.exists( args.csv_out ) ):
-            os.remove( args.csv_out )
-        for fuzzy_flag in args.fuzzy_flags:
-            scoring_metrics.print_score_summary( score_card ,
-                                                 file_mapping ,
-                                                 reference_patterns , test_patterns ,
-                                                 fuzzy_flag = fuzzy_flag ,
-                                                 args = args )
-    except:
-        e = sys.exc_info()[0]
-        log.error( 'Uncaught exception in print_score_summary:  {}'.format( e ) )
+    if( args.csv_out and
+        os.path.exists( args.csv_out ) ):
+        os.remove( args.csv_out )
+    ##
+    # scoring_metrics.print_counts_summary_shell( confusion_matrix ,
+    #                                             file_mapping ,
+    #                                             reference_patterns , test_patterns ,
+    #                                             args = args )
+    scoring_metrics.print_confusion_matrix_shell( confusion_matrix ,
+                                                  file_mapping ,
+                                                  reference_patterns , test_patterns ,
+                                                  args = args )
+    scoring_metrics.print_score_summary_shell( score_card ,
+                                               file_mapping ,
+                                               reference_patterns , test_patterns ,
+                                               args = args )
+    #########
     log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
 
 
 def init_args():
     ##
     args = args_and_configs.get_arguments( sys.argv[ 1: ] )
-    ##
+    ## Set up logging
     if args.verbose:
         log.basicConfig( format = "%(levelname)s: %(message)s" ,
                          level = log.DEBUG )
@@ -377,6 +409,16 @@ def init_args():
         log.debug( "{}".format( args ) )
     else:
         log.basicConfig( format="%(levelname)s: %(message)s" )
+    ## Configure progressbar peformance
+    if( args.progressbar_output == 'none' ):
+        args.progressbar_disabled = True
+        args.progressbar_file = None
+    else:
+        args.progressbar_disabled = False
+        if( args.progressbar_output == 'stderr' ):
+            args.progressbar_file = sys.stderr
+        elif( args.progressbar_output == 'stdout' ):
+            args.progressbar_file = sys.stdout
     ## Resolve conflicts between --ignore-whitespace, --heed-whitespace,
     ## and --ignore-regex flags.  Essentially, if we set something in
     ## skip_chars, use that.  Otherwise, if we tripped --ignore_whitespace
@@ -384,6 +426,12 @@ def init_args():
     if( args.ignore_whitespace and
         args.skip_chars == None ):
         args.skip_chars = '[\s]'
+    ## lstrip hack added to handle prefixes and suffixes with dashes
+    ##   https://stackoverflow.com/questions/16174992/cant-get-argparse-to-read-quoted-string-with-dashes-in-it
+    args.file_prefix = args.file_prefix.lstrip()
+    args.file_suffix[ 0 ] = args.file_suffix[ 0 ].lstrip()
+    if( len( args.file_suffix ) == 2 ):
+        args.file_suffix[ 1 ] = args.file_suffix[ 1 ].lstrip()
     ## Initialize the corpuse settings, values, and metrics file
     ## if it was provided at the command line
     if( args.corpus_out ):
@@ -437,18 +485,7 @@ if __name__ == "__main__":
         e = sys.exc_info()[0]
         log.error( 'Uncaught exception in process_config:  {}'.format( e ) )
     ##
-    if( args.count_types ):
-        try:
-            count_ref_set( test_ns = test_ns ,
-                           test_patterns = test_patterns ,
-                           test_folder = os.path.abspath( args.test_input ) ,
-                           args = args ,
-                           file_prefix = args.file_prefix ,
-                           file_suffix = args.file_suffix[ len( args.file_suffix ) - 1 ].lstrip() )
-        except:
-            e = sys.exc_info()[0]
-            log.error( 'Uncaught exception in count_ref_set:  {}'.format( e ) )
-    elif( args.align_tokens ):
+    if( args.align_tokens ):
         align_tokens( reference_folder = os.path.abspath( args.reference_input ) ,
                       test_folder = os.path.abspath( args.test_input ) ,
                       args = args ,
