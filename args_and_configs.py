@@ -29,10 +29,10 @@ unstructured data extraction.
     ## --file-pattern "" regex pattern fed to glob for selecting files
     ##                   (maybe call this --file-filter?)
     
-    parser.add_argument( '--reference-input' , required = True ,
+    parser.add_argument( '--reference-input' , default = None ,
                          dest = "reference_input",
                          help = "Directory containing reference reference set" )
-    parser.add_argument( '--test-input' , required = True ,
+    parser.add_argument( '--test-input' , default = None ,
                         dest = "test_input",
                         help = "Directory containing reference set to score" )
 
@@ -196,6 +196,9 @@ unstructured data extraction.
 def get_arguments( command_line_args ):
     parser = initialize_arg_parser()
     args = parser.parse_args( command_line_args )
+    if( not args.print_counts and
+        ( args.reference_input is None or args.test_input is None ) ):
+        parser.error( "Both --reference-input and --test-input are required unless using --print-counts." )
     ##
     return args
 

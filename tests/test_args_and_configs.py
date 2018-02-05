@@ -1,3 +1,4 @@
+import pytest
 
 import json
 
@@ -45,6 +46,32 @@ def test_score_missing_test_files_usage():
                           '--score-missing-files' ]
     args = args_and_configs.get_arguments( command_line_args )
     assert args.skip_missing_files == False
+
+def test_required_input_flags_ref_only():
+    command_line_args = [ '--reference-input' , 'tests/data/i2b2_2016_track-1_reference' ]
+    with pytest.raises( SystemExit ) as e_info:
+        args = args_and_configs.get_arguments( command_line_args )
+
+def test_required_input_flags_test_only():
+    command_line_args = [ '--test-input' , 'tests/data/i2b2_2016_track-1_test' ]
+    with pytest.raises( SystemExit ) as e_info:
+        args = args_and_configs.get_arguments( command_line_args )
+
+def test_print_counts_ref_only():
+    command_line_args = [ '--print-counts' ,
+                          '--reference-input' , 'tests/data/i2b2_2016_track-1_reference' ]
+    args = args_and_configs.get_arguments( command_line_args )
+
+def test_print_counts_test_only():
+    command_line_args = [ '--print-counts' ,
+                          '--test-input' , 'tests/data/i2b2_2016_track-1_test' ]
+    args = args_and_configs.get_arguments( command_line_args )
+
+def test_print_counts_ref_and_test():
+    command_line_args = [ '--print-counts' ,
+                          '--reference-input' , 'tests/data/i2b2_2016_track-1_reference' ,
+                          '--test-input' , 'tests/data/i2b2_2016_track-1_test' ]
+    args = args_and_configs.get_arguments( command_line_args )
 
 
 #############################################
