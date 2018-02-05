@@ -151,4 +151,4 @@ def test_out_filepath_with_none():
     assert etude.generate_out_file( None , 'foo.txt' ) == None
 
 def test_out_filepath_with_output_dir():
-    assert etude.generate_out_file( '/tmp/bar' , 'foo.txt' ) == '/tmp/bar/foo'
+    assert etude.generate_out_file( '/tmp/bar' , 'foo.txt' ) == '/tmp/bar/foo.txt'

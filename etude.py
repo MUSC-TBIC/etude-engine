@@ -285,8 +285,8 @@ def generate_out_file( output_dir , input_filename ):
     else:
         ## TODO - replace this and all path generation strings with
         ##        OS generic version
-        return( '{}/{}'.format( args.reference_out ,
-                                reference_filename ) )
+        return( '{}/{}'.format( output_dir ,
+                                input_filename ) )
 
 
 def score_ref_set( reference_ns , reference_dd , reference_patterns , reference_folder ,
