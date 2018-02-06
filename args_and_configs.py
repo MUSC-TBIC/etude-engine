@@ -199,6 +199,9 @@ def get_arguments( command_line_args ):
     if( not args.print_counts and
         ( args.reference_input is None or args.test_input is None ) ):
         parser.error( "Both --reference-input and --test-input are required unless using --print-counts." )
+    if( not args.print_metrics and not args.print_confusion_matrix and
+        ( args.reference_input is None or args.test_input is None ) ):
+        parser.error( "Both --reference-input and --test-input are required for printing metrics and printing a confusion matrix." )
     ##
     return args
 
