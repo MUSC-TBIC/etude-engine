@@ -23,7 +23,8 @@ import text_extraction
 ## helper functions
 #############################################
 
-def count_ref_set( test_ns , test_patterns , test_folder ,
+def count_ref_set( this_ns , this_dd , this_patterns ,
+                   this_folder , output_dir ,
                    args ,
                    file_prefix = '/' ,
                    file_suffix = '.xml' ):
@@ -31,40 +32,60 @@ def count_ref_set( test_ns , test_patterns , test_folder ,
     """
     Count annotation occurrences in the test folder
     """
-    type_counts = scoring_metrics.new_score_card( fuzzy_flags = \
-                                                  args.fuzzy_flags )
-    confusion_matrix = {}
-    tests = set([os.path.basename(x) for x in glob.glob( test_folder +
-                                                         file_prefix +
-                                                         '*' +
-                                                         file_suffix )])
-    for test_filename in sorted( tests ):
-        ## TODO - refactor into separate fuction
+    type_counts = scoring_metrics.new_score_card( fuzzy_flags = [ 'counts' ] )
+    file_list = set([os.path.basename(x) for x in glob.glob( this_folder +
+                                                             file_prefix +
+                                                             '*' +
+                                                             file_suffix )])
+    ##########################
+    create_output_folders( args.reference_out , args.test_out )
+    ##########################
+    for this_filename in tqdm( sorted( file_list ) ,
+                               file = args.progressbar_file ,
+                               disable = args.progressbar_disabled ):
+        ##
+        this_out_file = generate_out_file( output_dir ,
+                                           this_filename )
         try:
-            test_full_path = '{}/{}'.format( test_folder ,
-                                             test_filename )
-            test_ss = \
-              text_extraction.extract_annotations( test_full_path ,
-                                                   namespaces = test_ns ,
-                                                   patterns = test_patterns )
+            this_full_path = '{}/{}'.format( this_folder ,
+                                             this_filename )
+            this_om , this_ss = \
+              text_extraction.extract_annotations( this_full_path ,
+                                                   namespaces = this_ns ,
+                                                   document_data = this_dd ,
+                                                   patterns = this_patterns ,
+                                                   out_file = this_out_file )
+        except NameError , e:
+            log.error( 'NameError exception in extract_annotations:  {}'.format( e ) )
         except TypeError , e:
             log.error( 'TypeError exception in extract_annotations:  {}'.format( e ) )
         except:
             e = sys.exc_info()[0]
             log.error( 'Uncaught exception in extract_annotations:  {}'.format( e ) )
-        for test_start in test_ss.keys():
+        for this_start in this_ss.keys():
             ## grab type and end position
-            test_type = test_ss[ test_start ][ 0 ][ 'type' ]
-            test_end = test_ss[ test_start ][ 0 ][ 'end_pos' ]
-            type_counts.loc[ type_counts.shape[ 0 ] ] = \
-              [ test_filename , test_start , test_end ,
-                test_type , None ]
+            this_type = this_ss[ this_start ][ 0 ][ 'type' ]
+            this_end = this_ss[ this_start ][ 0 ][ 'end_pos' ]
+            scoring_metrics.update_score_card( 'Tally' , type_counts , 'counts' ,
+                                               this_filename , this_start , this_end , this_type )
+    ##
+    if( args.csv_out and
+        os.path.exists( args.csv_out ) ):
+        os.remove( args.csv_out )
     ##
     try:
         scoring_metrics.print_counts_summary( type_counts ,
-                                              sorted( tests ) ,
-                                              test_patterns ,
+                                              sorted( file_list ) ,
+                                              this_patterns , output_dir ,
                                               args )
+    except AttributeError , e:
+            log.error( 'AttributeError exception in print_counts_summary:  {}'.format( e ) )
+    except KeyError , e:
+            log.error( 'KeyError exception in print_counts_summary:  {}'.format( e ) )
+    except NameError , e:
+            log.error( 'NameError exception in print_counts_summary:  {}'.format( e ) )
+    except TypeError , e:
+            log.error( 'TypeError exception in print_counts_summary:  {}'.format( e ) )
     except:
         e = sys.exc_info()[0]
         log.error( 'Uncaught exception in print_counts_summary:  {}'.format( e ) )
@@ -466,26 +487,37 @@ if __name__ == "__main__":
     ##
     args = init_args()
     ## Extract and process the two input file configs
-    try:
-        reference_ns , reference_dd , reference_patterns = \
-          args_and_configs.process_config( config_file = args.reference_config ,
-                                           score_key = args.score_key ,
-                                           score_values = args.score_values ,
-                                           verbose = args.verbose )
-        test_ns , test_dd , test_patterns = \
-          args_and_configs.process_config( config_file = args.test_config ,
-                                           score_key = args.score_key ,
-                                           score_values = args.score_values ,
-                                           verbose = args.verbose )
-        reference_patterns , test_patterns = \
-          args_and_configs.align_patterns( reference_patterns , test_patterns )
-        if( len( reference_patterns ) == 0 ):
-            log.error( 'Zero annotation patterns found in reference config after filtering against system output config.' )
-        if( len( test_patterns ) == 0 ):
-            log.error( 'Zero annotation patterns found in system output config after filtering against reference config.' )            
-    except:
-        e = sys.exc_info()[0]
-        log.error( 'Uncaught exception in process_config:  {}'.format( e ) )
+    if( args.reference_input ):
+        try:
+            reference_ns , reference_dd , reference_patterns = \
+              args_and_configs.process_config( config_file = args.reference_config ,
+                                               score_key = args.score_key ,
+                                               score_values = args.score_values ,
+                                               verbose = args.verbose )
+        except:
+            e = sys.exc_info()[0]
+            log.error( 'Uncaught exception in process_config for reference config:  {}'.format( e ) )
+    if( args.test_input ):
+        try:
+            test_ns , test_dd , test_patterns = \
+              args_and_configs.process_config( config_file = args.test_config ,
+                                               score_key = args.score_key ,
+                                               score_values = args.score_values ,
+                                               verbose = args.verbose )
+        except:
+            e = sys.exc_info()[0]
+            log.error( 'Uncaught exception in process_config for system output config:  {}'.format( e ) )
+    if( args.reference_input and args.test_input ):
+        try:
+            reference_patterns , test_patterns = \
+              args_and_configs.align_patterns( reference_patterns , test_patterns )
+            if( len( reference_patterns ) == 0 ):
+                log.error( 'Zero annotation patterns found in reference config after filtering against system output config.' )
+            if( len( test_patterns ) == 0 ):
+                log.error( 'Zero annotation patterns found in system output config after filtering against reference config.' )            
+        except:
+            e = sys.exc_info()[0]
+            log.error( 'Uncaught exception in align_patterns:  {}'.format( e ) )
     ##
     if( args.align_tokens ):
         align_tokens( reference_folder = os.path.abspath( args.reference_input ) ,
@@ -494,20 +526,69 @@ if __name__ == "__main__":
                       file_prefix = args.file_prefix ,
                       file_suffix = args.file_suffix )
     else:
-        try:
-            score_ref_set( reference_ns = reference_ns ,
-                           reference_dd = reference_dd ,
-                           reference_patterns = reference_patterns ,
-                           reference_folder = os.path.abspath( args.reference_input ) ,
-                           test_ns = test_ns ,
-                           test_dd = test_dd ,
-                           test_patterns = test_patterns ,
-                           test_folder = os.path.abspath( args.test_input ) ,
-                           args = args ,
-                           file_prefix = args.file_prefix ,
-                           file_suffix = args.file_suffix )
-        except NameError, e:
-            log.error( 'NameError in score_ref_set:  {}'.format( e ) )
-        except:
-            e = sys.exc_info()[0]
-            log.error( 'Uncaught exception in score_ref_set:  {}'.format( e ) )
+        ## TODO - make a more efficient loop that will count and/or score in a single pass
+        ##        rather than doing a full double pass
+        if( args.print_counts ):
+            if( args.reference_input ):
+                try:
+                    count_ref_set( this_ns = reference_ns ,
+                                   this_dd = reference_dd ,
+                                   this_patterns = reference_patterns ,
+                                   this_folder = os.path.abspath( args.reference_input ) ,
+                                   output_dir = args.reference_out ,
+                                   args = args ,
+                                   file_prefix = args.file_prefix ,
+                                   file_suffix = args.file_suffix[ len( args.file_suffix ) - 1 ] )
+                except AttributeError , e:
+                    log.error( 'AttributeError exception in count_ref_set for reference output corpus:  {}'.format( e ) )
+                except KeyError, e:
+                    log.error( 'KeyError in count_ref_set for reference output corpus:  {}'.format( e ) )
+                except NameError, e:
+                    log.error( 'NameError in count_ref_set for reference output corpus:  {}'.format( e ) )
+                except TypeError, e:
+                    log.error( 'TypeError in count_ref_set for reference output corpus:  {}'.format( e ) )
+                except:
+                    e = sys.exc_info()[0]
+                    log.error( 'Uncaught exception in count_ref_set for reference output corpus:  {}'.format( e ) )
+            ##
+            if( args.test_input ):
+                try:
+                    count_ref_set( this_ns = test_ns ,
+                                   this_dd = test_dd ,
+                                   this_patterns = test_patterns ,
+                                   this_folder = os.path.abspath( args.test_input ) ,
+                                   output_dir = args.test_out ,
+                                   args = args ,
+                                   file_prefix = args.file_prefix ,
+                                   file_suffix = args.file_suffix[ len( args.file_suffix ) - 1 ] ) 
+                except AttributeError , e:
+                    log.error( 'AttributeError exception in count_ref_set for reference output corpus:  {}'.format( e ) )
+                except KeyError, e:
+                    log.error( 'KeyError in count_ref_set for system output corpus:  {}'.format( e ) )
+                except NameError, e:
+                    log.error( 'NameError in count_ref_set for system output corpus:  {}'.format( e ) )
+                except TypeError, e:
+                    log.error( 'TypeError in count_ref_set for system output corpus:  {}'.format( e ) )
+                except:
+                    e = sys.exc_info()[0]
+                    log.error( 'Uncaught exception in count_ref_set for system output corpus:  {}'.format( e ) )
+
+            ##
+        elif( args.print_confusion_matrix or args.print_metrics ):
+            try:
+                score_ref_set( reference_ns = reference_ns ,
+                               reference_dd = reference_dd ,
+                               reference_patterns = reference_patterns ,
+                               reference_folder = os.path.abspath( args.reference_input ) ,
+                               test_ns = test_ns ,
+                               test_dd = test_dd ,
+                               test_patterns = test_patterns ,
+                               test_folder = os.path.abspath( args.test_input ) ,
+                               args = args ,
+                               file_prefix = args.file_prefix ,
+                               file_suffix = args.file_suffix )
+            except NameError, e:
+                log.error( 'NameError in score_ref_set:  {}'.format( e ) )
+            except:
+                e = sys.exc_info()[0]
+                log.error( 'Uncaught exception in score_ref_set:  {}'.format( e ) )
