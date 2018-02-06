@@ -547,6 +547,126 @@ def output_metrics( class_data ,
     log.debug( "Leaving '{}'".format( sys._getframe().f_code.co_name ) )
 
 
+def print_counts_summary( score_card , file_list ,
+                          config_patterns , output_dir ,
+                          args ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
+    ## TODO - refactor score printing to a separate function
+    ## TODO - add scores grouped by type
+    metrics_header_line = \
+      args.delim.join( '{}'.format( m ) for m in [ 'n' ] )
+    if( args.print_metrics ):
+        print( '\n{}{}{}{}'.format( args.delim_prefix ,
+                                    'counts' ,
+                                    args.delim ,
+                                    metrics_header_line ) )
+    if( args.csv_out and
+        not os.path.exists( args.csv_out ) ):
+        update_csv_output( args.csv_out , args.delim ,
+                           [ 'FuzzyFlag' ,
+                             'ClassType' , 'Class' ,
+                             'SubClassType' , 'SubClass' ,
+                             metrics_header_line ] )
+    ##
+    metrics = [ score_card[ 'counts' ][ 'Score' ].value_counts()[ 'Tally' ] ]
+    output_metrics( [ 'Total' ] ,
+                    'n' , metrics ,
+                    args.delim_prefix , args.delim ,
+                    args.print_metrics , args.csv_out )
+    ##
+    file_aggregate_metrics = None
+    non_empty_files = 0
+    for filename in file_list:
+        this_file = ( score_card[ 'counts' ][ 'File' ] == filename )
+        file_value_counts = score_card[ 'counts' ][ this_file ][ 'Score' ].value_counts()
+        ## TODO - add flag to only print non-zero entries
+        if( len( file_value_counts ) == 0 ):
+            metrics = [ 0 ]
+        else:
+            metrics = [ file_value_counts[ 'Tally' ] ]
+        if( args.by_file or args.by_file_and_type ):
+            output_metrics( [ 'File' , filename ] ,
+                            'counts' , metrics ,
+                            args.delim_prefix , args.delim ,
+                            args.print_metrics , args.csv_out )
+        if( output_dir ):
+            out_file = '{}/{}'.format( output_dir ,
+                                       filename )
+            update_output_dictionary( out_file ,
+                                      [ 'metrics' ,
+                                        'counts' ] ,
+                                      [ 'n' ] ,
+                                      metrics )
+        ##
+        unique_types = Set()
+        for pattern in config_patterns:
+            unique_types.add( pattern[ 'type' ] )
+        for unique_type in sorted( unique_types ):
+            this_type = \
+              (  ( score_card[ 'counts' ][ 'File' ] == filename ) &
+                 ( score_card[ 'counts' ][ 'Type' ] == unique_type ) )
+            type_value_counts = \
+              score_card[ 'counts' ][ this_type ][ 'Score' ].value_counts()
+            ## TODO - add flag to only print non-zero entries
+            if( len( type_value_counts ) == 0 ):
+                metrics = [ 0 ]
+            else:
+                metrics = [ type_value_counts[ 'Tally' ] ]
+            if( args.by_file_and_type ):
+                output_metrics( [ 'File' , filename , 'Type' , unique_type ] ,
+                                'counts' , metrics ,
+                                args.delim_prefix , args.delim ,
+                                args.print_metrics , args.csv_out )
+            if( output_dir ):
+                out_file = '{}/{}'.format( output_dir ,
+                                           filename )
+                update_output_dictionary( out_file ,
+                                          [ 'metrics' ,
+                                            'counts' ,
+                                            'by-type' , unique_type ] ,
+                                          [ 'n' ] ,
+                                          metrics )
+    ##
+    unique_types = Set()
+    type_aggregate_metrics = None
+    non_empty_types = 0
+    for pattern in config_patterns:
+        unique_types.add( pattern[ 'type' ] )
+    for unique_type in sorted( unique_types ):
+        this_type = ( score_card[ 'counts' ][ 'Type' ] == unique_type )
+        type_value_counts = score_card[ 'counts' ][ this_type ][ 'Score' ].value_counts()
+        ## TODO - add flag to only print non-zero entries
+        if( len( type_value_counts ) == 0 ):
+            metrics = [ 0 ]
+        else:
+            metrics = [ type_value_counts[ 'Tally' ] ]
+        if( args.by_type or args.by_type_and_file ):
+            output_metrics( [ 'Type' , unique_type ] ,
+                            'counts' , metrics ,
+                            args.delim_prefix , args.delim ,
+                            args.print_metrics , args.csv_out )
+        ##
+        for filename in file_list:
+            this_file = \
+              (  ( score_card[ 'counts' ][ 'File' ] == filename ) &
+                 ( score_card[ 'counts' ][ 'Type' ] == unique_type ) )
+            file_value_counts = \
+              score_card[ 'counts' ][ this_file ][ 'Score' ].value_counts()
+            ## TODO - add flag to only print non-zero entries
+            if( len( file_value_counts ) == 0 ):
+                metrics = [ 0 ]
+            else:
+                metrics = [ file_value_counts[ 'Tally' ] ]
+            if( args.by_type_and_file ):
+                output_metrics( [ 'Type' , unique_type ,
+                                 'File' , filename ] ,
+                                'counts' , metrics ,
+                                args.delim_prefix , args.delim ,
+                                args.print_metrics , args.csv_out )
+    #########
+    log.debug( "Leaving '{}'".format( sys._getframe().f_code.co_name ) )
+
+
 def print_confusion_matrix_shell( confusion_matrix ,
                                   file_mapping ,
                                   reference_patterns , test_patterns ,
