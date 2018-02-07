@@ -24,7 +24,7 @@ import text_extraction
 #############################################
 
 def count_ref_set( this_ns , this_dd , this_patterns ,
-                   this_folder , output_dir ,
+                   this_folder , 
                    args ,
                    file_prefix = '/' ,
                    file_suffix = '.xml' ):
@@ -38,14 +38,9 @@ def count_ref_set( this_ns , this_dd , this_patterns ,
                                                              '*' +
                                                              file_suffix )])
     ##########################
-    create_output_folders( output_dir , None )
-    ##########################
     for this_filename in tqdm( sorted( file_list ) ,
                                file = args.progressbar_file ,
                                disable = args.progressbar_disabled ):
-        ##
-        this_out_file = generate_out_file( output_dir ,
-                                           this_filename )
         try:
             this_full_path = '{}/{}'.format( this_folder ,
                                              this_filename )
@@ -54,7 +49,7 @@ def count_ref_set( this_ns , this_dd , this_patterns ,
                                                    namespaces = this_ns ,
                                                    document_data = this_dd ,
                                                    patterns = this_patterns ,
-                                                   out_file = this_out_file )
+                                                   out_file = None )
         except NameError , e:
             log.error( 'NameError exception in extract_annotations:  {}'.format( e ) )
         except TypeError , e:
@@ -76,7 +71,7 @@ def count_ref_set( this_ns , this_dd , this_patterns ,
     try:
         scoring_metrics.print_counts_summary( type_counts ,
                                               sorted( file_list ) ,
-                                              this_patterns , output_dir ,
+                                              this_patterns ,
                                               args )
     except AttributeError , e:
             log.error( 'AttributeError exception in print_counts_summary:  {}'.format( e ) )
@@ -535,7 +530,6 @@ if __name__ == "__main__":
                                    this_dd = reference_dd ,
                                    this_patterns = reference_patterns ,
                                    this_folder = os.path.abspath( args.reference_input ) ,
-                                   output_dir = args.reference_out ,
                                    args = args ,
                                    file_prefix = args.file_prefix ,
                                    file_suffix = args.file_suffix[ len( args.file_suffix ) - 1 ] )
@@ -557,7 +551,6 @@ if __name__ == "__main__":
                                    this_dd = test_dd ,
                                    this_patterns = test_patterns ,
                                    this_folder = os.path.abspath( args.test_input ) ,
-                                   output_dir = args.test_out ,
                                    args = args ,
                                    file_prefix = args.file_prefix ,
                                    file_suffix = args.file_suffix[ len( args.file_suffix ) - 1 ] ) 
@@ -573,8 +566,8 @@ if __name__ == "__main__":
                     e = sys.exc_info()[0]
                     log.error( 'Uncaught exception in count_ref_set for system output corpus:  {}'.format( e ) )
 
-            ##
-        elif( args.print_confusion_matrix or args.print_metrics ):
+        ##
+        if( args.print_confusion_matrix or args.print_metrics ):
             try:
                 score_ref_set( reference_ns = reference_ns ,
                                reference_dd = reference_dd ,

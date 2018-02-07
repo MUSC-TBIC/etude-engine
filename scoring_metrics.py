@@ -548,7 +548,7 @@ def output_metrics( class_data ,
 
 
 def print_counts_summary( score_card , file_list ,
-                          config_patterns , output_dir ,
+                          config_patterns , 
                           args ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     ## TODO - refactor score printing to a separate function
@@ -570,7 +570,7 @@ def print_counts_summary( score_card , file_list ,
     ##
     metrics = [ score_card[ 'counts' ][ 'Score' ].value_counts()[ 'Tally' ] ]
     output_metrics( [ 'Total' ] ,
-                    'n' , metrics ,
+                    'counts' , metrics ,
                     args.delim_prefix , args.delim ,
                     args.print_counts , args.csv_out )
     ##
@@ -589,14 +589,6 @@ def print_counts_summary( score_card , file_list ,
                             'counts' , metrics ,
                             args.delim_prefix , args.delim ,
                             args.print_counts , args.csv_out )
-        if( output_dir ):
-            out_file = '{}/{}'.format( output_dir ,
-                                       filename )
-            update_output_dictionary( out_file ,
-                                      [ 'metrics' ,
-                                        'counts' ] ,
-                                      [ 'n' ] ,
-                                      metrics )
         ##
         unique_types = Set()
         for pattern in config_patterns:
@@ -617,15 +609,6 @@ def print_counts_summary( score_card , file_list ,
                                 'counts' , metrics ,
                                 args.delim_prefix , args.delim ,
                                 args.print_counts , args.csv_out )
-            if( output_dir ):
-                out_file = '{}/{}'.format( output_dir ,
-                                           filename )
-                update_output_dictionary( out_file ,
-                                          [ 'metrics' ,
-                                            'counts' ,
-                                            'by-type' , unique_type ] ,
-                                          [ 'n' ] ,
-                                          metrics )
     ##
     unique_types = Set()
     type_aggregate_metrics = None
