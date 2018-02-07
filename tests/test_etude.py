@@ -84,6 +84,99 @@ def test_init_args_skip_chars_and_whitespace_flag():
         assert args.ignore_whitespace == True
         assert args.skip_chars == '[z\|]'
 
+def test_init_args_progressbar_default():
+    from mock import patch
+    test_args = [ 'etude.py' , '--no-metrics' ]
+    with patch.object( sys , 'argv' , test_args ):
+        args = etude.init_args()
+        assert args.progressbar_output == 'stderr'
+        assert not args.progressbar_disabled
+        assert args.progressbar_file == sys.stderr
+
+def test_init_args_progressbar_stderr():
+    from mock import patch
+    test_args = [ 'etude.py' , '--no-metrics' ,
+                  '--progressbar-output' , 'stderr' ]
+    with patch.object( sys , 'argv' , test_args ):
+        args = etude.init_args()
+        assert args.progressbar_output == 'stderr'
+        assert not args.progressbar_disabled
+        assert args.progressbar_file == sys.stderr
+
+def test_init_args_progressbar_stdout():
+    from mock import patch
+    test_args = [ 'etude.py' , '--no-metrics' ,
+                  '--progressbar-output' , 'stdout' ]
+    with patch.object( sys , 'argv' , test_args ):
+        args = etude.init_args()
+        assert args.progressbar_output == 'stdout'
+        assert not args.progressbar_disabled
+        assert args.progressbar_file == sys.stdout
+
+def test_init_args_progressbar_none():
+    from mock import patch
+    test_args = [ 'etude.py' , '--no-metrics' ,
+                  '--progressbar-output' , 'none' ]
+    with patch.object( sys , 'argv' , test_args ):
+        args = etude.init_args()
+        assert args.progressbar_output == 'none'
+        assert args.progressbar_disabled
+        assert args.progressbar_file is None
+
+def test_init_args_file_prefix_simplex():
+    from mock import patch
+    test_args = [ 'etude.py' , '--no-metrics' ,
+                  '--file-prefix' , '.xyz' ]
+    with patch.object( sys , 'argv' , test_args ):
+        args = etude.init_args()
+        assert args.file_prefix == '.xyz'
+
+def test_init_args_file_prefix_simplex_dash():
+    from mock import patch
+    test_args = [ 'etude.py' , '--no-metrics' ,
+                  '--file-prefix' , ' -03.xyz' ]
+    with patch.object( sys , 'argv' , test_args ):
+        args = etude.init_args()
+        assert args.file_prefix == '-03.xyz'
+
+def test_init_args_file_suffix_simplex():
+    from mock import patch
+    test_args = [ 'etude.py' , '--no-metrics' ,
+                  '--file-suffix' , '.xyz' ]
+    with patch.object( sys , 'argv' , test_args ):
+        args = etude.init_args()
+        assert len( args.file_suffix ) == 1
+        assert args.file_suffix[ 0 ] == '.xyz'
+
+def test_init_args_file_suffix_simplex_dash():
+    from mock import patch
+    test_args = [ 'etude.py' , '--no-metrics' ,
+                  '--file-suffix' , ' -03.xyz' ]
+    with patch.object( sys , 'argv' , test_args ):
+        args = etude.init_args()
+        assert len( args.file_suffix ) == 1
+        assert args.file_suffix[ 0 ] == '-03.xyz'
+
+def test_init_args_file_suffix_duplex():
+    from mock import patch
+    test_args = [ 'etude.py' , '--no-metrics' ,
+                  '--file-suffix' , '.xyz' , '.abc' ]
+    with patch.object( sys , 'argv' , test_args ):
+        args = etude.init_args()
+        assert len( args.file_suffix ) == 2
+        assert args.file_suffix[ 0 ] == '.xyz'
+        assert args.file_suffix[ 1 ] == '.abc'
+
+def test_init_args_file_suffix_duplex_dash():
+    from mock import patch
+    test_args = [ 'etude.py' , '--no-metrics' ,
+                  '--file-suffix' , ' -03.xyz' , ' -03.abc' ]
+    with patch.object( sys , 'argv' , test_args ):
+        args = etude.init_args()
+        assert len( args.file_suffix ) == 2
+        assert args.file_suffix[ 0 ] == '-03.xyz'
+        assert args.file_suffix[ 1 ] == '-03.abc'
+
 
 #############################################
 ## Test file/corpus io
