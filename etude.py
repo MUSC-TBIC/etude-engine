@@ -38,7 +38,7 @@ def count_ref_set( this_ns , this_dd , this_patterns ,
                                                              '*' +
                                                              file_suffix )])
     ##########################
-    create_output_folders( args.reference_out , args.test_out )
+    create_output_folders( output_dir , None )
     ##########################
     for this_filename in tqdm( sorted( file_list ) ,
                                file = args.progressbar_file ,
