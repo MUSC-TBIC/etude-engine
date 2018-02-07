@@ -555,7 +555,7 @@ def print_counts_summary( score_card , file_list ,
     ## TODO - add scores grouped by type
     metrics_header_line = \
       args.delim.join( '{}'.format( m ) for m in [ 'n' ] )
-    if( args.print_metrics ):
+    if( args.print_counts ):
         print( '\n{}{}{}{}'.format( args.delim_prefix ,
                                     'counts' ,
                                     args.delim ,
@@ -572,7 +572,7 @@ def print_counts_summary( score_card , file_list ,
     output_metrics( [ 'Total' ] ,
                     'n' , metrics ,
                     args.delim_prefix , args.delim ,
-                    args.print_metrics , args.csv_out )
+                    args.print_counts , args.csv_out )
     ##
     file_aggregate_metrics = None
     non_empty_files = 0
@@ -588,7 +588,7 @@ def print_counts_summary( score_card , file_list ,
             output_metrics( [ 'File' , filename ] ,
                             'counts' , metrics ,
                             args.delim_prefix , args.delim ,
-                            args.print_metrics , args.csv_out )
+                            args.print_counts , args.csv_out )
         if( output_dir ):
             out_file = '{}/{}'.format( output_dir ,
                                        filename )
@@ -616,7 +616,7 @@ def print_counts_summary( score_card , file_list ,
                 output_metrics( [ 'File' , filename , 'Type' , unique_type ] ,
                                 'counts' , metrics ,
                                 args.delim_prefix , args.delim ,
-                                args.print_metrics , args.csv_out )
+                                args.print_counts , args.csv_out )
             if( output_dir ):
                 out_file = '{}/{}'.format( output_dir ,
                                            filename )
@@ -644,7 +644,7 @@ def print_counts_summary( score_card , file_list ,
             output_metrics( [ 'Type' , unique_type ] ,
                             'counts' , metrics ,
                             args.delim_prefix , args.delim ,
-                            args.print_metrics , args.csv_out )
+                            args.print_counts , args.csv_out )
         ##
         for filename in file_list:
             this_file = \
@@ -662,7 +662,7 @@ def print_counts_summary( score_card , file_list ,
                                  'File' , filename ] ,
                                 'counts' , metrics ,
                                 args.delim_prefix , args.delim ,
-                                args.print_metrics , args.csv_out )
+                                args.print_counts , args.csv_out )
     #########
     log.debug( "Leaving '{}'".format( sys._getframe().f_code.co_name ) )
 
