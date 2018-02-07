@@ -196,10 +196,11 @@ unstructured data extraction.
 def get_arguments( command_line_args ):
     parser = initialize_arg_parser()
     args = parser.parse_args( command_line_args )
-    if( not args.print_counts and
-        ( args.reference_input is None or args.test_input is None ) ):
-        parser.error( "Both --reference-input and --test-input are required unless using --print-counts." )
-    if( not args.print_metrics and not args.print_confusion_matrix and
+    if( args.print_counts and
+        args.reference_input is None and
+        args.test_input is None ):
+        parser.error( "At least one of --reference-input and --test-input are required when using --print-counts." )
+    if( ( args.print_metrics or args.print_confusion_matrix ) and
         ( args.reference_input is None or args.test_input is None ) ):
         parser.error( "Both --reference-input and --test-input are required for printing metrics and printing a confusion matrix." )
     ##
