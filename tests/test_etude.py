@@ -2,16 +2,20 @@
 import os
 import sys
 
+from mock import patch
+
 import tempfile
 
+import json
+
 import etude
+import args_and_configs
 
 #############################################
 ## Early initialization and set-up
 #############################################
 
 def test_default_init_args():
-    from mock import patch
     test_args = [ 'etude.py' ,
                   '--reference-input' , '/tmp/reference' ,
                   '--test-input' , '/tmp/test' ]
@@ -23,7 +27,6 @@ def test_default_init_args():
         assert args.verbose == False
 
 def test_init_args_verbose():
-    from mock import patch
     test_args = [ 'etude.py' ,
                   '--reference-input' , '/tmp/reference' ,
                   '--test-input' , '/tmp/test' ,
@@ -33,7 +36,6 @@ def test_init_args_verbose():
         assert args.verbose == True
 
 def test_init_args_corpus_out():
-    from mock import patch
     test_args = [ 'etude.py' ,
                   '--reference-input' , '/tmp/reference' ,
                   '--test-input' , '/tmp/test' ,
@@ -43,7 +45,6 @@ def test_init_args_corpus_out():
         assert args.corpus_out == '/tmp/corpusOut'
 
 def test_init_args_heed_whitespace():
-    from mock import patch
     test_args = [ 'etude.py' ,
                   '--reference-input' , '/tmp/reference' ,
                   '--test-input' , '/tmp/test' ,
@@ -54,7 +55,6 @@ def test_init_args_heed_whitespace():
         assert args.skip_chars == None
 
 def test_init_args_ignore_whitespace():
-    from mock import patch
     test_args = [ 'etude.py' ,
                   '--reference-input' , '/tmp/reference' ,
                   '--test-input' , '/tmp/test' ,
@@ -65,7 +65,6 @@ def test_init_args_ignore_whitespace():
         assert args.skip_chars == '[\s]'
 
 def test_init_args_skip_chars():
-    from mock import patch
     test_args = [ 'etude.py' ,
                   '--reference-input' , '/tmp/reference' ,
                   '--test-input' , '/tmp/test' ,
@@ -76,7 +75,6 @@ def test_init_args_skip_chars():
         assert args.skip_chars == '[z\|]'
 
 def test_init_args_skip_chars_and_whitespace_flag():
-    from mock import patch
     test_args = [ 'etude.py' ,
                   '--reference-input' , '/tmp/reference' ,
                   '--test-input' , '/tmp/test' ,
@@ -88,7 +86,6 @@ def test_init_args_skip_chars_and_whitespace_flag():
         assert args.skip_chars == '[z\|]'
 
 def test_init_args_progressbar_default():
-    from mock import patch
     test_args = [ 'etude.py' , '--no-metrics' ]
     with patch.object( sys , 'argv' , test_args ):
         args = etude.init_args()
@@ -97,7 +94,6 @@ def test_init_args_progressbar_default():
         assert args.progressbar_file == sys.stderr
 
 def test_init_args_progressbar_stderr():
-    from mock import patch
     test_args = [ 'etude.py' , '--no-metrics' ,
                   '--progressbar-output' , 'stderr' ]
     with patch.object( sys , 'argv' , test_args ):
@@ -107,7 +103,6 @@ def test_init_args_progressbar_stderr():
         assert args.progressbar_file == sys.stderr
 
 def test_init_args_progressbar_stdout():
-    from mock import patch
     test_args = [ 'etude.py' , '--no-metrics' ,
                   '--progressbar-output' , 'stdout' ]
     with patch.object( sys , 'argv' , test_args ):
@@ -117,7 +112,6 @@ def test_init_args_progressbar_stdout():
         assert args.progressbar_file == sys.stdout
 
 def test_init_args_progressbar_none():
-    from mock import patch
     test_args = [ 'etude.py' , '--no-metrics' ,
                   '--progressbar-output' , 'none' ]
     with patch.object( sys , 'argv' , test_args ):
@@ -127,7 +121,6 @@ def test_init_args_progressbar_none():
         assert args.progressbar_file is None
 
 def test_init_args_file_prefix_simplex():
-    from mock import patch
     test_args = [ 'etude.py' , '--no-metrics' ,
                   '--file-prefix' , '.xyz' ]
     with patch.object( sys , 'argv' , test_args ):
@@ -135,7 +128,6 @@ def test_init_args_file_prefix_simplex():
         assert args.file_prefix == '.xyz'
 
 def test_init_args_file_prefix_simplex_dash():
-    from mock import patch
     test_args = [ 'etude.py' , '--no-metrics' ,
                   '--file-prefix' , ' -03.xyz' ]
     with patch.object( sys , 'argv' , test_args ):
@@ -143,7 +135,6 @@ def test_init_args_file_prefix_simplex_dash():
         assert args.file_prefix == '-03.xyz'
 
 def test_init_args_file_suffix_simplex():
-    from mock import patch
     test_args = [ 'etude.py' , '--no-metrics' ,
                   '--file-suffix' , '.xyz' ]
     with patch.object( sys , 'argv' , test_args ):
@@ -152,7 +143,6 @@ def test_init_args_file_suffix_simplex():
         assert args.file_suffix[ 0 ] == '.xyz'
 
 def test_init_args_file_suffix_simplex_dash():
-    from mock import patch
     test_args = [ 'etude.py' , '--no-metrics' ,
                   '--file-suffix' , ' -03.xyz' ]
     with patch.object( sys , 'argv' , test_args ):
@@ -161,7 +151,6 @@ def test_init_args_file_suffix_simplex_dash():
         assert args.file_suffix[ 0 ] == '-03.xyz'
 
 def test_init_args_file_suffix_duplex():
-    from mock import patch
     test_args = [ 'etude.py' , '--no-metrics' ,
                   '--file-suffix' , '.xyz' , '.abc' ]
     with patch.object( sys , 'argv' , test_args ):
@@ -171,7 +160,6 @@ def test_init_args_file_suffix_duplex():
         assert args.file_suffix[ 1 ] == '.abc'
 
 def test_init_args_file_suffix_duplex_dash():
-    from mock import patch
     test_args = [ 'etude.py' , '--no-metrics' ,
                   '--file-suffix' , ' -03.xyz' , ' -03.abc' ]
     with patch.object( sys , 'argv' , test_args ):
@@ -195,6 +183,15 @@ def test_full_matching_directory():
                            skip_missing_files_flag = True )
     assert match_count == 10
     assert len( file_mapping.keys() ) == match_count
+
+def test_full_matching_directory_file_mapping():
+    file_mapping = \
+      etude.get_file_mapping( reference_folder = 'tests/data/i2b2_2016_track-1_reference' ,
+                              test_folder = 'tests/data/i2b2_2016_track-1_test' ,
+                              file_prefix = '/' ,
+                              file_suffix = [ '.xml' ] ,
+                              skip_missing_files_flag = True )
+    assert len( file_mapping.keys() ) == 10
 
 
 def test_identical_file_suffix_matching_directory():
@@ -220,6 +217,15 @@ def test_empty_reference_directory():
     ## documents exist
     assert not bool( file_mapping )
 
+def test_empty_reference_directory_file_mapping():
+    file_mapping = \
+      etude.get_file_mapping( reference_folder = 'tests/data/i2b2_2016_track-1_reference' ,
+                              test_folder = 'tests/data/i2b2_2016_track-1_test' ,
+                              file_prefix = '/' ,
+                              file_suffix = [ 'I_Do_Not_Exist' ] ,
+                              skip_missing_files_flag = True )
+    assert file_mapping is None
+
 
 def test_score_empty_test_directory():
     match_count , file_mapping = \
@@ -232,6 +238,15 @@ def test_score_empty_test_directory():
     ## A dictionary containing only empty values evaluates to False
     ## so testing bool can tell us if any reference documents exist
     assert bool( file_mapping )
+
+def test_score_empty_test_directory_file_mapping():
+    file_mapping = \
+      etude.get_file_mapping( reference_folder = 'tests/data/i2b2_2016_track-1_reference' ,
+                              test_folder = 'tests/data/i2b2_2016_track-1_test' ,
+                              file_prefix = '/' ,
+                              file_suffix = [ '.xml' , '.I_Do_Not_Exist' ] ,
+                              skip_missing_files_flag = False )
+    assert file_mapping is None
 
 def test_skip_empty_test_directory():
     match_count , file_mapping = \
@@ -287,3 +302,221 @@ def test_create_output_folders_ref_and_test_dir():
     finally:
         os.rmdir( tmp_ref_dir )
         os.rmdir( tmp_test_dir )
+
+#############################################
+## Test generating annotation counts
+#############################################
+
+
+def test_count_ref_set_default( capsys ):
+    presaved_file = 'tests/data/i2b2_2016_track-1_reference_out/0005_gs.xml'
+    command_line_args = [ 'etude.py' ,
+                          '--reference-input' , 'tests/data/i2b2_2016_track-1_reference' ,
+                          '--reference-config' , 'config/i2b2_2016_track-1.conf' ,
+                          '--print-counts' , '--no-metrics' ]
+    with patch.object( sys , 'argv' , command_line_args ):
+        args = etude.init_args()
+        namespaces , document_data , patterns = \
+          args_and_configs.process_config( config_file = args.reference_config ,
+                                           score_key = args.score_key ,
+                                           score_values = args.score_values )
+        with open( presaved_file , 'r' ) as fp:
+            reloaded_json = json.load( fp )
+        etude.count_ref_set( this_ns = namespaces ,
+                             this_dd = document_data ,
+                             this_patterns = patterns ,
+                             this_folder = args.reference_input ,
+                             args = args ,
+                             file_prefix = args.file_prefix ,
+                             file_suffix = args.file_suffix[ 0 ] )
+        default_out, err = capsys.readouterr()
+        expected_values = [ [ 'counts' , 'n' ] ,
+                            [ 'Total' , '445' ] ]
+        for expected_values in expected_values:
+            print( args.delim.join( '{}'.format( m ) for m in expected_values ) )
+        expected_out, err = capsys.readouterr()
+        default_out = default_out.strip()
+        expected_out = expected_out.strip()
+        assert default_out == expected_out
+
+def test_count_ref_set_by_type( capsys ):
+    presaved_file = 'tests/data/i2b2_2016_track-1_reference_out/0005_gs.xml'
+    command_line_args = [ 'etude.py' ,
+                          '--reference-input' , 'tests/data/i2b2_2016_track-1_reference' ,
+                          '--reference-config' , 'config/i2b2_2016_track-1.conf' ,
+                          '--by-type' ,
+                          '--print-counts' , '--no-metrics' ]
+    with patch.object( sys , 'argv' , command_line_args ):
+        args = etude.init_args()
+        namespaces , document_data , patterns = \
+          args_and_configs.process_config( config_file = args.reference_config ,
+                                           score_key = args.score_key ,
+                                           score_values = args.score_values )
+        with open( presaved_file , 'r' ) as fp:
+            reloaded_json = json.load( fp )
+        etude.count_ref_set( this_ns = namespaces ,
+                             this_dd = document_data ,
+                             this_patterns = patterns ,
+                             this_folder = args.reference_input ,
+                             args = args ,
+                             file_prefix = args.file_prefix ,
+                             file_suffix = args.file_suffix[ 0 ] )
+        default_out, err = capsys.readouterr()
+        expected_values = [ [ 'counts' , 'n' ] ,
+                            [ 'Total' , '445' ] ,
+                            [ 'Age' , '92' ] ,
+                            [ 'DateTime' , '124' ] ,
+                            [ 'HCUnit' , '76' ] ,
+                            [ 'OtherID' , '7' ] ,
+                            [ 'OtherLoc' , '5' ] ,
+                            [ 'OtherOrg' , '21' ] ,
+                            [ 'Patient' , '19' ] ,
+                            [ 'PhoneFax' , '6' ] ,
+                            [ 'Provider' , '64' ] ,
+                            [ 'StateCountry' , '21' ] ,
+                            [ 'StreetCity' , '4' ] ,
+                            [ 'Zip' , '4' ] ,
+                            [ 'eAddress' , '2' ] ]
+        for expected_values in expected_values:
+            print( args.delim.join( '{}'.format( m ) for m in expected_values ) )
+        expected_out, err = capsys.readouterr()
+        default_out = default_out.strip()
+        expected_out = expected_out.strip()
+        assert default_out == expected_out
+
+def test_count_ref_set_by_file( capsys ):
+    presaved_file = 'tests/data/i2b2_2016_track-1_reference_out/0005_gs.xml'
+    command_line_args = [ 'etude.py' ,
+                          '--reference-input' , 'tests/data/i2b2_2016_track-1_reference' ,
+                          '--reference-config' , 'config/i2b2_2016_track-1.conf' ,
+                          '--by-file' ,
+                          '--print-counts' , '--no-metrics' ]
+    with patch.object( sys , 'argv' , command_line_args ):
+        args = etude.init_args()
+        namespaces , document_data , patterns = \
+          args_and_configs.process_config( config_file = args.reference_config ,
+                                           score_key = args.score_key ,
+                                           score_values = args.score_values )
+        with open( presaved_file , 'r' ) as fp:
+            reloaded_json = json.load( fp )
+        etude.count_ref_set( this_ns = namespaces ,
+                             this_dd = document_data ,
+                             this_patterns = patterns ,
+                             this_folder = args.reference_input ,
+                             args = args ,
+                             file_prefix = args.file_prefix ,
+                             file_suffix = args.file_suffix[ 0 ] )
+        default_out, err = capsys.readouterr()
+        expected_values = [ [ 'counts' , 'n' ] ,
+                            [ 'Total' , '445' ] ,
+                            [ '0005_gs.xml' , '31' ] ,
+                            [ '0016_gs.xml' , '51' ] ,
+                            [ '0267_gs.xml' , '59' ] ,
+                            [ '0273_gs.xml' , '35' ] ,
+                            [ '0389_gs.xml' , '34' ] ,
+                            [ '0475_gs.xml' , '45' ] ,
+                            [ '0617_gs.xml' , '32' ] ,
+                            [ '0709_gs.xml' , '41' ] ,
+                            [ '0982_gs.xml' , '95' ] ,
+                            [ '0992_gs.xml' , '22' ] ]
+        for expected_values in expected_values:
+            print( args.delim.join( '{}'.format( m ) for m in expected_values ) )
+        expected_out, err = capsys.readouterr()
+        default_out = default_out.strip()
+        expected_out = expected_out.strip()
+        assert default_out == expected_out
+
+def test_count_ref_set_by_type_and_file( capsys ):
+    presaved_file = 'tests/data/i2b2_2016_track-1_reference_out/0005_gs.xml'
+    command_line_args = [ 'etude.py' ,
+                          '--reference-input' , 'tests/data/i2b2_2016_track-1_reference' ,
+                          '--reference-config' , 'config/i2b2_2016_track-1.conf' ,
+                          '--by-type' , '--by-file' ,
+                          '--print-counts' , '--no-metrics' ]
+    with patch.object( sys , 'argv' , command_line_args ):
+        args = etude.init_args()
+        namespaces , document_data , patterns = \
+          args_and_configs.process_config( config_file = args.reference_config ,
+                                           score_key = args.score_key ,
+                                           score_values = args.score_values )
+        with open( presaved_file , 'r' ) as fp:
+            reloaded_json = json.load( fp )
+        etude.count_ref_set( this_ns = namespaces ,
+                             this_dd = document_data ,
+                             this_patterns = patterns ,
+                             this_folder = args.reference_input ,
+                             args = args ,
+                             file_prefix = args.file_prefix ,
+                             file_suffix = args.file_suffix[ 0 ] )
+        default_out, err = capsys.readouterr()
+        expected_values = [ [ 'counts' , 'n' ] ,
+                            [ 'Total' , '445' ] ,
+                            [ '0005_gs.xml' , '31' ] ,
+                            [ '0016_gs.xml' , '51' ] ,
+                            [ '0267_gs.xml' , '59' ] ,
+                            [ '0273_gs.xml' , '35' ] ,
+                            [ '0389_gs.xml' , '34' ] ,
+                            [ '0475_gs.xml' , '45' ] ,
+                            [ '0617_gs.xml' , '32' ] ,
+                            [ '0709_gs.xml' , '41' ] ,
+                            [ '0982_gs.xml' , '95' ] ,
+                            [ '0992_gs.xml' , '22' ] ,
+                            [ 'Age' , '92' ] ,
+                            [ 'DateTime' , '124' ] ,
+                            [ 'HCUnit' , '76' ] ,
+                            [ 'OtherID' , '7' ] ,
+                            [ 'OtherLoc' , '5' ] ,
+                            [ 'OtherOrg' , '21' ] ,
+                            [ 'Patient' , '19' ] ,
+                            [ 'PhoneFax' , '6' ] ,
+                            [ 'Provider' , '64' ] ,
+                            [ 'StateCountry' , '21' ] ,
+                            [ 'StreetCity' , '4' ] ,
+                            [ 'Zip' , '4' ] ,
+                            [ 'eAddress' , '2' ] ]
+        for expected_values in expected_values:
+            print( args.delim.join( '{}'.format( m ) for m in expected_values ) )
+        expected_out, err = capsys.readouterr()
+        default_out = default_out.strip()
+        expected_out = expected_out.strip()
+        assert default_out == expected_out
+
+def test_count_ref_set_csv_out():
+    presaved_file = 'tests/data/i2b2_2016_track-1_csv_out.csv'
+    try:
+        tmp_descriptor, tmp_file = tempfile.mkstemp()
+        os.close( tmp_descriptor )
+        command_line_args = [ 'etude.py' ,
+                              '--reference-input' , 'tests/data/i2b2_2016_track-1_reference' ,
+                              '--reference-config' , 'config/i2b2_2016_track-1.conf' ,
+                              '--csv-out' , tmp_file ,
+                              '--by-file' , '--by-type' , '--by-file-and-type' , '--by-type-and-file' ,
+                              '--print-counts' , '--no-metrics' ]
+        with patch.object( sys , 'argv' , command_line_args ):
+            args = etude.init_args()
+            namespaces , document_data , patterns = \
+              args_and_configs.process_config( config_file = args.reference_config ,
+                                               score_key = args.score_key ,
+                                               score_values = args.score_values )
+            import csv
+            with open( presaved_file , 'r' ) as fp:
+                reloaded_csv = fp.read()
+            etude.count_ref_set( this_ns = namespaces ,
+                                 this_dd = document_data ,
+                                 this_patterns = patterns ,
+                                 this_folder = args.reference_input ,
+                                 args = args ,
+                                 file_prefix = args.file_prefix ,
+                                 file_suffix = args.file_suffix[ 0 ] )
+            with open( tmp_file , 'r' ) as fp:
+                new_csv = fp.read()
+            assert new_csv == reloaded_csv
+    finally:
+        os.remove( tmp_file )
+
+
+#############################################
+## Test scoring annotations
+#############################################
+
+
