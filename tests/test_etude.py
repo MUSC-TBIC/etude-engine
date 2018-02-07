@@ -1,5 +1,8 @@
 
+import os
 import sys
+
+import tempfile
 
 import etude
 
@@ -245,3 +248,42 @@ def test_out_filepath_with_none():
 
 def test_out_filepath_with_output_dir():
     assert etude.generate_out_file( '/tmp/bar' , 'foo.txt' ) == '/tmp/bar/foo.txt'
+
+def test_create_output_folders_noop():
+    etude.create_output_folders( None , None )
+    assert True
+
+def test_create_output_folders_ref_dir():
+    try:
+        tmp_dir = tempfile.mkdtemp()
+        os.rmdir( tmp_dir )
+        assert not os.path.exists( tmp_dir )
+        etude.create_output_folders( tmp_dir , None )
+        assert os.path.exists( tmp_dir )
+    finally:
+        os.rmdir( tmp_dir )
+
+def test_create_output_folders_test_dir():
+    try:
+        tmp_dir = tempfile.mkdtemp()
+        os.rmdir( tmp_dir )
+        assert not os.path.exists( tmp_dir )
+        etude.create_output_folders( None , tmp_dir )
+        assert os.path.exists( tmp_dir )
+    finally:
+        os.rmdir( tmp_dir )
+
+def test_create_output_folders_ref_and_test_dir():
+    try:
+        tmp_ref_dir = tempfile.mkdtemp()
+        tmp_test_dir = tempfile.mkdtemp()
+        os.rmdir( tmp_ref_dir )
+        os.rmdir( tmp_test_dir )
+        assert not os.path.exists( tmp_ref_dir )
+        assert not os.path.exists( tmp_test_dir )
+        etude.create_output_folders( tmp_ref_dir , tmp_test_dir )
+        assert os.path.exists( tmp_ref_dir )
+        assert os.path.exists( tmp_test_dir )
+    finally:
+        os.rmdir( tmp_ref_dir )
+        os.rmdir( tmp_test_dir )
