@@ -331,12 +331,16 @@ def extract_patterns( annotations ,
     if( config.has_option( sect , 'XPath' ) and
         config.has_option( sect , 'Begin Attr' ) and
         config.has_option( sect , 'End Attr' ) ):
-        extract_xpath_patterns( annotations ,
-                                config , sect ,
-                                display_name ,
-                                key_value ,
-                                score_values ,
-                                verbose )
+        try:
+            extract_xpath_patterns( annotations ,
+                                    config , sect ,
+                                    display_name ,
+                                    key_value ,
+                                    score_values ,
+                                    verbose )
+        except:
+            e = sys.exc_info()[0]
+            log.error( 'Uncaught exception in extract_xpath_patterns:  {}'.format( e ) )
     elif( config.has_option( sect , 'Delimiter' ) ):
         extract_delimited_patterns( annotations ,
                                     config , sect ,
