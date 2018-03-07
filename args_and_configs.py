@@ -97,6 +97,10 @@ unstructured data extraction.
                         default = [ '.*' ] ,
                         help="List of values associated with the score key to count in scoring" )
 
+    parser.add_argument( '--collapse-all-patterns' ,
+                         help = "Treat all patterns extracted as of the same type" ,
+                         action = "store_true" )
+
     parser.add_argument("--file-prefix", 
                         dest = 'file_prefix' ,
                         default = '/' ,
@@ -240,13 +244,18 @@ def extract_xpath_patterns( annotations ,
                             display_name ,
                             key_value ,
                             score_values ,
+                            collapse_all_patterns = False ,
                             verbose = False ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     ## Loop through all the provided score_values to see if any
     ## provided values match the currently extracted value
     for score_value in score_values:
         if( re.search( score_value , key_value ) ):
-            pattern_entry = dict( type = key_value ,
+            if( collapse_all_patterns ):
+                type_value = 'All Patterns'
+            else:
+                type_value = key_value
+            pattern_entry = dict( type = type_value ,
                                   long_name = sect.strip() ,
                                   xpath = config.get( sect , 'XPath' ) ,
                                   display_name = display_name ,
@@ -319,10 +328,14 @@ def extract_patterns( annotations ,
                       config , sect ,
                       score_key ,
                       score_values ,
+                      collapse_all_patterns = False ,
                       verbose = False ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
-    display_name = '{} ({})'.format( sect.strip() ,
-                                     config.get( sect , 'Short Name' ) )
+    if( collapse_all_patterns ):
+        display_name = 'All Patterns'
+    else:
+        display_name = '{} ({})'.format( sect.strip() ,
+                                         config.get( sect , 'Short Name' ) )
     if( score_key == 'Long Name' or
         score_key == 'Section' ):
         key_value = sect.strip()
@@ -337,6 +350,7 @@ def extract_patterns( annotations ,
                                     display_name ,
                                     key_value ,
                                     score_values ,
+                                    collapse_all_patterns ,
                                     verbose )
         except:
             e = sys.exc_info()[0]
@@ -361,6 +375,7 @@ def extract_patterns( annotations ,
 def process_config( config_file ,
                     score_key ,
                     score_values ,
+                    collapse_all_patterns = False ,
                     verbose = False ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     config = ConfigParser.ConfigParser()
@@ -382,6 +397,7 @@ def process_config( config_file ,
                               config , sect ,
                               score_key ,
                               score_values ,
+                              collapse_all_patterns = collapse_all_patterns ,
                               verbose = verbose )
     verbose_msg = 'Values defined by the config \'{}\':\n' + \
                   '\tns\t=\t{}\n' + \

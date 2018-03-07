@@ -488,6 +488,7 @@ if __name__ == "__main__":
               args_and_configs.process_config( config_file = args.reference_config ,
                                                score_key = args.score_key ,
                                                score_values = args.score_values ,
+                                               collapse_all_patterns = args.collapse_all_patterns ,
                                                verbose = args.verbose )
         except:
             e = sys.exc_info()[0]
@@ -498,6 +499,7 @@ if __name__ == "__main__":
               args_and_configs.process_config( config_file = args.test_config ,
                                                score_key = args.score_key ,
                                                score_values = args.score_values ,
+                                               collapse_all_patterns = args.collapse_all_patterns ,
                                                verbose = args.verbose )
         except:
             e = sys.exc_info()[0]
