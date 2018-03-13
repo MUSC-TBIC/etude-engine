@@ -1,15 +1,28 @@
+# ############################
+# temporary and editor files
+
 *~
 \#*
 \.\#*
-*.pyc
+
+# ############################
+# python errata files
 
 .cache
-.coverage
 .ipynb_checkpoints
 __pycache__
+*.pyc
 
+# ############################
+# coverage and unit testing files
+
+.coverage
 coverage.xml
+junit.xml
 htmlcov/
+
+# ############################
+# pyinstaller related files
 
 etude.spec
 build/
