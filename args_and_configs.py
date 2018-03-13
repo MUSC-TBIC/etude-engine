@@ -29,10 +29,10 @@ unstructured data extraction.
     ## --file-pattern "" regex pattern fed to glob for selecting files
     ##                   (maybe call this --file-filter?)
     
-    parser.add_argument( '--reference-input' , required = True ,
+    parser.add_argument( '--reference-input' , default = None ,
                          dest = "reference_input",
                          help = "Directory containing reference reference set" )
-    parser.add_argument( '--test-input' , required = True ,
+    parser.add_argument( '--test-input' , default = None ,
                         dest = "test_input",
                         help = "Directory containing reference set to score" )
 
@@ -96,6 +96,10 @@ unstructured data extraction.
                         dest = 'score_values' ,
                         default = [ '.*' ] ,
                         help="List of values associated with the score key to count in scoring" )
+
+    parser.add_argument( '--collapse-all-patterns' ,
+                         help = "Treat all patterns extracted as of the same type" ,
+                         action = "store_true" )
 
     parser.add_argument("--file-prefix", 
                         dest = 'file_prefix' ,
@@ -196,6 +200,13 @@ unstructured data extraction.
 def get_arguments( command_line_args ):
     parser = initialize_arg_parser()
     args = parser.parse_args( command_line_args )
+    if( args.print_counts and
+        args.reference_input is None and
+        args.test_input is None ):
+        parser.error( "At least one of --reference-input and --test-input are required when using --print-counts." )
+    if( ( args.print_metrics or args.print_confusion_matrix ) and
+        ( args.reference_input is None or args.test_input is None ) ):
+        parser.error( "Both --reference-input and --test-input are required for printing metrics and printing a confusion matrix." )
     ##
     return args
 
@@ -233,13 +244,18 @@ def extract_xpath_patterns( annotations ,
                             display_name ,
                             key_value ,
                             score_values ,
+                            collapse_all_patterns = False ,
                             verbose = False ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     ## Loop through all the provided score_values to see if any
     ## provided values match the currently extracted value
     for score_value in score_values:
         if( re.search( score_value , key_value ) ):
-            pattern_entry = dict( type = key_value ,
+            if( collapse_all_patterns ):
+                type_value = 'All Patterns'
+            else:
+                type_value = key_value
+            pattern_entry = dict( type = type_value ,
                                   long_name = sect.strip() ,
                                   xpath = config.get( sect , 'XPath' ) ,
                                   display_name = display_name ,
@@ -312,10 +328,14 @@ def extract_patterns( annotations ,
                       config , sect ,
                       score_key ,
                       score_values ,
+                      collapse_all_patterns = False ,
                       verbose = False ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
-    display_name = '{} ({})'.format( sect.strip() ,
-                                     config.get( sect , 'Short Name' ) )
+    if( collapse_all_patterns ):
+        display_name = 'All Patterns'
+    else:
+        display_name = '{} ({})'.format( sect.strip() ,
+                                         config.get( sect , 'Short Name' ) )
     if( score_key == 'Long Name' or
         score_key == 'Section' ):
         key_value = sect.strip()
@@ -324,12 +344,17 @@ def extract_patterns( annotations ,
     if( config.has_option( sect , 'XPath' ) and
         config.has_option( sect , 'Begin Attr' ) and
         config.has_option( sect , 'End Attr' ) ):
-        extract_xpath_patterns( annotations ,
-                                config , sect ,
-                                display_name ,
-                                key_value ,
-                                score_values ,
-                                verbose )
+        try:
+            extract_xpath_patterns( annotations ,
+                                    config , sect ,
+                                    display_name ,
+                                    key_value ,
+                                    score_values ,
+                                    collapse_all_patterns ,
+                                    verbose )
+        except:
+            e = sys.exc_info()[0]
+            log.error( 'Uncaught exception in extract_xpath_patterns:  {}'.format( e ) )
     elif( config.has_option( sect , 'Delimiter' ) ):
         extract_delimited_patterns( annotations ,
                                     config , sect ,
@@ -350,6 +375,7 @@ def extract_patterns( annotations ,
 def process_config( config_file ,
                     score_key ,
                     score_values ,
+                    collapse_all_patterns = False ,
                     verbose = False ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     config = ConfigParser.ConfigParser()
@@ -371,6 +397,7 @@ def process_config( config_file ,
                               config , sect ,
                               score_key ,
                               score_values ,
+                              collapse_all_patterns = collapse_all_patterns ,
                               verbose = verbose )
     verbose_msg = 'Values defined by the config \'{}\':\n' + \
                   '\tns\t=\t{}\n' + \

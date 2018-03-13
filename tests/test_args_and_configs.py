@@ -1,3 +1,4 @@
+import pytest
 
 import json
 
@@ -45,6 +46,121 @@ def test_score_missing_test_files_usage():
                           '--score-missing-files' ]
     args = args_and_configs.get_arguments( command_line_args )
     assert args.skip_missing_files == False
+
+def test_required_input_flags_ref_only():
+    command_line_args = [ '--reference-input' , 'tests/data/i2b2_2016_track-1_reference' ]
+    with pytest.raises( SystemExit ) as e_info:
+        args = args_and_configs.get_arguments( command_line_args )
+
+def test_required_input_flags_test_only():
+    command_line_args = [ '--test-input' , 'tests/data/i2b2_2016_track-1_test' ]
+    with pytest.raises( SystemExit ) as e_info:
+        args = args_and_configs.get_arguments( command_line_args )
+
+def test_print_counts_neither_ref_nor_test():
+    command_line_args = [ '--print-counts' , '--no-metrics' , '--no-confusion-matrix' ]
+    with pytest.raises( SystemExit ) as e_info:
+        args = args_and_configs.get_arguments( command_line_args )
+
+def test_print_counts_ref_only():
+    command_line_args = [ '--print-counts' , '--no-metrics' , '--no-confusion-matrix' ,
+                          '--reference-input' , 'tests/data/i2b2_2016_track-1_reference' ]
+    args = args_and_configs.get_arguments( command_line_args )
+    assert args.print_counts
+    assert not args.print_metrics
+    assert not args.print_confusion_matrix
+    assert args.reference_input is not None
+    assert args.test_input is None
+
+def test_print_counts_test_only():
+    command_line_args = [ '--print-counts' , '--no-metrics' , '--no-confusion-matrix' ,
+                          '--test-input' , 'tests/data/i2b2_2016_track-1_test' ]
+    args = args_and_configs.get_arguments( command_line_args )
+    assert args.print_counts
+    assert not args.print_metrics
+    assert not args.print_confusion_matrix
+    assert args.reference_input is None
+    assert args.test_input is not None    
+
+def test_print_counts_ref_and_test():
+    command_line_args = [ '--print-counts' , '--no-metrics' , '--no-confusion-matrix' ,
+                          '--reference-input' , 'tests/data/i2b2_2016_track-1_reference' ,
+                          '--test-input' , 'tests/data/i2b2_2016_track-1_test' ]
+    args = args_and_configs.get_arguments( command_line_args )
+    assert args.print_counts
+    assert not args.print_metrics
+    assert not args.print_confusion_matrix
+    assert args.reference_input is not None
+    assert args.test_input is not None
+
+def test_print_counts_and_metrics_for_ref_and_test():
+    command_line_args = [ '--print-counts' , '--print-metrics' , '--no-confusion-matrix' ,
+                          '--reference-input' , 'tests/data/i2b2_2016_track-1_reference' ,
+                          '--test-input' , 'tests/data/i2b2_2016_track-1_test' ]
+    args = args_and_configs.get_arguments( command_line_args )
+    assert args.print_counts
+    assert args.print_metrics
+    assert not args.print_confusion_matrix
+    assert args.reference_input is not None
+    assert args.test_input is not None
+
+def test_print_counts_and_metrics_for_ref():
+    command_line_args = [ '--print-counts' , '--print-metrics' , '--no-confusion-matrix' ,
+                          '--reference-input' , 'tests/data/i2b2_2016_track-1_reference' ]
+    with pytest.raises( SystemExit ) as e_info:
+        args = args_and_configs.get_arguments( command_line_args )
+
+def test_print_counts_and_metrics_for_test():
+    command_line_args = [ '--print-counts' , '--print-metrics' , '--no-confusion-matrix' ,
+                          '--test-input' , 'tests/data/i2b2_2016_track-1_test' ]
+    with pytest.raises( SystemExit ) as e_info:
+        args = args_and_configs.get_arguments( command_line_args )
+
+def test_print_counts_and_confusion_for_ref_test():
+    command_line_args = [ '--print-counts' , '--no-metrics' , '--print-confusion-matrix' ,
+                          '--reference-input' , 'tests/data/i2b2_2016_track-1_reference' ,
+                          '--test-input' , 'tests/data/i2b2_2016_track-1_test' ]
+    args = args_and_configs.get_arguments( command_line_args )
+    assert args.print_counts
+    assert not args.print_metrics
+    assert args.print_confusion_matrix
+    assert args.reference_input is not None
+    assert args.test_input is not None
+
+def test_print_counts_and_confusion_for_ref():
+    command_line_args = [ '--print-counts' , '--no-metrics' , '--print-confusion-matrix' ,
+                          '--reference-input' , 'tests/data/i2b2_2016_track-1_reference' ]
+    with pytest.raises( SystemExit ) as e_info:
+        args = args_and_configs.get_arguments( command_line_args )
+
+def test_print_counts_and_confusion_for_test():
+    command_line_args = [ '--print-counts' , '--no-metrics' , '--print-confusion-matrix' ,
+                          '--test-input' , 'tests/data/i2b2_2016_track-1_test' ]
+    with pytest.raises( SystemExit ) as e_info:
+        args = args_and_configs.get_arguments( command_line_args )
+
+def test_print_counts_and_metrics_and_confusion_for_ref_and_test():
+    command_line_args = [ '--print-counts' , '--print-metrics' , '--print-confusion-matrix' ,
+                          '--reference-input' , 'tests/data/i2b2_2016_track-1_reference' ,
+                          '--test-input' , 'tests/data/i2b2_2016_track-1_test' ]
+    args = args_and_configs.get_arguments( command_line_args )
+    assert args.print_counts
+    assert args.print_metrics
+    assert args.print_confusion_matrix
+    assert args.reference_input is not None
+    assert args.test_input is not None
+
+def test_print_counts_and_metrics_and_confusion_for_ref():
+    command_line_args = [ '--print-counts' , '--print-metrics' , '--print-confusion-matrix' ,
+                          '--reference-input' , 'tests/data/i2b2_2016_track-1_reference' ]
+    with pytest.raises( SystemExit ) as e_info:
+        args = args_and_configs.get_arguments( command_line_args )
+
+def test_print_counts_and_metrics_and_confusion_for_test():
+    command_line_args = [ '--print-counts' , '--print-metrics' , '--print-confusion-matrix' ,
+                          '--test-input' , 'tests/data/i2b2_2016_track-1_test' ]
+    with pytest.raises( SystemExit ) as e_info:
+        args = args_and_configs.get_arguments( command_line_args )
 
 
 #############################################
