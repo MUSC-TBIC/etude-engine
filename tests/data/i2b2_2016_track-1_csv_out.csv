@@ -1,6 +1,6 @@
 FuzzyFlag	ClassType	Class	SubClassType	SubClass	n
-counts	Total				445
-counts	File	0005_gs.xml			31
+counts	Total				482
+counts	File	0005_gs.xml			36
 counts	File	0005_gs.xml	Type	Age	8
 counts	File	0005_gs.xml	Type	DateTime	2
 counts	File	0005_gs.xml	Type	HCUnit	0
@@ -10,11 +10,12 @@ counts	File	0005_gs.xml	Type	OtherOrg	1
 counts	File	0005_gs.xml	Type	Patient	9
 counts	File	0005_gs.xml	Type	PhoneFax	0
 counts	File	0005_gs.xml	Type	Provider	11
-counts	File	0005_gs.xml	Type	StateCountry	0
-counts	File	0005_gs.xml	Type	StreetCity	0
+counts	File	0005_gs.xml	Type	SSN	0
+counts	File	0005_gs.xml	Type	StateCountry	1
+counts	File	0005_gs.xml	Type	StreetCity	4
 counts	File	0005_gs.xml	Type	Zip	0
 counts	File	0005_gs.xml	Type	eAddress	0
-counts	File	0016_gs.xml			51
+counts	File	0016_gs.xml			54
 counts	File	0016_gs.xml	Type	Age	12
 counts	File	0016_gs.xml	Type	DateTime	13
 counts	File	0016_gs.xml	Type	HCUnit	11
@@ -24,11 +25,12 @@ counts	File	0016_gs.xml	Type	OtherOrg	1
 counts	File	0016_gs.xml	Type	Patient	1
 counts	File	0016_gs.xml	Type	PhoneFax	2
 counts	File	0016_gs.xml	Type	Provider	10
-counts	File	0016_gs.xml	Type	StateCountry	0
-counts	File	0016_gs.xml	Type	StreetCity	0
+counts	File	0016_gs.xml	Type	SSN	0
+counts	File	0016_gs.xml	Type	StateCountry	2
+counts	File	0016_gs.xml	Type	StreetCity	1
 counts	File	0016_gs.xml	Type	Zip	0
 counts	File	0016_gs.xml	Type	eAddress	0
-counts	File	0267_gs.xml			59
+counts	File	0267_gs.xml			63
 counts	File	0267_gs.xml	Type	Age	10
 counts	File	0267_gs.xml	Type	DateTime	20
 counts	File	0267_gs.xml	Type	HCUnit	4
@@ -38,8 +40,9 @@ counts	File	0267_gs.xml	Type	OtherOrg	5
 counts	File	0267_gs.xml	Type	Patient	1
 counts	File	0267_gs.xml	Type	PhoneFax	0
 counts	File	0267_gs.xml	Type	Provider	5
-counts	File	0267_gs.xml	Type	StateCountry	12
-counts	File	0267_gs.xml	Type	StreetCity	0
+counts	File	0267_gs.xml	Type	SSN	0
+counts	File	0267_gs.xml	Type	StateCountry	13
+counts	File	0267_gs.xml	Type	StreetCity	3
 counts	File	0267_gs.xml	Type	Zip	0
 counts	File	0267_gs.xml	Type	eAddress	0
 counts	File	0273_gs.xml			35
@@ -52,11 +55,12 @@ counts	File	0273_gs.xml	Type	OtherOrg	1
 counts	File	0273_gs.xml	Type	Patient	2
 counts	File	0273_gs.xml	Type	PhoneFax	0
 counts	File	0273_gs.xml	Type	Provider	3
+counts	File	0273_gs.xml	Type	SSN	0
 counts	File	0273_gs.xml	Type	StateCountry	2
 counts	File	0273_gs.xml	Type	StreetCity	0
 counts	File	0273_gs.xml	Type	Zip	0
 counts	File	0273_gs.xml	Type	eAddress	0
-counts	File	0389_gs.xml			34
+counts	File	0389_gs.xml			40
 counts	File	0389_gs.xml	Type	Age	3
 counts	File	0389_gs.xml	Type	DateTime	11
 counts	File	0389_gs.xml	Type	HCUnit	18
@@ -66,11 +70,12 @@ counts	File	0389_gs.xml	Type	OtherOrg	0
 counts	File	0389_gs.xml	Type	Patient	0
 counts	File	0389_gs.xml	Type	PhoneFax	0
 counts	File	0389_gs.xml	Type	Provider	0
-counts	File	0389_gs.xml	Type	StateCountry	0
-counts	File	0389_gs.xml	Type	StreetCity	0
+counts	File	0389_gs.xml	Type	SSN	0
+counts	File	0389_gs.xml	Type	StateCountry	1
+counts	File	0389_gs.xml	Type	StreetCity	5
 counts	File	0389_gs.xml	Type	Zip	0
 counts	File	0389_gs.xml	Type	eAddress	0
-counts	File	0475_gs.xml			45
+counts	File	0475_gs.xml			46
 counts	File	0475_gs.xml	Type	Age	7
 counts	File	0475_gs.xml	Type	DateTime	6
 counts	File	0475_gs.xml	Type	HCUnit	7
@@ -80,11 +85,12 @@ counts	File	0475_gs.xml	Type	OtherOrg	7
 counts	File	0475_gs.xml	Type	Patient	0
 counts	File	0475_gs.xml	Type	PhoneFax	0
 counts	File	0475_gs.xml	Type	Provider	15
+counts	File	0475_gs.xml	Type	SSN	0
 counts	File	0475_gs.xml	Type	StateCountry	0
-counts	File	0475_gs.xml	Type	StreetCity	0
+counts	File	0475_gs.xml	Type	StreetCity	1
 counts	File	0475_gs.xml	Type	Zip	0
 counts	File	0475_gs.xml	Type	eAddress	0
-counts	File	0617_gs.xml			32
+counts	File	0617_gs.xml			38
 counts	File	0617_gs.xml	Type	Age	4
 counts	File	0617_gs.xml	Type	DateTime	15
 counts	File	0617_gs.xml	Type	HCUnit	1
@@ -94,11 +100,12 @@ counts	File	0617_gs.xml	Type	OtherOrg	0
 counts	File	0617_gs.xml	Type	Patient	0
 counts	File	0617_gs.xml	Type	PhoneFax	3
 counts	File	0617_gs.xml	Type	Provider	3
-counts	File	0617_gs.xml	Type	StateCountry	0
-counts	File	0617_gs.xml	Type	StreetCity	3
+counts	File	0617_gs.xml	Type	SSN	0
+counts	File	0617_gs.xml	Type	StateCountry	3
+counts	File	0617_gs.xml	Type	StreetCity	6
 counts	File	0617_gs.xml	Type	Zip	3
 counts	File	0617_gs.xml	Type	eAddress	0
-counts	File	0709_gs.xml			41
+counts	File	0709_gs.xml			45
 counts	File	0709_gs.xml	Type	Age	5
 counts	File	0709_gs.xml	Type	DateTime	13
 counts	File	0709_gs.xml	Type	HCUnit	13
@@ -108,11 +115,12 @@ counts	File	0709_gs.xml	Type	OtherOrg	0
 counts	File	0709_gs.xml	Type	Patient	0
 counts	File	0709_gs.xml	Type	PhoneFax	1
 counts	File	0709_gs.xml	Type	Provider	2
-counts	File	0709_gs.xml	Type	StateCountry	4
-counts	File	0709_gs.xml	Type	StreetCity	1
+counts	File	0709_gs.xml	Type	SSN	0
+counts	File	0709_gs.xml	Type	StateCountry	6
+counts	File	0709_gs.xml	Type	StreetCity	3
 counts	File	0709_gs.xml	Type	Zip	1
 counts	File	0709_gs.xml	Type	eAddress	0
-counts	File	0982_gs.xml			95
+counts	File	0982_gs.xml			100
 counts	File	0982_gs.xml	Type	Age	30
 counts	File	0982_gs.xml	Type	DateTime	21
 counts	File	0982_gs.xml	Type	HCUnit	19
@@ -122,11 +130,12 @@ counts	File	0982_gs.xml	Type	OtherOrg	3
 counts	File	0982_gs.xml	Type	Patient	4
 counts	File	0982_gs.xml	Type	PhoneFax	0
 counts	File	0982_gs.xml	Type	Provider	15
-counts	File	0982_gs.xml	Type	StateCountry	1
-counts	File	0982_gs.xml	Type	StreetCity	0
+counts	File	0982_gs.xml	Type	SSN	0
+counts	File	0982_gs.xml	Type	StateCountry	3
+counts	File	0982_gs.xml	Type	StreetCity	3
 counts	File	0982_gs.xml	Type	Zip	0
 counts	File	0982_gs.xml	Type	eAddress	2
-counts	File	0992_gs.xml			22
+counts	File	0992_gs.xml			25
 counts	File	0992_gs.xml	Type	Age	4
 counts	File	0992_gs.xml	Type	DateTime	10
 counts	File	0992_gs.xml	Type	HCUnit	0
@@ -136,8 +145,9 @@ counts	File	0992_gs.xml	Type	OtherOrg	3
 counts	File	0992_gs.xml	Type	Patient	2
 counts	File	0992_gs.xml	Type	PhoneFax	0
 counts	File	0992_gs.xml	Type	Provider	0
+counts	File	0992_gs.xml	Type	SSN	0
 counts	File	0992_gs.xml	Type	StateCountry	2
-counts	File	0992_gs.xml	Type	StreetCity	0
+counts	File	0992_gs.xml	Type	StreetCity	3
 counts	File	0992_gs.xml	Type	Zip	0
 counts	File	0992_gs.xml	Type	eAddress	0
 counts	Type	Age			92
@@ -239,28 +249,39 @@ counts	Type	Provider	File	0617_gs.xml	3
 counts	Type	Provider	File	0709_gs.xml	2
 counts	Type	Provider	File	0982_gs.xml	15
 counts	Type	Provider	File	0992_gs.xml	0
-counts	Type	StateCountry			21
-counts	Type	StateCountry	File	0005_gs.xml	0
-counts	Type	StateCountry	File	0016_gs.xml	0
-counts	Type	StateCountry	File	0267_gs.xml	12
+counts	Type	SSN			0
+counts	Type	SSN	File	0005_gs.xml	0
+counts	Type	SSN	File	0016_gs.xml	0
+counts	Type	SSN	File	0267_gs.xml	0
+counts	Type	SSN	File	0273_gs.xml	0
+counts	Type	SSN	File	0389_gs.xml	0
+counts	Type	SSN	File	0475_gs.xml	0
+counts	Type	SSN	File	0617_gs.xml	0
+counts	Type	SSN	File	0709_gs.xml	0
+counts	Type	SSN	File	0982_gs.xml	0
+counts	Type	SSN	File	0992_gs.xml	0
+counts	Type	StateCountry			33
+counts	Type	StateCountry	File	0005_gs.xml	1
+counts	Type	StateCountry	File	0016_gs.xml	2
+counts	Type	StateCountry	File	0267_gs.xml	13
 counts	Type	StateCountry	File	0273_gs.xml	2
-counts	Type	StateCountry	File	0389_gs.xml	0
+counts	Type	StateCountry	File	0389_gs.xml	1
 counts	Type	StateCountry	File	0475_gs.xml	0
-counts	Type	StateCountry	File	0617_gs.xml	0
-counts	Type	StateCountry	File	0709_gs.xml	4
-counts	Type	StateCountry	File	0982_gs.xml	1
+counts	Type	StateCountry	File	0617_gs.xml	3
+counts	Type	StateCountry	File	0709_gs.xml	6
+counts	Type	StateCountry	File	0982_gs.xml	3
 counts	Type	StateCountry	File	0992_gs.xml	2
-counts	Type	StreetCity			4
-counts	Type	StreetCity	File	0005_gs.xml	0
-counts	Type	StreetCity	File	0016_gs.xml	0
-counts	Type	StreetCity	File	0267_gs.xml	0
+counts	Type	StreetCity			29
+counts	Type	StreetCity	File	0005_gs.xml	4
+counts	Type	StreetCity	File	0016_gs.xml	1
+counts	Type	StreetCity	File	0267_gs.xml	3
 counts	Type	StreetCity	File	0273_gs.xml	0
-counts	Type	StreetCity	File	0389_gs.xml	0
-counts	Type	StreetCity	File	0475_gs.xml	0
-counts	Type	StreetCity	File	0617_gs.xml	3
-counts	Type	StreetCity	File	0709_gs.xml	1
-counts	Type	StreetCity	File	0982_gs.xml	0
-counts	Type	StreetCity	File	0992_gs.xml	0
+counts	Type	StreetCity	File	0389_gs.xml	5
+counts	Type	StreetCity	File	0475_gs.xml	1
+counts	Type	StreetCity	File	0617_gs.xml	6
+counts	Type	StreetCity	File	0709_gs.xml	3
+counts	Type	StreetCity	File	0982_gs.xml	3
+counts	Type	StreetCity	File	0992_gs.xml	3
 counts	Type	Zip			4
 counts	Type	Zip	File	0005_gs.xml	0
 counts	Type	Zip	File	0016_gs.xml	0

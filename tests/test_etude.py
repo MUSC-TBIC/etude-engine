@@ -331,7 +331,7 @@ def test_count_ref_set_default( capsys ):
                              file_suffix = args.file_suffix[ 0 ] )
         default_out, err = capsys.readouterr()
         expected_values = [ [ 'counts' , 'n' ] ,
-                            [ 'Total' , '445' ] ]
+                            [ 'Total' , '482' ] ]
         for expected_values in expected_values:
             print( args.delim.join( '{}'.format( m ) for m in expected_values ) )
         expected_out, err = capsys.readouterr()
@@ -363,7 +363,7 @@ def test_count_ref_set_by_type( capsys ):
                              file_suffix = args.file_suffix[ 0 ] )
         default_out, err = capsys.readouterr()
         expected_values = [ [ 'counts' , 'n' ] ,
-                            [ 'Total' , '445' ] ,
+                            [ 'Total' , '482' ] ,
                             [ 'Age' , '92' ] ,
                             [ 'DateTime' , '124' ] ,
                             [ 'HCUnit' , '76' ] ,
@@ -373,8 +373,9 @@ def test_count_ref_set_by_type( capsys ):
                             [ 'Patient' , '19' ] ,
                             [ 'PhoneFax' , '6' ] ,
                             [ 'Provider' , '64' ] ,
-                            [ 'StateCountry' , '21' ] ,
-                            [ 'StreetCity' , '4' ] ,
+                            [ 'SSN' , '0' ] ,
+                            [ 'StateCountry' , '33' ] ,
+                            [ 'StreetCity' , '29' ] ,
                             [ 'Zip' , '4' ] ,
                             [ 'eAddress' , '2' ] ]
         for expected_values in expected_values:
@@ -408,17 +409,17 @@ def test_count_ref_set_by_file( capsys ):
                              file_suffix = args.file_suffix[ 0 ] )
         default_out, err = capsys.readouterr()
         expected_values = [ [ 'counts' , 'n' ] ,
-                            [ 'Total' , '445' ] ,
-                            [ '0005_gs.xml' , '31' ] ,
-                            [ '0016_gs.xml' , '51' ] ,
-                            [ '0267_gs.xml' , '59' ] ,
+                            [ 'Total' , '482' ] ,
+                            [ '0005_gs.xml' , '36' ] ,
+                            [ '0016_gs.xml' , '54' ] ,
+                            [ '0267_gs.xml' , '63' ] ,
                             [ '0273_gs.xml' , '35' ] ,
-                            [ '0389_gs.xml' , '34' ] ,
-                            [ '0475_gs.xml' , '45' ] ,
-                            [ '0617_gs.xml' , '32' ] ,
-                            [ '0709_gs.xml' , '41' ] ,
-                            [ '0982_gs.xml' , '95' ] ,
-                            [ '0992_gs.xml' , '22' ] ]
+                            [ '0389_gs.xml' , '40' ] ,
+                            [ '0475_gs.xml' , '46' ] ,
+                            [ '0617_gs.xml' , '38' ] ,
+                            [ '0709_gs.xml' , '45' ] ,
+                            [ '0982_gs.xml' , '100' ] ,
+                            [ '0992_gs.xml' , '25' ] ]
         for expected_values in expected_values:
             print( args.delim.join( '{}'.format( m ) for m in expected_values ) )
         expected_out, err = capsys.readouterr()
@@ -450,17 +451,17 @@ def test_count_ref_set_by_type_and_file( capsys ):
                              file_suffix = args.file_suffix[ 0 ] )
         default_out, err = capsys.readouterr()
         expected_values = [ [ 'counts' , 'n' ] ,
-                            [ 'Total' , '445' ] ,
-                            [ '0005_gs.xml' , '31' ] ,
-                            [ '0016_gs.xml' , '51' ] ,
-                            [ '0267_gs.xml' , '59' ] ,
+                            [ 'Total' , '482' ] ,
+                            [ '0005_gs.xml' , '36' ] ,
+                            [ '0016_gs.xml' , '54' ] ,
+                            [ '0267_gs.xml' , '63' ] ,
                             [ '0273_gs.xml' , '35' ] ,
-                            [ '0389_gs.xml' , '34' ] ,
-                            [ '0475_gs.xml' , '45' ] ,
-                            [ '0617_gs.xml' , '32' ] ,
-                            [ '0709_gs.xml' , '41' ] ,
-                            [ '0982_gs.xml' , '95' ] ,
-                            [ '0992_gs.xml' , '22' ] ,
+                            [ '0389_gs.xml' , '40' ] ,
+                            [ '0475_gs.xml' , '46' ] ,
+                            [ '0617_gs.xml' , '38' ] ,
+                            [ '0709_gs.xml' , '45' ] ,
+                            [ '0982_gs.xml' , '100' ] ,
+                            [ '0992_gs.xml' , '25' ] ,
                             [ 'Age' , '92' ] ,
                             [ 'DateTime' , '124' ] ,
                             [ 'HCUnit' , '76' ] ,
@@ -470,8 +471,9 @@ def test_count_ref_set_by_type_and_file( capsys ):
                             [ 'Patient' , '19' ] ,
                             [ 'PhoneFax' , '6' ] ,
                             [ 'Provider' , '64' ] ,
-                            [ 'StateCountry' , '21' ] ,
-                            [ 'StreetCity' , '4' ] ,
+                            [ 'SSN' , '0' ] ,
+                            [ 'StateCountry' , '33' ] ,
+                            [ 'StreetCity' , '29' ] ,
                             [ 'Zip' , '4' ] ,
                             [ 'eAddress' , '2' ] ]
         for expected_values in expected_values:
