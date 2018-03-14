@@ -26,11 +26,19 @@ def get_annotation_from_base_entry( annotation_entry ,
         return None , None , None
     try:
         annotation_start = annotation_entry[ start_key ]
+        try:
+            annotation_start = int( annotation_start )
+        except ValueError:
+            log.debug( 'Annotation start position could not be converted to int.  Treating as a string:  {}'.format( annotation_start ) )
     except KeyError as e:
         log.warn( 'Could not access annotation start key.  Skipping entry.' )
         return None , None , None
     try:
         annotation_end = annotation_entry[ end_key ]
+        try:
+            annotation_end = int( annotation_end )
+        except ValueError:
+            log.debug( 'Annotation end position could not be converted to int.  Treating as a string:  {}'.format( annotation_end ) )
     except KeyError as e:
         log.warn( 'Could not access annotation end key.  Skipping entry.' )
         return None , None , None
@@ -59,8 +67,8 @@ def flatten_ss_dictionary( ss_dictionary ,
     ##
     flat_entries = []
     for this_key in all_keys:
-        for annot_index in range( len( ss_dictionary[ this_key ] ) ):
-            flat_entries.append( ss_dictionary[ this_key ][ annot_index ] )
+            for annot_index in range( len( ss_dictionary[ this_key ] ) ):
+                flat_entries.append( ss_dictionary[ this_key ][ annot_index ] )
     log.debug( "Leaving '{}'".format( sys._getframe().f_code.co_name ) )
     return flat_entries
 
@@ -299,11 +307,12 @@ def reference_annot_comparison_runner( reference_filename , confusion_matrix , s
         reference_matched ):
         return( reference_matched , test_leftovers )
     reference_matched , test_leftovers = partial_comparison_runner( reference_filename ,
-                                                confusion_matrix , score_card , 
-                                                reference_annot ,
-                                                test_leftovers ,
-                                                start_key , end_key ,
-                                                fuzzy_flag )
+                                                                    confusion_matrix ,
+                                                                    score_card , 
+                                                                    reference_annot ,
+                                                                    test_leftovers ,
+                                                                    start_key , end_key ,
+                                                                    fuzzy_flag )
     return( reference_matched , test_leftovers )
 
 
@@ -326,8 +335,10 @@ def evaluate_positions( reference_filename ,
                                                                   end_key ) )
     reference_entries = flatten_ss_dictionary( reference_ss , 'reference' )
     test_entries = flatten_ss_dictionary( test_ss , 'test' )
-    ##
+    ## In case there are no reference_entries, initialize test_leftovers
+    ## as the full list of test_entries
     test_leftovers = test_entries
+    ##
     for reference_annot in reference_entries:
         reference_matched , test_leftovers = \
           reference_annot_comparison_runner( reference_filename , confusion_matrix , score_card ,
