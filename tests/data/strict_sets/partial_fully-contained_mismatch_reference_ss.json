@@ -1,0 +1,112 @@
+{
+    "1203": [
+        {
+            "begin_pos": "1203", 
+            "begin_pos_mapped": "934", 
+            "end_pos": "1208", 
+            "end_pos_mapped": "939", 
+            "raw_text": null, 
+            "type": "Doctor"
+        }
+    ], 
+    "1480": [
+        {
+            "begin_pos": "1480", 
+            "begin_pos_mapped": "1165", 
+            "end_pos": "1485", 
+            "end_pos_mapped": "1169", 
+            "raw_text": null, 
+            "type": "Doctor"
+        }
+    ], 
+    "1491": [
+        {
+            "begin_pos": "1491", 
+            "begin_pos_mapped": "1174", 
+            "end_pos": "1497", 
+            "end_pos_mapped": "1180", 
+            "raw_text": null, 
+            "type": "Date"
+        }
+    ], 
+    "16": [
+        {
+            "begin_pos": "16", 
+            "begin_pos_mapped": "11", 
+            "end_pos": "26", 
+            "end_pos_mapped": "20", 
+            "raw_text": null, 
+            "type": "Date"
+        }
+    ], 
+    "195": [
+        {
+            "begin_pos": "195", 
+            "begin_pos_mapped": "114", 
+            "end_pos": "205", 
+            "end_pos_mapped": "123", 
+            "raw_text": null, 
+            "type": "Date"
+        }
+    ], 
+    "3339": [
+        {
+            "begin_pos": "3339", 
+            "begin_pos_mapped": "2682", 
+            "end_pos": "3344", 
+            "end_pos_mapped": "2687", 
+            "raw_text": null, 
+            "type": "Doctor"
+        }
+    ], 
+    "3597": [
+        {
+            "begin_pos": "3597", 
+            "begin_pos_mapped": "2891", 
+            "end_pos": "3606", 
+            "end_pos_mapped": "2899", 
+            "raw_text": null, 
+            "type": "Doctor"
+        }
+    ], 
+    "3930": [
+        {
+            "begin_pos": "3930", 
+            "begin_pos_mapped": "3169", 
+            "end_pos": "3941", 
+            "end_pos_mapped": "3179", 
+            "raw_text": null, 
+            "type": "Doctor"
+        }
+    ], 
+    "4009": [
+        {
+            "begin_pos": "4009", 
+            "begin_pos_mapped": "3224", 
+            "end_pos": "4017", 
+            "end_pos_mapped": "3231", 
+            "raw_text": null, 
+            "type": "Date"
+        }
+    ], 
+    "4022": [
+        {
+            "begin_pos": "4022", 
+            "begin_pos_mapped": "3235", 
+            "end_pos": "4030", 
+            "end_pos_mapped": "3242", 
+            "raw_text": null, 
+            "type": "Date"
+        }
+    ], 
+    "4035": [
+        {
+            "begin_pos": "4035", 
+            "begin_pos_mapped": "3246", 
+            "end_pos": "4043", 
+            "end_pos_mapped": "3253", 
+            "raw_text": null, 
+            "type": "Date"
+        }
+    ]
+}
