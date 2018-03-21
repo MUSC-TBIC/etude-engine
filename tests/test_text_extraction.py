@@ -308,6 +308,74 @@ def test_extracting_with_and_without_optional_attributes():
         expected_output_no_opt_attributes
 
 
+def test_extracting_with_and_without_optional_attributes_called_by_parent():
+    ingest_file = 'tests/data/013_Conditional_Problem.xmi'
+    config_file = 'config/webanno_problems_allergies_xmi.conf'
+    namespaces , document_data , patterns = \
+      args_and_configs.process_config( config_file = config_file ,
+                                       score_key = 'Short Name' ,
+                                       score_values = [ '.*' ] )
+    patterns.pop()
+    offset_mapping , annots_with_opt_attributes = \
+      text_extraction.extract_annotations( ingest_file ,
+                                           namespaces = namespaces ,
+                                           document_data = document_data ,
+                                           patterns = patterns ,
+                                           skip_chars = None ,
+                                           out_file = None )
+    patterns[ 0 ][ 'optional_attributes' ] = []
+    offset_mapping , annots_without_opt_attributes = \
+      text_extraction.extract_annotations( ingest_file ,
+                                           namespaces = namespaces ,
+                                           document_data = document_data ,
+                                           patterns = patterns ,
+                                           skip_chars = None ,
+                                           out_file = None )
+    with open( '/tmp/bob.txt' , 'w' ) as fp:
+        fp.write( '{}\n\n{}\n'.format( annots_with_opt_attributes ,
+                                       annots_without_opt_attributes ) )
+    expected_output_without_opt_attributes = \
+      { '181' :  [ { 'type': 'Problem' ,
+                      'begin_pos': '181' ,
+                      'end_pos': '188' ,
+                      'raw_text': None } ] ,
+        '218' : [ { 'type': 'Problem' ,
+                   'begin_pos': '218' ,
+                   'end_pos': '224' ,
+                   'raw_text': None } ]
+      }
+    expected_output_with_opt_attributes = \
+      { '181' :  [ { 'type': 'Problem' ,
+                     'begin_pos': '181' ,
+                     'end_pos': '188' ,
+                     'raw_text': None ,
+                     'conditional' : 'true' ,
+                     'generic' : 'false' ,
+                     'historical' : 'false' ,
+                     'negated' : 'false' ,
+                     'not_patient' : 'true' ,
+                     'uncertain' : 'false' } ] ,
+        '218' : [ { 'type': 'Problem' ,
+                    'begin_pos': '218' ,
+                    'end_pos': '224' ,
+                    'raw_text': None ,
+                    'conditional' : 'false' ,
+                    'generic' : 'false' ,
+                    'historical' : 'true' ,
+                    'negated' : 'false' ,
+                    'not_patient' : 'false' ,
+                    'uncertain' : 'true' } ]
+      }
+    assert annots_with_opt_attributes == \
+        expected_output_with_opt_attributes
+    assert annots_without_opt_attributes == \
+        expected_output_without_opt_attributes
+    assert annots_with_opt_attributes != \
+        expected_output_without_opt_attributes
+    assert annots_without_opt_attributes != \
+        expected_output_with_opt_attributes
+
+
 #############################################
 ## Test writing to disk
 #############################################
