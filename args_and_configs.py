@@ -275,6 +275,40 @@ def extract_xpath_patterns( annotations ,
     log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
 
 
+def extract_xpath_spanless_patterns( annotations ,
+                                     config , sect ,
+                                     display_name ,
+                                     key_value ,
+                                     score_values ,
+                                     collapse_all_patterns = False ,
+                                     verbose = False ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
+    ## Loop through all the provided score_values to see if any
+    ## provided values match the currently extracted value
+    for score_value in score_values:
+        if( re.search( score_value , key_value ) ):
+            if( collapse_all_patterns ):
+                type_value = 'All Patterns'
+            else:
+                type_value = key_value
+            pattern_entry = dict( type = type_value ,
+                                  long_name = sect.strip() ,
+                                  xpath = config.get( sect , 'XPath' ) ,
+                                  display_name = display_name ,
+                                  short_name = config.get( sect ,
+                                                           'Short Name' ) ,
+                                  pivot_attr = config.get( sect ,
+                                                         'Pivot Attr' ) ,
+                                  optional_attributes = [] )
+            if( config.has_option( sect , 'Opt Attr' ) ):
+                optional_attributes = config.get( sect , 'Opt Attr' )
+                pattern_entry[ 'optional_attributes' ] = \
+                  optional_attributes.split( ',' )
+            annotations.append( pattern_entry )
+            break
+    log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
+
+
 def extract_delimited_patterns( annotations ,
                                 config , sect ,
                                 display_name ,
@@ -355,6 +389,19 @@ def extract_patterns( annotations ,
         except:
             e = sys.exc_info()[0]
             log.error( 'Uncaught exception in extract_xpath_patterns:  {}'.format( e ) )
+    elif( config.has_option( sect , 'XPath' ) and
+          config.has_option( sect , 'Pivot Attr' ) ):
+        try:
+            extract_xpath_spanless_patterns( annotations ,
+                                             config , sect ,
+                                             display_name ,
+                                             key_value ,
+                                             score_values ,
+                                             collapse_all_patterns ,
+                                             verbose )
+        except:
+            e = sys.exc_info()[0]
+            log.error( 'Uncaught exception in extract_xpath_spanless_patterns:  {}'.format( e ) )
     elif( config.has_option( sect , 'Delimiter' ) ):
         extract_delimited_patterns( annotations ,
                                     config , sect ,

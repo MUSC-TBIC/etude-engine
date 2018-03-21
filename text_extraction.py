@@ -15,10 +15,11 @@ import re
 #############################################
 
 
-def create_annotation_entry( begin_pos , begin_pos_mapped ,
-                             end_pos , end_pos_mapped ,
-                             raw_text ,
-                             tag_name ):
+def create_annotation_entry( begin_pos = -1 , begin_pos_mapped = None ,
+                             end_pos = -1 , end_pos_mapped = None ,
+                             raw_text = None ,
+                             pivot_attr = None , pivot_value = None ,
+                             tag_name = None ):
     new_entry = dict( begin_pos = begin_pos ,
                       end_pos = end_pos ,
                       raw_text = raw_text ,
@@ -29,6 +30,11 @@ def create_annotation_entry( begin_pos , begin_pos_mapped ,
     ##
     if( end_pos_mapped != None ):
         new_entry[ 'end_pos_mapped' ] = end_pos_mapped
+    ##
+    if( pivot_attr != None ):
+        new_entry[ 'pivot_attr' ] = pivot_attr
+    if( pivot_value != None ):
+        new_entry[ 'pivot_value' ] = pivot_value
     return new_entry
 
 
@@ -113,6 +119,45 @@ def extract_annotations_xml( ingest_file ,
         ##
         for optional_attr in optional_attributes:
             new_entry[ optional_attr ] = annot.get( optional_attr )
+    ## 
+    return strict_starts
+
+def extract_annotations_xml_spanless( ingest_file ,
+                                      annotation_path ,
+                                      tag_name ,
+                                      pivot_attribute ,
+                                      namespaces = {} ,
+                                      text_attribute = None ,
+                                      optional_attributes = [] ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
+    found_annots = {}
+    strict_starts = {}
+    ##
+    tree = ET.parse( ingest_file )
+    root = tree.getroot()
+    ##
+    try:
+        found_annots = root.findall( annotation_path , namespaces )
+    except SyntaxError, e:
+        log.warn( 'I had a problem parsing the XML file.  Are you sure your XPath is correct and matches your namespace?\n\tSkipping file ({}) and XPath ({})\n\tReported Error:  {}'.format( ingest_file , annotation_path , e ) )
+        log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
+        return strict_starts
+    ##
+    log.debug( 'Found {} annotation(s) matching the pattern \'{}\''.format(
+        len( found_annots ) , annotation_path ) )
+    for annot in found_annots:
+        pivot_value = annot.get( pivot_attribute )
+        new_entry = create_annotation_entry( pivot_attr = pivot_attribute ,
+                                             pivot_value = pivot_value ,
+                                             tag_name = tag_name )
+        ##
+        for optional_attr in optional_attributes:
+            new_entry[ optional_attr ] = annot.get( optional_attr )
+        ##
+        if( -1 in strict_starts.keys() ):
+            strict_starts[ -1 ].append( new_entry )
+        else:
+            strict_starts[ -1 ] = [ new_entry ]
     ## 
     return strict_starts
 
@@ -463,6 +508,17 @@ def extract_annotations( ingest_file ,
                                            pattern[ 'end_attr' ] ,
                                          optional_attributes = \
                                            pattern[ 'optional_attributes' ] ) )
+        elif( 'xpath' in pattern and
+              'pivot_attr' in pattern ):
+            new_annots = \
+                extract_annotations_xml_spanless( ingest_file ,
+                                                  namespaces = namespaces ,
+                                                  annotation_path = pattern[ 'xpath' ] ,
+                                                  tag_name = pattern[ 'type' ] ,
+                                                  pivot_attribute = \
+                                                    pattern[ 'pivot_attr' ] ,
+                                                  optional_attributes = \
+                                                    pattern[ 'optional_attributes' ] )
         else:
             print( 'WARNING:  Skipping pattern because it is missing essential elements:\n\n{}'.format( pattern ) )
     file_dictionary = dict( raw_content = raw_content ,

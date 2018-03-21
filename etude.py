@@ -58,11 +58,23 @@ def count_ref_set( this_ns , this_dd , this_patterns ,
             e = sys.exc_info()[0]
             log.error( 'Uncaught exception in extract_annotations:  {}'.format( e ) )
         for this_start in this_ss.keys():
-            ## grab type and end position
-            this_type = this_ss[ this_start ][ 0 ][ 'type' ]
-            this_end = this_ss[ this_start ][ 0 ][ 'end_pos' ]
-            scoring_metrics.update_score_card( 'Tally' , type_counts , 'counts' ,
-                                               this_filename , this_start , this_end , this_type )
+            ## loop over all entries sharing the same start position
+            ## and grab type and end position
+            for this_entry in this_ss[ this_start ]:
+                this_type = this_entry[ 'type' ]
+                if( this_start == -1 ):
+                    this_end = -1
+                    sub_type = this_entry[ 'pivot_value' ]
+                    ## TODO - don't force the pivot value into the attribute name
+                    this_type = '{} = "{}"'.format( this_type , this_entry[ 'pivot_value' ] )
+                else:
+                    this_end = this_entry[ 'end_pos' ]
+                    sub_type = None
+                ##
+                ##print( '{}\n'.format( this_type ) )
+                scoring_metrics.update_score_card( 'Tally' , type_counts , 'counts' ,
+                                                   this_filename , this_start , this_end , this_type , sub_type )
+
     ##
     if( args.csv_out and
         os.path.exists( args.csv_out ) ):
