@@ -106,6 +106,9 @@ def extract_annotations_xml( ingest_file ,
                                              raw_text = raw_text ,
                                              tag_name = tag_name )
         ##
+        for optional_attr in optional_attributes:
+            new_entry[ optional_attr ] = annot.get( optional_attr )
+        ##
         if( begin_pos in strict_starts.keys() ):
             strict_starts[ begin_pos ].append( new_entry )
         else:
@@ -424,6 +427,10 @@ def extract_annotations( ingest_file ,
                                                               namespaces ,
                                                               document_data ,
                                                               skip_chars )
+            except ET.ParseError, e:
+                log.warn( 'ParseError in file ({}):  {}'.format( ingest_file , e ) )
+                log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
+                return offset_mapping , annotations
             except:
                 e = sys.exc_info()[0]
                 log.error( 'Uncaught exception in extract_chars:  {}'.format( e ) )
