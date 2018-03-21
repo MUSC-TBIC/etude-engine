@@ -113,9 +113,6 @@ def extract_annotations_xml( ingest_file ,
             strict_starts[ begin_pos ].append( new_entry )
         else:
             strict_starts[ begin_pos ] = [ new_entry ]
-        ##
-        for optional_attr in optional_attributes:
-            new_entry[ optional_attr ] = annot.get( optional_attr )
     ## 
     return strict_starts
 
@@ -439,26 +436,27 @@ def extract_annotations( ingest_file ,
         log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
         return offset_mapping , annotations
     for pattern in patterns:
+        new_annots = None
         if( 'delimiter' in pattern ):
-            annotations.update( 
+            new_annots = \
                 extract_annotations_plaintext( offset_mapping = offset_mapping ,
                                                raw_content = raw_content ,
                                                delimiter = \
                                                  pattern[ 'delimiter' ] ,
-                                               tag_name = pattern[ 'type' ] ) )
+                                               tag_name = pattern[ 'type' ] )
         elif( 'type_prefix' in pattern ):
-            annotations.update( 
+            new_annots = \
                 extract_annotations_brat_standoff( ingest_file ,
                                                    offset_mapping = offset_mapping ,
                                                    type_prefix = \
                                                      pattern[ 'type_prefix' ] ,
                                                    tag_name = pattern[ 'type' ] ,
                                                    optional_attributes = \
-                                                   pattern[ 'optional_attributes' ] ) )
+                                                   pattern[ 'optional_attributes' ] )
         elif( 'xpath' in pattern and
               'begin_attr' in pattern and
               'end_attr' in pattern ):
-            annotations.update( 
+            new_annots = \
                 extract_annotations_xml( ingest_file ,
                                          offset_mapping = offset_mapping ,
                                          namespaces = namespaces ,
@@ -469,9 +467,18 @@ def extract_annotations( ingest_file ,
                                          end_attribute = \
                                            pattern[ 'end_attr' ] ,
                                          optional_attributes = \
-                                           pattern[ 'optional_attributes' ] ) )
+                                           pattern[ 'optional_attributes' ] )
         else:
             print( 'WARNING:  Skipping pattern because it is missing essential elements:\n\n{}'.format( pattern ) )
+        ##
+        ##annotations.update( new_annots )
+        if( new_annots != None ):
+            for new_annot_key in new_annots.keys():
+                if( new_annot_key in annotations.keys() ):
+                    combined_annots = annotations[ new_annot_key ] + new_annots[ new_annot_key ] 
+                    annotations.update( { new_annot_key : combined_annots } )
+                else:
+                    annotations.update( { new_annot_key : new_annots[ new_annot_key ] } )
     file_dictionary = dict( raw_content = raw_content ,
                             offset_mapping = offset_mapping ,
                             annotations = annotations )
