@@ -147,6 +147,11 @@ unstructured data extraction.
                          help = "Print to stdout the confusion matrix between annotation types" ,
                          action = "store_true" )
     
+    parser.add_argument( '--write-score-cards' , default = False ,
+                         dest = 'write_score_cards' ,
+                         help = "Write to disk the internal data structure used for counting annotations" ,
+                         action = "store_true" )
+    
     parser.add_argument( '--no-confusion-matrix' ,
                          dest = 'print_confusion_matrix' ,
                          help = "Suppress the confusion matrix between annotation types" ,

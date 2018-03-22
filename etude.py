@@ -27,7 +27,8 @@ def count_ref_set( this_ns , this_dd , this_patterns ,
                    this_folder , 
                    args ,
                    file_prefix = '/' ,
-                   file_suffix = '.xml' ):
+                   file_suffix = '.xml' ,
+                   set_type = None ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     """
     Count annotation occurrences in the test folder
@@ -72,7 +73,8 @@ def count_ref_set( this_ns , this_dd , this_patterns ,
         scoring_metrics.print_counts_summary( type_counts ,
                                               sorted( file_list ) ,
                                               this_patterns ,
-                                              args )
+                                              args ,
+                                              set_type = set_type )
     except AttributeError , e:
             log.error( 'AttributeError exception in print_counts_summary:  {}'.format( e ) )
     except KeyError , e:
@@ -534,7 +536,8 @@ if __name__ == "__main__":
                                    this_folder = os.path.abspath( args.reference_input ) ,
                                    args = args ,
                                    file_prefix = args.file_prefix ,
-                                   file_suffix = args.file_suffix[ len( args.file_suffix ) - 1 ] )
+                                   file_suffix = args.file_suffix[ len( args.file_suffix ) - 1 ] ,
+                                   set_type = 'reference' )
                 except AttributeError , e:
                     log.error( 'AttributeError exception in count_ref_set for reference output corpus:  {}'.format( e ) )
                 except KeyError, e:
@@ -555,7 +558,8 @@ if __name__ == "__main__":
                                    this_folder = os.path.abspath( args.test_input ) ,
                                    args = args ,
                                    file_prefix = args.file_prefix ,
-                                   file_suffix = args.file_suffix[ len( args.file_suffix ) - 1 ] ) 
+                                   file_suffix = args.file_suffix[ len( args.file_suffix ) - 1 ] ,
+                                   set_type = 'test' ) 
                 except AttributeError , e:
                     log.error( 'AttributeError exception in count_ref_set for reference output corpus:  {}'.format( e ) )
                 except KeyError, e:
