@@ -47,6 +47,11 @@ unstructured data extraction.
                                      'Accuracy' ,
                                      'F1' ] ,
                          help = "List of metrics to return, in order" )
+    
+    parser.add_argument( '--empty-value' ,
+                         dest = 'empty_value' ,
+                         default = '' ,
+                         help = "Value to print when metrics are undefined or values are null" )
 
     parser.add_argument( "--fuzzy-match-flags" , nargs = "+" ,
                          dest = 'fuzzy_flags' ,
