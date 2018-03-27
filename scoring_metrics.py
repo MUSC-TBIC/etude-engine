@@ -560,10 +560,31 @@ def output_metrics( class_data ,
 
 def print_counts_summary( score_card , file_list ,
                           config_patterns , 
-                          args ):
+                          args ,
+                          set_type ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     ## TODO - refactor score printing to a separate function
     ## TODO - add scores grouped by type
+    if( args.write_score_cards ):
+        if( set_type == 'reference' ):
+            if( args.reference_out == None ):
+                log.warn( 'I could not write the reference counts score_card to disk:  --write-score-cards set but no --reference-out set' )
+            else:
+                score_card[ 'counts' ].to_csv( '{}/{}'.format( args.reference_out ,
+                                                               'counts_score_card.csv' ) ,
+                                               sep = '\t' ,
+                                               encoding = 'utf-8' ,
+                                               index = False )
+        elif( set_type == 'test' ):
+            if( args.test_out == None ):
+                log.warn( 'I could not write the test counts score_card to disk:  --write-score-cards set but no --test-out set' )
+            else:
+                score_card[ 'counts' ].to_csv( '{}/{}'.format( args.test_out ,
+                                                               'counts_score_card.csv' ) ,
+                                               sep = '\t' ,
+                                               encoding = 'utf-8' ,
+                                               index = False )
+    ##
     metrics_header_line = \
       args.delim.join( '{}'.format( m ) for m in [ 'n' ] )
     if( args.print_counts ):
@@ -750,7 +771,30 @@ def print_score_summary( score_card , file_mapping ,
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     ## TODO - refactor score printing to a separate function
     ## TODO - add scores grouped by type
+    if( args.write_score_cards ):
+        if( args.reference_out == None and
+            args.test_out == None ):
+            log.warn( 'I could not write the metrics score_card to disk:  --write-score-cards set but neither --reference-out nor --test-out set' )
+        else:
+            if( args.reference_out ):
+                score_card[ fuzzy_flag ].to_csv( '{}/{}{}{}'.format( args.reference_out ,
+                                                                   'metrics_' ,
+                                                                   fuzzy_flag ,
+                                                                   '_score_card.csv' ) ,
+                                               sep = '\t' ,
+                                               encoding = 'utf-8' ,
+                                               index = False )
+            if( args.test_out ):
+                score_card[ fuzzy_flag ].to_csv( '{}/{}{}{}'.format( args.test_out ,
+                                                                   'metrics_' ,
+                                                                   fuzzy_flag ,
+                                                                   '_score_card.csv' ) ,
+                                               sep = '\t' ,
+                                               encoding = 'utf-8' ,
+                                               index = False )
+    ##
     file_list = sorted( file_mapping.keys() )
+    ##
     metrics_header_line = \
       args.delim.join( '{}'.format( m ) for m in args.metrics_list )
     if( args.print_metrics ):

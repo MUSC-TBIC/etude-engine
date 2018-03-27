@@ -308,6 +308,103 @@ def test_extracting_with_and_without_optional_attributes():
         expected_output_no_opt_attributes
 
 
+def test_extracting_with_and_without_optional_attributes_called_by_parent():
+    ingest_file = 'tests/data/013_Conditional_Problem.xmi'
+    config_file = 'config/webanno_problems_allergies_xmi.conf'
+    namespaces , document_data , patterns = \
+      args_and_configs.process_config( config_file = config_file ,
+                                       score_key = 'Short Name' ,
+                                       score_values = [ '.*' ] )
+    patterns.pop()
+    offset_mapping , annots_with_opt_attributes = \
+      text_extraction.extract_annotations( ingest_file ,
+                                           namespaces = namespaces ,
+                                           document_data = document_data ,
+                                           patterns = patterns ,
+                                           skip_chars = None ,
+                                           out_file = None )
+    patterns[ 0 ][ 'optional_attributes' ] = []
+    offset_mapping , annots_without_opt_attributes = \
+      text_extraction.extract_annotations( ingest_file ,
+                                           namespaces = namespaces ,
+                                           document_data = document_data ,
+                                           patterns = patterns ,
+                                           skip_chars = None ,
+                                           out_file = None )
+    expected_output_without_opt_attributes = \
+      { '181' :  [ { 'type': 'Problem' ,
+                      'begin_pos': '181' ,
+                      'end_pos': '188' ,
+                      'raw_text': None } ] ,
+        '218' : [ { 'type': 'Problem' ,
+                   'begin_pos': '218' ,
+                   'end_pos': '224' ,
+                   'raw_text': None } ]
+      }
+    expected_output_with_opt_attributes = \
+      { '181' :  [ { 'type': 'Problem' ,
+                     'begin_pos': '181' ,
+                     'end_pos': '188' ,
+                     'raw_text': None ,
+                     'conditional' : 'true' ,
+                     'generic' : 'false' ,
+                     'historical' : 'false' ,
+                     'negated' : 'false' ,
+                     'not_patient' : 'true' ,
+                     'uncertain' : 'false' } ] ,
+        '218' : [ { 'type': 'Problem' ,
+                    'begin_pos': '218' ,
+                    'end_pos': '224' ,
+                    'raw_text': None ,
+                    'conditional' : 'false' ,
+                    'generic' : 'false' ,
+                    'historical' : 'true' ,
+                    'negated' : 'false' ,
+                    'not_patient' : 'false' ,
+                    'uncertain' : 'true' } ]
+      }
+    assert annots_with_opt_attributes == \
+        expected_output_with_opt_attributes
+    assert annots_without_opt_attributes == \
+        expected_output_without_opt_attributes
+    assert annots_with_opt_attributes != \
+        expected_output_without_opt_attributes
+    assert annots_without_opt_attributes != \
+        expected_output_with_opt_attributes
+
+
+def test_extract_annotations_overlapping_in_same_file():
+    ingest_file = 'tests/data/offset_matching/the_doctors_age_overlapping.xmi'
+    namespaces = { 'cas' :
+                   "http:///uima/cas.ecore" ,
+                   'custom' :
+                    "http:///webanno/custom.ecore" }
+    document_data = dict( tag_xpath = './cas:Sofa' ,
+                          content_attribute = 'sofaString' )
+    patterns = [ { 'type': 'Age' , 'xpath': './custom:PHI[@Time="Age"]',
+                   'display_name': 'Age', 'short_name': 'Age', 'long_name': 'Age',
+                   'optional_attributes': [], 'begin_attr': 'begin', 'end_attr': 'end' } ,
+                 { 'type': 'DateTime' , 'xpath': './custom:PHI[@Time="DateTime"]',
+                   'display_name': 'DateTime', 'short_name': 'DateTime', 'long_name': 'DateTime',
+                   'optional_attributes': [], 'begin_attr': 'begin', 'end_attr': 'end' } ,
+                 { 'type': 'Number' , 'xpath': './custom:PHI[@Time="Number"]',
+                   'display_name': 'Number', 'short_name': 'Number', 'long_name': 'Number',
+                   'optional_attributes': [], 'begin_attr': 'begin', 'end_attr': 'end' }
+    ]
+    offset_mapping , annots = \
+      text_extraction.extract_annotations( ingest_file ,
+                                           namespaces = namespaces ,
+                                           document_data = document_data ,
+                                           patterns = patterns ,
+                                           skip_chars = None ,
+                                           out_file = None )
+    expected_annots = { '24' : [ { 'type': 'Age', 'end_pos': '27', 'raw_text': None, 'begin_pos': '24' } ,
+                                 { 'type': 'Number', 'end_pos': '27', 'raw_text': None, 'begin_pos': '24' } ] ,
+                        '41' : [ {'type': 'DateTime', 'end_pos': '59', 'raw_text': None, 'begin_pos': '41'} ,
+                                 {'type': 'DateTime', 'end_pos': '54', 'raw_text': None, 'begin_pos': '41'} ] }
+    assert annots == expected_annots
+
+
 #############################################
 ## Test writing to disk
 #############################################
