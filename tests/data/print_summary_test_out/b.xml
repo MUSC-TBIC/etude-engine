@@ -5,13 +5,13 @@
                 "Sentence": {
                     "Recall": 0.0, 
                     "Precision": 0.0, 
-                    "F1": 0.0
+                    "F1": null
                 }
             }, 
             "micro-average": {
                 "Recall": 0.0, 
                 "Precision": 0.0, 
-                "F1": 0.0
+                "F1": null
             }
         }
     }

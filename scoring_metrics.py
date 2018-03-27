@@ -383,36 +383,36 @@ def accuracy( tp , fp , tn , fn ):
     if( tp + fp + tn + fn > 0 ):
         return ( tp + tn ) / float( tp + fp + tn + fn )
     else:
-        return 0.0
+        return None
 
 
 def precision( tp , fp ):
     if( fp + tp > 0 ):
         return tp / float( fp + tp )
     else:
-        return 0.0
+        return None
 
 
 def recall( tp , fn ):
     if( fn + tp > 0 ):
         return tp / float( fn + tp )
     else:
-        return 0.0
+        return None
 
 
 def specificity( tn , fn ):
     if( tn + fn > 0 ):
         return tn / float( tn + fn )
     else:
-        return 0.0
+        return None
 
 
 def f_score( p , r , beta = 1 ):
-    if( p + r > 0 ):
+    if( p != None and r != None and p + r > 0 ):
         return ( 1 + ( beta**2 ) ) * ( p * r ) / \
             ( ( ( beta**2 ) * p ) + r )
     else:
-        return 0.0
+        return None
 
 
 def add_missing_fields( score_summary ):
@@ -825,8 +825,11 @@ def print_score_summary( score_card , file_mapping ,
                                   args.metrics_list ,
                                   metrics )
     ##
-    file_aggregate_metrics = None
-    non_empty_files = 0
+    file_aggregate_metrics = []
+    non_empty_metrics = []
+    for i in range( len( args.metrics_list ) ):
+        file_aggregate_metrics.append( 0 )
+        non_empty_metrics.append( 0 )
     for filename in file_list:
         if( args.corpus_out ):
             update_output_dictionary( args.corpus_out ,
@@ -843,14 +846,10 @@ def print_score_summary( score_card , file_mapping ,
                             args.print_metrics , args.csv_out )
             ## Only update macro-average if some annotation in this file exists
             ## in either reference or system output
-            if( sum( file_value_counts ) > 0 ):
-                non_empty_files += 1
-                if( file_aggregate_metrics == None ):
-                    file_aggregate_metrics = metrics
-                else:
-                    file_aggregate_metrics = \
-                      [ sum( pair ) for pair in zip( file_aggregate_metrics ,
-                                                     metrics ) ]
+            for i in range( len( metrics ) ):
+                if( metrics[ i ] != None ):
+                    non_empty_metrics[ i ] += 1
+                    file_aggregate_metrics[ i ] += metrics[ i ]
         if( args.reference_out ):
             out_file = '{}/{}'.format( args.reference_out ,
                                        filename )
@@ -905,32 +904,38 @@ def print_score_summary( score_card , file_mapping ,
                                             'by-type' , unique_type ] ,
                                           args.metrics_list ,
                                           metrics )
-    if( non_empty_files > 0 ):
-        macro_averaged_metrics = []
-        for key , value in zip( args.metrics_list , file_aggregate_metrics ):
-            if( key == 'TP' or
-                key == 'FP' or
-                key == 'FN' or
-                key == 'FP' ):
-                macro_averaged_metrics.append( value )
-            else:
-                macro_averaged_metrics.append( value / non_empty_files )
-        if( args.by_file or args.by_file_and_type ):
-            output_metrics( [ 'macro-averages' , 'macro-average by file' ] ,
-                            fuzzy_flag , macro_averaged_metrics ,
-                            args.delim_prefix , args.delim ,
-                            args.print_metrics , args.csv_out )
-        if( args.corpus_out ):
-            update_output_dictionary( args.corpus_out ,
-                                      [ 'metrics' ,
-                                        fuzzy_flag ,
-                                        'macro-averages' , 'file' ] ,
-                                      args.metrics_list ,
-                                      macro_averaged_metrics[ 1: ] )
+    macro_averaged_metrics = []
+    for key , value , non_empty_count in zip( args.metrics_list ,
+                                              file_aggregate_metrics ,
+                                              non_empty_metrics ):
+        if( non_empty_count == 0 ):
+            macro_averaged_metrics.append( args.empty_value )
+        elif( key == 'TP' or
+              key == 'FP' or
+              key == 'FN' or
+              key == 'TN' ):
+            macro_averaged_metrics.append( value )
+        else:
+            macro_averaged_metrics.append( value / non_empty_count )
+    if( args.by_file or args.by_file_and_type ):
+        output_metrics( [ 'macro-averages' , 'macro-average by file' ] ,
+                        fuzzy_flag , macro_averaged_metrics ,
+                        args.delim_prefix , args.delim ,
+                        args.print_metrics , args.csv_out )
+    if( args.corpus_out ):
+        update_output_dictionary( args.corpus_out ,
+                                  [ 'metrics' ,
+                                    fuzzy_flag ,
+                                    'macro-averages' , 'file' ] ,
+                                  args.metrics_list ,
+                                  macro_averaged_metrics[ 1: ] )
     ##
     unique_types = Set()
-    type_aggregate_metrics = None
-    non_empty_types = 0
+    type_aggregate_metrics = []
+    non_empty_metrics = []
+    for i in range( len( args.metrics_list ) ):
+        type_aggregate_metrics.append( 0 )
+        non_empty_metrics.append( 0 )
     for pattern in reference_config:
         unique_types.add( pattern[ 'type' ] )
     for unique_type in sorted( unique_types ):
@@ -945,14 +950,10 @@ def print_score_summary( score_card , file_mapping ,
                             args.print_metrics , args.csv_out )
             ## Only update macro-average if some of this type exist
             ## in either reference or system output
-            if( sum( type_value_counts ) > 0 ):
-                non_empty_types += 1
-                if( type_aggregate_metrics == None ):
-                    type_aggregate_metrics = metrics
-                else:
-                    type_aggregate_metrics = \
-                      [ sum( pair ) for pair in zip( type_aggregate_metrics ,
-                                                     metrics ) ]
+            for i in range( len( metrics ) ):
+                if( metrics[ i ] != None ):
+                    non_empty_metrics[ i ] += 1
+                    type_aggregate_metrics[ i ] += metrics[ i ]
         if( args.corpus_out ):
             update_output_dictionary( args.corpus_out ,
                                       [ 'metrics' ,
@@ -976,27 +977,30 @@ def print_score_summary( score_card , file_mapping ,
                                 fuzzy_flag , metrics ,
                                 args.delim_prefix , args.delim ,
                                 args.print_metrics , args.csv_out )
-    if( non_empty_types > 0 ):
-        macro_averaged_metrics = []
-        for key , value in zip( args.metrics_list , type_aggregate_metrics ):
-            if( key == 'TP' or
-                key == 'FP' or
-                key == 'FN' or
-                key == 'FP' ):
-                macro_averaged_metrics.append( value )
-            else:
-                macro_averaged_metrics.append( value / non_empty_types )
-        if( args.by_type or args.by_type_and_file ):
-            output_metrics( [ 'macro-averages' , 'macro-average by type' ] ,
-                            fuzzy_flag , macro_averaged_metrics ,
-                            args.delim_prefix , args.delim ,
-                            args.print_metrics , args.csv_out )
-        if( args.corpus_out ):
-            update_output_dictionary( args.corpus_out ,
-                                      [ 'metrics' ,
-                                        fuzzy_flag ,
-                                        'macro-averages' , 'type' ] ,
-                                      args.metrics_list ,
-                                      macro_averaged_metrics )
+    macro_averaged_metrics = []
+    for key , value , non_empty_count in zip( args.metrics_list ,
+                                              type_aggregate_metrics ,
+                                              non_empty_metrics ):
+        if( non_empty_count == 0 ):
+            macro_averaged_metrics.append( args.empty_value )
+        elif( key == 'TP' or
+              key == 'FP' or
+              key == 'FN' or
+              key == 'TN' ):
+            macro_averaged_metrics.append( value )
+        else:
+            macro_averaged_metrics.append( value / non_empty_count )
+    if( args.by_type or args.by_type_and_file ):
+        output_metrics( [ 'macro-averages' , 'macro-average by type' ] ,
+                        fuzzy_flag , macro_averaged_metrics ,
+                        args.delim_prefix , args.delim ,
+                        args.print_metrics , args.csv_out )
+    if( args.corpus_out ):
+        update_output_dictionary( args.corpus_out ,
+                                  [ 'metrics' ,
+                                    fuzzy_flag ,
+                                    'macro-averages' , 'type' ] ,
+                                  args.metrics_list ,
+                                  macro_averaged_metrics )
     #########
     log.debug( "Leaving '{}'".format( sys._getframe().f_code.co_name ) )
