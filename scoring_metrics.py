@@ -913,7 +913,7 @@ def print_score_summary( score_card , file_mapping ,
     unique_types = Set()
     type_aggregate_metrics = None
     non_empty_types = 0
-    for pattern in reference_patterns:
+    for pattern in reference_config:
         if( 'pivot_attr' in pattern.keys() ):
             ## TODO - pull this fron the config file
             for pivot_value in [ 'met' , 'not met' ]: ##pattern[ 'pivot_values' ]:
