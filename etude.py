@@ -495,6 +495,9 @@ if __name__ == "__main__":
         except:
             e = sys.exc_info()[0]
             log.error( 'Uncaught exception in process_config for reference config:  {}'.format( e ) )
+        if( reference_patterns == [] ):
+            log.error( 'No reference patterns extracted from config.  Bailing out now.' )
+            exit( 1 )
     if( args.test_input ):
         try:
             test_ns , test_dd , test_patterns = \
@@ -506,14 +509,19 @@ if __name__ == "__main__":
         except:
             e = sys.exc_info()[0]
             log.error( 'Uncaught exception in process_config for system output config:  {}'.format( e ) )
+        if( test_patterns == [] ):
+            log.error( 'No test patterns extracted from config.  Bailing out now.' )
+            exit( 1 )
     if( args.reference_input and args.test_input ):
         try:
             reference_patterns , test_patterns = \
               args_and_configs.align_patterns( reference_patterns , test_patterns )
             if( len( reference_patterns ) == 0 ):
                 log.error( 'Zero annotation patterns found in reference config after filtering against system output config.' )
+                exit( 1 )
             if( len( test_patterns ) == 0 ):
-                log.error( 'Zero annotation patterns found in system output config after filtering against reference config.' )            
+                log.error( 'Zero annotation patterns found in system output config after filtering against reference config.' )
+                exit( 1 )
         except:
             e = sys.exc_info()[0]
             log.error( 'Uncaught exception in align_patterns:  {}'.format( e ) )

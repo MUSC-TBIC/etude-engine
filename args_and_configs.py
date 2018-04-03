@@ -388,11 +388,16 @@ def process_config( config_file ,
                     collapse_all_patterns = False ,
                     verbose = False ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
-    config = ConfigParser.ConfigParser()
-    config.read( config_file )
     annotations = []
     namespaces = {}
     document_data = {}
+    config = ConfigParser.ConfigParser()
+    try:
+        config.read( config_file )
+    except ConfigParser.MissingSectionHeaderError , e:
+        log.error( 'Unable to continue due to malformed section header(s):  {}'.format( e ) )
+        log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
+        return namespaces , document_data , annotations
     for sect in config.sections():
         if( sect.strip() == 'XML Namespaces' ):
             namespaces = extract_namespaces( namespaces ,
