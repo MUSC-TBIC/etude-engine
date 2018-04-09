@@ -135,19 +135,19 @@ def initialize_for_print_summary_test():
 def initialize_for_print_complex_summary_test():
     score_card = scoring_metrics.new_score_card()
     score_card[ 'exact' ].loc[ score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ 'a.xml' , 0 , 1 , 'Sentence' , 'TP' ]
+      [ 'a.xml' , 0 , 1 , 'Sentence' , None , 'TP' ]
     score_card[ 'exact' ].loc[ score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ 'b.xml' , 0 , 1 , 'Sentence' , 'FP' ]
+      [ 'b.xml' , 0 , 1 , 'Sentence' , None , 'FP' ]
     score_card[ 'exact' ].loc[ score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ 'b.xml' , 1 , 2 , 'Sentence' , 'FP' ]
+      [ 'b.xml' , 1 , 2 , 'Sentence' , None , 'FP' ]
     score_card[ 'exact' ].loc[ score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ 'a.xml' , 0 , 1 , 'Sentence' , 'FN' ]
+      [ 'a.xml' , 0 , 1 , 'Sentence' , None , 'FN' ]
     score_card[ 'exact' ].loc[ score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ 'b.xml' , 0 , 1 , 'Sentence' , 'FN' ]
+      [ 'b.xml' , 0 , 1 , 'Sentence' , None , 'FN' ]
     score_card[ 'exact' ].loc[ score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ 'd.xml' , 1 , 2 , 'Sentence' , 'TN' ]
+      [ 'd.xml' , 1 , 2 , 'Sentence' , None , 'TN' ]
     score_card[ 'exact' ].loc[ score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ 'e.xml' , 2 , 3 , 'Sentence' , 'FN' ]
+      [ 'e.xml' , 2 , 3 , 'Sentence' , None , 'FN' ]
     command_line_args = [ '--reference-input' , 'tests/data/i2b2_2016_track-1_reference' ,
                           '--test-input' , 'tests/data/i2b2_2016_track-1_test' ]
     args = args_and_configs.get_arguments( command_line_args )

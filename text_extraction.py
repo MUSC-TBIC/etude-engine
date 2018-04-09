@@ -512,7 +512,7 @@ def extract_annotations( ingest_file ,
                                          end_attribute = \
                                            pattern[ 'end_attr' ] ,
                                          optional_attributes = \
-                                           pattern[ 'optional_attributes' ] ) )
+                                           pattern[ 'optional_attributes' ] )
         elif( 'xpath' in pattern and
               'pivot_attr' in pattern ):
             new_annots = \
