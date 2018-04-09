@@ -47,6 +47,11 @@ unstructured data extraction.
                                      'Accuracy' ,
                                      'F1' ] ,
                          help = "List of metrics to return, in order" )
+    
+    parser.add_argument( '--empty-value' ,
+                         dest = 'empty_value' ,
+                         default = '' ,
+                         help = "Value to print when metrics are undefined or values are null" )
 
     parser.add_argument( "--fuzzy-match-flags" , nargs = "+" ,
                          dest = 'fuzzy_flags' ,
@@ -145,6 +150,11 @@ unstructured data extraction.
     parser.add_argument( '--print-confusion-matrix' , default = False ,
                          dest = 'print_confusion_matrix' ,
                          help = "Print to stdout the confusion matrix between annotation types" ,
+                         action = "store_true" )
+    
+    parser.add_argument( '--write-score-cards' , default = False ,
+                         dest = 'write_score_cards' ,
+                         help = "Write to disk the internal data structure used for counting annotations" ,
                          action = "store_true" )
     
     parser.add_argument( '--no-confusion-matrix' ,
@@ -425,11 +435,16 @@ def process_config( config_file ,
                     collapse_all_patterns = False ,
                     verbose = False ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
-    config = ConfigParser.ConfigParser()
-    config.read( config_file )
     annotations = []
     namespaces = {}
     document_data = {}
+    config = ConfigParser.ConfigParser()
+    try:
+        config.read( config_file )
+    except ConfigParser.MissingSectionHeaderError , e:
+        log.error( 'Unable to continue due to malformed section header(s):  {}'.format( e ) )
+        log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
+        return namespaces , document_data , annotations
     for sect in config.sections():
         if( sect.strip() == 'XML Namespaces' ):
             namespaces = extract_namespaces( namespaces ,
