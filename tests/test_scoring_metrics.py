@@ -115,13 +115,13 @@ def test_f_score_beta_proportional_to_recall():
 def initialize_for_print_summary_test():
     score_card = scoring_metrics.new_score_card()
     score_card[ 'exact' ].loc[ score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ 'a.xml' , 0 , 1 , 'Sentence' , 'TP' ]
+      [ 'a.xml' , 0 , 1 , 'Sentence' , None , 'TP' ]
     score_card[ 'exact' ].loc[ score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ 'b.xml' , 0 , 1 , 'Sentence' , 'FP' ]
+      [ 'b.xml' , 0 , 1 , 'Sentence' , None , 'FP' ]
     score_card[ 'exact' ].loc[ score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ 'a.xml' , 0 , 1 , 'Sentence' , 'FN' ]
+      [ 'a.xml' , 0 , 1 , 'Sentence' , None , 'FN' ]
     score_card[ 'exact' ].loc[ score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ 'b.xml' , 0 , 1 , 'Sentence' , 'FN' ]
+      [ 'b.xml' , 0 , 1 , 'Sentence' , None , 'FN' ]
     command_line_args = [ '--reference-input' , 'tests/data/i2b2_2016_track-1_reference' ,
                           '--test-input' , 'tests/data/i2b2_2016_track-1_test' ]
     args = args_and_configs.get_arguments( command_line_args )
@@ -135,19 +135,19 @@ def initialize_for_print_summary_test():
 def initialize_for_print_complex_summary_test():
     score_card = scoring_metrics.new_score_card()
     score_card[ 'exact' ].loc[ score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ 'a.xml' , 0 , 1 , 'Sentence' , 'TP' ]
+      [ 'a.xml' , 0 , 1 , 'Sentence' , None , 'TP' ]
     score_card[ 'exact' ].loc[ score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ 'b.xml' , 0 , 1 , 'Sentence' , 'FP' ]
+      [ 'b.xml' , 0 , 1 , 'Sentence' , None , 'FP' ]
     score_card[ 'exact' ].loc[ score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ 'b.xml' , 1 , 2 , 'Sentence' , 'FP' ]
+      [ 'b.xml' , 1 , 2 , 'Sentence' , None , 'FP' ]
     score_card[ 'exact' ].loc[ score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ 'a.xml' , 0 , 1 , 'Sentence' , 'FN' ]
+      [ 'a.xml' , 0 , 1 , 'Sentence' , None , 'FN' ]
     score_card[ 'exact' ].loc[ score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ 'b.xml' , 0 , 1 , 'Sentence' , 'FN' ]
+      [ 'b.xml' , 0 , 1 , 'Sentence' , None , 'FN' ]
     score_card[ 'exact' ].loc[ score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ 'd.xml' , 1 , 2 , 'Sentence' , 'TN' ]
+      [ 'd.xml' , 1 , 2 , 'Sentence' , None , 'TN' ]
     score_card[ 'exact' ].loc[ score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ 'e.xml' , 2 , 3 , 'Sentence' , 'FN' ]
+      [ 'e.xml' , 2 , 3 , 'Sentence' , None , 'FN' ]
     command_line_args = [ '--reference-input' , 'tests/data/i2b2_2016_track-1_reference' ,
                           '--test-input' , 'tests/data/i2b2_2016_track-1_test' ]
     args = args_and_configs.get_arguments( command_line_args )
@@ -537,9 +537,9 @@ def test_evaluate_positions_copy_match():
     ##
     expected_score_card = scoring_metrics.new_score_card()
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ ingest_file , 87 , 97 , 'DateTime' , 'TP' ]
+      [ ingest_file , 87 , 97 , 'DateTime' , None , 'TP' ]
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ ingest_file , 2404 , 2410 , 'DateTime' , 'TP' ]
+      [ ingest_file , 2404 , 2410 , 'DateTime' , None , 'TP' ]
     assert_frame_equal( score_card[ 'exact' ] ,
                         expected_score_card[ 'exact' ] )
 
@@ -571,9 +571,9 @@ def test_evaluate_positions_empty_reference_ss():
     ##
     expected_score_card = scoring_metrics.new_score_card()
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ ingest_file , 87 , 97 , 'DateTime' , 'FP' ]
+      [ ingest_file , 87 , 97 , 'DateTime' , None , 'FP' ]
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ ingest_file , 2404 , 2410 , 'DateTime' , 'FP' ]
+      [ ingest_file , 2404 , 2410 , 'DateTime' , None , 'FP' ]
     assert_frame_equal( score_card[ 'exact' ] ,
                         expected_score_card[ 'exact' ] )
 
@@ -605,9 +605,9 @@ def test_evaluate_positions_empty_test_ss():
     ##
     expected_score_card = scoring_metrics.new_score_card()
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ ingest_file , 87 , 97 , 'DateTime' , 'FN' ]
+      [ ingest_file , 87 , 97 , 'DateTime' , None , 'FN' ]
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ ingest_file , 2404 , 2410 , 'DateTime' , 'FN' ]
+      [ ingest_file , 2404 , 2410 , 'DateTime' , None , 'FN' ]
     assert_frame_equal( score_card[ 'exact' ] ,
                         expected_score_card[ 'exact' ] )
 
@@ -668,11 +668,11 @@ def test_evaluate_positions_tweak_annotation_dictionary_heed_whitespace():
     ##
     expected_score_card = scoring_metrics.new_score_card()
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ ingest_file , 87 , 97 , 'DateTime' , 'FN' ]
+      [ ingest_file , 87 , 97 , 'DateTime' , None , 'FN' ]
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ ingest_file , 2404 , 2410 , 'DateTime' , 'TP' ]
+      [ ingest_file , 2404 , 2410 , 'DateTime' , None , 'TP' ]
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ ingest_file , 73 , 97 , 'DateTime' , 'FP' ]
+      [ ingest_file , 73 , 97 , 'DateTime' , None , 'FP' ]
     assert_frame_equal( score_card[ 'exact' ] ,
                         expected_score_card[ 'exact' ] )
 
@@ -714,9 +714,9 @@ def test_evaluate_positions_tweak_annotation_dictionary_ignore_whitespace():
     ##
     expected_score_card = scoring_metrics.new_score_card()
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ ingest_file , 70 , 80 , 'DateTime' , 'TP' ]
+      [ ingest_file , 70 , 80 , 'DateTime' , None , 'TP' ]
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ ingest_file , 2006 , 2011 , 'DateTime' , 'TP' ]
+      [ ingest_file , 2006 , 2011 , 'DateTime' , None , 'TP' ]
     assert_frame_equal( score_card[ 'exact' ] ,
                         expected_score_card[ 'exact' ] )
 
@@ -767,9 +767,9 @@ def test_evaluate_positions_missing_mapped_keys_with_heed_whitespace():
     ##
     expected_score_card = scoring_metrics.new_score_card()
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ ingest_file , 87 , 97 , 'DateTime' , 'TP' ]
+      [ ingest_file , 87 , 97 , 'DateTime' , None , 'TP' ]
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ ingest_file , 2404 , 2410 , 'DateTime' , 'TP' ]
+      [ ingest_file , 2404 , 2410 , 'DateTime' , None , 'TP' ]
     assert_frame_equal( score_card[ 'exact' ] ,
                         expected_score_card[ 'exact' ] )
 
@@ -789,9 +789,9 @@ def test_evaluate_positions_missing_reference_begin_mapped_key():
     ##
     expected_score_card = scoring_metrics.new_score_card()
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ ingest_file , 70 , 80 , 'DateTime' , 'TP' ]
+      [ ingest_file , 70 , 80 , 'DateTime' , None , 'TP' ]
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ ingest_file , 2006 , 2011 , 'DateTime' , 'FP' ]
+      [ ingest_file , 2006 , 2011 , 'DateTime' , None , 'FP' ]
     assert_frame_equal( score_card[ 'exact' ] ,
                         expected_score_card[ 'exact' ] )
 
@@ -811,9 +811,9 @@ def test_evaluate_positions_missing_reference_end_mapped_key():
     ##
     expected_score_card = scoring_metrics.new_score_card()
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ ingest_file , 70 , 80 , 'DateTime' , 'TP' ]
+      [ ingest_file , 70 , 80 , 'DateTime' , None , 'TP' ]
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ ingest_file , 2006 , 2011 , 'DateTime' , 'FP' ]
+      [ ingest_file , 2006 , 2011 , 'DateTime' , None , 'FP' ]
     assert_frame_equal( score_card[ 'exact' ] ,
                         expected_score_card[ 'exact' ] )
 
@@ -833,9 +833,9 @@ def test_evaluate_positions_missing_test_begin_mapped_key():
     ##
     expected_score_card = scoring_metrics.new_score_card()
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ ingest_file , 70 , 80 , 'DateTime' , 'TP' ]
+      [ ingest_file , 70 , 80 , 'DateTime' , None , 'TP' ]
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ ingest_file , 2006 , 2011 , 'DateTime' , 'FN' ]
+      [ ingest_file , 2006 , 2011 , 'DateTime' , None , 'FN' ]
     assert_frame_equal( score_card[ 'exact' ] ,
                         expected_score_card[ 'exact' ] )
 
@@ -855,9 +855,9 @@ def test_evaluate_positions_missing_test_end_mapped_key():
     ##
     expected_score_card = scoring_metrics.new_score_card()
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ ingest_file , 70 , 80 , 'DateTime' , 'TP' ]
+      [ ingest_file , 70 , 80 , 'DateTime' , None , 'TP' ]
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ ingest_file , 2006 , 2011 , 'DateTime' , 'FN' ]
+      [ ingest_file , 2006 , 2011 , 'DateTime' , None , 'FN' ]
     assert_frame_equal( score_card[ 'exact' ] ,
                         expected_score_card[ 'exact' ] )
 
@@ -919,11 +919,11 @@ def test_evaluate_positions_nested_annotations_reference_first_match():
     ##
     expected_score_card = scoring_metrics.new_score_card()
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ ingest_file , 87 , 97 , 'DateTime' , 'TP' ]
+      [ ingest_file , 87 , 97 , 'DateTime' , None , 'TP' ]
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ ingest_file , 87 , 97 , 'Age' , 'FN' ]
+      [ ingest_file , 87 , 97 , 'Age' , None , 'FN' ]
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ ingest_file , 2404 , 2410 , 'DateTime' , 'TP' ]
+      [ ingest_file , 2404 , 2410 , 'DateTime' , None , 'TP' ]
     assert_frame_equal( score_card[ 'exact' ] ,
                         expected_score_card[ 'exact' ] )
 
@@ -951,11 +951,11 @@ def test_evaluate_positions_nested_annotations_reference_second_match():
     ##
     expected_score_card = scoring_metrics.new_score_card()
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ ingest_file , 87 , 97 , 'DateTime' , 'TP' ]
+      [ ingest_file , 87 , 97 , 'DateTime' , None , 'TP' ]
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ ingest_file , 87 , 97 , 'Age' , 'FN' ]
+      [ ingest_file , 87 , 97 , 'Age' , None , 'FN' ]
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ ingest_file , 2404 , 2410 , 'DateTime' , 'TP' ]
+      [ ingest_file , 2404 , 2410 , 'DateTime' , None , 'TP' ]
     assert_frame_equal( score_card[ 'exact' ] ,
                         expected_score_card[ 'exact' ] )
 
@@ -983,11 +983,11 @@ def test_evaluate_positions_nested_annotations_test():
     ##
     expected_score_card = scoring_metrics.new_score_card()
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ ingest_file , 87 , 97 , 'DateTime' , 'TP' ]
+      [ ingest_file , 87 , 97 , 'DateTime' , None , 'TP' ]
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ ingest_file , 2404 , 2410 , 'DateTime' , 'TP' ]
+      [ ingest_file , 2404 , 2410 , 'DateTime' , None , 'TP' ]
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ ingest_file , 87 , 97 , 'Age' , 'FP' ]
+      [ ingest_file , 87 , 97 , 'Age' , None , 'FP' ]
     assert_frame_equal( score_card[ 'exact' ] ,
                         expected_score_card[ 'exact' ] )
 
@@ -1016,11 +1016,11 @@ def test_evaluate_positions_nested_annotations_reference_and_test():
     ##
     expected_score_card = scoring_metrics.new_score_card()
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ ingest_file , 87 , 97 , 'DateTime' , 'TP' ]
+      [ ingest_file , 87 , 97 , 'DateTime' , None , 'TP' ]
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ ingest_file , 87 , 97 , 'Age' , 'TP' ]
+      [ ingest_file , 87 , 97 , 'Age' , None , 'TP' ]
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ ingest_file , 2404 , 2410 , 'DateTime' , 'TP' ]
+      [ ingest_file , 2404 , 2410 , 'DateTime' , None , 'TP' ]
     assert_frame_equal( score_card[ 'exact' ] ,
                         expected_score_card[ 'exact' ] )
 
@@ -1100,9 +1100,9 @@ def test_exact_match_overlap():
       scoring_metrics.new_score_card( fuzzy_flags = fuzzy_flags )
     ## exact match only
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ test_filename , 19 , 21 , 'Age' , 'TP' ]
+      [ test_filename , 19 , 21 , 'Age' , None , 'TP' ]
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ test_filename , 32 , 48 , 'DateTime' , 'TP' ]
+      [ test_filename , 32 , 48 , 'DateTime' , None , 'TP' ]
     ## fully-contained matches
     expected_score_card[ 'fully-contained' ] = expected_score_card[ 'exact' ]
     ## overlapping matches
@@ -1127,16 +1127,16 @@ def test_match_overlap_contained_on_both_sides():
       scoring_metrics.new_score_card( fuzzy_flags = fuzzy_flags )
     ## exact match only
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ test_filename , 19 , 21 , 'Age' , 'TP' ]
+      [ test_filename , 19 , 21 , 'Age' , None , 'TP' ]
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ test_filename , 32 , 48 , 'DateTime' , 'FN' ]
+      [ test_filename , 32 , 48 , 'DateTime' , None , 'FN' ]
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ test_filename , 30 , 'EOF' , 'DateTime' , 'FP' ]
+      [ test_filename , 30 , 'EOF' , 'DateTime' , None , 'FP' ]
     ## fully-contained matches
     expected_score_card[ 'fully-contained' ].loc[ expected_score_card[ 'fully-contained' ].shape[ 0 ] ] = \
-      [ test_filename , 19 , 21 , 'Age' , 'TP' ]
+      [ test_filename , 19 , 21 , 'Age' , None , 'TP' ]
     expected_score_card[ 'fully-contained' ].loc[ expected_score_card[ 'fully-contained' ].shape[ 0 ] ] = \
-      [ test_filename , 32 , 48 , 'DateTime' , 'TP' ]
+      [ test_filename , 32 , 48 , 'DateTime' , None , 'TP' ]
     ## overlapping matches
     expected_score_card[ 'partial' ] = expected_score_card[ 'fully-contained' ]
     ##
@@ -1159,16 +1159,16 @@ def test_match_overlap_contained_on_left():
       scoring_metrics.new_score_card( fuzzy_flags = fuzzy_flags )
     ## exact match only
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ test_filename , 19 , 21 , 'Age' , 'TP' ]
+      [ test_filename , 19 , 21 , 'Age' , None , 'TP' ]
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ test_filename , 32 , 48 , 'DateTime' , 'FN' ]
+      [ test_filename , 32 , 48 , 'DateTime' , None , 'FN' ]
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ test_filename , 30 , 48 , 'DateTime' , 'FP' ]
+      [ test_filename , 30 , 48 , 'DateTime' , None , 'FP' ]
     ## fully-contained matches
     expected_score_card[ 'fully-contained' ].loc[ expected_score_card[ 'fully-contained' ].shape[ 0 ] ] = \
-      [ test_filename , 19 , 21 , 'Age' , 'TP' ]
+      [ test_filename , 19 , 21 , 'Age' , None , 'TP' ]
     expected_score_card[ 'fully-contained' ].loc[ expected_score_card[ 'fully-contained' ].shape[ 0 ] ] = \
-      [ test_filename , 32 , 48 , 'DateTime' , 'TP' ]
+      [ test_filename , 32 , 48 , 'DateTime' , None , 'TP' ]
     ## overlapping matches
     expected_score_card[ 'partial' ] = expected_score_card[ 'fully-contained' ]
     ##
@@ -1191,16 +1191,16 @@ def test_match_overlap_contained_on_right():
       scoring_metrics.new_score_card( fuzzy_flags = fuzzy_flags )
     ## exact match only
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ test_filename , 19 , 21 , 'Age' , 'TP' ]
+      [ test_filename , 19 , 21 , 'Age' , None , 'TP' ]
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ test_filename , 32 , 48 , 'DateTime' , 'FN' ]
+      [ test_filename , 32 , 48 , 'DateTime' , None , 'FN' ]
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ test_filename , 32 , 'EOF' , 'DateTime' , 'FP' ]
+      [ test_filename , 32 , 'EOF' , 'DateTime' , None , 'FP' ]
     ## fully-contained matches
     expected_score_card[ 'fully-contained' ].loc[ expected_score_card[ 'fully-contained' ].shape[ 0 ] ] = \
-      [ test_filename , 19 , 21 , 'Age' , 'TP' ]
+      [ test_filename , 19 , 21 , 'Age' , None , 'TP' ]
     expected_score_card[ 'fully-contained' ].loc[ expected_score_card[ 'fully-contained' ].shape[ 0 ] ] = \
-      [ test_filename , 32 , 48 , 'DateTime' , 'TP' ]
+      [ test_filename , 32 , 48 , 'DateTime' , None , 'TP' ]
     ## overlapping matches
     expected_score_card[ 'partial' ] = expected_score_card[ 'fully-contained' ]
     ##
@@ -1223,18 +1223,18 @@ def test_match_overlap_partial_on_both_sides():
       scoring_metrics.new_score_card( fuzzy_flags = fuzzy_flags )
     ## exact match only
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ test_filename , 19 , 21 , 'Age' , 'TP' ]
+      [ test_filename , 19 , 21 , 'Age' , None , 'TP' ]
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ test_filename , 32 , 48 , 'DateTime' , 'FN' ]
+      [ test_filename , 32 , 48 , 'DateTime' , None , 'FN' ]
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ test_filename , 40 , 43 , 'DateTime' , 'FP' ]
+      [ test_filename , 40 , 43 , 'DateTime' , None , 'FP' ]
     ## fully-contained matches
     expected_score_card[ 'fully-contained' ] = expected_score_card[ 'exact' ]
     ## overlapping matches
     expected_score_card[ 'partial' ].loc[ expected_score_card[ 'partial' ].shape[ 0 ] ] = \
-      [ test_filename , 19 , 21 , 'Age' , 'TP' ]
+      [ test_filename , 19 , 21 , 'Age' , None , 'TP' ]
     expected_score_card[ 'partial' ].loc[ expected_score_card[ 'partial' ].shape[ 0 ] ] = \
-      [ test_filename , 32 , 48 , 'DateTime' , 'TP' ]
+      [ test_filename , 32 , 48 , 'DateTime' , None , 'TP' ]
     ##
     for fuzzy_flag in fuzzy_flags:
         assert_frame_equal( system_score_card[ fuzzy_flag ] ,
@@ -1255,18 +1255,18 @@ def test_match_overlap_partial_on_left():
       scoring_metrics.new_score_card( fuzzy_flags = fuzzy_flags )
     ## exact match only
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ test_filename , 19 , 21 , 'Age' , 'TP' ]
+      [ test_filename , 19 , 21 , 'Age' , None , 'TP' ]
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ test_filename , 32 , 48 , 'DateTime' , 'FN' ]
+      [ test_filename , 32 , 48 , 'DateTime' , None , 'FN' ]
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ test_filename , 40 , 48 , 'DateTime' , 'FP' ]
+      [ test_filename , 40 , 48 , 'DateTime' , None , 'FP' ]
     ## fully-contained matches
     expected_score_card[ 'fully-contained' ] = expected_score_card[ 'exact' ]
     ## overlapping matches
     expected_score_card[ 'partial' ].loc[ expected_score_card[ 'partial' ].shape[ 0 ] ] = \
-      [ test_filename , 19 , 21 , 'Age' , 'TP' ]
+      [ test_filename , 19 , 21 , 'Age' , None , 'TP' ]
     expected_score_card[ 'partial' ].loc[ expected_score_card[ 'partial' ].shape[ 0 ] ] = \
-      [ test_filename , 32 , 48 , 'DateTime' , 'TP' ]
+      [ test_filename , 32 , 48 , 'DateTime' , None , 'TP' ]
     ##
     for fuzzy_flag in fuzzy_flags:
         assert_frame_equal( system_score_card[ fuzzy_flag ] ,
@@ -1287,18 +1287,18 @@ def test_match_overlap_partial_on_right():
       scoring_metrics.new_score_card( fuzzy_flags = fuzzy_flags )
     ## exact match only
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ test_filename , 19 , 21 , 'Age' , 'TP' ]
+      [ test_filename , 19 , 21 , 'Age' , None , 'TP' ]
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ test_filename , 32 , 48 , 'DateTime' , 'FN' ]
+      [ test_filename , 32 , 48 , 'DateTime' , None , 'FN' ]
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ test_filename , 32 , 43 , 'DateTime' , 'FP' ]
+      [ test_filename , 32 , 43 , 'DateTime' , None , 'FP' ]
     ## fully-contained matches
     expected_score_card[ 'fully-contained' ] = expected_score_card[ 'exact' ]
     ## overlapping matches
     expected_score_card[ 'partial' ].loc[ expected_score_card[ 'partial' ].shape[ 0 ] ] = \
-      [ test_filename , 19 , 21 , 'Age' , 'TP' ]
+      [ test_filename , 19 , 21 , 'Age' , None , 'TP' ]
     expected_score_card[ 'partial' ].loc[ expected_score_card[ 'partial' ].shape[ 0 ] ] = \
-      [ test_filename , 32 , 48 , 'DateTime' , 'TP' ]
+      [ test_filename , 32 , 48 , 'DateTime' , None , 'TP' ]
     ##
     for fuzzy_flag in fuzzy_flags:
         assert_frame_equal( system_score_card[ fuzzy_flag ] ,
@@ -1319,18 +1319,18 @@ def test_match_overlap_partial_on_left_contained_on_right():
       scoring_metrics.new_score_card( fuzzy_flags = fuzzy_flags )
     ## exact match only
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ test_filename , 19 , 21 , 'Age' , 'TP' ]
+      [ test_filename , 19 , 21 , 'Age' , None , 'TP' ]
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ test_filename , 32 , 48 , 'DateTime' , 'FN' ]
+      [ test_filename , 32 , 48 , 'DateTime' , None , 'FN' ]
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ test_filename , 40 , 'EOF' , 'DateTime' , 'FP' ]
+      [ test_filename , 40 , 'EOF' , 'DateTime' , None , 'FP' ]
     ## fully-contained matches
     expected_score_card[ 'fully-contained' ] = expected_score_card[ 'exact' ]
     ## overlapping matches
     expected_score_card[ 'partial' ].loc[ expected_score_card[ 'partial' ].shape[ 0 ] ] = \
-      [ test_filename , 19 , 21 , 'Age' , 'TP' ]
+      [ test_filename , 19 , 21 , 'Age' , None , 'TP' ]
     expected_score_card[ 'partial' ].loc[ expected_score_card[ 'partial' ].shape[ 0 ] ] = \
-      [ test_filename , 32 , 48 , 'DateTime' , 'TP' ]
+      [ test_filename , 32 , 48 , 'DateTime' , None , 'TP' ]
     ##
     for fuzzy_flag in fuzzy_flags:
         assert_frame_equal( system_score_card[ fuzzy_flag ] ,
@@ -1351,18 +1351,18 @@ def test_match_overlap_partial_on_right_contained_on_left():
       scoring_metrics.new_score_card( fuzzy_flags = fuzzy_flags )
     ## exact match only
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ test_filename , 19 , 21 , 'Age' , 'TP' ]
+      [ test_filename , 19 , 21 , 'Age' , None , 'TP' ]
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ test_filename , 32 , 48 , 'DateTime' , 'FN' ]
+      [ test_filename , 32 , 48 , 'DateTime' , None , 'FN' ]
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ test_filename , 30 , 43 , 'DateTime' , 'FP' ]
+      [ test_filename , 30 , 43 , 'DateTime' , None , 'FP' ]
     ## fully-contained matches
     expected_score_card[ 'fully-contained' ] = expected_score_card[ 'exact' ]
     ## overlapping matches
     expected_score_card[ 'partial' ].loc[ expected_score_card[ 'partial' ].shape[ 0 ] ] = \
-      [ test_filename , 19 , 21 , 'Age' , 'TP' ]
+      [ test_filename , 19 , 21 , 'Age' , None , 'TP' ]
     expected_score_card[ 'partial' ].loc[ expected_score_card[ 'partial' ].shape[ 0 ] ] = \
-      [ test_filename , 32 , 48 , 'DateTime' , 'TP' ]
+      [ test_filename , 32 , 48 , 'DateTime' , None , 'TP' ]
     ##
     for fuzzy_flag in fuzzy_flags:
         assert_frame_equal( system_score_card[ fuzzy_flag ] ,
@@ -1383,11 +1383,11 @@ def test_match_overlap_partial_leftside_outlier():
       scoring_metrics.new_score_card( fuzzy_flags = fuzzy_flags )
     ## exact match only
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ test_filename , 19 , 21 , 'Age' , 'TP' ]
+      [ test_filename , 19 , 21 , 'Age' , None , 'TP' ]
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ test_filename , 32 , 48 , 'DateTime' , 'FN' ]
+      [ test_filename , 32 , 48 , 'DateTime' , None , 'FN' ]
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ test_filename , 30 , 31 , 'DateTime' , 'FP' ]
+      [ test_filename , 30 , 31 , 'DateTime' , None , 'FP' ]
     ## fully-contained matches
     expected_score_card[ 'fully-contained' ] = expected_score_card[ 'exact' ]
     ## overlapping matches
@@ -1411,11 +1411,11 @@ def test_match_overlap_partial_rightside_outlier():
       scoring_metrics.new_score_card( fuzzy_flags = fuzzy_flags )
     ## exact match only
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ test_filename , 19 , 21 , 'Age' , 'FN' ]
+      [ test_filename , 19 , 21 , 'Age' , None , 'FN' ]
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ test_filename , 32 , 48 , 'DateTime' , 'TP' ]
+      [ test_filename , 32 , 48 , 'DateTime' , None , 'TP' ]
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ test_filename , 23 , 26 , 'Age' , 'FP' ]
+      [ test_filename , 23 , 26 , 'Age' , None , 'FP' ]
     ## fully-contained matches
     expected_score_card[ 'fully-contained' ] = expected_score_card[ 'exact' ]
     ## overlapping matches
@@ -1439,13 +1439,13 @@ def test_match_overlap_type_mismatch():
       scoring_metrics.new_score_card( fuzzy_flags = fuzzy_flags )
     ## exact match only
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ test_filename , 19 , 21 , 'Age' , 'FN' ]
+      [ test_filename , 19 , 21 , 'Age' , None , 'FN' ]
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ test_filename , 19 , 21 , 'DateTime' , 'FP' ]
+      [ test_filename , 19 , 21 , 'DateTime' , None , 'FP' ]
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ test_filename , 32 , 48 , 'DateTime' , 'FN' ]
+      [ test_filename , 32 , 48 , 'DateTime' , None , 'FN' ]
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ test_filename , 32 , 48 , 'Age' , 'FP' ]
+      [ test_filename , 32 , 48 , 'Age' , None , 'FP' ]
     ## fully-contained matches
     expected_score_card[ 'fully-contained' ] = expected_score_card[ 'exact' ]
     ## overlapping matches
@@ -1470,13 +1470,13 @@ def test_match_overlap_type_mismatch_contained_on_left():
       scoring_metrics.new_score_card( fuzzy_flags = fuzzy_flags )
     ## exact match only
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ test_filename , 19 , 21 , 'Age' , 'FN' ]
+      [ test_filename , 19 , 21 , 'Age' , None , 'FN' ]
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ test_filename , 19 , 21 , 'DateTime' , 'FP' ]
+      [ test_filename , 19 , 21 , 'DateTime' , None , 'FP' ]
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ test_filename , 32 , 48 , 'DateTime' , 'FN' ]
+      [ test_filename , 32 , 48 , 'DateTime' , None , 'FN' ]
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ test_filename , 30 , 48 , 'Age' , 'FP' ]
+      [ test_filename , 30 , 48 , 'Age' , None , 'FP' ]
     ## fully-contained matches
     expected_score_card[ 'fully-contained' ] = expected_score_card[ 'exact' ]
     ## overlapping matches
@@ -1501,13 +1501,13 @@ def test_match_overlap_type_mismatch_contained_on_right():
       scoring_metrics.new_score_card( fuzzy_flags = fuzzy_flags )
     ## exact match only
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ test_filename , 19 , 21 , 'Age' , 'FN' ]
+      [ test_filename , 19 , 21 , 'Age' , None , 'FN' ]
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ test_filename , 19 , 21 , 'DateTime' , 'FP' ]
+      [ test_filename , 19 , 21 , 'DateTime' , None , 'FP' ]
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ test_filename , 32 , 48 , 'DateTime' , 'FN' ]
+      [ test_filename , 32 , 48 , 'DateTime' , None , 'FN' ]
     expected_score_card[ 'exact' ].loc[ expected_score_card[ 'exact' ].shape[ 0 ] ] = \
-      [ test_filename , 32 , 'EOF' , 'Age' , 'FP' ]
+      [ test_filename , 32 , 'EOF' , 'Age' , None , 'FP' ]
     ## fully-contained matches
     expected_score_card[ 'fully-contained' ] = expected_score_card[ 'exact' ]
     ## overlapping matches

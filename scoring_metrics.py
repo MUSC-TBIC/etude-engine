@@ -13,7 +13,7 @@ def new_score_card( fuzzy_flags = [ 'exact' ] ):
     for fuzzy_flag in fuzzy_flags:
         score_card[ fuzzy_flag ] = pd.DataFrame( columns = [ 'File' ,
                                                              'Start' , 'End' ,
-                                                             'Type' , 'Score' ] )
+                                                             'Type' , 'Pivot' , 'Score' ] )
     return score_card
 
 def get_annotation_from_base_entry( annotation_entry ,
@@ -95,11 +95,11 @@ def update_confusion_matrix( confusion_matrix , fuzzy_flag ,
 
 
 def update_score_card( condition , score_card , fuzzy_flag ,
-                       filename , start_pos , end_pos , type ,
+                       filename , start_pos , end_pos , type , pivot_value = None ,
                        ref_annot = None , test_annot = None ):
     score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
       [ filename , start_pos , end_pos ,
-        type , condition ]
+        type , pivot_value , condition ]
 
 
 def exact_comparison_runner( reference_filename , confusion_matrix , score_card , 
@@ -145,14 +145,20 @@ def exact_comparison_runner( reference_filename , confusion_matrix , score_card 
                 ##     perfect match
                 update_score_card( 'TP' , score_card , fuzzy_flag ,
                                    reference_filename , reference_start , reference_end ,
-                                   reference_type , reference_annot , test_annot )
+                                   reference_type ,
+                                   ref_annot = reference_annot ,
+                                   test_annot = test_annot )
             else:
                 update_score_card( 'FN' , score_card , fuzzy_flag ,
                                    reference_filename , reference_start , reference_end ,
-                                   reference_type , reference_annot , test_annot )
+                                   reference_type , 
+                                   ref_annot = reference_annot ,
+                                   test_annot = test_annot )
                 update_score_card( 'FP' , score_card , fuzzy_flag ,
                                    reference_filename , test_start , test_end ,
-                                   test_type , reference_annot , test_annot )
+                                   test_type , 
+                                   ref_annot = reference_annot ,
+                                   test_annot = test_annot )
         else:
             test_leftovers.append( test_annot )
     #########
@@ -203,14 +209,20 @@ def fully_contained_comparison_runner( reference_filename , confusion_matrix , s
             if( reference_type == test_type ):
                 update_score_card( 'TP' , score_card , fuzzy_flag ,
                                    reference_filename , reference_start , reference_end ,
-                                   reference_type , reference_annot , test_annot )
+                                   reference_type , 
+                                   ref_annot = reference_annot ,
+                                   test_annot = test_annot )
             else:
                 update_score_card( 'FN' , score_card , fuzzy_flag ,
                                    reference_filename , reference_start , reference_end ,
-                                   reference_type , reference_annot , test_annot )
+                                   reference_type , 
+                                   ref_annot = reference_annot ,
+                                   test_annot = test_annot )
                 update_score_card( 'FP' , score_card , fuzzy_flag ,
                                    reference_filename , test_start , test_end ,
-                                   test_type , reference_annot , test_annot )
+                                   test_type , 
+                                   ref_annot = reference_annot ,
+                                   test_annot = test_annot )
         else:
             test_leftovers.append( test_annot )
     #########
@@ -265,14 +277,20 @@ def partial_comparison_runner( reference_filename , confusion_matrix , score_car
             if( reference_type == test_type ):
                 update_score_card( 'TP' , score_card , fuzzy_flag ,
                                    reference_filename , reference_start , reference_end ,
-                                   reference_type , reference_annot , test_annot )
+                                   reference_type , 
+                                   ref_annot = reference_annot ,
+                                   test_annot = test_annot )
             else:
                 update_score_card( 'FN' , score_card , fuzzy_flag ,
                                    reference_filename , reference_start , reference_end ,
-                                   reference_type , reference_annot , test_annot )
+                                   reference_type , 
+                                   ref_annot = reference_annot ,
+                                   test_annot = test_annot )
                 update_score_card( 'FP' , score_card , fuzzy_flag ,
                                    reference_filename , test_start , test_end ,
-                                   test_type , reference_annot , test_annot )
+                                   test_type , 
+                                   ref_annot = reference_annot ,
+                                   test_annot = test_annot )
         else:
             test_leftovers.append( test_annot )
     #########
@@ -315,6 +333,55 @@ def reference_annot_comparison_runner( reference_filename , confusion_matrix , s
                                                                     fuzzy_flag )
     return( reference_matched , test_leftovers )
 
+def document_level_annot_comparison_runner( reference_filename , confusion_matrix , score_card , 
+                                            reference_annot , 
+                                            test_entries ,
+                                            fuzzy_flag ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
+    ##
+    reference_type = reference_annot[ 'type' ]
+    reference_pivot_value = reference_annot[ 'pivot_value' ]
+    if( reference_type == None ):
+        ## If we couldn't extract a type, consider this
+        ## an invalid annotations    
+        return( False , test_entries )
+    ## Loop through all the test annotations
+    ## that haven't been matched yet
+    test_leftovers = []
+    matched_flag = False
+    for test_annot in test_entries:
+        ## TODO - nesting comparisons, multiple overlaps
+        if( matched_flag ):
+            test_leftovers.append( test_annot )
+            continue
+        ##
+        test_type = test_annot[ 'type' ]
+        test_pivot_value = test_annot[ 'pivot_value' ]
+        if( test_type == None ):
+            ## If we couldn't extract a type, consider this
+            ## an invalid annotation
+            continue
+        if( reference_type == test_type ):
+            matched_flag = True
+            this_type = '{} = "{}"'.format( reference_type , reference_pivot_value )
+            that_type = '{} = "{}"'.format( test_type , test_pivot_value )
+            update_confusion_matrix( confusion_matrix , fuzzy_flag , this_type , that_type )
+            ## If the pivot_values match...
+            if( reference_pivot_value == test_pivot_value ):
+                update_score_card( 'TP' , score_card , fuzzy_flag ,
+                                   reference_filename , -1 , -1 ,
+                                   this_type , pivot_value = reference_pivot_value )
+            else:
+                update_score_card( 'FN' , score_card , fuzzy_flag ,
+                                   reference_filename , -1 , -1 ,
+                                   this_type , pivot_value = reference_pivot_value )
+                update_score_card( 'FP' , score_card , fuzzy_flag ,
+                                   reference_filename , -1 , -1 ,
+                                   that_type , pivot_value = test_pivot_value )
+        else:
+            test_leftovers.append( test_annot )
+    return( matched_flag , test_leftovers )
+
 
 def evaluate_positions( reference_filename ,
                         confusion_matrix ,
@@ -339,7 +406,20 @@ def evaluate_positions( reference_filename ,
     ## as the full list of test_entries
     test_leftovers = test_entries
     ##
+    reference_entries_doc_level = []
+    test_entries_doc_level = []
+    ##
     for reference_annot in reference_entries:
+        ## grab type and end position
+        reference_type , reference_start , reference_end = \
+              get_annotation_from_base_entry( reference_annot ,
+                                              start_key ,
+                                              end_key )
+        if( reference_start == -1 ):
+            ## A start_key of -1 means that this an a document level
+            ## annotation and should be scored elsewhere
+            reference_entries_doc_level.append( reference_annot )
+            continue
         reference_matched , test_leftovers = \
           reference_annot_comparison_runner( reference_filename , confusion_matrix , score_card ,
                                              reference_annot ,
@@ -348,16 +428,13 @@ def evaluate_positions( reference_filename ,
                                              fuzzy_flag )
         test_entries = test_leftovers
         if( not reference_matched ):
-            ## grab type and end position
-            reference_type , reference_start , reference_end = \
-              get_annotation_from_base_entry( reference_annot ,
-                                              start_key ,
-                                              end_key )
             if( reference_type != None ):
                 update_confusion_matrix( confusion_matrix , fuzzy_flag , reference_type , '*FN*' )
                 update_score_card( 'FN' , score_card , fuzzy_flag ,
                                    reference_filename , reference_start , reference_end ,
-                                   reference_type , reference_annot , None )
+                                   reference_type , 
+                                   ref_annot = reference_annot ,
+                                   test_annot = None )
     ## any remaining entries in the reference set are FNs
     for test_annot in test_leftovers:
         ## grab type and end position
@@ -367,10 +444,53 @@ def evaluate_positions( reference_filename ,
                                           end_key )
         if( test_type == None ):
             continue
+        if( test_start == -1 ):
+            ## A start_key of -1 means that this an a document level
+            ## annotation and should be scored elsewhere
+            test_entries_doc_level.append( test_annot )
+            continue
         update_confusion_matrix( confusion_matrix , fuzzy_flag , '*FP*' , test_type )
         update_score_card( 'FP' , score_card , fuzzy_flag ,
                            reference_filename , test_start , test_end ,
                            test_type , None , test_annot )
+    ##
+    ## When there are document level annotations, we loop over the entries
+    ## again to score them using a different algorithm
+    test_entries = test_entries_doc_level
+    test_leftovers = test_entries
+    for reference_annot in reference_entries_doc_level:
+        reference_matched , test_leftovers = \
+          document_level_annot_comparison_runner( reference_filename , confusion_matrix , score_card ,
+                                                  reference_annot ,
+                                                  test_entries ,
+                                                  fuzzy_flag )
+        test_entries = test_leftovers
+        if( not reference_matched ):
+            ## grab type and end position
+            reference_type = reference_annot[ 'type' ]
+            reference_pivot = reference_annot[ 'pivot_value' ]
+            this_type = '{} = "{}"'.format( reference_type , reference_pivot )
+            if( reference_type != None ):
+                update_confusion_matrix( confusion_matrix , fuzzy_flag , reference_type , '*FN*' )
+                update_score_card( 'FN' , score_card , fuzzy_flag ,
+                                   reference_filename , reference_start , reference_end ,
+                                   reference_type ,
+                                   pivot_value = reference_pivot ,
+                                   ref_annot = reference_annot ,
+                                   test_annot = None )
+    ## any remaining entries in the reference set are FNs
+    for test_annot in test_leftovers:
+        ##
+        test_type = test_annot[ 'type' ]
+        test_pivot = test_annot[ 'pivot_value' ]
+        if( test_type == None ):
+            continue
+        that_type = '{} = "{}"'.format( test_type , test_pivot )        
+        update_confusion_matrix( confusion_matrix , fuzzy_flag , '*FP*' , that_type )
+        update_score_card( 'FP' , score_card , fuzzy_flag ,
+                           reference_filename , -1 , -1 ,
+                           that_type , pivot_value = test_pivot ,
+                           ref_annot = None , test_annot = test_annot )
     ##
     log.debug( "Leaving '{}'".format( sys._getframe().f_code.co_name ) )
 
@@ -646,7 +766,13 @@ def print_counts_summary( score_card , file_list ,
     type_aggregate_metrics = None
     non_empty_types = 0
     for pattern in config_patterns:
-        unique_types.add( pattern[ 'type' ] )
+        if( 'pivot_attr' in pattern.keys() ):
+            ## TODO - pull this fron the config file
+            for pivot_value in [ 'met' , 'not met' ]: ##pattern[ 'pivot_values' ]:
+                this_type = '{} = "{}"'.format( pattern[ 'type' ] , pivot_value )
+                unique_types.add( this_type )
+        else:
+            unique_types.add( pattern[ 'type' ] )
     for unique_type in sorted( unique_types ):
         this_type = ( score_card[ 'counts' ][ 'Type' ] == unique_type )
         type_value_counts = score_card[ 'counts' ][ this_type ][ 'Score' ].value_counts()
@@ -937,7 +1063,13 @@ def print_score_summary( score_card , file_mapping ,
         type_aggregate_metrics.append( 0 )
         non_empty_metrics.append( 0 )
     for pattern in reference_config:
-        unique_types.add( pattern[ 'type' ] )
+        if( 'pivot_attr' in pattern.keys() ):
+            ## TODO - pull this fron the config file
+            for pivot_value in [ 'met' , 'not met' ]: ##pattern[ 'pivot_values' ]:
+                this_type = '{} = "{}"'.format( pattern[ 'type' ] , pivot_value )
+                unique_types.add( this_type )
+        else:
+            unique_types.add( pattern[ 'type' ] )
     for unique_type in sorted( unique_types ):
         this_type = ( score_card[ fuzzy_flag ][ 'Type' ] == unique_type )
         type_value_counts = score_card[ fuzzy_flag ][ this_type ][ 'Score' ].value_counts()
