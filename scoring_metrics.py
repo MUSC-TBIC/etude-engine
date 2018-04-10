@@ -333,6 +333,55 @@ def reference_annot_comparison_runner( reference_filename , confusion_matrix , s
                                                                     fuzzy_flag )
     return( reference_matched , test_leftovers )
 
+def document_level_annot_comparison_runner( reference_filename , confusion_matrix , score_card , 
+                                            reference_annot , 
+                                            test_entries ,
+                                            fuzzy_flag ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
+    ##
+    reference_type = reference_annot[ 'type' ]
+    reference_pivot_value = reference_annot[ 'pivot_value' ]
+    if( reference_type == None ):
+        ## If we couldn't extract a type, consider this
+        ## an invalid annotations    
+        return( False , test_entries )
+    ## Loop through all the test annotations
+    ## that haven't been matched yet
+    test_leftovers = []
+    matched_flag = False
+    for test_annot in test_entries:
+        ## TODO - nesting comparisons, multiple overlaps
+        if( matched_flag ):
+            test_leftovers.append( test_annot )
+            continue
+        ##
+        test_type = test_annot[ 'type' ]
+        test_pivot_value = test_annot[ 'pivot_value' ]
+        if( test_type == None ):
+            ## If we couldn't extract a type, consider this
+            ## an invalid annotation
+            continue
+        if( reference_type == test_type ):
+            matched_flag = True
+            this_type = '{} = "{}"'.format( reference_type , reference_pivot_value )
+            that_type = '{} = "{}"'.format( test_type , test_pivot_value )
+            update_confusion_matrix( confusion_matrix , fuzzy_flag , this_type , that_type )
+            ## If the pivot_values match...
+            if( reference_pivot_value == test_pivot_value ):
+                update_score_card( 'TP' , score_card , fuzzy_flag ,
+                                   reference_filename , -1 , -1 ,
+                                   this_type , pivot_value = reference_pivot_value )
+            else:
+                update_score_card( 'FN' , score_card , fuzzy_flag ,
+                                   reference_filename , -1 , -1 ,
+                                   this_type , pivot_value = reference_pivot_value )
+                update_score_card( 'FP' , score_card , fuzzy_flag ,
+                                   reference_filename , -1 , -1 ,
+                                   that_type , pivot_value = test_pivot_value )
+        else:
+            test_leftovers.append( test_annot )
+    return( matched_flag , test_leftovers )
+
 
 def evaluate_positions( reference_filename ,
                         confusion_matrix ,
@@ -357,7 +406,20 @@ def evaluate_positions( reference_filename ,
     ## as the full list of test_entries
     test_leftovers = test_entries
     ##
+    reference_entries_doc_level = []
+    test_entries_doc_level = []
+    ##
     for reference_annot in reference_entries:
+        ## grab type and end position
+        reference_type , reference_start , reference_end = \
+              get_annotation_from_base_entry( reference_annot ,
+                                              start_key ,
+                                              end_key )
+        if( reference_start == -1 ):
+            ## A start_key of -1 means that this an a document level
+            ## annotation and should be scored elsewhere
+            reference_entries_doc_level.append( reference_annot )
+            continue
         reference_matched , test_leftovers = \
           reference_annot_comparison_runner( reference_filename , confusion_matrix , score_card ,
                                              reference_annot ,
@@ -366,11 +428,6 @@ def evaluate_positions( reference_filename ,
                                              fuzzy_flag )
         test_entries = test_leftovers
         if( not reference_matched ):
-            ## grab type and end position
-            reference_type , reference_start , reference_end = \
-              get_annotation_from_base_entry( reference_annot ,
-                                              start_key ,
-                                              end_key )
             if( reference_type != None ):
                 update_confusion_matrix( confusion_matrix , fuzzy_flag , reference_type , '*FN*' )
                 update_score_card( 'FN' , score_card , fuzzy_flag ,
@@ -387,10 +444,53 @@ def evaluate_positions( reference_filename ,
                                           end_key )
         if( test_type == None ):
             continue
+        if( test_start == -1 ):
+            ## A start_key of -1 means that this an a document level
+            ## annotation and should be scored elsewhere
+            test_entries_doc_level.append( test_annot )
+            continue
         update_confusion_matrix( confusion_matrix , fuzzy_flag , '*FP*' , test_type )
         update_score_card( 'FP' , score_card , fuzzy_flag ,
                            reference_filename , test_start , test_end ,
                            test_type , None , test_annot )
+    ##
+    ## When there are document level annotations, we loop over the entries
+    ## again to score them using a different algorithm
+    test_entries = test_entries_doc_level
+    test_leftovers = test_entries
+    for reference_annot in reference_entries_doc_level:
+        reference_matched , test_leftovers = \
+          document_level_annot_comparison_runner( reference_filename , confusion_matrix , score_card ,
+                                                  reference_annot ,
+                                                  test_entries ,
+                                                  fuzzy_flag )
+        test_entries = test_leftovers
+        if( not reference_matched ):
+            ## grab type and end position
+            reference_type = reference_annot[ 'type' ]
+            reference_pivot = reference_annot[ 'pivot_value' ]
+            this_type = '{} = "{}"'.format( reference_type , reference_pivot )
+            if( reference_type != None ):
+                update_confusion_matrix( confusion_matrix , fuzzy_flag , reference_type , '*FN*' )
+                update_score_card( 'FN' , score_card , fuzzy_flag ,
+                                   reference_filename , reference_start , reference_end ,
+                                   reference_type ,
+                                   pivot_value = reference_pivot ,
+                                   ref_annot = reference_annot ,
+                                   test_annot = None )
+    ## any remaining entries in the reference set are FNs
+    for test_annot in test_leftovers:
+        ##
+        test_type = test_annot[ 'type' ]
+        test_pivot = test_annot[ 'pivot_value' ]
+        if( test_type == None ):
+            continue
+        that_type = '{} = "{}"'.format( test_type , test_pivot )        
+        update_confusion_matrix( confusion_matrix , fuzzy_flag , '*FP*' , that_type )
+        update_score_card( 'FP' , score_card , fuzzy_flag ,
+                           reference_filename , -1 , -1 ,
+                           that_type , pivot_value = test_pivot ,
+                           ref_annot = None , test_annot = test_annot )
     ##
     log.debug( "Leaving '{}'".format( sys._getframe().f_code.co_name ) )
 

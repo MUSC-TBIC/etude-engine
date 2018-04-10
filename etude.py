@@ -74,7 +74,8 @@ def count_ref_set( this_ns , this_dd , this_patterns ,
                 ##
                 ##print( '{}\n'.format( this_type ) )
                 scoring_metrics.update_score_card( 'Tally' , type_counts , 'counts' ,
-                                                   this_filename , this_start , this_end , this_type , sub_type )
+                                                   this_filename , this_start , this_end ,
+                                                   this_type , pivot_value = sub_type )
 
     ##
     if( args.csv_out and
@@ -405,7 +406,9 @@ def score_ref_set( reference_ns , reference_dd , reference_patterns , reference_
                                                     use_mapped_chars = \
                                                       ignore_chars )
         except UnboundLocalError , e:
-            log.error( 'UnboundLocalError exception in extract_annotations:  {}'.format( e ) )
+            log.error( 'UnboundLocalError exception in evaluate_positions:  {}'.format( e ) )
+        except NameError , e:
+            log.error( 'NameError exception in evaluate_positions:  {}'.format( e ) )
         except:
             e = sys.exc_info()[0]
             log.error( 'Uncaught exception in evaluate_positions:  {}'.format( e ) )
