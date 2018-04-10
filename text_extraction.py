@@ -155,7 +155,14 @@ def extract_annotations_xml_spanless( ingest_file ,
             new_entry[ optional_attr ] = annot.get( optional_attr )
         ##
         if( -1 in strict_starts.keys() ):
-            strict_starts[ -1 ].append( new_entry )
+            for old_entry in strict_starts[ -1 ]:
+                ## TODO - current logic allows multiple instances of the same type
+                ## if they differ on their pivot_value.  This is good for topic
+                ## tagging or similar annotations but is bad for most instances
+                ## of publication date or author tagging.
+                if( new_entry[ 'pivot_value' ] != old_entry[ 'pivot_value' ] ):
+                    strict_starts[ -1 ].append( new_entry )
+                    break
         else:
             strict_starts[ -1 ] = [ new_entry ]
     ## 
@@ -527,14 +534,19 @@ def extract_annotations( ingest_file ,
         else:
             print( 'WARNING:  Skipping pattern because it is missing essential elements:\n\n{}'.format( pattern ) )
         ##
-        ##annotations.update( new_annots )
         if( new_annots != None ):
             for new_annot_key in new_annots.keys():
                 if( new_annot_key in annotations.keys() ):
+                    ## TODO - If multiple patterns are associated with the same type
+                    ##        and we're evaluating annotations at the document level
+                    ##        (or otherwise want at most one instance of an annotation
+                    ##        type at a given position), then we need to de-dup some
+                    ##        of the annotation entries before combining them here.
                     combined_annots = annotations[ new_annot_key ] + new_annots[ new_annot_key ] 
                     annotations.update( { new_annot_key : combined_annots } )
                 else:
                     annotations.update( { new_annot_key : new_annots[ new_annot_key ] } )
+    ##
     file_dictionary = dict( raw_content = raw_content ,
                             offset_mapping = offset_mapping ,
                             annotations = annotations )
