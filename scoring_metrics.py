@@ -678,6 +678,20 @@ def output_metrics( class_data ,
     log.debug( "Leaving '{}'".format( sys._getframe().f_code.co_name ) )
 
 
+def get_unique_types( config ):
+    unique_types = Set()
+    for pattern in config:
+        if( 'pivot_attr' in pattern.keys() ):
+            ## TODO - pull this fron the config file
+            for pivot_value in [ 'met' , 'not met' ]: ##pattern[ 'pivot_values' ]:
+                this_type = '{} = "{}"'.format( pattern[ 'type' ] , pivot_value )
+                unique_types.add( this_type )
+        else:
+            unique_types.add( pattern[ 'type' ] )
+    ##
+    return( unique_types )
+
+
 def print_counts_summary( score_card , file_list ,
                           config_patterns , 
                           args ,
@@ -742,9 +756,7 @@ def print_counts_summary( score_card , file_list ,
                             args.delim_prefix , args.delim ,
                             args.print_counts , args.csv_out )
         ##
-        unique_types = Set()
-        for pattern in config_patterns:
-            unique_types.add( pattern[ 'type' ] )
+        unique_types = get_unique_types( config_patterns )
         for unique_type in sorted( unique_types ):
             this_type = \
               (  ( score_card[ 'counts' ][ 'File' ] == filename ) &
@@ -762,17 +774,9 @@ def print_counts_summary( score_card , file_list ,
                                 args.delim_prefix , args.delim ,
                                 args.print_counts , args.csv_out )
     ##
-    unique_types = Set()
+    unique_types = get_unique_types( config_patterns )
     type_aggregate_metrics = None
     non_empty_types = 0
-    for pattern in config_patterns:
-        if( 'pivot_attr' in pattern.keys() ):
-            ## TODO - pull this fron the config file
-            for pivot_value in [ 'met' , 'not met' ]: ##pattern[ 'pivot_values' ]:
-                this_type = '{} = "{}"'.format( pattern[ 'type' ] , pivot_value )
-                unique_types.add( this_type )
-        else:
-            unique_types.add( pattern[ 'type' ] )
     for unique_type in sorted( unique_types ):
         this_type = ( score_card[ 'counts' ][ 'Type' ] == unique_type )
         type_value_counts = score_card[ 'counts' ][ this_type ][ 'Score' ].value_counts()
@@ -995,9 +999,7 @@ def print_score_summary( score_card , file_mapping ,
                                       args.metrics_list ,
                                       metrics )
         ##
-        unique_types = Set()
-        for pattern in reference_config:
-            unique_types.add( pattern[ 'type' ] )
+        unique_types = get_unique_types( reference_config )
         for unique_type in sorted( unique_types ):
             this_type = \
               (  ( score_card[ fuzzy_flag ][ 'File' ] == filename ) &
@@ -1056,20 +1058,12 @@ def print_score_summary( score_card , file_mapping ,
                                   args.metrics_list ,
                                   macro_averaged_metrics[ 1: ] )
     ##
-    unique_types = Set()
+    unique_types = get_unique_types( reference_config )
     type_aggregate_metrics = []
     non_empty_metrics = []
     for i in range( len( args.metrics_list ) ):
         type_aggregate_metrics.append( 0 )
         non_empty_metrics.append( 0 )
-    for pattern in reference_config:
-        if( 'pivot_attr' in pattern.keys() ):
-            ## TODO - pull this fron the config file
-            for pivot_value in [ 'met' , 'not met' ]: ##pattern[ 'pivot_values' ]:
-                this_type = '{} = "{}"'.format( pattern[ 'type' ] , pivot_value )
-                unique_types.add( this_type )
-        else:
-            unique_types.add( pattern[ 'type' ] )
     for unique_type in sorted( unique_types ):
         this_type = ( score_card[ fuzzy_flag ][ 'Type' ] == unique_type )
         type_value_counts = score_card[ fuzzy_flag ][ this_type ][ 'Score' ].value_counts()
