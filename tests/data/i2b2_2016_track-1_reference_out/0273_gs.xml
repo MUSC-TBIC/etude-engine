@@ -15468,17 +15468,17 @@
                 "TP": 0.0
             }, 
             "by-type": {
+                "OtherGeo": {
+                    "FP": 0.0, 
+                    "TN": 0.0, 
+                    "TP": 0.0, 
+                    "FN": 2.0
+                }, 
                 "OtherID": {
                     "FP": 0.0, 
                     "TN": 0.0, 
                     "FN": 0.0, 
                     "TP": 0.0
-                }, 
-                "OtherLoc": {
-                    "FP": 0.0, 
-                    "TN": 0.0, 
-                    "TP": 0.0, 
-                    "FN": 2.0
                 }, 
                 "Zip": {
                     "FP": 0.0, 
@@ -15556,17 +15556,17 @@
         }, 
         "fully-contained": {
             "by-type": {
+                "OtherGeo": {
+                    "FP": 0.0, 
+                    "TN": 0.0, 
+                    "FN": 2.0, 
+                    "TP": 0.0
+                }, 
                 "OtherID": {
                     "FP": 0.0, 
                     "TN": 0.0, 
                     "TP": 0.0, 
                     "FN": 0.0
-                }, 
-                "OtherLoc": {
-                    "FP": 0.0, 
-                    "TN": 0.0, 
-                    "FN": 2.0, 
-                    "TP": 0.0
                 }, 
                 "Zip": {
                     "FP": 0.0, 
@@ -15656,17 +15656,17 @@
                 "TP": 0.0
             }, 
             "by-type": {
+                "OtherGeo": {
+                    "FP": 0.0, 
+                    "TN": 0.0, 
+                    "TP": 0.0, 
+                    "FN": 2.0
+                }, 
                 "OtherID": {
                     "FP": 0.0, 
                     "TN": 0.0, 
                     "FN": 0.0, 
                     "TP": 0.0
-                }, 
-                "OtherLoc": {
-                    "FP": 0.0, 
-                    "TN": 0.0, 
-                    "TP": 0.0, 
-                    "FN": 2.0
                 }, 
                 "Zip": {
                     "FP": 0.0, 
@@ -15816,7 +15816,7 @@
         ], 
         "2821": [
             {
-                "type": "OtherLoc", 
+                "type": "OtherGeo", 
                 "end_pos_mapped": "2331", 
                 "begin_pos_mapped": "2320", 
                 "begin_pos": "2821", 
@@ -15886,7 +15886,7 @@
         ], 
         "2108": [
             {
-                "type": "OtherLoc", 
+                "type": "OtherGeo", 
                 "end_pos_mapped": "1740", 
                 "begin_pos_mapped": "1728", 
                 "begin_pos": "2108", 
