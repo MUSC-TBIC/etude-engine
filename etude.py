@@ -27,7 +27,8 @@ def count_ref_set( this_ns , this_dd , this_patterns ,
                    this_folder , 
                    args ,
                    file_prefix = '/' ,
-                   file_suffix = '.xml' ):
+                   file_suffix = '.xml' ,
+                   set_type = None ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     """
     Count annotation occurrences in the test folder
@@ -58,11 +59,24 @@ def count_ref_set( this_ns , this_dd , this_patterns ,
             e = sys.exc_info()[0]
             log.error( 'Uncaught exception in extract_annotations:  {}'.format( e ) )
         for this_start in this_ss.keys():
-            ## grab type and end position
-            this_type = this_ss[ this_start ][ 0 ][ 'type' ]
-            this_end = this_ss[ this_start ][ 0 ][ 'end_pos' ]
-            scoring_metrics.update_score_card( 'Tally' , type_counts , 'counts' ,
-                                               this_filename , this_start , this_end , this_type )
+            ## loop over all entries sharing the same start position
+            ## and grab type and end position
+            for this_entry in this_ss[ this_start ]:
+                this_type = this_entry[ 'type' ]
+                if( this_start == -1 ):
+                    this_end = -1
+                    sub_type = this_entry[ 'pivot_value' ]
+                    ## TODO - don't force the pivot value into the attribute name
+                    this_type = '{} = "{}"'.format( this_type , this_entry[ 'pivot_value' ] )
+                else:
+                    this_end = this_entry[ 'end_pos' ]
+                    sub_type = None
+                ##
+                ##print( '{}\n'.format( this_type ) )
+                scoring_metrics.update_score_card( 'Tally' , type_counts , 'counts' ,
+                                                   this_filename , this_start , this_end ,
+                                                   this_type , pivot_value = sub_type )
+
     ##
     if( args.csv_out and
         os.path.exists( args.csv_out ) ):
@@ -72,7 +86,8 @@ def count_ref_set( this_ns , this_dd , this_patterns ,
         scoring_metrics.print_counts_summary( type_counts ,
                                               sorted( file_list ) ,
                                               this_patterns ,
-                                              args )
+                                              args ,
+                                              set_type = set_type )
     except AttributeError , e:
             log.error( 'AttributeError exception in print_counts_summary:  {}'.format( e ) )
     except KeyError , e:
@@ -391,7 +406,9 @@ def score_ref_set( reference_ns , reference_dd , reference_patterns , reference_
                                                     use_mapped_chars = \
                                                       ignore_chars )
         except UnboundLocalError , e:
-            log.error( 'UnboundLocalError exception in extract_annotations:  {}'.format( e ) )
+            log.error( 'UnboundLocalError exception in evaluate_positions:  {}'.format( e ) )
+        except NameError , e:
+            log.error( 'NameError exception in evaluate_positions:  {}'.format( e ) )
         except:
             e = sys.exc_info()[0]
             log.error( 'Uncaught exception in evaluate_positions:  {}'.format( e ) )
@@ -493,6 +510,9 @@ if __name__ == "__main__":
         except:
             e = sys.exc_info()[0]
             log.error( 'Uncaught exception in process_config for reference config:  {}'.format( e ) )
+        if( reference_patterns == [] ):
+            log.error( 'No reference patterns extracted from config.  Bailing out now.' )
+            exit( 1 )
     if( args.test_input ):
         try:
             test_ns , test_dd , test_patterns = \
@@ -504,14 +524,19 @@ if __name__ == "__main__":
         except:
             e = sys.exc_info()[0]
             log.error( 'Uncaught exception in process_config for system output config:  {}'.format( e ) )
+        if( test_patterns == [] ):
+            log.error( 'No test patterns extracted from config.  Bailing out now.' )
+            exit( 1 )
     if( args.reference_input and args.test_input ):
         try:
             reference_patterns , test_patterns = \
               args_and_configs.align_patterns( reference_patterns , test_patterns )
             if( len( reference_patterns ) == 0 ):
                 log.error( 'Zero annotation patterns found in reference config after filtering against system output config.' )
+                exit( 1 )
             if( len( test_patterns ) == 0 ):
-                log.error( 'Zero annotation patterns found in system output config after filtering against reference config.' )            
+                log.error( 'Zero annotation patterns found in system output config after filtering against reference config.' )
+                exit( 1 )
         except:
             e = sys.exc_info()[0]
             log.error( 'Uncaught exception in align_patterns:  {}'.format( e ) )
@@ -534,7 +559,8 @@ if __name__ == "__main__":
                                    this_folder = os.path.abspath( args.reference_input ) ,
                                    args = args ,
                                    file_prefix = args.file_prefix ,
-                                   file_suffix = args.file_suffix[ len( args.file_suffix ) - 1 ] )
+                                   file_suffix = args.file_suffix[ len( args.file_suffix ) - 1 ] ,
+                                   set_type = 'reference' )
                 except AttributeError , e:
                     log.error( 'AttributeError exception in count_ref_set for reference output corpus:  {}'.format( e ) )
                 except KeyError, e:
@@ -555,7 +581,8 @@ if __name__ == "__main__":
                                    this_folder = os.path.abspath( args.test_input ) ,
                                    args = args ,
                                    file_prefix = args.file_prefix ,
-                                   file_suffix = args.file_suffix[ len( args.file_suffix ) - 1 ] ) 
+                                   file_suffix = args.file_suffix[ len( args.file_suffix ) - 1 ] ,
+                                   set_type = 'test' ) 
                 except AttributeError , e:
                     log.error( 'AttributeError exception in count_ref_set for reference output corpus:  {}'.format( e ) )
                 except KeyError, e:

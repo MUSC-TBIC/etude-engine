@@ -21,6 +21,11 @@ unstructured data extraction.
                          default = 'stderr' ,
                          choices = [ 'stderr' , 'stdout' , 'none' ] ,
                          help = "Pipe the progress bar to stderr, stdout, or neither" )
+
+    parser.add_argument( '--pretty-print' ,
+                         dest = 'pretty_print' ,
+                         help = "Round floats and remove decimals from integers" ,
+                         action = "store_true" )
     
     ## TODO -
     ## --sample % of files to randomly sample from
@@ -47,6 +52,11 @@ unstructured data extraction.
                                      'Accuracy' ,
                                      'F1' ] ,
                          help = "List of metrics to return, in order" )
+    
+    parser.add_argument( '--empty-value' ,
+                         dest = 'empty_value' ,
+                         default = '' ,
+                         help = "Value to print when metrics are undefined or values are null" )
 
     parser.add_argument( "--fuzzy-match-flags" , nargs = "+" ,
                          dest = 'fuzzy_flags' ,
@@ -145,6 +155,11 @@ unstructured data extraction.
     parser.add_argument( '--print-confusion-matrix' , default = False ,
                          dest = 'print_confusion_matrix' ,
                          help = "Print to stdout the confusion matrix between annotation types" ,
+                         action = "store_true" )
+    
+    parser.add_argument( '--write-score-cards' , default = False ,
+                         dest = 'write_score_cards' ,
+                         help = "Write to disk the internal data structure used for counting annotations" ,
                          action = "store_true" )
     
     parser.add_argument( '--no-confusion-matrix' ,
@@ -275,6 +290,40 @@ def extract_xpath_patterns( annotations ,
     log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
 
 
+def extract_xpath_spanless_patterns( annotations ,
+                                     config , sect ,
+                                     display_name ,
+                                     key_value ,
+                                     score_values ,
+                                     collapse_all_patterns = False ,
+                                     verbose = False ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
+    ## Loop through all the provided score_values to see if any
+    ## provided values match the currently extracted value
+    for score_value in score_values:
+        if( re.search( score_value , key_value ) ):
+            if( collapse_all_patterns ):
+                type_value = 'All Patterns'
+            else:
+                type_value = key_value
+            pattern_entry = dict( type = type_value ,
+                                  long_name = sect.strip() ,
+                                  xpath = config.get( sect , 'XPath' ) ,
+                                  display_name = display_name ,
+                                  short_name = config.get( sect ,
+                                                           'Short Name' ) ,
+                                  pivot_attr = config.get( sect ,
+                                                         'Pivot Attr' ) ,
+                                  optional_attributes = [] )
+            if( config.has_option( sect , 'Opt Attr' ) ):
+                optional_attributes = config.get( sect , 'Opt Attr' )
+                pattern_entry[ 'optional_attributes' ] = \
+                  optional_attributes.split( ',' )
+            annotations.append( pattern_entry )
+            break
+    log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
+
+
 def extract_delimited_patterns( annotations ,
                                 config , sect ,
                                 display_name ,
@@ -355,6 +404,19 @@ def extract_patterns( annotations ,
         except:
             e = sys.exc_info()[0]
             log.error( 'Uncaught exception in extract_xpath_patterns:  {}'.format( e ) )
+    elif( config.has_option( sect , 'XPath' ) and
+          config.has_option( sect , 'Pivot Attr' ) ):
+        try:
+            extract_xpath_spanless_patterns( annotations ,
+                                             config , sect ,
+                                             display_name ,
+                                             key_value ,
+                                             score_values ,
+                                             collapse_all_patterns ,
+                                             verbose )
+        except:
+            e = sys.exc_info()[0]
+            log.error( 'Uncaught exception in extract_xpath_spanless_patterns:  {}'.format( e ) )
     elif( config.has_option( sect , 'Delimiter' ) ):
         extract_delimited_patterns( annotations ,
                                     config , sect ,
@@ -378,11 +440,16 @@ def process_config( config_file ,
                     collapse_all_patterns = False ,
                     verbose = False ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
-    config = ConfigParser.ConfigParser()
-    config.read( config_file )
     annotations = []
     namespaces = {}
     document_data = {}
+    config = ConfigParser.ConfigParser()
+    try:
+        config.read( config_file )
+    except ConfigParser.MissingSectionHeaderError , e:
+        log.error( 'Unable to continue due to malformed section header(s):  {}'.format( e ) )
+        log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
+        return namespaces , document_data , annotations
     for sect in config.sections():
         if( sect.strip() == 'XML Namespaces' ):
             namespaces = extract_namespaces( namespaces ,
