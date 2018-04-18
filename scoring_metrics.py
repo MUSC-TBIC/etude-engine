@@ -651,9 +651,9 @@ def update_csv_output( csv_out_filename , delimiter ,
 def output_metrics( class_data ,
                     fuzzy_flag , metrics ,
                     delimiter_prefix , delimiter ,
-                    stdout_flag , csv_out_filename ):
+                    stdout_flag , csv_out_filename ,
+                    pretty_print_flag ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
-    row_content = delimiter.join( '{}'.format( m ) for m in metrics )
     if( len( class_data ) == 1 ):
         row_name = class_data[ 0 ]
     elif( len( class_data ) == 2 ):
@@ -661,8 +661,8 @@ def output_metrics( class_data ,
     elif( len( class_data ) == 4 ):
         row_name = '{} x {}'.format( class_data[ 1 ] ,
                                      class_data[ 3 ] )
-    if( stdout_flag ):
-        print( '{}{}{}{}'.format( delimiter_prefix , row_name , delimiter , row_content ) )
+    ##
+    row_content = delimiter.join( '{}'.format( m ) for m in metrics )
     ##
     if( csv_out_filename ):
         full_row = [ fuzzy_flag ]
@@ -674,6 +674,25 @@ def output_metrics( class_data ,
         full_row.append( row_content )
         update_csv_output( csv_out_filename , delimiter ,
                            full_row )
+    if( stdout_flag ):
+        if( not pretty_print_flag ) :
+            print( '{}{}{}{}'.format( delimiter_prefix , row_name , delimiter , row_content ) )
+        else:
+            pretty_row = '{0}{1:30s}'.format( delimiter_prefix , row_name )
+            for i in range( 0 , len( metrics ) ):
+                if( metrics[ i ] is None ):
+                    pretty_row = '{}{}{:9s}'.format( pretty_row , delimiter ,
+                                                     '' )
+                elif( metrics[ i ] == 0 ):
+                    pretty_row = '{}{}{:9d}'.format( pretty_row , delimiter ,
+                                                     0 )
+                elif( metrics[ i ] == int( metrics[ i ] ) ):
+                    pretty_row = '{}{}{:9d}'.format( pretty_row , delimiter ,
+                                                      int( metrics[ i ] ) )
+                else:
+                    pretty_row = '{}{}{:9.4f}'.format( pretty_row , delimiter ,
+                                                       metrics[ i ] )
+            print( pretty_row )
     #########
     log.debug( "Leaving '{}'".format( sys._getframe().f_code.co_name ) )
 
@@ -738,7 +757,8 @@ def print_counts_summary( score_card , file_list ,
     output_metrics( [ 'Total' ] ,
                     'counts' , metrics ,
                     args.delim_prefix , args.delim ,
-                    args.print_counts , args.csv_out )
+                    args.print_counts , args.csv_out ,
+                    args.pretty_print )
     ##
     file_aggregate_metrics = None
     non_empty_files = 0
@@ -754,7 +774,8 @@ def print_counts_summary( score_card , file_list ,
             output_metrics( [ 'File' , filename ] ,
                             'counts' , metrics ,
                             args.delim_prefix , args.delim ,
-                            args.print_counts , args.csv_out )
+                            args.print_counts , args.csv_out ,
+                            args.pretty_print )
         ##
         unique_types = get_unique_types( config_patterns )
         for unique_type in sorted( unique_types ):
@@ -772,7 +793,8 @@ def print_counts_summary( score_card , file_list ,
                 output_metrics( [ 'File' , filename , 'Type' , unique_type ] ,
                                 'counts' , metrics ,
                                 args.delim_prefix , args.delim ,
-                                args.print_counts , args.csv_out )
+                                args.print_counts , args.csv_out ,
+                                args.pretty_print )
     ##
     unique_types = get_unique_types( config_patterns )
     type_aggregate_metrics = None
@@ -789,7 +811,8 @@ def print_counts_summary( score_card , file_list ,
             output_metrics( [ 'Type' , unique_type ] ,
                             'counts' , metrics ,
                             args.delim_prefix , args.delim ,
-                            args.print_counts , args.csv_out )
+                            args.print_counts , args.csv_out ,
+                            args.pretty_print )
         ##
         for filename in file_list:
             this_file = \
@@ -807,7 +830,8 @@ def print_counts_summary( score_card , file_list ,
                                  'File' , filename ] ,
                                 'counts' , metrics ,
                                 args.delim_prefix , args.delim ,
-                                args.print_counts , args.csv_out )
+                                args.print_counts , args.csv_out ,
+                                args.pretty_print )
     #########
     log.debug( "Leaving '{}'".format( sys._getframe().f_code.co_name ) )
 
@@ -927,11 +951,6 @@ def print_score_summary( score_card , file_mapping ,
     ##
     metrics_header_line = \
       args.delim.join( '{}'.format( m ) for m in args.metrics_list )
-    if( args.print_metrics ):
-        print( '\n{}{}{}{}'.format( args.delim_prefix ,
-                                    fuzzy_flag ,
-                                    args.delim ,
-                                    metrics_header_line ) )
     if( args.csv_out and
         not os.path.exists( args.csv_out ) ):
         update_csv_output( args.csv_out , args.delim ,
@@ -939,13 +958,31 @@ def print_score_summary( score_card , file_mapping ,
                              'ClassType' , 'Class' ,
                              'SubClassType' , 'SubClass' ,
                              metrics_header_line ] )
+    max_table_width = 0
+    if( args.print_metrics ):
+        if( not args.pretty_print ):
+            print( '\n{}{}{}{}'.format( args.delim_prefix ,
+                                        fuzzy_flag ,
+                                        args.delim ,
+                                        metrics_header_line ) )
+        else:
+            pretty_row = '{0}{1:^30s}'.format( args.delim_prefix , fuzzy_flag )
+            for m in args.metrics_list:
+                if( len( m ) > 9 ):
+                    m = m[:9]
+                pretty_row = '{}{}{:^9s}'.format( pretty_row , args.delim , m )
+            ## TODO - table width is inaccurate when \t occurs anywhere in the --delim
+            max_table_width = len( pretty_row )
+            print( "\n" + pretty_row )
+            print( "=" * max_table_width )
     ##
     metrics = norm_summary( score_card[ fuzzy_flag ][ 'Score' ].value_counts() ,
                             args = args )
     output_metrics( [ 'micro-average' ] ,
                     fuzzy_flag , metrics ,
                     args.delim_prefix , args.delim ,
-                    args.print_metrics , args.csv_out )
+                    args.print_metrics , args.csv_out ,
+                    args.pretty_print )
     ##
     if( args.corpus_out ):
         update_output_dictionary( args.corpus_out ,
@@ -973,7 +1010,8 @@ def print_score_summary( score_card , file_mapping ,
             output_metrics( [ 'File' , filename ] ,
                             fuzzy_flag , metrics ,
                             args.delim_prefix , args.delim ,
-                            args.print_metrics , args.csv_out )
+                            args.print_metrics , args.csv_out ,
+                            args.pretty_print )
             ## Only update macro-average if some annotation in this file exists
             ## in either reference or system output
             for i in range( len( metrics ) ):
@@ -1013,7 +1051,8 @@ def print_score_summary( score_card , file_mapping ,
                 output_metrics( [ 'File' , filename , 'Type' , unique_type ] ,
                                 fuzzy_flag , metrics ,
                                 args.delim_prefix , args.delim ,
-                                args.print_metrics , args.csv_out )
+                                args.print_metrics , args.csv_out ,
+                                args.pretty_print )
             if( args.reference_out ):
                 out_file = '{}/{}'.format( args.reference_out ,
                                            filename )
@@ -1049,7 +1088,8 @@ def print_score_summary( score_card , file_mapping ,
         output_metrics( [ 'macro-averages' , 'macro-average by file' ] ,
                         fuzzy_flag , macro_averaged_metrics ,
                         args.delim_prefix , args.delim ,
-                        args.print_metrics , args.csv_out )
+                        args.print_metrics , args.csv_out ,
+                        args.pretty_print )
     if( args.corpus_out ):
         update_output_dictionary( args.corpus_out ,
                                   [ 'metrics' ,
@@ -1073,7 +1113,8 @@ def print_score_summary( score_card , file_mapping ,
             output_metrics( [ 'Type' , unique_type ] ,
                             fuzzy_flag , metrics ,
                             args.delim_prefix , args.delim ,
-                            args.print_metrics , args.csv_out )
+                            args.print_metrics , args.csv_out ,
+                            args.pretty_print )
             ## Only update macro-average if some of this type exist
             ## in either reference or system output
             for i in range( len( metrics ) ):
@@ -1102,7 +1143,8 @@ def print_score_summary( score_card , file_mapping ,
                                   'File' , filename ] ,
                                 fuzzy_flag , metrics ,
                                 args.delim_prefix , args.delim ,
-                                args.print_metrics , args.csv_out )
+                                args.print_metrics , args.csv_out ,
+                                args.pretty_print )
     macro_averaged_metrics = []
     for key , value , non_empty_count in zip( args.metrics_list ,
                                               type_aggregate_metrics ,
@@ -1120,7 +1162,8 @@ def print_score_summary( score_card , file_mapping ,
         output_metrics( [ 'macro-averages' , 'macro-average by type' ] ,
                         fuzzy_flag , macro_averaged_metrics ,
                         args.delim_prefix , args.delim ,
-                        args.print_metrics , args.csv_out )
+                        args.print_metrics , args.csv_out ,
+                        args.pretty_print )
     if( args.corpus_out ):
         update_output_dictionary( args.corpus_out ,
                                   [ 'metrics' ,

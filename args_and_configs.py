@@ -21,6 +21,11 @@ unstructured data extraction.
                          default = 'stderr' ,
                          choices = [ 'stderr' , 'stdout' , 'none' ] ,
                          help = "Pipe the progress bar to stderr, stdout, or neither" )
+
+    parser.add_argument( '--pretty-print' ,
+                         dest = 'pretty_print' ,
+                         help = "Round floats and remove decimals from integers" ,
+                         action = "store_true" )
     
     ## TODO -
     ## --sample % of files to randomly sample from
