@@ -444,6 +444,7 @@ def process_config( config_file ,
     namespaces = {}
     document_data = {}
     config = ConfigParser.ConfigParser()
+    config.optionxform = str
     try:
         config.read( config_file )
     except ConfigParser.MissingSectionHeaderError , e:
