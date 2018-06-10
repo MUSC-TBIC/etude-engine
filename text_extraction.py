@@ -350,7 +350,7 @@ def split_content( raw_text , offset_mapping , skip_chars ):
         init_offset += 1
     log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
     return offset_mapping
-    
+
 
 def extract_chars( ingest_file ,
                    namespaces ,

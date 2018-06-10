@@ -61,7 +61,7 @@ unstructured data extraction.
     parser.add_argument( "--fuzzy-match-flags" , nargs = "+" ,
                          dest = 'fuzzy_flags' ,
                          default = [ 'exact' ] ,
-                         choices = [ 'exact' , 'fully-contained' , 'partial' ] ,
+                         choices = [ 'exact' , 'fully-contained' , 'partial' , 'end' ] ,
                          help = "List of strictness levels to use in matching offsets." )
 
     parser.add_argument( "-d" , "--delim" , 
@@ -222,6 +222,10 @@ def get_arguments( command_line_args ):
     if( ( args.print_metrics or args.print_confusion_matrix ) and
         ( args.reference_input is None or args.test_input is None ) ):
         parser.error( "Both --reference-input and --test-input are required for printing metrics and printing a confusion matrix." )
+    ##
+    if( 'end' in args.fuzzy_flags and
+        len( args.fuzzy_flags ) > 1 ):
+        parser.error( "Using the fuzzy match flag 'end' is not compatible with other flags." )
     ##
     return args
 
