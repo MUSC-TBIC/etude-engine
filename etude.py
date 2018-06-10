@@ -473,7 +473,7 @@ def init_args():
         ## Clean out any previous corpus dictionary, in case it exists from
         ## an old run
         with open( args.corpus_out , 'w' ) as fp:
-            json.dump( {} , fp , indent = 4 )
+            json.dump( {} , fp , sort_keys = True , indent = 4 )
         ## Add a few important arguments
         scoring_metrics.update_output_dictionary( args.corpus_out ,
                                                   [ 'args' ] ,

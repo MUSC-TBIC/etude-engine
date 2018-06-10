@@ -39,6 +39,24 @@ def create_annotation_entry( begin_pos = -1 , begin_pos_mapped = None ,
 
 
 def map_position( offset_mapping , position , direction ):
+    """Convert a character position to the closest non-skipped position.
+
+    Use the offset mapping dictionary to convert a position to the
+    closest valid character position.  We include a direction for the
+    mapping because it is important to consider the closest position
+    to the right or left of a position when mapping the start or
+    end position, respectively.
+
+    :param offset_mapping: a dictionary mapping character positions to
+                           ``None`` if the character is in the skip
+                           list or to an int, otherwise
+    :param position: current character position
+    :param direction: 1, if moving right; -1 if moving left
+
+    :returns: character position if all skipped characters were removed
+              from the document and positions re-assigned or 
+              ``None``, on KeyError
+    """
     if( not bool( offset_mapping ) ):
         return None
     else:
@@ -314,7 +332,7 @@ def write_annotations_to_disk( annotations , out_file ):
     ## TODO - add directory existence check
     with open( out_file , 'w' ) as output:
         json.dump( annotations , output ,
-                   indent = 4 )
+                   sort_keys = True , indent = 4 )
     log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
 
 
@@ -480,6 +498,8 @@ def extract_annotations( ingest_file ,
                 log.warn( 'ParseError in file ({}):  {}'.format( ingest_file , e ) )
                 log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
                 return offset_mapping , annotations
+            except UnicodeEncodeError, e:
+                print( '{}'.format( e ) )
             except:
                 e = sys.exc_info()[0]
                 log.error( 'Uncaught exception in extract_chars:  {}'.format( e ) )

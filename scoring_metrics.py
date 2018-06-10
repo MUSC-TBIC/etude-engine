@@ -638,7 +638,7 @@ def update_output_dictionary( out_file ,
                                                          value )
     with open( out_file , 'w' ) as fp:
         json.dump( file_dictionary , fp ,
-                   indent = 4 )
+                   sort_keys = True , indent = 4 )
     log.debug( "Leaving '{}'".format( sys._getframe().f_code.co_name ) )
 
 def update_csv_output( csv_out_filename , delimiter ,
