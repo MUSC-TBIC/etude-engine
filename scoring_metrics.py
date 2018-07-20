@@ -166,6 +166,73 @@ def exact_comparison_runner( reference_filename , confusion_matrix , score_card 
     return( matched_flag , test_leftovers )
 
 
+def end_comparison_runner( reference_filename , confusion_matrix , score_card , 
+                           reference_annot ,
+                           test_entries ,
+                           start_key , end_key ,
+                           fuzzy_flag ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
+    ## grab type and end position
+    reference_type , reference_start , reference_end = \
+      get_annotation_from_base_entry( reference_annot ,
+                                      start_key ,
+                                      end_key )
+    if( reference_type == None ):
+        ## If we couldn't extract a type, consider this
+        ## an invalid annotations    
+        return( False , test_entries )
+    ## Loop through all the test annotations
+    ## that haven't been matched yet
+    test_leftovers = []
+    matched_flag = False
+    for test_annot in test_entries:
+        ## TODO - nesting comparisons, multiple overlaps
+        if( matched_flag ):
+            test_leftovers.append( test_annot )
+            continue
+        ## grab type and end position
+        test_type , test_start , test_end = \
+          get_annotation_from_base_entry( test_annot ,
+                                          start_key ,
+                                          end_key )
+        if( test_type == None ):
+            ## If we couldn't extract a type, consider this
+            ## an invalid annotation
+            continue
+        if( reference_end == test_end or
+            ( reference_end != 'EOF' and
+              test_end != 'EOF' and
+              reference_end >= test_end - 1 and
+              reference_end <= test_end + 1 ) ):
+            matched_flag = True
+            update_confusion_matrix( confusion_matrix , fuzzy_flag , reference_type , test_type )
+            ## If the types match...
+            if( reference_type == test_type ):
+                ## ... and the end positions match, then we have a
+                ##     perfect match
+                update_score_card( 'TP' , score_card , fuzzy_flag ,
+                                   reference_filename , reference_start , reference_end ,
+                                   reference_type ,
+                                   ref_annot = reference_annot ,
+                                   test_annot = test_annot )
+            else:
+                update_score_card( 'FN' , score_card , fuzzy_flag ,
+                                   reference_filename , reference_start , reference_end ,
+                                   reference_type , 
+                                   ref_annot = reference_annot ,
+                                   test_annot = test_annot )
+                update_score_card( 'FP' , score_card , fuzzy_flag ,
+                                   reference_filename , test_start , test_end ,
+                                   test_type , 
+                                   ref_annot = reference_annot ,
+                                   test_annot = test_annot )
+        else:
+            test_leftovers.append( test_annot )
+    #########
+    log.debug( "Leaving '{}'".format( sys._getframe().f_code.co_name ) )
+    return( matched_flag , test_leftovers )
+
+
 def fully_contained_comparison_runner( reference_filename , confusion_matrix , score_card , 
                                        reference_annot ,
                                        test_entries ,
@@ -304,6 +371,18 @@ def reference_annot_comparison_runner( reference_filename , confusion_matrix , s
                                        start_key , end_key ,
                                        fuzzy_flag ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
+    ## End offset matching is special and gets run alone
+    if( fuzzy_flag == 'end' ):
+        reference_matched, test_leftovers = end_comparison_runner( reference_filename ,
+                                                                   confusion_matrix ,
+                                                                   score_card , 
+                                                                   reference_annot ,
+                                                                   test_entries ,
+                                                                   start_key , end_key ,
+                                                                   fuzzy_flag )
+        return( reference_matched , test_leftovers )
+    ## The other three types of matching care compatible and can be
+    ## run together
     reference_matched, test_leftovers = exact_comparison_runner( reference_filename ,
                                                                  confusion_matrix ,
                                                                  score_card , 
@@ -638,7 +717,7 @@ def update_output_dictionary( out_file ,
                                                          value )
     with open( out_file , 'w' ) as fp:
         json.dump( file_dictionary , fp ,
-                   indent = 4 )
+                   sort_keys = True , indent = 4 )
     log.debug( "Leaving '{}'".format( sys._getframe().f_code.co_name ) )
 
 def update_csv_output( csv_out_filename , delimiter ,
