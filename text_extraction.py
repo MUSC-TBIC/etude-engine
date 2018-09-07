@@ -186,22 +186,23 @@ def extract_annotations_xml_spanless( ingest_file ,
     ## 
     return strict_starts
 
-def extract_annotations_brat_standoff( ingest_file ,
+
+def extract_brat_text_bound_annotation( ingest_file ,
+                                        annot_line ,
                                        offset_mapping ,
-                                       type_prefix ,
                                        tag_name ,
                                        optional_attributes = [] ):
-    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
-    annots_by_index = dict()
-    ##
-    try:
-        with open( ingest_file , 'r' ) as fp:
-            for line in fp:
-                line = line.rstrip()
+    ## Continuous:
                 ## T1	Organization 0 43	International Business Machines Corporation
-                matches = re.match( '^' + type_prefix + '([0-9]+)\s+(\w+)\s+([0-9]+)\s+([0-9]+)\s+(.*)' ,
-                                    line )
-                if( matches and matches.group( 2 ) == tag_name ):
+    ## TODO - Discontinuous:
+    ## T1	Location 0 5;16 23	North America
+    matches = re.match( '^(T[0-9]+)\s+(\w+)\s+([0-9]+)\s+([0-9]+)\s+(.*)' ,
+                        annot_line )
+    if( matches ):
+        found_tag = matches.group( 2 )
+        if( found_tag != tag_name ):
+            ## Skip this line because we don't care about this type
+            return None
                     match_index = matches.group( 1 )
                     begin_pos = matches.group( 3 )
                     begin_pos_mapped = map_position( offset_mapping , begin_pos , 1 )
@@ -214,31 +215,78 @@ def extract_annotations_brat_standoff( ingest_file ,
                                                          end_pos_mapped = end_pos_mapped ,
                                                          raw_text = raw_text ,
                                                          tag_name = tag_name )
-                    new_entry[ 'match_index' ] = '{}{}'.format( type_prefix , match_index )
+        new_entry[ 'match_index' ] = match_index
                     for optional_attr in optional_attributes:
                         ## TODO - quick hack to match attributes (see below)
                         key = optional_attr.lower()
                         if( key == 'notpatient' ):
                             key = 'not_patient'
                         new_entry[ key ] = 'false'
-                    ##
-                    annots_by_index[ new_entry[ 'match_index' ] ] = new_entry
-                    continue
-                ##
+        return new_entry
+    else:
+        log.warn( 'I had a problem parsing a brat line ({}):{}'.format( ingest_file ,
+                                                                        annot_line ) )
+        return None
+
+def extract_brat_attribute( ingest_file ,
+                            annot_line ,
+                            optional_attributes = [] ):
                 ## A1	Negated T34
-                matches = re.match( '^A([0-9]+)\s+(\w+)\s+([A-Z][0-9]+)$' ,
-                                    line )
+    ## TODO - support multi-valued attributes
+    ## A2	Confidence E2 L1
+    matches = re.match( '^(A[0-9]+)\s+(\w+)\s+([TREAMN\*][0-9]+)$' ,
+                        annot_line )
+    match_index = None
+    attribute = None
+    key = None
+    attribute_value = 'true'
                 if( matches ):
-                    match_index = matches.group( 3 )
                     attribute = matches.group( 2 )
-                    if( attribute in optional_attributes and
-                        match_index in annots_by_index.keys() ):
+        match_index = matches.group( 3 )
+        if( attribute in optional_attributes ):
                         ## TODO - quick hack to match attributes (see above)
                         key = attribute.lower()
                         if( key == 'notpatient' ):
                             key = 'not_patient'
-                        annots_by_index[ match_index ][ key ] = 'true'
-                        continue
+    return( [ match_index , attribute , key , attribute_value ] )
+
+
+def extract_annotations_brat_standoff( ingest_file ,
+                                       offset_mapping ,
+                                       type_prefix ,
+                                       tag_name ,
+                                       optional_attributes = [] ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
+    annots_by_index = dict()
+    ##
+    try:
+        with open( ingest_file , 'r' ) as fp:
+            for line in fp:
+                line = line.rstrip()
+                brat_annotation_type = line[ 0 ]
+                if( brat_annotation_type == 'T' ):
+                    ## T1	Organization 0 43	International Business Machines Corporation
+                    new_entry = extract_brat_text_bound_annotation( ingest_file ,
+                                                                    line ,
+                                                                    offset_mapping ,
+                                                                    tag_name ,
+                                                                    optional_attributes )
+                    ## A non-None entry means we were able to parse the line 
+                    if( new_entry != None ):
+                        annots_by_index[ new_entry[ 'match_index' ] ] = new_entry
+                    ## TODO - support discontinous spans:
+                    ## T1	Location 0 5;16 23	North America
+                    ## T2	Location 10 23
+                elif( brat_annotation_type == 'A' or
+                      brat_annotation_type == 'M' ):
+                    ## A1	Negated T34
+                    new_attribute_value = extract_brat_attribute( ingest_file ,
+                                                                  line ,
+                                                                  optional_attributes )
+                    if( new_attribute_value[ 0 ] != None and
+                        new_attribute_value[ 0 ] in annots_by_index.keys() and
+                        new_attribute_value[ 2 ] != None ):
+                        annots_by_index[ new_attribute_value[ 0 ] ][ new_attribute_value[ 2 ] ] = new_attribute_value[ 3 ]
     except IOError, e:
         log.warn( 'I had a problem reading the standoff notation file ({}).\n\tReported Error:  {}'.format( ingest_file ,
                                                                                                             e ) )

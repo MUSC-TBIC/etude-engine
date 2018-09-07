@@ -519,6 +519,10 @@ def test_empty_contents_of_write_of_dictionary_for_brat_patterns():
                                                out_file = tmpfile_handle.name )
         assert strict_starts == {}
         assert os.path.exists( tmpfile_handle.name )
+        with open( tmpfile_handle.name , 'r' ) as rf:
+            reloaded_out_file = json.load( rf )
+        assert reloaded_out_file[ "annotations" ] == {}
+        assert reloaded_out_file[ "raw_content" ] == "International Business Machines Corporation: IBM is Big Blue\n"
     assert os.path.exists( tmpfile_handle.name ) == False
 
 def test_contents_of_write_of_dictionary_for_brat_patterns():
@@ -549,6 +553,52 @@ def test_contents_of_write_of_dictionary_for_brat_patterns():
         assert os.path.exists( tmpfile_handle.name )
     assert os.path.exists( tmpfile_handle.name ) == False
 
+
+def test_brat_text_bound_annotation_simple():
+    line = 'T1	Organization 0 43	International Business Machines Corporation'
+    new_entry = text_extraction.extract_brat_text_bound_annotation( 'test.ann' ,
+                                                                    line ,
+                                                                    offset_mapping = {} ,
+                                                                    tag_name = 'Organization' ,
+                                                                    optional_attributes = [] )
+    assert( new_entry[ 'match_index' ] == 'T1' )
+    assert( new_entry[ 'type' ] == 'Organization' )
+    assert( new_entry[ 'begin_pos' ] == '0' )
+    assert( new_entry[ 'end_pos' ] == '43' )
+    assert( new_entry[ 'raw_text' ] == 'International Business Machines Corporation' )
+
+def test_brat_text_bound_annotation_attributes_default_to_false():
+    line = 'T1	Organization 0 43	International Business Machines Corporation'
+    new_entry = text_extraction.extract_brat_text_bound_annotation( 'test.ann' ,
+                                                                    line ,
+                                                                    offset_mapping = {} ,
+                                                                    tag_name = 'Organization' ,
+                                                                    optional_attributes = [ 'negated' ,
+                                                                                            'historical' ] )
+    assert( new_entry[ 'negated' ] == 'false' )
+    assert( new_entry[ 'historical' ] == 'false' )
+
+def test_brat_text_bound_annotation_offset_mapping_works():
+    line = 'T1	Organization 0 43	International Business Machines Corporation'
+    new_entry = text_extraction.extract_brat_text_bound_annotation( 'test.ann' ,
+                                                                    line ,
+                                                                    offset_mapping = { "0": "3" ,
+                                                                                       "43": "42" } ,
+                                                                    tag_name = 'Organization' ,
+                                                                    optional_attributes = [] )
+    assert( new_entry[ 'begin_pos' ] == '0' )
+    assert( new_entry[ 'begin_pos_mapped' ] == '3' )
+    assert( new_entry[ 'end_pos' ] == '43' )
+    assert( new_entry[ 'end_pos_mapped' ] == '42' )
+
+def test_brat_text_bound_annotation_skip_other_tags():
+    line = 'T1	Organization 0 43	International Business Machines Corporation'
+    new_entry = text_extraction.extract_brat_text_bound_annotation( 'test.ann' ,
+                                                                    line ,
+                                                                    offset_mapping = {} ,
+                                                                    tag_name = 'Person' ,
+                                                                    optional_attributes = [] )
+    assert( new_entry == None )
 
 #############################################
 ## Test extracting document contents
