@@ -1,5 +1,24 @@
-`build status <https://git.musc.edu/tbic/etude/commits/master>`__
-`coverage report <https://git.musc.edu/tbic/etude/commits/master>`__
+
+Documentation
+================================
+
+The latest documentation (compiled from the contents of the `docs` folder) can be viewed on-line:
+`ETUDE Engine’s documentation <https://etude-engine.readthedocs.io/en/latest/index.html>`_
+
+Documentation for the ETUDE engine is managed via reStructuredText files and `Sphinx <http://www.sphinx-doc.org/>`_.
+If you don't have Sphinx installed, you should check out a quick primer (`First Steps with Sphinx <http://www.sphinx-doc.org/en/1.7/tutorial.html>`_) or install it as below:
+
+.. sourcecode:: bash
+
+   ## If you don't have Sphinx installed already
+   pip install Sphinx
+
+   ## Generate a locally viewable HTML version
+   cd docs
+   make html
+
+The latest version of the documentation can be generated as locally viewable HTML:  file:///path/to/git/repository/docs/_build/html/index.html
+
 
 Sample Runs
 ===========
