@@ -224,7 +224,7 @@ def extract_brat_text_bound_annotation( ingest_file ,
                         new_entry[ key ] = 'false'
         return new_entry
     else:
-        log.warn( 'I had a problem parsing a brat line ({}):{}'.format( ingest_file ,
+        log.warn( 'I had a problem parsing a brat text-bound annotation line ({}):{}'.format( ingest_file ,
                                                                         annot_line ) )
         return None
 
@@ -234,7 +234,7 @@ def extract_brat_attribute( ingest_file ,
                 ## A1	Negated T34
     ## TODO - support multi-valued attributes
     ## A2	Confidence E2 L1
-    matches = re.match( '^(A[0-9]+)\s+(\w+)\s+([TREAMN\*][0-9]+)$' ,
+    matches = re.match( '^([AM][0-9]+)\s+(\w+)\s+([TREAMN\*][0-9]+)$' ,
                         annot_line )
     match_index = None
     attribute = None
@@ -249,6 +249,11 @@ def extract_brat_attribute( ingest_file ,
                         if( key == 'notpatient' ):
                             key = 'not_patient'
     return( [ match_index , attribute , key , attribute_value ] )
+    else:
+        log.warn( 'I had a problem parsing a brat attribute line ({}):{}'.format( ingest_file ,
+                                                                                  annot_line ) )
+        return None
+
 
 
 def extract_annotations_brat_standoff( ingest_file ,

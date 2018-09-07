@@ -600,6 +600,57 @@ def test_brat_text_bound_annotation_skip_other_tags():
                                                                     optional_attributes = [] )
     assert( new_entry == None )
 
+ 
+def test_brat_skip_non_optional_attributes():
+    ## T1	Organization 0 4	Sony
+    ## T2	MERGE-ORG 14 27	joint venture
+    ## T3	Organization 33 41	Ericsson
+    ## E1	MERGE-ORG:T2 Org1:T1 Org2:T3
+    ## A1	Negation E1
+    line = 'A1	Negation E1'
+    new_attribute_value = text_extraction.extract_brat_attribute( 'test.ann' ,
+                                                                  line ,
+                                                                  optional_attributes = [ 'negated' ,
+                                                                                          'historical' ] )
+    assert( new_attribute_value == [ 'E1' , 'Negation' , None , 'true' ] )
+
+def test_brat_attribute_binary():
+    ## T1	Organization 0 4	Sony
+    ## T2	MERGE-ORG 14 27	joint venture
+    ## T3	Organization 33 41	Ericsson
+    ## E1	MERGE-ORG:T2 Org1:T1 Org2:T3
+    ## A1	Negation E1
+    line = 'A1	Negation E1'
+    new_attribute_value = text_extraction.extract_brat_attribute( 'test.ann' ,
+                                                                  line ,
+                                                                  optional_attributes = [ 'Negation' ] )
+    assert( new_attribute_value == [ 'E1' , 'Negation' , 'negation' , 'true' ] )
+
+def test_brat_attribute_binary_m_prefix():
+    ## T1	Organization 0 4	Sony
+    ## T2	MERGE-ORG 14 27	joint venture
+    ## T3	Organization 33 41	Ericsson
+    ## E1	MERGE-ORG:T2 Org1:T1 Org2:T3
+    ## M1	Negation E1
+    line = 'M1	Negation E1'
+    new_attribute_value = text_extraction.extract_brat_attribute( 'test.ann' ,
+                                                                  line ,
+                                                                  optional_attributes = [ 'Negation' ] )
+    assert( new_attribute_value == [ 'E1' , 'Negation' , 'negation' , 'true' ] )
+
+
+def test_brat_attribute_multivalue_string():
+    ## T1	Organization 0 4	Sony
+    ## T2	MERGE-ORG 14 27	joint venture
+    ## T3	Organization 33 41	Ericsson
+    ## E1	MERGE-ORG:T2 Org1:T1 Org2:T3
+    ## A2	Confidence E2 L1
+    line = 'A2	Confidence E2 L1'
+    new_attribute_value = text_extraction.extract_brat_attribute( 'test.ann' ,
+                                                                  line ,
+                                                                  optional_attributes = [ 'Confidence' ] )
+    assert( new_attribute_value == None )
+
 #############################################
 ## Test extracting document contents
 #############################################
