@@ -600,6 +600,53 @@ def test_brat_text_bound_annotation_skip_other_tags():
                                                                     optional_attributes = [] )
     assert( new_entry == None )
 
+def test_brat_text_bound_annotation_discontinuous():
+    ## North and South America
+    ## T1	Location 0 5;16 23	North America
+    ## T2	Location 10 23	South America
+    line = 'T1	Location 0 5;16 23	North America'
+    new_entry = text_extraction.extract_brat_text_bound_annotation( 'test.ann' ,
+                                                                    line ,
+                                                                    offset_mapping = {} ,
+                                                                    tag_name = 'Location' ,
+                                                                    optional_attributes = [] )
+    assert( new_entry == None )
+
+def test_brat_relation_binary():
+    ## T3	Organization 33 41	Ericsson
+    ## T4	Country 75 81	Sweden
+    ## R1	Origin Arg1:T3 Arg2:T4
+    line = 'R1	Origin Arg1:T3 Arg2:T4'
+    new_entry = text_extraction.extract_brat_relation( 'test.ann' ,
+                                                       line ,
+                                                       tag_name = '' ,
+                                                       optional_attributes = [] )
+    assert( new_entry == None )
+    
+def test_brat_relation_equivalence():
+    ## T1	Organization 0 43	International Business Machines Corporation
+    ## T2	Organization 45 48	IBM
+    ## T3	Organization 52 60	Big Blue
+    ## *	Equiv T1 T2 T3
+    line = '*	Equiv T1 T2 T3'
+    new_entry = text_extraction.extract_brat_equivalence( 'test.ann' ,
+                                                          line ,
+                                                          optional_attributes = [] )
+    assert( new_entry == None )
+
+
+def test_brat_event():
+    ## T1	Organization 0 4	Sony
+    ## T2	MERGE-ORG 14 27	joint venture
+    ## T3	Organization 33 41	Ericsson
+    ## E1	MERGE-ORG:T2 Org1:T1 Org2:T3
+    line = 'E1	MERGE-ORG:T2 Org1:T1 Org2:T3'
+    new_entry = text_extraction.extract_brat_event( 'test.ann' ,
+                                                    line ,
+                                                    tag_name = '' ,
+                                                    optional_attributes = [] )
+    assert( new_entry == None )
+
  
 def test_brat_skip_non_optional_attributes():
     ## T1	Organization 0 4	Sony
@@ -650,6 +697,16 @@ def test_brat_attribute_multivalue_string():
                                                                   line ,
                                                                   optional_attributes = [ 'Confidence' ] )
     assert( new_attribute_value == None )
+
+
+def test_brat_normalization():
+    ## N1	Reference T1 Wikipedia:534366	Barack Obama
+    line = 'N1	Reference T1 Wikipedia:534366	Barack Obama'
+    new_entry = text_extraction.extract_brat_normalization( 'test.ann' ,
+                                                            line ,
+                                                            optional_attributes = [] )
+    assert( new_entry == None )
+
 
 #############################################
 ## Test extracting document contents
