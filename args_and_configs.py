@@ -84,8 +84,15 @@ unstructured data extraction.
     parser.add_argument( '--by-type' , dest = 'by_type' ,
                          help = "Print metrics by annotation type" ,
                          action = "store_true" )
+    parser.add_argument( '--by-type-and-attribute' , dest = 'by_type_and_attribute' ,
+                         help = "Print metrics by attribute nested within annotation type" ,
+                         action = "store_true" )
     parser.add_argument( '--by-type-and-file' , dest = 'by_type_and_file' ,
                          help = "Print metrics by file nested within annotation type" ,
+                         action = "store_true" )
+
+    parser.add_argument( '--by-attribute' , dest = 'by_attribute' ,
+                         help = "Print metrics by annotation attribute" ,
                          action = "store_true" )
 
     parser.add_argument( "--reference-config", 

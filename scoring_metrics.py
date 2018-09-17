@@ -885,19 +885,19 @@ def print_counts_summary( score_card , file_list ,
                             args.print_counts , args.csv_out ,
                             args.pretty_print )
         ##
-        unique_types = get_unique_types( config_patterns )
-        for unique_type in sorted( unique_types ):
-            this_type = \
-              (  ( score_card[ 'counts' ][ 'File' ] == filename ) &
-                 ( score_card[ 'counts' ][ 'Type' ] == unique_type ) )
-            type_value_counts = \
-              score_card[ 'counts' ][ this_type ][ 'Score' ].value_counts()
-            ## TODO - add flag to only print non-zero entries
-            if( len( type_value_counts ) == 0 ):
-                metrics = [ 0 ]
-            else:
-                metrics = [ type_value_counts[ 'Tally' ] ]
-            if( args.by_file_and_type ):
+        if( args.by_file_and_type ):
+            unique_types = get_unique_types( config_patterns )
+            for unique_type in sorted( unique_types ):
+                this_type = \
+                  (  ( score_card[ 'counts' ][ 'File' ] == filename ) &
+                     ( score_card[ 'counts' ][ 'Type' ] == unique_type ) )
+                type_value_counts = \
+                  score_card[ 'counts' ][ this_type ][ 'Score' ].value_counts()
+                ## TODO - add flag to only print non-zero entries
+                if( len( type_value_counts ) == 0 ):
+                    metrics = [ 0 ]
+                else:
+                    metrics = [ type_value_counts[ 'Tally' ] ]
                 output_metrics( [ 'File' , filename , 'Type' , unique_type ] ,
                                 'counts' , metrics ,
                                 args.delim_prefix , args.delim ,
@@ -1258,17 +1258,17 @@ def print_score_summary( score_card , file_mapping ,
             #################################
             ## by type and file
             #################################
-            for filename in file_list:
-                this_file = \
-                  (  ( score_card[ fuzzy_flag ][ 'Pivot' ].isnull() ) &
-                     ( score_card[ fuzzy_flag ][ 'File' ] == filename ) &
-                     ( score_card[ fuzzy_flag ][ 'Type' ] == unique_type ) )
-                file_value_counts = \
-                  score_card[ fuzzy_flag ][ this_file ][ 'Score' ].value_counts()
-                metrics = \
-                  norm_summary( file_value_counts ,
-                                args = args )
-                if( args.by_type_and_file ):
+            if( args.by_type_and_file ):
+                for filename in file_list:
+                    this_file = \
+                      (  ( score_card[ fuzzy_flag ][ 'Pivot' ].isnull() ) &
+                         ( score_card[ fuzzy_flag ][ 'File' ] == filename ) &
+                         ( score_card[ fuzzy_flag ][ 'Type' ] == unique_type ) )
+                    file_value_counts = \
+                      score_card[ fuzzy_flag ][ this_file ][ 'Score' ].value_counts()
+                    metrics = \
+                      norm_summary( file_value_counts ,
+                                    args = args )
                     output_metrics( [ 'Type' , unique_type ,
                                       'File' , filename ] ,
                                     fuzzy_flag , metrics ,
@@ -1278,21 +1278,22 @@ def print_score_summary( score_card , file_mapping ,
             #################################
             ## by type and attribute
             #################################
-            for unique_pivot in sorted( unique_pivots ):
-                this_pivot = \
-                  (  ( score_card[ fuzzy_flag ][ 'Pivot' ] == unique_pivot ) &
-                     ( score_card[ fuzzy_flag ][ 'Type' ] == unique_type ) )
-                pivot_value_counts = \
-                  score_card[ fuzzy_flag ][ this_pivot ][ 'Score' ].value_counts()
-                metrics = \
-                  norm_summary( pivot_value_counts ,
-                                args = args )
-                output_metrics( [ 'Type' , unique_type ,
-                                  'Pivot' , unique_pivot ] ,
-                                fuzzy_flag , metrics ,
-                                args.delim_prefix , args.delim ,
-                                args.print_metrics , args.csv_out ,
-                                args.pretty_print )
+            if( args.by_type_and_attribute ):
+                for unique_pivot in sorted( unique_pivots ):
+                    this_pivot = \
+                      (  ( score_card[ fuzzy_flag ][ 'Pivot' ] == unique_pivot ) &
+                         ( score_card[ fuzzy_flag ][ 'Type' ] == unique_type ) )
+                    pivot_value_counts = \
+                      score_card[ fuzzy_flag ][ this_pivot ][ 'Score' ].value_counts()
+                    metrics = \
+                      norm_summary( pivot_value_counts ,
+                                    args = args )
+                    output_metrics( [ 'Type' , unique_type ,
+                                      'Pivot' , unique_pivot ] ,
+                                    fuzzy_flag , metrics ,
+                                    args.delim_prefix , args.delim ,
+                                    args.print_metrics , args.csv_out ,
+                                    args.pretty_print )
         macro_averaged_metrics = []
         for key , value , non_empty_count in zip( args.metrics_list ,
                                                   type_aggregate_metrics ,
@@ -1322,62 +1323,63 @@ def print_score_summary( score_card , file_mapping ,
     #########################################
     ## by attribute
     #########################################
-    pivot_aggregate_metrics = []
-    non_empty_metrics = []
-    for i in range( len( args.metrics_list ) ):
-        pivot_aggregate_metrics.append( 0 )
-        non_empty_metrics.append( 0 )
-    for unique_pivot in sorted( unique_pivots ):
-        this_pivot = ( ( score_card[ fuzzy_flag ][ 'Pivot' ] == unique_pivot ) )
-        pivot_value_counts = score_card[ fuzzy_flag ][ this_pivot ][ 'Score' ].value_counts()
-        metrics = norm_summary( pivot_value_counts ,
-                                args = args )
-        output_metrics( [ 'Pivot' , unique_pivot ] ,
-                          fuzzy_flag , metrics ,
-                          args.delim_prefix , args.delim ,
-                          args.print_metrics , args.csv_out ,
-                          args.pretty_print )
-        ## Only update macro-average if some of this pivot exist
-        ## in either reference or system output
-        for i in range( len( metrics ) ):
-            if( metrics[ i ] != None ):
-                non_empty_metrics[ i ] += 1
-                pivot_aggregate_metrics[ i ] += metrics[ i ]
+    if( args.by_attribute ):
+        pivot_aggregate_metrics = []
+        non_empty_metrics = []
+        for i in range( len( args.metrics_list ) ):
+            pivot_aggregate_metrics.append( 0 )
+            non_empty_metrics.append( 0 )
+        for unique_pivot in sorted( unique_pivots ):
+            this_pivot = ( ( score_card[ fuzzy_flag ][ 'Pivot' ] == unique_pivot ) )
+            pivot_value_counts = score_card[ fuzzy_flag ][ this_pivot ][ 'Score' ].value_counts()
+            metrics = norm_summary( pivot_value_counts ,
+                                    args = args )
+            output_metrics( [ 'Pivot' , unique_pivot ] ,
+                            fuzzy_flag , metrics ,
+                            args.delim_prefix , args.delim ,
+                            args.print_metrics , args.csv_out ,
+                            args.pretty_print )
+            ## Only update macro-average if some of this pivot exist
+            ## in either reference or system output
+            for i in range( len( metrics ) ):
+                if( metrics[ i ] != None ):
+                    non_empty_metrics[ i ] += 1
+                    pivot_aggregate_metrics[ i ] += metrics[ i ]
+            if( args.corpus_out ):
+                update_output_dictionary( args.corpus_out ,
+                                          [ 'metrics' ,
+                                            fuzzy_flag ,
+                                            'by-pivot' , unique_pivot ] ,
+                                          args.metrics_list ,
+                                          metrics )
+            ##
+            ## TODO - by pivot by file
+            ## TODO - by pivot by type
+        macro_averaged_metrics = []
+        for key , value , non_empty_count in zip( args.metrics_list ,
+                                                  pivot_aggregate_metrics ,
+                                                  non_empty_metrics ):
+            if( non_empty_count == 0 ):
+                macro_averaged_metrics.append( args.empty_value )
+            elif( key == 'TP' or
+                  key == 'FP' or
+                  key == 'FN' or
+                  key == 'TN' ):
+                macro_averaged_metrics.append( value )
+            else:
+                macro_averaged_metrics.append( value / non_empty_count )
+        if( len( unique_pivots ) > 0 ):
+            output_metrics( [ 'macro-averages' , 'macro-average by pivot' ] ,
+                            fuzzy_flag , macro_averaged_metrics ,
+                            args.delim_prefix , args.delim ,
+                            args.print_metrics , args.csv_out ,
+                            args.pretty_print )
         if( args.corpus_out ):
             update_output_dictionary( args.corpus_out ,
                                       [ 'metrics' ,
                                         fuzzy_flag ,
-                                        'by-pivot' , unique_pivot ] ,
+                                        'macro-averages' , 'pivot' ] ,
                                       args.metrics_list ,
-                                      metrics )
-        ##
-        ## TODO - by pivot by file
-        ## TODO - by pivot by type
-    macro_averaged_metrics = []
-    for key , value , non_empty_count in zip( args.metrics_list ,
-                                              pivot_aggregate_metrics ,
-                                              non_empty_metrics ):
-        if( non_empty_count == 0 ):
-            macro_averaged_metrics.append( args.empty_value )
-        elif( key == 'TP' or
-              key == 'FP' or
-              key == 'FN' or
-              key == 'TN' ):
-            macro_averaged_metrics.append( value )
-        else:
-            macro_averaged_metrics.append( value / non_empty_count )
-    if( len( unique_pivots ) > 0 ):
-        output_metrics( [ 'macro-averages' , 'macro-average by pivot' ] ,
-                        fuzzy_flag , macro_averaged_metrics ,
-                        args.delim_prefix , args.delim ,
-                        args.print_metrics , args.csv_out ,
-                        args.pretty_print )
-    if( args.corpus_out ):
-        update_output_dictionary( args.corpus_out ,
-                                  [ 'metrics' ,
-                                    fuzzy_flag ,
-                                    'macro-averages' , 'pivot' ] ,
-                                  args.metrics_list ,
-                                  macro_averaged_metrics )
+                                      macro_averaged_metrics )
     #########
     log.debug( "Leaving '{}'".format( sys._getframe().f_code.co_name ) )
