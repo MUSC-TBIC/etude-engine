@@ -548,8 +548,8 @@ def test_contents_of_write_of_dictionary_for_brat_patterns():
         assert strict_starts[ '474' ][ 0 ][ 'begin_pos' ] == '474'
         assert strict_starts[ '474' ][ 0 ][ 'end_pos' ] == '493'
         assert strict_starts[ '474' ][ 0 ][ 'raw_text' ] == 'shortness of breath'
-        assert strict_starts[ '474' ][ 0 ][ 'historical' ] == 'false'
-        assert strict_starts[ '474' ][ 0 ][ 'negated' ] == 'true'
+        assert strict_starts[ '474' ][ 0 ][ 'Historical' ] == 'false'
+        assert strict_starts[ '474' ][ 0 ][ 'Negated' ] == 'true'
         assert os.path.exists( tmpfile_handle.name )
     assert os.path.exists( tmpfile_handle.name ) == False
 
@@ -573,10 +573,10 @@ def test_brat_text_bound_annotation_attributes_default_to_false():
                                                                     line ,
                                                                     offset_mapping = {} ,
                                                                     tag_name = 'Organization' ,
-                                                                    optional_attributes = [ 'negated' ,
-                                                                                            'historical' ] )
-    assert( new_entry[ 'negated' ] == 'false' )
-    assert( new_entry[ 'historical' ] == 'false' )
+                                                                    optional_attributes = [ 'Negated' ,
+                                                                                            'Historical' ] )
+    assert( new_entry[ 'Negated' ] == 'false' )
+    assert( new_entry[ 'Historical' ] == 'false' )
 
 def test_brat_text_bound_annotation_offset_mapping_works():
     line = 'T1	Organization 0 43	International Business Machines Corporation'
@@ -657,8 +657,8 @@ def test_brat_skip_non_optional_attributes():
     line = 'A1	Negation E1'
     new_attribute_value = text_extraction.extract_brat_attribute( 'test.ann' ,
                                                                   line ,
-                                                                  optional_attributes = [ 'negated' ,
-                                                                                          'historical' ] )
+                                                                  optional_attributes = [ 'Negated' ,
+                                                                                          'Historical' ] )
     assert( new_attribute_value == [ 'E1' , 'Negation' , None , 'true' ] )
 
 def test_brat_attribute_binary():
@@ -671,7 +671,7 @@ def test_brat_attribute_binary():
     new_attribute_value = text_extraction.extract_brat_attribute( 'test.ann' ,
                                                                   line ,
                                                                   optional_attributes = [ 'Negation' ] )
-    assert( new_attribute_value == [ 'E1' , 'Negation' , 'negation' , 'true' ] )
+    assert( new_attribute_value == [ 'E1' , 'Negation' , 'Negation' , 'true' ] )
 
 def test_brat_attribute_binary_m_prefix():
     ## T1	Organization 0 4	Sony
@@ -683,7 +683,7 @@ def test_brat_attribute_binary_m_prefix():
     new_attribute_value = text_extraction.extract_brat_attribute( 'test.ann' ,
                                                                   line ,
                                                                   optional_attributes = [ 'Negation' ] )
-    assert( new_attribute_value == [ 'E1' , 'Negation' , 'negation' , 'true' ] )
+    assert( new_attribute_value == [ 'E1' , 'Negation' , 'Negation' , 'true' ] )
 
 
 def test_brat_attribute_multivalue_string():

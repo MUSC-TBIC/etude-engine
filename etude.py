@@ -587,9 +587,6 @@ if __name__ == "__main__":
             except TypeError as e :
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 log.error( 'TypeError in scorable attribute creation (ln {}):  {}'.format( exc_tb.tb_lineno , e ) )
-            except:
-                e = sys.exc_info()[0]
-                log.error( 'Uncaught exception in unique_attributes:  {}'.format( e ) )
     ##
     if( args.align_tokens ):
         align_tokens( reference_folder = os.path.abspath( args.reference_input ) ,

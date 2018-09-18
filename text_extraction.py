@@ -271,7 +271,8 @@ def extract_brat_attribute( ingest_file ,
     if( matches ):
         attribute = matches.group( 2 )
         match_index = matches.group( 3 )
-        key = attribute
+        if( attribute in optional_attributes ):
+            key = attribute
         return( [ match_index , attribute , key , attribute_value ] )
     else:
         log.warn( 'I had a problem parsing a brat attribute line ({}):{}'.format( ingest_file ,

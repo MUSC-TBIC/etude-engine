@@ -1142,22 +1142,22 @@ def print_score_summary( score_card , file_mapping ,
                                           [ 'file-mapping' ] ,
                                           [ filename ] ,
                                           [ file_mapping[ filename ] ] )
-                this_file = ( ( score_card[ fuzzy_flag ][ 'Pivot' ].isnull() ) &
-                              ( score_card[ fuzzy_flag ][ 'File' ] == filename ) )
-                file_value_counts = score_card[ fuzzy_flag ][ this_file ][ 'Score' ].value_counts()
-                metrics = norm_summary( file_value_counts , args = args )
-                if( args.by_file or args.by_file_and_type ):
-                    output_metrics( [ 'File' , filename ] ,
-                                    fuzzy_flag , metrics ,
-                                    args.delim_prefix , args.delim ,
-                                    args.print_metrics , args.csv_out ,
-                                    args.pretty_print )
-                    ## Only update macro-average if some annotation in this file exists
-                    ## in either reference or system output
-                    for i in range( len( metrics ) ):
-                        if( metrics[ i ] != None ):
-                            non_empty_metrics[ i ] += 1
-                            file_aggregate_metrics[ i ] += metrics[ i ]
+            this_file = ( ( score_card[ fuzzy_flag ][ 'Pivot' ].isnull() ) &
+                          ( score_card[ fuzzy_flag ][ 'File' ] == filename ) )
+            file_value_counts = score_card[ fuzzy_flag ][ this_file ][ 'Score' ].value_counts()
+            metrics = norm_summary( file_value_counts , args = args )
+            if( args.by_file or args.by_file_and_type ):
+                output_metrics( [ 'File' , filename ] ,
+                                fuzzy_flag , metrics ,
+                                args.delim_prefix , args.delim ,
+                                args.print_metrics , args.csv_out ,
+                                args.pretty_print )
+                ## Only update macro-average if some annotation in this file exists
+                ## in either reference or system output
+                for i in range( len( metrics ) ):
+                    if( metrics[ i ] != None ):
+                        non_empty_metrics[ i ] += 1
+                        file_aggregate_metrics[ i ] += metrics[ i ]
             if( args.reference_out ):
                 out_file = '{}/{}'.format( args.reference_out ,
                                            filename )
