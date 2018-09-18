@@ -3,6 +3,8 @@ import logging as log
 
 import re
 
+from sets import Set
+
 import argparse
 import ConfigParser
 
@@ -113,6 +115,12 @@ unstructured data extraction.
                         dest = 'score_values' ,
                         default = [ '.*' ] ,
                         help="List of values associated with the score key to count in scoring" )
+
+    parser.add_argument("--score-attributes", nargs = '?' ,
+                        dest = 'attributes_string' ,
+                        default = None , ## When --score-attributes is not present
+                        const = [] ,     ## When --score-attributes is provided but no attributes listed
+                        help="List of annotation attributes to evaluate in addition to type" )
 
     parser.add_argument( '--collapse-all-patterns' ,
                          help = "Treat all patterns extracted as of the same type" ,
@@ -515,3 +523,14 @@ def align_patterns( reference_patterns , test_patterns ):
             log.warn( 'Could not find reference pattern matching type \'{}\' from system output config'.format( test_pattern[ 'type' ] ) )
     log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
     return filtered_ref , filtered_test
+
+def unique_attributes( patterns ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
+    filtered_attributes = Set()
+    for pattern in patterns:
+        ## Skip this pattern if there are no listed attributes
+        if( 'optional_attributes' not in pattern ):
+            continue
+        for attribute in pattern[ 'optional_attributes' ]:
+            filtered_attributes.add( attribute )
+    return( filtered_attributes )
