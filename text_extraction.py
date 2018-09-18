@@ -283,8 +283,28 @@ def extract_brat_attribute( ingest_file ,
 
 def extract_brat_normalization( ingest_file ,
                                 annot_line ,
-                                optional_attributes = [] ):
+                                reference_names = [] ):
     ## N1	Reference T1 Wikipedia:534366	Barack Obama
+    matches = re.match( '^(N[0-9]+)\s+Reference\s+([TREAMN\*][0-9]+)\s+([^:]+):([^\s]+)\s+(.+)$' ,
+                        annot_line )
+    match_index = None
+    reference_name = None
+    reference_id = None
+    normalized_value = None
+    if( matches ):
+        match_index = matches.group( 2 )
+        reference_name = matches.group( 3 )
+        reference_id = matches.group( 4 )
+        normalized_value = matches.group( 5 )
+        if( reference_name in reference_names ):
+            return( [ match_index ,
+                      reference_name , reference_id ,
+                      normalized_value ] )
+        else:
+            return( None )
+    else:
+        log.warn( 'I had a problem parsing a brat normalization line ({}):{}'.format( ingest_file ,
+                                                                                      annot_line ) )
     return None
 
 
@@ -343,9 +363,15 @@ def extract_annotations_brat_standoff( ingest_file ,
                                                        optional_attributes )
                 elif( brat_annotation_type == 'N' ):
                     ## N1	Reference T1 Wikipedia:534366	Barack Obama
-                    new_entry = extract_brat_relation( ingest_file ,
-                                                       line ,
-                                                       optional_attributes )
+                    new_normalization = extract_brat_normalization( ingest_file ,
+                                                                    line ,
+                                                                    [ 'Wikipedia' , 'freePA3L' ] )
+                    if( new_normalization is not None and
+                        new_normalization[ 0 ] is not None and
+                        new_normalization[ 0 ] in annots_by_index.keys() and
+                        new_normalization[ 1 ] is not None and
+                        new_normalization[ 2 ] is not None ):
+                        annots_by_index[ new_normalization[ 0 ] ][ new_normalization[ 1 ] ] = new_normalization[ 2 ]
                 ##elif( brat_annotation_type == '#' ):
                 ##    ## Do nothing.  We don't support comments.
                 ##

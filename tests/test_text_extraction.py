@@ -699,13 +699,22 @@ def test_brat_attribute_multivalue_string():
     assert( new_attribute_value == None )
 
 
-def test_brat_normalization():
+def test_brat_normalization_ignore_unselected_reference():
     ## N1	Reference T1 Wikipedia:534366	Barack Obama
     line = 'N1	Reference T1 Wikipedia:534366	Barack Obama'
     new_entry = text_extraction.extract_brat_normalization( 'test.ann' ,
                                                             line ,
-                                                            optional_attributes = [] )
+                                                            reference_names = [ 'Britanica' ] )
     assert( new_entry == None )
+
+
+def test_brat_normalization_simple_lookup():
+    ## N1	Reference T1 Wikipedia:534366	Barack Obama
+    line = 'N1	Reference T1 Wikipedia:534366	Barack Obama'
+    new_entry = text_extraction.extract_brat_normalization( 'test.ann' ,
+                                                            line ,
+                                                            reference_names = [ 'Wikipedia' ] )
+    assert( new_entry == [ 'T1' , 'Wikipedia' , '534366' , 'Barack Obama' ] )
 
 
 #############################################
