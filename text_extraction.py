@@ -217,11 +217,7 @@ def extract_brat_text_bound_annotation( ingest_file ,
                                              tag_name = tag_name )
         new_entry[ 'match_index' ] = match_index
         for optional_attr in optional_attributes:
-            ## TODO - quick hack to match attributes (see below)
-            key = optional_attr.lower()
-            if( key == 'notpatient' ):
-                key = 'not_patient'
-            new_entry[ key ] = 'false'
+            new_entry[ optional_attr ] = 'false'
         return new_entry
     else:
         log.warn( 'I had a problem parsing a brat text-bound annotation line ({}):{}'.format( ingest_file ,
@@ -275,11 +271,7 @@ def extract_brat_attribute( ingest_file ,
     if( matches ):
         attribute = matches.group( 2 )
         match_index = matches.group( 3 )
-        if( attribute in optional_attributes ):
-            ## TODO - quick hack to match attributes (see above)
-            key = attribute.lower()
-            if( key == 'notpatient' ):
-                key = 'not_patient'
+        key = attribute
         return( [ match_index , attribute , key , attribute_value ] )
     else:
         log.warn( 'I had a problem parsing a brat attribute line ({}):{}'.format( ingest_file ,
