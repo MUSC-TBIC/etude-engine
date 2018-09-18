@@ -96,17 +96,44 @@ def update_confusion_matrix( confusion_matrix , fuzzy_flag ,
 
 def update_score_card( condition , score_card , fuzzy_flag ,
                        filename , start_pos , end_pos , type , pivot_value = None ,
-                       ref_annot = None , test_annot = None ):
+                       ref_annot = None , test_annot = None ,
+                       scorable_attributes = None ):
     score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
       [ filename , start_pos , end_pos ,
         type , pivot_value , condition ]
+    if( condition != 'TP' or scorable_attributes == None ):
+        return
+    for ref_attribute, test_attribute in scorable_attributes:
+        ## Skip entries for which the attribute wasn't extracted in
+        ## either the ref or system annotation
+        if( ref_attribute not in ref_annot.keys() or
+            test_attribute not in test_annot.keys() ):
+            continue
+        if( ref_annot[ ref_attribute ] == test_annot[ test_attribute ] ):
+            if( ref_annot[ ref_attribute ] == 'true' ):
+                score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
+                    [ filename , start_pos , end_pos ,
+                      type , ref_attribute , 'TP' ]
+            else:
+                score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
+                    [ filename , start_pos , end_pos ,
+                      type , ref_attribute , 'TN' ]
+        elif( ref_annot[ ref_attribute ] == 'true' ):
+            score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
+                [ filename , start_pos , end_pos ,
+                  type , ref_attribute , 'FN' ]
+        else:
+            score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
+                [ filename , start_pos , end_pos ,
+                  type , ref_attribute , 'FP' ]
 
 
 def exact_comparison_runner( reference_filename , confusion_matrix , score_card , 
                              reference_annot ,
                              test_entries ,
                              start_key , end_key ,
-                             fuzzy_flag ):
+                             fuzzy_flag ,
+                             scorable_attributes ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     ## grab type and end position
     reference_type , reference_start , reference_end = \
@@ -147,7 +174,8 @@ def exact_comparison_runner( reference_filename , confusion_matrix , score_card 
                                    reference_filename , reference_start , reference_end ,
                                    reference_type ,
                                    ref_annot = reference_annot ,
-                                   test_annot = test_annot )
+                                   test_annot = test_annot ,
+                                   scorable_attributes = scorable_attributes )
             else:
                 update_score_card( 'FN' , score_card , fuzzy_flag ,
                                    reference_filename , reference_start , reference_end ,
@@ -170,7 +198,8 @@ def end_comparison_runner( reference_filename , confusion_matrix , score_card ,
                            reference_annot ,
                            test_entries ,
                            start_key , end_key ,
-                           fuzzy_flag ):
+                           fuzzy_flag ,
+                           scorable_attributes ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     ## grab type and end position
     reference_type , reference_start , reference_end = \
@@ -214,7 +243,8 @@ def end_comparison_runner( reference_filename , confusion_matrix , score_card ,
                                    reference_filename , reference_start , reference_end ,
                                    reference_type ,
                                    ref_annot = reference_annot ,
-                                   test_annot = test_annot )
+                                   test_annot = test_annot ,
+                                   scorable_attributes = scorable_attributes )
             else:
                 update_score_card( 'FN' , score_card , fuzzy_flag ,
                                    reference_filename , reference_start , reference_end ,
@@ -237,7 +267,8 @@ def fully_contained_comparison_runner( reference_filename , confusion_matrix , s
                                        reference_annot ,
                                        test_entries ,
                                        start_key , end_key ,
-                                       fuzzy_flag ):
+                                       fuzzy_flag ,
+                                       scorable_attributes ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     ## grab type and end position
     reference_type , reference_start , reference_end = \
@@ -278,7 +309,8 @@ def fully_contained_comparison_runner( reference_filename , confusion_matrix , s
                                    reference_filename , reference_start , reference_end ,
                                    reference_type , 
                                    ref_annot = reference_annot ,
-                                   test_annot = test_annot )
+                                   test_annot = test_annot ,
+                                   scorable_attributes = scorable_attributes )
             else:
                 update_score_card( 'FN' , score_card , fuzzy_flag ,
                                    reference_filename , reference_start , reference_end ,
@@ -301,7 +333,8 @@ def partial_comparison_runner( reference_filename , confusion_matrix , score_car
                                reference_annot ,
                                test_entries ,
                                start_key , end_key ,
-                               fuzzy_flag ):
+                               fuzzy_flag ,
+                               scorable_attributes ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     ## grab type and end position
     reference_type , reference_start , reference_end = \
@@ -346,7 +379,8 @@ def partial_comparison_runner( reference_filename , confusion_matrix , score_car
                                    reference_filename , reference_start , reference_end ,
                                    reference_type , 
                                    ref_annot = reference_annot ,
-                                   test_annot = test_annot )
+                                   test_annot = test_annot ,
+                                   scorable_attributes = scorable_attributes )
             else:
                 update_score_card( 'FN' , score_card , fuzzy_flag ,
                                    reference_filename , reference_start , reference_end ,
@@ -369,7 +403,8 @@ def reference_annot_comparison_runner( reference_filename , confusion_matrix , s
                                        reference_annot , 
                                        test_entries ,
                                        start_key , end_key ,
-                                       fuzzy_flag ):
+                                       fuzzy_flag ,
+                                       scorable_attributes ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     ## End offset matching is special and gets run alone
     if( fuzzy_flag == 'end' ):
@@ -379,7 +414,8 @@ def reference_annot_comparison_runner( reference_filename , confusion_matrix , s
                                                                    reference_annot ,
                                                                    test_entries ,
                                                                    start_key , end_key ,
-                                                                   fuzzy_flag )
+                                                                   fuzzy_flag ,
+                                                                   scorable_attributes )
         return( reference_matched , test_leftovers )
     ## The other three types of matching care compatible and can be
     ## run together
@@ -389,7 +425,8 @@ def reference_annot_comparison_runner( reference_filename , confusion_matrix , s
                                                                  reference_annot ,
                                                                  test_entries ,
                                                                  start_key , end_key ,
-                                                                 fuzzy_flag )
+                                                                 fuzzy_flag ,
+                                                                 scorable_attributes )
     if( fuzzy_flag == 'exact' or
         reference_matched ):
         return( reference_matched , test_leftovers )
@@ -399,7 +436,8 @@ def reference_annot_comparison_runner( reference_filename , confusion_matrix , s
                                                                            reference_annot ,
                                                                            test_leftovers ,
                                                                            start_key , end_key ,
-                                                                           fuzzy_flag )
+                                                                           fuzzy_flag ,
+                                                                           scorable_attributes )
     if( fuzzy_flag == 'fully-contained' or
         reference_matched ):
         return( reference_matched , test_leftovers )
@@ -409,13 +447,15 @@ def reference_annot_comparison_runner( reference_filename , confusion_matrix , s
                                                                     reference_annot ,
                                                                     test_leftovers ,
                                                                     start_key , end_key ,
-                                                                    fuzzy_flag )
+                                                                    fuzzy_flag ,
+                                                                    scorable_attributes )
     return( reference_matched , test_leftovers )
 
 def document_level_annot_comparison_runner( reference_filename , confusion_matrix , score_card , 
                                             reference_annot , 
                                             test_entries ,
-                                            fuzzy_flag ):
+                                            fuzzy_flag ,
+                                            scorable_attributes ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     ##
     reference_type = reference_annot[ 'type' ]
@@ -449,7 +489,8 @@ def document_level_annot_comparison_runner( reference_filename , confusion_matri
             if( reference_pivot_value == test_pivot_value ):
                 update_score_card( 'TP' , score_card , fuzzy_flag ,
                                    reference_filename , -1 , -1 ,
-                                   this_type , pivot_value = reference_pivot_value )
+                                   this_type , pivot_value = reference_pivot_value ,
+                                   scorable_attributes = scorable_attributes )
             else:
                 update_score_card( 'FN' , score_card , fuzzy_flag ,
                                    reference_filename , -1 , -1 ,
@@ -468,7 +509,8 @@ def evaluate_positions( reference_filename ,
                         reference_ss ,
                         test_ss ,
                         fuzzy_flag = 'exact' ,
-                        use_mapped_chars = False ):
+                        use_mapped_chars = False ,
+                        scorable_attributes = [] ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     if( use_mapped_chars ):
         start_key = 'begin_pos_mapped'
@@ -504,7 +546,8 @@ def evaluate_positions( reference_filename ,
                                              reference_annot ,
                                              test_entries ,
                                              start_key , end_key ,
-                                             fuzzy_flag )
+                                             fuzzy_flag ,
+                                             scorable_attributes )
         test_entries = test_leftovers
         if( not reference_matched ):
             if( reference_type != None ):
@@ -542,7 +585,8 @@ def evaluate_positions( reference_filename ,
           document_level_annot_comparison_runner( reference_filename , confusion_matrix , score_card ,
                                                   reference_annot ,
                                                   test_entries ,
-                                                  fuzzy_flag )
+                                                  fuzzy_flag ,
+                                                  scorable_attributes )
         test_entries = test_leftovers
         if( not reference_matched ):
             ## grab type and end position
@@ -856,19 +900,19 @@ def print_counts_summary( score_card , file_list ,
                             args.print_counts , args.csv_out ,
                             args.pretty_print )
         ##
-        unique_types = get_unique_types( config_patterns )
-        for unique_type in sorted( unique_types ):
-            this_type = \
-              (  ( score_card[ 'counts' ][ 'File' ] == filename ) &
-                 ( score_card[ 'counts' ][ 'Type' ] == unique_type ) )
-            type_value_counts = \
-              score_card[ 'counts' ][ this_type ][ 'Score' ].value_counts()
-            ## TODO - add flag to only print non-zero entries
-            if( len( type_value_counts ) == 0 ):
-                metrics = [ 0 ]
-            else:
-                metrics = [ type_value_counts[ 'Tally' ] ]
-            if( args.by_file_and_type ):
+        if( args.by_file_and_type ):
+            unique_types = get_unique_types( config_patterns )
+            for unique_type in sorted( unique_types ):
+                this_type = \
+                  (  ( score_card[ 'counts' ][ 'File' ] == filename ) &
+                     ( score_card[ 'counts' ][ 'Type' ] == unique_type ) )
+                type_value_counts = \
+                  score_card[ 'counts' ][ this_type ][ 'Score' ].value_counts()
+                ## TODO - add flag to only print non-zero entries
+                if( len( type_value_counts ) == 0 ):
+                    metrics = [ 0 ]
+                else:
+                    metrics = [ type_value_counts[ 'Tally' ] ]
                 output_metrics( [ 'File' , filename , 'Type' , unique_type ] ,
                                 'counts' , metrics ,
                                 args.delim_prefix , args.delim ,
@@ -990,6 +1034,12 @@ def print_score_summary_shell( score_card , file_mapping ,
                                  reference_config , test_config ,
                                  fuzzy_flag = fuzzy_flag ,
                                  args = args )
+    except TypeError , e :
+        log.error( 'TypeError in print_score_summary:  {}'.format( e ) )
+    except NameError , e :
+        log.error( 'NameError in print_score_summary:  {}'.format( e ) )
+    except AttributeError , e :
+        log.error( 'AttributeError in print_score_summary:  {}'.format( e ) )
     except:
         e = sys.exc_info()[0]
         log.error( 'Uncaught exception in print_score_summary:  {}'.format( e ) )
@@ -1025,9 +1075,17 @@ def print_score_summary( score_card , file_mapping ,
                                                sep = '\t' ,
                                                encoding = 'utf-8' ,
                                                index = False )
-    ##
+    ################
+    ## major classes to loop over
     file_list = sorted( file_mapping.keys() )
-    ##
+    unique_types = get_unique_types( reference_config )
+    unique_pivots = []
+    if( len( args.scorable_attributes ) > 0 ):
+        for attribute_pair in args.scorable_attributes:
+            unique_pivots.append( attribute_pair[ 0 ] )
+    #########################################
+    ## by file
+    #########################################
     metrics_header_line = \
       args.delim.join( '{}'.format( m ) for m in args.metrics_list )
     if( args.csv_out and
@@ -1055,7 +1113,8 @@ def print_score_summary( score_card , file_mapping ,
             print( "\n" + pretty_row )
             print( "=" * max_table_width )
     ##
-    metrics = norm_summary( score_card[ fuzzy_flag ][ 'Score' ].value_counts() ,
+    pivotless_entries = ( score_card[ fuzzy_flag ][ 'Pivot' ].isnull() )
+    metrics = norm_summary( score_card[ fuzzy_flag ][ pivotless_entries ][ 'Score' ].value_counts() ,
                             args = args )
     output_metrics( [ 'micro-average' ] ,
                     fuzzy_flag , metrics ,
@@ -1076,69 +1135,36 @@ def print_score_summary( score_card , file_mapping ,
     for i in range( len( args.metrics_list ) ):
         file_aggregate_metrics.append( 0 )
         non_empty_metrics.append( 0 )
-    for filename in file_list:
-        if( args.corpus_out ):
-            update_output_dictionary( args.corpus_out ,
-                                      [ 'file-mapping' ] ,
-                                      [ filename ] ,
-                                      [ file_mapping[ filename ] ] )
-        this_file = ( score_card[ fuzzy_flag ][ 'File' ] == filename )
-        file_value_counts = score_card[ fuzzy_flag ][ this_file ][ 'Score' ].value_counts()
-        metrics = norm_summary( file_value_counts , args = args )
-        if( args.by_file or args.by_file_and_type ):
-            output_metrics( [ 'File' , filename ] ,
-                            fuzzy_flag , metrics ,
-                            args.delim_prefix , args.delim ,
-                            args.print_metrics , args.csv_out ,
-                            args.pretty_print )
-            ## Only update macro-average if some annotation in this file exists
-            ## in either reference or system output
-            for i in range( len( metrics ) ):
-                if( metrics[ i ] != None ):
-                    non_empty_metrics[ i ] += 1
-                    file_aggregate_metrics[ i ] += metrics[ i ]
-        if( args.reference_out ):
-            out_file = '{}/{}'.format( args.reference_out ,
-                                       filename )
-            update_output_dictionary( out_file ,
-                                      [ 'metrics' ,
-                                        fuzzy_flag ,
-                                        'micro-average' ] ,
-                                      args.metrics_list ,
-                                      metrics )
-        if( args.test_out and file_mapping[ filename ] != None ):
-            out_file = '{}/{}'.format( args.test_out ,
-                                       file_mapping[ filename ] )
-            update_output_dictionary( out_file ,
-                                      [ 'metrics' ,
-                                        fuzzy_flag ,
-                                        'micro-average' ] ,
-                                      args.metrics_list ,
-                                      metrics )
-        ##
-        unique_types = get_unique_types( reference_config )
-        for unique_type in sorted( unique_types ):
-            this_type = \
-              (  ( score_card[ fuzzy_flag ][ 'File' ] == filename ) &
-                 ( score_card[ fuzzy_flag ][ 'Type' ] == unique_type ) )
-            type_value_counts = \
-              score_card[ fuzzy_flag ][ this_type ][ 'Score' ].value_counts()
-            metrics = \
-              norm_summary( type_value_counts ,
-                            args = args )
-            if( args.by_file_and_type ):
-                output_metrics( [ 'File' , filename , 'Type' , unique_type ] ,
+    if( args.by_file or args.by_file_and_type ):
+        for filename in file_list:
+            if( args.corpus_out ):
+                update_output_dictionary( args.corpus_out ,
+                                          [ 'file-mapping' ] ,
+                                          [ filename ] ,
+                                          [ file_mapping[ filename ] ] )
+            this_file = ( ( score_card[ fuzzy_flag ][ 'Pivot' ].isnull() ) &
+                          ( score_card[ fuzzy_flag ][ 'File' ] == filename ) )
+            file_value_counts = score_card[ fuzzy_flag ][ this_file ][ 'Score' ].value_counts()
+            metrics = norm_summary( file_value_counts , args = args )
+            if( args.by_file or args.by_file_and_type ):
+                output_metrics( [ 'File' , filename ] ,
                                 fuzzy_flag , metrics ,
                                 args.delim_prefix , args.delim ,
                                 args.print_metrics , args.csv_out ,
                                 args.pretty_print )
+                ## Only update macro-average if some annotation in this file exists
+                ## in either reference or system output
+                for i in range( len( metrics ) ):
+                    if( metrics[ i ] != None ):
+                        non_empty_metrics[ i ] += 1
+                        file_aggregate_metrics[ i ] += metrics[ i ]
             if( args.reference_out ):
                 out_file = '{}/{}'.format( args.reference_out ,
                                            filename )
                 update_output_dictionary( out_file ,
                                           [ 'metrics' ,
                                             fuzzy_flag ,
-                                            'by-type' , unique_type ] ,
+                                            'micro-average' ] ,
                                           args.metrics_list ,
                                           metrics )
             if( args.test_out and file_mapping[ filename ] != None ):
@@ -1147,108 +1173,232 @@ def print_score_summary( score_card , file_mapping ,
                 update_output_dictionary( out_file ,
                                           [ 'metrics' ,
                                             fuzzy_flag ,
-                                            'by-type' , unique_type ] ,
+                                            'micro-average' ] ,
                                           args.metrics_list ,
                                           metrics )
-    macro_averaged_metrics = []
-    for key , value , non_empty_count in zip( args.metrics_list ,
-                                              file_aggregate_metrics ,
-                                              non_empty_metrics ):
-        if( non_empty_count == 0 ):
-            macro_averaged_metrics.append( args.empty_value )
-        elif( key == 'TP' or
-              key == 'FP' or
-              key == 'FN' or
-              key == 'TN' ):
-            macro_averaged_metrics.append( value )
-        else:
-            macro_averaged_metrics.append( value / non_empty_count )
-    if( args.by_file or args.by_file_and_type ):
-        output_metrics( [ 'macro-averages' , 'macro-average by file' ] ,
-                        fuzzy_flag , macro_averaged_metrics ,
-                        args.delim_prefix , args.delim ,
-                        args.print_metrics , args.csv_out ,
-                        args.pretty_print )
-    if( args.corpus_out ):
-        update_output_dictionary( args.corpus_out ,
-                                  [ 'metrics' ,
-                                    fuzzy_flag ,
-                                    'macro-averages' , 'file' ] ,
-                                  args.metrics_list ,
-                                  macro_averaged_metrics[ 1: ] )
-    ##
-    unique_types = get_unique_types( reference_config )
-    type_aggregate_metrics = []
-    non_empty_metrics = []
-    for i in range( len( args.metrics_list ) ):
-        type_aggregate_metrics.append( 0 )
-        non_empty_metrics.append( 0 )
-    for unique_type in sorted( unique_types ):
-        this_type = ( score_card[ fuzzy_flag ][ 'Type' ] == unique_type )
-        type_value_counts = score_card[ fuzzy_flag ][ this_type ][ 'Score' ].value_counts()
-        metrics = norm_summary( type_value_counts ,
+            ##
+            for unique_type in sorted( unique_types ):
+                this_type = \
+                  (  ( score_card[ fuzzy_flag ][ 'Pivot' ].isnull() ) &
+                     ( score_card[ fuzzy_flag ][ 'File' ] == filename ) &
+                     ( score_card[ fuzzy_flag ][ 'Type' ] == unique_type ) )
+                type_value_counts = \
+                  score_card[ fuzzy_flag ][ this_type ][ 'Score' ].value_counts()
+                metrics = \
+                  norm_summary( type_value_counts ,
                                 args = args )
-        if( args.by_type or args.by_type_and_file ):
-            output_metrics( [ 'Type' , unique_type ] ,
-                            fuzzy_flag , metrics ,
+                if( args.by_file_and_type ):
+                    output_metrics( [ 'File' , filename , 'Type' , unique_type ] ,
+                                    fuzzy_flag , metrics ,
+                                    args.delim_prefix , args.delim ,
+                                    args.print_metrics , args.csv_out ,
+                                    args.pretty_print )
+                if( args.reference_out ):
+                    out_file = '{}/{}'.format( args.reference_out ,
+                                               filename )
+                    update_output_dictionary( out_file ,
+                                              [ 'metrics' ,
+                                                fuzzy_flag ,
+                                                'by-type' , unique_type ] ,
+                                              args.metrics_list ,
+                                              metrics )
+                if( args.test_out and file_mapping[ filename ] != None ):
+                    out_file = '{}/{}'.format( args.test_out ,
+                                               file_mapping[ filename ] )
+                    update_output_dictionary( out_file ,
+                                              [ 'metrics' ,
+                                                fuzzy_flag ,
+                                                'by-type' , unique_type ] ,
+                                              args.metrics_list ,
+                                              metrics )
+        macro_averaged_metrics = []
+        for key , value , non_empty_count in zip( args.metrics_list ,
+                                                  file_aggregate_metrics ,
+                                                  non_empty_metrics ):
+            if( non_empty_count == 0 ):
+                macro_averaged_metrics.append( args.empty_value )
+            elif( key == 'TP' or
+                  key == 'FP' or
+                  key == 'FN' or
+                  key == 'TN' ):
+                macro_averaged_metrics.append( value )
+            else:
+                macro_averaged_metrics.append( value / non_empty_count )
+        if( args.by_file or args.by_file_and_type ):
+            output_metrics( [ 'macro-averages' , 'macro-average by file' ] ,
+                            fuzzy_flag , macro_averaged_metrics ,
                             args.delim_prefix , args.delim ,
                             args.print_metrics , args.csv_out ,
                             args.pretty_print )
-            ## Only update macro-average if some of this type exist
-            ## in either reference or system output
-            for i in range( len( metrics ) ):
-                if( metrics[ i ] != None ):
-                    non_empty_metrics[ i ] += 1
-                    type_aggregate_metrics[ i ] += metrics[ i ]
         if( args.corpus_out ):
             update_output_dictionary( args.corpus_out ,
                                       [ 'metrics' ,
                                         fuzzy_flag ,
-                                        'by-type' , unique_type ] ,
+                                        'macro-averages' , 'file' ] ,
                                       args.metrics_list ,
-                                      metrics )
-        ##
-        for filename in file_list:
-            this_file = \
-              (  ( score_card[ fuzzy_flag ][ 'File' ] == filename ) &
-                 ( score_card[ fuzzy_flag ][ 'Type' ] == unique_type ) )
-            file_value_counts = \
-              score_card[ fuzzy_flag ][ this_file ][ 'Score' ].value_counts()
-            metrics = \
-              norm_summary( file_value_counts ,
-                            args = args )
-            if( args.by_type_and_file ):
-                output_metrics( [ 'Type' , unique_type ,
-                                  'File' , filename ] ,
+                                      macro_averaged_metrics[ 1: ] )
+    #########################################
+    ## by type
+    #########################################
+    if( args.by_type or
+        args.by_type_and_attribute or
+        args.by_type_and_file ):
+        unique_types = get_unique_types( reference_config )
+        type_aggregate_metrics = []
+        non_empty_metrics = []
+        for i in range( len( args.metrics_list ) ):
+            type_aggregate_metrics.append( 0 )
+            non_empty_metrics.append( 0 )
+        for unique_type in sorted( unique_types ):
+            this_type = ( ( score_card[ fuzzy_flag ][ 'Pivot' ].isnull() ) &
+                          ( score_card[ fuzzy_flag ][ 'Type' ] == unique_type ) )
+            type_value_counts = score_card[ fuzzy_flag ][ this_type ][ 'Score' ].value_counts()
+            metrics = norm_summary( type_value_counts ,
+                                    args = args )
+            if( args.by_type or args.by_type_and_file ):
+                output_metrics( [ 'Type' , unique_type ] ,
                                 fuzzy_flag , metrics ,
                                 args.delim_prefix , args.delim ,
                                 args.print_metrics , args.csv_out ,
                                 args.pretty_print )
-    macro_averaged_metrics = []
-    for key , value , non_empty_count in zip( args.metrics_list ,
-                                              type_aggregate_metrics ,
-                                              non_empty_metrics ):
-        if( non_empty_count == 0 ):
-            macro_averaged_metrics.append( args.empty_value )
-        elif( key == 'TP' or
-              key == 'FP' or
-              key == 'FN' or
-              key == 'TN' ):
-            macro_averaged_metrics.append( value )
-        else:
-            macro_averaged_metrics.append( value / non_empty_count )
-    if( args.by_type or args.by_type_and_file ):
-        output_metrics( [ 'macro-averages' , 'macro-average by type' ] ,
-                        fuzzy_flag , macro_averaged_metrics ,
-                        args.delim_prefix , args.delim ,
-                        args.print_metrics , args.csv_out ,
-                        args.pretty_print )
-    if( args.corpus_out ):
-        update_output_dictionary( args.corpus_out ,
-                                  [ 'metrics' ,
-                                    fuzzy_flag ,
-                                    'macro-averages' , 'type' ] ,
-                                  args.metrics_list ,
-                                  macro_averaged_metrics )
+                ## Only update macro-average if some of this type exist
+                ## in either reference or system output
+                for i in range( len( metrics ) ):
+                    if( metrics[ i ] != None ):
+                        non_empty_metrics[ i ] += 1
+                        type_aggregate_metrics[ i ] += metrics[ i ]
+            if( args.corpus_out ):
+                update_output_dictionary( args.corpus_out ,
+                                          [ 'metrics' ,
+                                            fuzzy_flag ,
+                                            'by-type' , unique_type ] ,
+                                          args.metrics_list ,
+                                          metrics )
+            #################################
+            ## by type and file
+            #################################
+            if( args.by_type_and_file ):
+                for filename in file_list:
+                    this_file = \
+                      (  ( score_card[ fuzzy_flag ][ 'Pivot' ].isnull() ) &
+                         ( score_card[ fuzzy_flag ][ 'File' ] == filename ) &
+                         ( score_card[ fuzzy_flag ][ 'Type' ] == unique_type ) )
+                    file_value_counts = \
+                      score_card[ fuzzy_flag ][ this_file ][ 'Score' ].value_counts()
+                    metrics = \
+                      norm_summary( file_value_counts ,
+                                    args = args )
+                    output_metrics( [ 'Type' , unique_type ,
+                                      'File' , filename ] ,
+                                    fuzzy_flag , metrics ,
+                                    args.delim_prefix , args.delim ,
+                                    args.print_metrics , args.csv_out ,
+                                    args.pretty_print )
+            #################################
+            ## by type and attribute
+            #################################
+            if( args.by_type_and_attribute ):
+                for unique_pivot in sorted( unique_pivots ):
+                    this_pivot = \
+                      (  ( score_card[ fuzzy_flag ][ 'Pivot' ] == unique_pivot ) &
+                         ( score_card[ fuzzy_flag ][ 'Type' ] == unique_type ) )
+                    pivot_value_counts = \
+                      score_card[ fuzzy_flag ][ this_pivot ][ 'Score' ].value_counts()
+                    metrics = \
+                      norm_summary( pivot_value_counts ,
+                                    args = args )
+                    output_metrics( [ 'Type' , unique_type ,
+                                      'Pivot' , unique_pivot ] ,
+                                    fuzzy_flag , metrics ,
+                                    args.delim_prefix , args.delim ,
+                                    args.print_metrics , args.csv_out ,
+                                    args.pretty_print )
+        macro_averaged_metrics = []
+        for key , value , non_empty_count in zip( args.metrics_list ,
+                                                  type_aggregate_metrics ,
+                                                  non_empty_metrics ):
+            if( non_empty_count == 0 ):
+                macro_averaged_metrics.append( args.empty_value )
+            elif( key == 'TP' or
+                  key == 'FP' or
+                  key == 'FN' or
+                  key == 'TN' ):
+                macro_averaged_metrics.append( value )
+            else:
+                macro_averaged_metrics.append( value / non_empty_count )
+        if( args.by_type or args.by_type_and_file ):
+            output_metrics( [ 'macro-averages' , 'macro-average by type' ] ,
+                            fuzzy_flag , macro_averaged_metrics ,
+                            args.delim_prefix , args.delim ,
+                            args.print_metrics , args.csv_out ,
+                            args.pretty_print )
+        if( args.corpus_out ):
+            update_output_dictionary( args.corpus_out ,
+                                      [ 'metrics' ,
+                                        fuzzy_flag ,
+                                        'macro-averages' , 'type' ] ,
+                                      args.metrics_list ,
+                                      macro_averaged_metrics )
+    #########################################
+    ## by attribute
+    #########################################
+    if( args.by_attribute ):
+        pivot_aggregate_metrics = []
+        non_empty_metrics = []
+        for i in range( len( args.metrics_list ) ):
+            pivot_aggregate_metrics.append( 0 )
+            non_empty_metrics.append( 0 )
+        for unique_pivot in sorted( unique_pivots ):
+            this_pivot = ( ( score_card[ fuzzy_flag ][ 'Pivot' ] == unique_pivot ) )
+            pivot_value_counts = score_card[ fuzzy_flag ][ this_pivot ][ 'Score' ].value_counts()
+            metrics = norm_summary( pivot_value_counts ,
+                                    args = args )
+            output_metrics( [ 'Pivot' , unique_pivot ] ,
+                            fuzzy_flag , metrics ,
+                            args.delim_prefix , args.delim ,
+                            args.print_metrics , args.csv_out ,
+                            args.pretty_print )
+            ## Only update macro-average if some of this pivot exist
+            ## in either reference or system output
+            for i in range( len( metrics ) ):
+                if( metrics[ i ] != None ):
+                    non_empty_metrics[ i ] += 1
+                    pivot_aggregate_metrics[ i ] += metrics[ i ]
+            if( args.corpus_out ):
+                update_output_dictionary( args.corpus_out ,
+                                          [ 'metrics' ,
+                                            fuzzy_flag ,
+                                            'by-pivot' , unique_pivot ] ,
+                                          args.metrics_list ,
+                                          metrics )
+            ##
+            ## TODO - by pivot by file
+            ## TODO - by pivot by type
+        macro_averaged_metrics = []
+        for key , value , non_empty_count in zip( args.metrics_list ,
+                                                  pivot_aggregate_metrics ,
+                                                  non_empty_metrics ):
+            if( non_empty_count == 0 ):
+                macro_averaged_metrics.append( args.empty_value )
+            elif( key == 'TP' or
+                  key == 'FP' or
+                  key == 'FN' or
+                  key == 'TN' ):
+                macro_averaged_metrics.append( value )
+            else:
+                macro_averaged_metrics.append( value / non_empty_count )
+        if( len( unique_pivots ) > 0 ):
+            output_metrics( [ 'macro-averages' , 'macro-average by pivot' ] ,
+                            fuzzy_flag , macro_averaged_metrics ,
+                            args.delim_prefix , args.delim ,
+                            args.print_metrics , args.csv_out ,
+                            args.pretty_print )
+        if( args.corpus_out ):
+            update_output_dictionary( args.corpus_out ,
+                                      [ 'metrics' ,
+                                        fuzzy_flag ,
+                                        'macro-averages' , 'pivot' ] ,
+                                      args.metrics_list ,
+                                      macro_averaged_metrics )
     #########
     log.debug( "Leaving '{}'".format( sys._getframe().f_code.co_name ) )

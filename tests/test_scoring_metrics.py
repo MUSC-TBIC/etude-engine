@@ -125,6 +125,7 @@ def initialize_for_print_summary_test():
     command_line_args = [ '--reference-input' , 'tests/data/i2b2_2016_track-1_reference' ,
                           '--test-input' , 'tests/data/i2b2_2016_track-1_test' ]
     args = args_and_configs.get_arguments( command_line_args )
+    args.scorable_attributes = []
     sample_config = [ { 'type' : 'Sentence' ,
                         'XPath' : './/type:Sentence' } ,
                       { 'type' : 'Sentence' ,
@@ -151,6 +152,7 @@ def initialize_for_print_complex_summary_test():
     command_line_args = [ '--reference-input' , 'tests/data/i2b2_2016_track-1_reference' ,
                           '--test-input' , 'tests/data/i2b2_2016_track-1_test' ]
     args = args_and_configs.get_arguments( command_line_args )
+    args.scorable_attributes = []
     sample_config = [ { 'type' : 'Sentence' ,
                         'XPath' : './/type:Sentence' } ,
                       { 'type' : 'Token' ,

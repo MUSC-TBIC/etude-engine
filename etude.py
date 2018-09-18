@@ -404,7 +404,9 @@ def score_ref_set( reference_ns , reference_dd , reference_patterns , reference_
                                                     test_ss ,
                                                     fuzzy_flag = fuzzy_flag ,
                                                     use_mapped_chars = \
-                                                      ignore_chars )
+                                                      ignore_chars ,
+                                                    scorable_attributes = \
+                                                      args.scorable_attributes )
         except UnboundLocalError , e:
             log.error( 'UnboundLocalError exception in evaluate_positions:  {}'.format( e ) )
         except NameError , e:
@@ -467,6 +469,17 @@ def init_args():
     args.file_suffix[ 0 ] = args.file_suffix[ 0 ].lstrip()
     if( len( args.file_suffix ) == 2 ):
         args.file_suffix[ 1 ] = args.file_suffix[ 1 ].lstrip()
+    ## Initialize the list of annotation attributes to score
+    args.attributes_list = []
+    args.scorable_attributes = []
+    if( isinstance( args.attributes_string , basestring ) ):
+        for attribute_key in args.attributes_string.split( ',' ):
+            ## Strip off any extra whitespace before processing
+            attribute_key = attribute_key.strip()
+            attribute_kernel = attribute_key.split( '/' )
+            last = len( attribute_kernel ) - 1
+            args.attributes_list.append( [ attribute_kernel[ 0 ] ,
+                                           attribute_kernel[ last ] ] )
     ## Initialize the corpuse settings, values, and metrics file
     ## if it was provided at the command line
     if( args.corpus_out ):
@@ -540,6 +553,40 @@ if __name__ == "__main__":
         except:
             e = sys.exc_info()[0]
             log.error( 'Uncaught exception in align_patterns:  {}'.format( e ) )
+    ##
+    if( args.attributes_string is not None ):
+        ## TODO - filter the scorable attributes based on just a single
+        ##        reference or test input pattern base
+        if( args.reference_input and args.test_input ):
+            try:
+                unique_reference_attributes = \
+                  args_and_configs.unique_attributes( reference_patterns )
+                unique_test_attributes = \
+                  args_and_configs.unique_attributes( test_patterns )
+            except AttributeError as e :
+                log.error( 'AttributeError in unique_attributes:  {}'.format( e ) )
+            except TypeError as e :
+                log.error( 'TypeError in unique_attributes:  {}'.format( e ) )
+            try:
+                if( args.attributes_list == [] ):
+                    ## No attributes explicitly listed so we use the intersection
+                    ## of listed attributes
+                    for attribute in sorted( list( unique_reference_attributes &
+                                                   unique_test_attributes ) ):
+                        args.scorable_attributes.append( [ attribute , attribute ] )
+                else:
+                    ## A list type means that a filtered list of attributes were provided
+                    ## as arguments to the command line
+                    for attribute_pair in args.attributes_list:
+                        if( attribute_pair[ 0 ] in unique_reference_attributes and
+                            attribute_pair[ 1 ] in unique_test_attributes ):
+                            args.scorable_attributes.append( attribute_pair )
+                if( len( args.scorable_attributes ) == 0 ):
+                    log.error( 'Zero annotation attributes match between the reference and system pattern definitions. Correct your configs or provide mappings between attribute spellings.' )
+                    exit( 1 )
+            except TypeError as e :
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                log.error( 'TypeError in scorable attribute creation (ln {}):  {}'.format( exc_tb.tb_lineno , e ) )
     ##
     if( args.align_tokens ):
         align_tokens( reference_folder = os.path.abspath( args.reference_input ) ,
