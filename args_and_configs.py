@@ -269,6 +269,13 @@ def extract_document_data( document_data ,
         else:
             document_data[ 'cdata_xpath' ] = config.get( sect ,
                                                          'Content XPath' )
+    if( config.has_option( sect , 'Normalization Engines' ) ):
+        engines_string = config.get( sect , 'Normalization Engines' )
+        engines_split = engines_string.split( ',' )
+        if( isinstance( engines_split , basestring ) ):
+            document_data[ 'normalization_engines' ] = [ engines_split ]
+        else:
+            document_data[ 'normalization_engines' ] = engines_split
     log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
     return document_data
 

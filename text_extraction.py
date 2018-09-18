@@ -283,22 +283,22 @@ def extract_brat_attribute( ingest_file ,
 
 def extract_brat_normalization( ingest_file ,
                                 annot_line ,
-                                reference_names = [] ):
+                                normalization_engines = [] ):
     ## N1	Reference T1 Wikipedia:534366	Barack Obama
     matches = re.match( '^(N[0-9]+)\s+Reference\s+([TREAMN\*][0-9]+)\s+([^:]+):([^\s]+)\s+(.+)$' ,
                         annot_line )
     match_index = None
-    reference_name = None
-    reference_id = None
+    normalization_engine = None
+    normalization_id = None
     normalized_value = None
     if( matches ):
         match_index = matches.group( 2 )
-        reference_name = matches.group( 3 )
-        reference_id = matches.group( 4 )
+        normalization_engine = matches.group( 3 )
+        normalization_id = matches.group( 4 )
         normalized_value = matches.group( 5 )
-        if( reference_name in reference_names ):
+        if( normalization_engine in normalization_engines ):
             return( [ match_index ,
-                      reference_name , reference_id ,
+                      normalization_engine , normalization_id ,
                       normalized_value ] )
         else:
             return( None )
@@ -312,7 +312,8 @@ def extract_annotations_brat_standoff( ingest_file ,
                                        offset_mapping ,
                                        type_prefix ,
                                        tag_name ,
-                                       optional_attributes = [] ):
+                                       optional_attributes = [] ,
+                                       normalization_engines = [] ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     annots_by_index = dict()
     ##
@@ -365,7 +366,7 @@ def extract_annotations_brat_standoff( ingest_file ,
                     ## N1	Reference T1 Wikipedia:534366	Barack Obama
                     new_normalization = extract_brat_normalization( ingest_file ,
                                                                     line ,
-                                                                    [ 'Wikipedia' , 'freePA3L' ] )
+                                                                    normalization_engines )
                     if( new_normalization is not None and
                         new_normalization[ 0 ] is not None and
                         new_normalization[ 0 ] in annots_by_index.keys() and
@@ -653,6 +654,9 @@ def extract_annotations( ingest_file ,
                                                  pattern[ 'delimiter' ] ,
                                                tag_name = pattern[ 'type' ] )
         elif( 'type_prefix' in pattern ):
+            norm_eng = []
+            if( 'normalization_engines' in document_data.keys() ):
+                norm_eng = document_data[ 'normalization_engines' ]
             new_annots = \
                 extract_annotations_brat_standoff( ingest_file ,
                                                    offset_mapping = offset_mapping ,
@@ -660,7 +664,9 @@ def extract_annotations( ingest_file ,
                                                      pattern[ 'type_prefix' ] ,
                                                    tag_name = pattern[ 'type' ] ,
                                                    optional_attributes = \
-                                                   pattern[ 'optional_attributes' ] )
+                                                     pattern[ 'optional_attributes' ] ,
+                                                   normalization_engines = norm_eng )
+                                                     
         elif( 'xpath' in pattern and
               'begin_attr' in pattern and
               'end_attr' in pattern ):
