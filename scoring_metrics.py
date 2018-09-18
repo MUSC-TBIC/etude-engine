@@ -1079,8 +1079,10 @@ def print_score_summary( score_card , file_mapping ,
     ## major classes to loop over
     file_list = sorted( file_mapping.keys() )
     unique_types = get_unique_types( reference_config )
-    unique_pivots = [ 'conditional' , 'generic' , 'historical' ,
-                      'negated' , 'not_patient' , 'uncertain' ] #TODO - get_unique_attributes( reference_config )
+    unique_pivots = []
+    if( len( args.scorable_attributes ) > 0 ):
+        for attribute_pair in args.scorable_attributes:
+            unique_pivots.append( attribute_pair[ 0 ] )
     #########################################
     ## by file
     #########################################
@@ -1238,7 +1240,9 @@ def print_score_summary( score_card , file_mapping ,
     #########################################
     ## by type
     #########################################
-    if( args.by_type or args.by_type_and_file ):
+    if( args.by_type or
+        args.by_type_and_attribute or
+        args.by_type_and_file ):
         unique_types = get_unique_types( reference_config )
         type_aggregate_metrics = []
         non_empty_metrics = []
