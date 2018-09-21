@@ -408,11 +408,16 @@ def score_ref_set( reference_ns , reference_dd , reference_patterns , reference_
                                                     use_mapped_chars = \
                                                       ignore_chars ,
                                                     scorable_attributes = \
-                                                      args.scorable_attributes )
+                                                      args.scorable_attributes ,
+                                                    scorable_engines = \
+                                                      args.scorable_engines )
         except UnboundLocalError , e:
             log.error( 'UnboundLocalError exception in evaluate_positions:  {}'.format( e ) )
         except NameError , e:
             log.error( 'NameError exception in evaluate_positions:  {}'.format( e ) )
+        except TypeError, e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            log.error( 'TypeError in evaluate_positions ({}):  {}'.format( exc_tb.tb_lineno , e ) )
         except:
             e = sys.exc_info()[0]
             log.error( 'Uncaught exception in evaluate_positions:  {}'.format( e ) )
@@ -489,9 +494,10 @@ def init_args():
         for normalization_key in args.normalization_string.split( ',' ):
             ## Strip off any extra whitespace before processing
             normalization_key = normalization_key.strip()
-            ## TODO - allow alternate spellings of engines between document data definitions?
-            ##        See the usage of / for scorable_attributes
-            args.normalization_list.append( normalization_key )
+            normalization_kernel = normalization_key.split( '/' )
+            last = len( normalization_kernel ) - 1
+            args.normalization_list.append(  [ normalization_kernel[ 0 ] ,
+                                               normalization_kernel[ last ] ] )
     ## Initialize the corpuse settings, values, and metrics file
     ## if it was provided at the command line
     if( args.corpus_out ):
@@ -612,14 +618,14 @@ if __name__ == "__main__":
                     ## of document data defined engines
                     for normalization_engine in sorted( list( set( reference_dd[ 'normalization_engines' ] ) &
                                                               set( test_dd[ 'normalization_engines' ] ) ) ):
-                        args.scorable_engines.append( normalization_engine )
+                        args.scorable_engines.append( [ normalization_engine , normalization_engine ] )
                 else:
                     ## A list type means that a filtered list of attributes were provided
                     ## as arguments to the command line
-                    for normalization_engine in args.normalization_list:
-                        if( normalization_engine in reference_dd[ 'normalization_engines' ] and
-                            normalization_engine in test_dd[ 'normalization_engines' ] ):
-                            args.scorable_engines.append( normalization_engine )
+                    for engine_pair in args.normalization_list:
+                        if( engine_pair[ 0 ] in reference_dd[ 'normalization_engines' ] and
+                            engine_pair[ 1 ] in test_dd[ 'normalization_engines' ] ):
+                            args.scorable_engines.append( engine_pair )
                 if( len( args.scorable_engines ) == 0 ):
                     log.error( 'Zero normalization engines match between the reference and system document data definitions. Correct your configs' )
                     exit( 1 )
@@ -697,6 +703,9 @@ if __name__ == "__main__":
                                file_suffix = args.file_suffix )
             except NameError, e:
                 log.error( 'NameError in score_ref_set:  {}'.format( e ) )
+            except TypeError, e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                log.error( 'TypeError in score_ref_set ({}):  {}'.format( exc_tb.tb_lineno , e ) )
             except:
                 e = sys.exc_info()[0]
                 log.error( 'Uncaught exception in score_ref_set:  {}'.format( e ) )
