@@ -121,6 +121,11 @@ unstructured data extraction.
                         default = None , ## When --score-attributes is not present
                         const = [] ,     ## When --score-attributes is provided but no attributes listed
                         help="List of annotation attributes to evaluate in addition to type" )
+    parser.add_argument("--score-normalization", nargs = '?' ,
+                        dest = 'normalization_string' ,
+                        default = None , ## When --score-normalization is not present
+                        const = [] ,     ## When --score-normalization is provided but no engines listed
+                        help="List of normalization engines to evaluate in addition to type" )
 
     parser.add_argument( '--collapse-all-patterns' ,
                          help = "Treat all patterns extracted as of the same type" ,

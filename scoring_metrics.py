@@ -8,12 +8,22 @@ from sets import Set
 
 import pandas as pd
 
-def new_score_card( fuzzy_flags = [ 'exact' ] ):
+def new_score_card( fuzzy_flags = [ 'exact' ] ,
+                    normalization_engines = [] ):
     score_card = {}
     for fuzzy_flag in fuzzy_flags:
         score_card[ fuzzy_flag ] = pd.DataFrame( columns = [ 'File' ,
                                                              'Start' , 'End' ,
-                                                             'Type' , 'Pivot' , 'Score' ] )
+                                                             'Type' , 'Pivot' ,
+                                                             'Score' ] )
+    for normalization_engine in normalization_engines:
+        score_card[ normalization_engine ] = {}
+        for fuzzy_flag in fuzzy_flags:
+            score_card[ normalization_engine ][ fuzzy_flag ] = pd.DataFrame( columns = [ 'File' ,
+                                                                                         'Start' , 'End' ,
+                                                                                         'Type' ,
+                                                                                         'Pivot' ,
+                                                                                         'Score' ] )
     return score_card
 
 def get_annotation_from_base_entry( annotation_entry ,
@@ -101,14 +111,16 @@ def update_score_card( condition , score_card , fuzzy_flag ,
     score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
       [ filename , start_pos , end_pos ,
         type , pivot_value , condition ]
-    if( condition != 'TP' or scorable_attributes == None ):
+    if( condition != 'TP' ):
         return
+    ## TODO - add flag for an additional entry when ALL scorable_attributes are correct
     for ref_attribute, test_attribute in scorable_attributes:
         ## Skip entries for which the attribute wasn't extracted in
         ## either the ref or system annotation
         if( ref_attribute not in ref_annot.keys() or
             test_attribute not in test_annot.keys() ):
             continue
+        ## TODO - add flag that treats TN and TP results both at TP
         if( ref_annot[ ref_attribute ] == test_annot[ test_attribute ] ):
             if( ref_annot[ ref_attribute ] == 'true' ):
                 score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
@@ -126,6 +138,43 @@ def update_score_card( condition , score_card , fuzzy_flag ,
             score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
                 [ filename , start_pos , end_pos ,
                   type , ref_attribute , 'FP' ]
+    ## Loop over all scorable normalization engines in the score_card
+    for root_key in score_card.keys():
+        ## Skip entries for fuzzy_flag entries
+        if( isinstance( score_card[ root_key ] , pd.DataFrame ) ):
+            continue
+        ## TODO - add flag that treats TN and TP results both at TP
+        ## If neither the ref nor the system annotation have a normalization
+        ## entry for this engine, keep going. We can also consider this entry
+        ## a TN for the normalization engine in question.
+        if( root_key not in ref_annot.keys() and
+            root_key not in test_annot.keys() ):
+            score_card[ root_key ][ fuzzy_flag ].loc[ score_card[ root_key ][ fuzzy_flag ].shape[ 0 ] ] = \
+                [ filename , start_pos , end_pos ,
+                  type , None , 'TN' ]
+        elif( root_key not in test_annot.keys() ):
+            ## If we don't have a normalized entry in the test,
+            ## this is a FN
+            score_card[ root_key ][ fuzzy_flag ].loc[ score_card[ root_key ][ fuzzy_flag ].shape[ 0 ] ] = \
+                [ filename , start_pos , end_pos ,
+                  type , ref_annot[ root_key ] , 'FN' ]
+        elif( root_key not in ref_annot.keys() ):
+            ## If we don't have a normalized entry in the reference,
+            ## this is a FP
+            score_card[ root_key ][ fuzzy_flag ].loc[ score_card[ root_key ][ fuzzy_flag ].shape[ 0 ] ] = \
+                [ filename , start_pos , end_pos ,
+                  type , test_annot[ root_key ] , 'FP' ]
+        elif( ref_annot[ root_key ] == test_annot[ root_key ] ):
+            score_card[ root_key ][ fuzzy_flag ].loc[ score_card[ root_key ][ fuzzy_flag ].shape[ 0 ] ] = \
+                [ filename , start_pos , end_pos ,
+                  type , ref_annot[ root_key ] , 'TP' ]
+        else:
+            score_card[ root_key ][ fuzzy_flag ].loc[ score_card[ root_key ][ fuzzy_flag ].shape[ 0 ] ] = \
+                [ filename , start_pos , end_pos ,
+                  type , ref_annot[ root_key ] , 'FN' ]
+            score_card[ root_key ][ fuzzy_flag ].loc[ score_card[ root_key ][ fuzzy_flag ].shape[ 0 ] ] = \
+                [ filename , start_pos , end_pos ,
+                  type , test_annot[ root_key ] , 'FP' ]
 
 
 def exact_comparison_runner( reference_filename , confusion_matrix , score_card , 
@@ -1034,6 +1083,16 @@ def print_score_summary_shell( score_card , file_mapping ,
                                  reference_config , test_config ,
                                  fuzzy_flag = fuzzy_flag ,
                                  args = args )
+        for normalization_engine in args.scorable_engines:
+            for fuzzy_flag in args.fuzzy_flags:
+                print_score_summary( score_card[ normalization_engine ] ,
+                                     file_mapping ,
+                                     reference_config , test_config ,
+                                     fuzzy_flag = fuzzy_flag ,
+                                     args = args ,
+                                     norm_engine = '_{}'.format( normalization_engine ) )
+    except KeyError as e:
+        log.error( 'TypeError in print_score_summary:  {}'.format( e ) )
     except TypeError , e :
         log.error( 'TypeError in print_score_summary:  {}'.format( e ) )
     except NameError , e :
@@ -1050,7 +1109,8 @@ def print_score_summary_shell( score_card , file_mapping ,
 def print_score_summary( score_card , file_mapping ,
                          reference_config , test_config ,
                          fuzzy_flag ,
-                         args ):
+                         args ,
+                         norm_engine = '' ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     ## TODO - refactor score printing to a separate function
     ## TODO - add scores grouped by type
@@ -1061,20 +1121,22 @@ def print_score_summary( score_card , file_mapping ,
         else:
             if( args.reference_out ):
                 score_card[ fuzzy_flag ].to_csv( '{}/{}{}{}'.format( args.reference_out ,
-                                                                   'metrics_' ,
-                                                                   fuzzy_flag ,
-                                                                   '_score_card.csv' ) ,
-                                               sep = '\t' ,
-                                               encoding = 'utf-8' ,
-                                               index = False )
+                                                                     'metrics_' ,
+                                                                     fuzzy_flag ,
+                                                                     norm_engine ,
+                                                                     '_score_card.csv' ) ,
+                                                 sep = '\t' ,
+                                                 encoding = 'utf-8' ,
+                                                 index = False )
             if( args.test_out ):
                 score_card[ fuzzy_flag ].to_csv( '{}/{}{}{}'.format( args.test_out ,
-                                                                   'metrics_' ,
-                                                                   fuzzy_flag ,
-                                                                   '_score_card.csv' ) ,
-                                               sep = '\t' ,
-                                               encoding = 'utf-8' ,
-                                               index = False )
+                                                                     'metrics_' ,
+                                                                     fuzzy_flag ,
+                                                                     norm_engine ,
+                                                                     '_score_card.csv' ) ,
+                                                 sep = '\t' ,
+                                                 encoding = 'utf-8' ,
+                                                 index = False )
     ################
     ## major classes to loop over
     file_list = sorted( file_mapping.keys() )
@@ -1100,10 +1162,11 @@ def print_score_summary( score_card , file_mapping ,
         if( not args.pretty_print ):
             print( '\n{}{}{}{}'.format( args.delim_prefix ,
                                         fuzzy_flag ,
+                                        norm_engine ,
                                         args.delim ,
                                         metrics_header_line ) )
         else:
-            pretty_row = '{0}{1:^30s}'.format( args.delim_prefix , fuzzy_flag )
+            pretty_row = '{0}{1:^30s}'.format( args.delim_prefix , '{}{}'.format( fuzzy_flag , norm_engine ) )
             for m in args.metrics_list:
                 if( len( m ) > 9 ):
                     m = m[:9]
@@ -1113,7 +1176,7 @@ def print_score_summary( score_card , file_mapping ,
             print( "\n" + pretty_row )
             print( "=" * max_table_width )
     ##
-    pivotless_entries = ( score_card[ fuzzy_flag ][ 'Pivot' ].isnull() )
+    pivotless_entries = ( ( norm_engine != '' ) | score_card[ fuzzy_flag ][ 'Pivot' ].isnull() )
     metrics = norm_summary( score_card[ fuzzy_flag ][ pivotless_entries ][ 'Score' ].value_counts() ,
                             args = args )
     output_metrics( [ 'micro-average' ] ,
@@ -1142,7 +1205,7 @@ def print_score_summary( score_card , file_mapping ,
                                           [ 'file-mapping' ] ,
                                           [ filename ] ,
                                           [ file_mapping[ filename ] ] )
-            this_file = ( ( score_card[ fuzzy_flag ][ 'Pivot' ].isnull() ) &
+            this_file = ( ( ( norm_engine != '' ) | score_card[ fuzzy_flag ][ 'Pivot' ].isnull() ) &
                           ( score_card[ fuzzy_flag ][ 'File' ] == filename ) )
             file_value_counts = score_card[ fuzzy_flag ][ this_file ][ 'Score' ].value_counts()
             metrics = norm_summary( file_value_counts , args = args )
@@ -1179,7 +1242,7 @@ def print_score_summary( score_card , file_mapping ,
             ##
             for unique_type in sorted( unique_types ):
                 this_type = \
-                  (  ( score_card[ fuzzy_flag ][ 'Pivot' ].isnull() ) &
+                  (  ( ( norm_engine != '' ) | score_card[ fuzzy_flag ][ 'Pivot' ].isnull() ) &
                      ( score_card[ fuzzy_flag ][ 'File' ] == filename ) &
                      ( score_card[ fuzzy_flag ][ 'Type' ] == unique_type ) )
                 type_value_counts = \
@@ -1250,7 +1313,7 @@ def print_score_summary( score_card , file_mapping ,
             type_aggregate_metrics.append( 0 )
             non_empty_metrics.append( 0 )
         for unique_type in sorted( unique_types ):
-            this_type = ( ( score_card[ fuzzy_flag ][ 'Pivot' ].isnull() ) &
+            this_type = ( ( ( norm_engine != '' ) | score_card[ fuzzy_flag ][ 'Pivot' ].isnull() ) &
                           ( score_card[ fuzzy_flag ][ 'Type' ] == unique_type ) )
             type_value_counts = score_card[ fuzzy_flag ][ this_type ][ 'Score' ].value_counts()
             metrics = norm_summary( type_value_counts ,
@@ -1280,7 +1343,7 @@ def print_score_summary( score_card , file_mapping ,
             if( args.by_type_and_file ):
                 for filename in file_list:
                     this_file = \
-                      (  ( score_card[ fuzzy_flag ][ 'Pivot' ].isnull() ) &
+                      (  ( ( norm_engine != '' ) | score_card[ fuzzy_flag ][ 'Pivot' ].isnull() ) &
                          ( score_card[ fuzzy_flag ][ 'File' ] == filename ) &
                          ( score_card[ fuzzy_flag ][ 'Type' ] == unique_type ) )
                     file_value_counts = \
