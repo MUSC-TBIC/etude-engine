@@ -85,7 +85,8 @@ def extract_annotations_xml( ingest_file ,
                              begin_attribute = None ,
                              end_attribute = None ,
                              text_attribute = None ,
-                             optional_attributes = [] ):
+                             optional_attributes = [] ,
+                             normalization_engines = [] ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     found_annots = {}
     strict_starts = {}
@@ -129,9 +130,17 @@ def extract_annotations_xml( ingest_file ,
                                              end_pos_mapped = end_pos_mapped ,
                                              raw_text = raw_text ,
                                              tag_name = tag_name )
-        ##
+        ## TODO - do we need to sheild this in case an optional attribute
+        ##        doesn't exist in the annotation or does Python (and
+        ##        later etude engine code) handle a null correctly/safely?
         for optional_attr in optional_attributes:
             new_entry[ optional_attr ] = annot.get( optional_attr )
+        ## TODO - do we need to sheild this in case a normalization engine
+        ##        doesn't exist in the annotation or does Python (and
+        ##        later etude engine code) handle a null correctly/safely?
+        for normalization_engine in normalization_engines:
+            if( normalization_engine in annot.attrib ):
+                new_entry[ normalization_engine ] = annot.get( normalization_engine )
         ##
         if( begin_pos in strict_starts.keys() ):
             strict_starts[ begin_pos ].append( new_entry )
@@ -644,6 +653,11 @@ def extract_annotations( ingest_file ,
         log.error( 'I could not find the raw content for this document but was asked to ignore its whitespace.  Add document data to the config file for extracting raw content or use the --heed-whitespace flag.' )
         log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
         return offset_mapping , annotations
+    ## Normalization engines are global for the config file
+    ## rather than pattern-specific
+    norm_eng = []
+    if( 'normalization_engines' in document_data.keys() ):
+        norm_eng = document_data[ 'normalization_engines' ]
     for pattern in patterns:
         new_annots = None
         if( 'delimiter' in pattern ):
@@ -681,7 +695,8 @@ def extract_annotations( ingest_file ,
                                          end_attribute = \
                                            pattern[ 'end_attr' ] ,
                                          optional_attributes = \
-                                           pattern[ 'optional_attributes' ] )
+                                           pattern[ 'optional_attributes' ] ,
+                                         normalization_engines = norm_eng )
         elif( 'xpath' in pattern and
               'pivot_attr' in pattern ):
             new_annots = \
