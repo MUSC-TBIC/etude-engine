@@ -330,7 +330,9 @@ def score_ref_set( reference_ns , reference_dd , reference_patterns , reference_
     Score the system output (test) folder against the reference folder.
     """
     score_card = scoring_metrics.new_score_card( fuzzy_flags = \
-                                                 args.fuzzy_flags )
+                                                   args.fuzzy_flags ,
+                                                 normalization_engines = \
+                                                   args.scorable_engines )
     ##
     confusion_matrix = {}
     ##########################
@@ -406,11 +408,18 @@ def score_ref_set( reference_ns , reference_dd , reference_patterns , reference_
                                                     use_mapped_chars = \
                                                       ignore_chars ,
                                                     scorable_attributes = \
-                                                      args.scorable_attributes )
+                                                      args.scorable_attributes ,
+                                                    scorable_engines = \
+                                                      args.scorable_engines ,
+                                                    norm_synonyms =\
+                                                      args.normalization_synonyms )
         except UnboundLocalError , e:
             log.error( 'UnboundLocalError exception in evaluate_positions:  {}'.format( e ) )
         except NameError , e:
             log.error( 'NameError exception in evaluate_positions:  {}'.format( e ) )
+        except TypeError, e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            log.error( 'TypeError in evaluate_positions ({}):  {}'.format( exc_tb.tb_lineno , e ) )
         except:
             e = sys.exc_info()[0]
             log.error( 'Uncaught exception in evaluate_positions:  {}'.format( e ) )
@@ -480,6 +489,22 @@ def init_args():
             last = len( attribute_kernel ) - 1
             args.attributes_list.append( [ attribute_kernel[ 0 ] ,
                                            attribute_kernel[ last ] ] )
+    ## Initialize the list of normalization engines to score
+    args.normalization_list = []
+    args.scorable_engines = []
+    args.normalization_synonyms = {}
+    if( isinstance( args.normalization_string , basestring ) ):
+        for normalization_key in args.normalization_string.split( ',' ):
+            ## Strip off any extra whitespace before processing
+            normalization_key = normalization_key.strip()
+            normalization_kernel = normalization_key.split( '/' )
+            last = len( normalization_kernel ) - 1
+            args.normalization_list.append(  [ normalization_kernel[ 0 ] ,
+                                               normalization_kernel[ last ] ] )
+        ## Only bother to load the normalization_file if the --score-normalization
+        ## flag was used
+        args.normalization_synonyms = \
+          args_and_configs.process_normalization_file( args.normalization_file )
     ## Initialize the corpuse settings, values, and metrics file
     ## if it was provided at the command line
     if( args.corpus_out ):
@@ -553,7 +578,8 @@ if __name__ == "__main__":
         except:
             e = sys.exc_info()[0]
             log.error( 'Uncaught exception in align_patterns:  {}'.format( e ) )
-    ##
+    ## Get the intersection of attributes defined in the ref and sys patterns
+    ## along with those listed in the --score-attributes argument
     if( args.attributes_string is not None ):
         ## TODO - filter the scorable attributes based on just a single
         ##        reference or test input pattern base
@@ -583,6 +609,32 @@ if __name__ == "__main__":
                             args.scorable_attributes.append( attribute_pair )
                 if( len( args.scorable_attributes ) == 0 ):
                     log.error( 'Zero annotation attributes match between the reference and system pattern definitions. Correct your configs or provide mappings between attribute spellings.' )
+                    exit( 1 )
+            except TypeError as e :
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                log.error( 'TypeError in scorable attribute creation (ln {}):  {}'.format( exc_tb.tb_lineno , e ) )
+    ## Get the intersection of normalization engines defined in the ref
+    ## and sys document data settings along with those listed in the
+    ## --score-normalization argument
+    if( args.normalization_string is not None ):
+        if( args.reference_input and 'normalization_engines' in reference_dd and
+            args.test_input and 'normalization_engines' in test_dd ):
+            try:
+                if( args.normalization_list == [] ):
+                    ## No engines explicitly listed so we use the intersection
+                    ## of document data defined engines
+                    for normalization_engine in sorted( list( set( reference_dd[ 'normalization_engines' ] ) &
+                                                              set( test_dd[ 'normalization_engines' ] ) ) ):
+                        args.scorable_engines.append( [ normalization_engine , normalization_engine ] )
+                else:
+                    ## A list type means that a filtered list of attributes were provided
+                    ## as arguments to the command line
+                    for engine_pair in args.normalization_list:
+                        if( engine_pair[ 0 ] in reference_dd[ 'normalization_engines' ] and
+                            engine_pair[ 1 ] in test_dd[ 'normalization_engines' ] ):
+                            args.scorable_engines.append( engine_pair )
+                if( len( args.scorable_engines ) == 0 ):
+                    log.error( 'Zero normalization engines match between the reference and system document data definitions. Correct your configs' )
                     exit( 1 )
             except TypeError as e :
                 exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -658,6 +710,9 @@ if __name__ == "__main__":
                                file_suffix = args.file_suffix )
             except NameError, e:
                 log.error( 'NameError in score_ref_set:  {}'.format( e ) )
+            except TypeError, e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                log.error( 'TypeError in score_ref_set ({}):  {}'.format( exc_tb.tb_lineno , e ) )
             except:
                 e = sys.exc_info()[0]
                 log.error( 'Uncaught exception in score_ref_set:  {}'.format( e ) )

@@ -8,12 +8,22 @@ from sets import Set
 
 import pandas as pd
 
-def new_score_card( fuzzy_flags = [ 'exact' ] ):
+def new_score_card( fuzzy_flags = [ 'exact' ] ,
+                    normalization_engines = [] ):
     score_card = {}
     for fuzzy_flag in fuzzy_flags:
         score_card[ fuzzy_flag ] = pd.DataFrame( columns = [ 'File' ,
                                                              'Start' , 'End' ,
-                                                             'Type' , 'Pivot' , 'Score' ] )
+                                                             'Type' , 'Pivot' ,
+                                                             'Score' ] )
+    for ref_engine , test_engine in normalization_engines:
+        score_card[ ref_engine ] = {}
+        for fuzzy_flag in fuzzy_flags:
+            score_card[ ref_engine ][ fuzzy_flag ] = pd.DataFrame( columns = [ 'File' ,
+                                                                               'Start' , 'End' ,
+                                                                               'Type' ,
+                                                                               'Pivot' ,
+                                                                               'Score' ] )
     return score_card
 
 def get_annotation_from_base_entry( annotation_entry ,
@@ -97,18 +107,22 @@ def update_confusion_matrix( confusion_matrix , fuzzy_flag ,
 def update_score_card( condition , score_card , fuzzy_flag ,
                        filename , start_pos , end_pos , type , pivot_value = None ,
                        ref_annot = None , test_annot = None ,
-                       scorable_attributes = None ):
+                       scorable_attributes = None ,
+                       scorable_engines = None ,
+                       norm_synonyms = {} ):
     score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
       [ filename , start_pos , end_pos ,
         type , pivot_value , condition ]
-    if( condition != 'TP' or scorable_attributes == None ):
+    if( condition != 'TP' ):
         return
+    ## TODO - add flag for an additional entry when ALL scorable_attributes are correct
     for ref_attribute, test_attribute in scorable_attributes:
         ## Skip entries for which the attribute wasn't extracted in
         ## either the ref or system annotation
         if( ref_attribute not in ref_annot.keys() or
             test_attribute not in test_annot.keys() ):
             continue
+        ## TODO - add flag that treats TN and TP results both at TP
         if( ref_annot[ ref_attribute ] == test_annot[ test_attribute ] ):
             if( ref_annot[ ref_attribute ] == 'true' ):
                 score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
@@ -126,6 +140,46 @@ def update_score_card( condition , score_card , fuzzy_flag ,
             score_card[ fuzzy_flag ].loc[ score_card[ fuzzy_flag ].shape[ 0 ] ] = \
                 [ filename , start_pos , end_pos ,
                   type , ref_attribute , 'FP' ]
+    ## Loop over all scorable normalization engines in the score_card
+    for ref_engine , test_engine in scorable_engines:
+        ## Skip normalization engines that don't have a score
+        ## card associated with them
+        if( ref_engine not in score_card ):
+            continue
+        ## TODO - add flag that treats TN and TP results both at TP
+        ## If neither the ref nor the system annotation have a normalization
+        ## entry for this engine, keep going. We can also consider this entry
+        ## a TN for the normalization engine in question.
+        if( ref_engine not in ref_annot.keys() and
+            test_engine not in test_annot.keys() ):
+            score_card[ ref_engine ][ fuzzy_flag ].loc[ score_card[ ref_engine ][ fuzzy_flag ].shape[ 0 ] ] = \
+                [ filename , start_pos , end_pos ,
+                  type , None , 'TN' ]
+        elif( test_engine not in test_annot.keys() ):
+            ## If we don't have a normalized entry in the test,
+            ## this is a FN
+            score_card[ ref_engine ][ fuzzy_flag ].loc[ score_card[ ref_engine ][ fuzzy_flag ].shape[ 0 ] ] = \
+                [ filename , start_pos , end_pos ,
+                  type , ref_annot[ ref_engine ] , 'FN' ]
+        elif( ref_engine not in ref_annot.keys() ):
+            ## If we don't have a normalized entry in the reference,
+            ## this is a FP
+            score_card[ ref_engine ][ fuzzy_flag ].loc[ score_card[ ref_engine ][ fuzzy_flag ].shape[ 0 ] ] = \
+                [ filename , start_pos , end_pos ,
+                  type , test_annot[ test_engine ] , 'FP' ]
+        elif( ref_annot[ ref_engine ] == test_annot[ test_engine ] or
+              ( ref_annot[ ref_engine ] in norm_synonyms and
+                test_annot[ test_engine ] in norm_synonyms[ ref_annot[ ref_engine ] ] ) ):
+            score_card[ ref_engine ][ fuzzy_flag ].loc[ score_card[ ref_engine ][ fuzzy_flag ].shape[ 0 ] ] = \
+                [ filename , start_pos , end_pos ,
+                  type , ref_annot[ ref_engine ] , 'TP' ]
+        else:
+            score_card[ ref_engine ][ fuzzy_flag ].loc[ score_card[ ref_engine ][ fuzzy_flag ].shape[ 0 ] ] = \
+                [ filename , start_pos , end_pos ,
+                  type , ref_annot[ ref_engine ] , 'FN' ]
+            score_card[ ref_engine ][ fuzzy_flag ].loc[ score_card[ ref_engine ][ fuzzy_flag ].shape[ 0 ] ] = \
+                [ filename , start_pos , end_pos ,
+                  type , test_annot[ test_engine ] , 'FP' ]
 
 
 def exact_comparison_runner( reference_filename , confusion_matrix , score_card , 
@@ -133,7 +187,9 @@ def exact_comparison_runner( reference_filename , confusion_matrix , score_card 
                              test_entries ,
                              start_key , end_key ,
                              fuzzy_flag ,
-                             scorable_attributes ):
+                             scorable_attributes ,
+                             scorable_engines ,
+                             norm_synonyms ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     ## grab type and end position
     reference_type , reference_start , reference_end = \
@@ -175,7 +231,9 @@ def exact_comparison_runner( reference_filename , confusion_matrix , score_card 
                                    reference_type ,
                                    ref_annot = reference_annot ,
                                    test_annot = test_annot ,
-                                   scorable_attributes = scorable_attributes )
+                                   scorable_attributes = scorable_attributes ,
+                                   scorable_engines = scorable_engines ,
+                                   norm_synonyms = norm_synonyms )
             else:
                 update_score_card( 'FN' , score_card , fuzzy_flag ,
                                    reference_filename , reference_start , reference_end ,
@@ -199,7 +257,9 @@ def end_comparison_runner( reference_filename , confusion_matrix , score_card ,
                            test_entries ,
                            start_key , end_key ,
                            fuzzy_flag ,
-                           scorable_attributes ):
+                           scorable_attributes ,
+                           scorable_engines ,
+                           norm_synonyms ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     ## grab type and end position
     reference_type , reference_start , reference_end = \
@@ -244,7 +304,9 @@ def end_comparison_runner( reference_filename , confusion_matrix , score_card ,
                                    reference_type ,
                                    ref_annot = reference_annot ,
                                    test_annot = test_annot ,
-                                   scorable_attributes = scorable_attributes )
+                                   scorable_attributes = scorable_attributes ,
+                                   scorable_engines = scorable_engines ,
+                                   norm_synonyms = norm_synonyms )
             else:
                 update_score_card( 'FN' , score_card , fuzzy_flag ,
                                    reference_filename , reference_start , reference_end ,
@@ -268,7 +330,9 @@ def fully_contained_comparison_runner( reference_filename , confusion_matrix , s
                                        test_entries ,
                                        start_key , end_key ,
                                        fuzzy_flag ,
-                                       scorable_attributes ):
+                                       scorable_attributes ,
+                                       scorable_engines ,
+                                       norm_synonyms ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     ## grab type and end position
     reference_type , reference_start , reference_end = \
@@ -310,7 +374,9 @@ def fully_contained_comparison_runner( reference_filename , confusion_matrix , s
                                    reference_type , 
                                    ref_annot = reference_annot ,
                                    test_annot = test_annot ,
-                                   scorable_attributes = scorable_attributes )
+                                   scorable_attributes = scorable_attributes ,
+                                   scorable_engines = scorable_engines ,
+                                   norm_synonyms = norm_synonyms )
             else:
                 update_score_card( 'FN' , score_card , fuzzy_flag ,
                                    reference_filename , reference_start , reference_end ,
@@ -334,7 +400,9 @@ def partial_comparison_runner( reference_filename , confusion_matrix , score_car
                                test_entries ,
                                start_key , end_key ,
                                fuzzy_flag ,
-                               scorable_attributes ):
+                               scorable_attributes ,
+                               scorable_engines ,
+                               norm_synonyms ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     ## grab type and end position
     reference_type , reference_start , reference_end = \
@@ -380,7 +448,9 @@ def partial_comparison_runner( reference_filename , confusion_matrix , score_car
                                    reference_type , 
                                    ref_annot = reference_annot ,
                                    test_annot = test_annot ,
-                                   scorable_attributes = scorable_attributes )
+                                   scorable_attributes = scorable_attributes ,
+                                   scorable_engines = scorable_engines ,
+                                   norm_synonyms = norm_synonyms )
             else:
                 update_score_card( 'FN' , score_card , fuzzy_flag ,
                                    reference_filename , reference_start , reference_end ,
@@ -404,7 +474,9 @@ def reference_annot_comparison_runner( reference_filename , confusion_matrix , s
                                        test_entries ,
                                        start_key , end_key ,
                                        fuzzy_flag ,
-                                       scorable_attributes ):
+                                       scorable_attributes ,
+                                       scorable_engines ,
+                                       norm_synonyms ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     ## End offset matching is special and gets run alone
     if( fuzzy_flag == 'end' ):
@@ -415,7 +487,9 @@ def reference_annot_comparison_runner( reference_filename , confusion_matrix , s
                                                                    test_entries ,
                                                                    start_key , end_key ,
                                                                    fuzzy_flag ,
-                                                                   scorable_attributes )
+                                                                   scorable_attributes ,
+                                                                   scorable_engines ,
+                                                                   norm_synonyms )
         return( reference_matched , test_leftovers )
     ## The other three types of matching care compatible and can be
     ## run together
@@ -426,7 +500,9 @@ def reference_annot_comparison_runner( reference_filename , confusion_matrix , s
                                                                  test_entries ,
                                                                  start_key , end_key ,
                                                                  fuzzy_flag ,
-                                                                 scorable_attributes )
+                                                                 scorable_attributes ,
+                                                                 scorable_engines ,
+                                                                 norm_synonyms )
     if( fuzzy_flag == 'exact' or
         reference_matched ):
         return( reference_matched , test_leftovers )
@@ -437,7 +513,9 @@ def reference_annot_comparison_runner( reference_filename , confusion_matrix , s
                                                                            test_leftovers ,
                                                                            start_key , end_key ,
                                                                            fuzzy_flag ,
-                                                                           scorable_attributes )
+                                                                           scorable_attributes ,
+                                                                           scorable_engines ,
+                                                                           norm_synonyms )
     if( fuzzy_flag == 'fully-contained' or
         reference_matched ):
         return( reference_matched , test_leftovers )
@@ -448,7 +526,9 @@ def reference_annot_comparison_runner( reference_filename , confusion_matrix , s
                                                                     test_leftovers ,
                                                                     start_key , end_key ,
                                                                     fuzzy_flag ,
-                                                                    scorable_attributes )
+                                                                    scorable_attributes ,
+                                                                    scorable_engines ,
+                                                                    norm_synonyms )
     return( reference_matched , test_leftovers )
 
 def document_level_annot_comparison_runner( reference_filename , confusion_matrix , score_card , 
@@ -510,7 +590,9 @@ def evaluate_positions( reference_filename ,
                         test_ss ,
                         fuzzy_flag = 'exact' ,
                         use_mapped_chars = False ,
-                        scorable_attributes = [] ):
+                        scorable_attributes = [] ,
+                        scorable_engines = [] ,
+                        norm_synonyms = {} ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     if( use_mapped_chars ):
         start_key = 'begin_pos_mapped'
@@ -547,7 +629,9 @@ def evaluate_positions( reference_filename ,
                                              test_entries ,
                                              start_key , end_key ,
                                              fuzzy_flag ,
-                                             scorable_attributes )
+                                             scorable_attributes ,
+                                             scorable_engines ,
+                                             norm_synonyms )
         test_entries = test_leftovers
         if( not reference_matched ):
             if( reference_type != None ):
@@ -803,7 +887,8 @@ def output_metrics( class_data ,
         else:
             pretty_row = '{0}{1:30s}'.format( delimiter_prefix , row_name )
             for i in range( 0 , len( metrics ) ):
-                if( metrics[ i ] is None ):
+                if( metrics[ i ] is None or
+                    metrics[ i ] == '' ):
                     pretty_row = '{}{}{:9s}'.format( pretty_row , delimiter ,
                                                      '' )
                 elif( metrics[ i ] == 0 ):
@@ -1034,10 +1119,22 @@ def print_score_summary_shell( score_card , file_mapping ,
                                  reference_config , test_config ,
                                  fuzzy_flag = fuzzy_flag ,
                                  args = args )
+        for ref_engine , test_engine in args.scorable_engines:
+            for fuzzy_flag in args.fuzzy_flags:
+                print_score_summary( score_card[ ref_engine ] ,
+                                     file_mapping ,
+                                     reference_config , test_config ,
+                                     fuzzy_flag = fuzzy_flag ,
+                                     args = args ,
+                                     norm_engine = '_{}'.format( ref_engine ) )
+    except KeyError as e:
+        log.error( 'TypeError in print_score_summary:  {}'.format( e ) )
     except TypeError , e :
         log.error( 'TypeError in print_score_summary:  {}'.format( e ) )
     except NameError , e :
         log.error( 'NameError in print_score_summary:  {}'.format( e ) )
+    except ValueError , e :
+        log.error( 'ValueError in print_score_summary:  {}'.format( e ) )
     except AttributeError , e :
         log.error( 'AttributeError in print_score_summary:  {}'.format( e ) )
     except:
@@ -1050,7 +1147,8 @@ def print_score_summary_shell( score_card , file_mapping ,
 def print_score_summary( score_card , file_mapping ,
                          reference_config , test_config ,
                          fuzzy_flag ,
-                         args ):
+                         args ,
+                         norm_engine = '' ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     ## TODO - refactor score printing to a separate function
     ## TODO - add scores grouped by type
@@ -1060,21 +1158,23 @@ def print_score_summary( score_card , file_mapping ,
             log.warn( 'I could not write the metrics score_card to disk:  --write-score-cards set but neither --reference-out nor --test-out set' )
         else:
             if( args.reference_out ):
-                score_card[ fuzzy_flag ].to_csv( '{}/{}{}{}'.format( args.reference_out ,
-                                                                   'metrics_' ,
-                                                                   fuzzy_flag ,
-                                                                   '_score_card.csv' ) ,
-                                               sep = '\t' ,
-                                               encoding = 'utf-8' ,
-                                               index = False )
+                score_card[ fuzzy_flag ].to_csv( '{}/{}{}{}{}'.format( args.reference_out ,
+                                                                       'metrics_' ,
+                                                                       fuzzy_flag ,
+                                                                       norm_engine ,
+                                                                       '_score_card.csv' ) ,
+                                                 sep = '\t' ,
+                                                 encoding = 'utf-8' ,
+                                                 index = False )
             if( args.test_out ):
-                score_card[ fuzzy_flag ].to_csv( '{}/{}{}{}'.format( args.test_out ,
-                                                                   'metrics_' ,
-                                                                   fuzzy_flag ,
-                                                                   '_score_card.csv' ) ,
-                                               sep = '\t' ,
-                                               encoding = 'utf-8' ,
-                                               index = False )
+                score_card[ fuzzy_flag ].to_csv( '{}/{}{}{}{}'.format( args.test_out ,
+                                                                       'metrics_' ,
+                                                                       fuzzy_flag ,
+                                                                       norm_engine ,
+                                                                       '_score_card.csv' ) ,
+                                                 sep = '\t' ,
+                                                 encoding = 'utf-8' ,
+                                                 index = False )
     ################
     ## major classes to loop over
     file_list = sorted( file_mapping.keys() )
@@ -1098,12 +1198,13 @@ def print_score_summary( score_card , file_mapping ,
     max_table_width = 0
     if( args.print_metrics ):
         if( not args.pretty_print ):
-            print( '\n{}{}{}{}'.format( args.delim_prefix ,
-                                        fuzzy_flag ,
-                                        args.delim ,
-                                        metrics_header_line ) )
+            print( '\n{}{}{}{}{}'.format( args.delim_prefix ,
+                                          fuzzy_flag ,
+                                          norm_engine ,
+                                          args.delim ,
+                                          metrics_header_line ) )
         else:
-            pretty_row = '{0}{1:^30s}'.format( args.delim_prefix , fuzzy_flag )
+            pretty_row = '{0}{1:^30s}'.format( args.delim_prefix , '{}{}'.format( fuzzy_flag , norm_engine ) )
             for m in args.metrics_list:
                 if( len( m ) > 9 ):
                     m = m[:9]
@@ -1113,7 +1214,7 @@ def print_score_summary( score_card , file_mapping ,
             print( "\n" + pretty_row )
             print( "=" * max_table_width )
     ##
-    pivotless_entries = ( score_card[ fuzzy_flag ][ 'Pivot' ].isnull() )
+    pivotless_entries = ( ( norm_engine != '' ) | score_card[ fuzzy_flag ][ 'Pivot' ].isnull() )
     metrics = norm_summary( score_card[ fuzzy_flag ][ pivotless_entries ][ 'Score' ].value_counts() ,
                             args = args )
     output_metrics( [ 'micro-average' ] ,
@@ -1142,7 +1243,7 @@ def print_score_summary( score_card , file_mapping ,
                                           [ 'file-mapping' ] ,
                                           [ filename ] ,
                                           [ file_mapping[ filename ] ] )
-            this_file = ( ( score_card[ fuzzy_flag ][ 'Pivot' ].isnull() ) &
+            this_file = ( ( ( norm_engine != '' ) | score_card[ fuzzy_flag ][ 'Pivot' ].isnull() ) &
                           ( score_card[ fuzzy_flag ][ 'File' ] == filename ) )
             file_value_counts = score_card[ fuzzy_flag ][ this_file ][ 'Score' ].value_counts()
             metrics = norm_summary( file_value_counts , args = args )
@@ -1179,7 +1280,7 @@ def print_score_summary( score_card , file_mapping ,
             ##
             for unique_type in sorted( unique_types ):
                 this_type = \
-                  (  ( score_card[ fuzzy_flag ][ 'Pivot' ].isnull() ) &
+                  (  ( ( norm_engine != '' ) | score_card[ fuzzy_flag ][ 'Pivot' ].isnull() ) &
                      ( score_card[ fuzzy_flag ][ 'File' ] == filename ) &
                      ( score_card[ fuzzy_flag ][ 'Type' ] == unique_type ) )
                 type_value_counts = \
@@ -1250,7 +1351,7 @@ def print_score_summary( score_card , file_mapping ,
             type_aggregate_metrics.append( 0 )
             non_empty_metrics.append( 0 )
         for unique_type in sorted( unique_types ):
-            this_type = ( ( score_card[ fuzzy_flag ][ 'Pivot' ].isnull() ) &
+            this_type = ( ( ( norm_engine != '' ) | score_card[ fuzzy_flag ][ 'Pivot' ].isnull() ) &
                           ( score_card[ fuzzy_flag ][ 'Type' ] == unique_type ) )
             type_value_counts = score_card[ fuzzy_flag ][ this_type ][ 'Score' ].value_counts()
             metrics = norm_summary( type_value_counts ,
@@ -1264,7 +1365,7 @@ def print_score_summary( score_card , file_mapping ,
                 ## Only update macro-average if some of this type exist
                 ## in either reference or system output
                 for i in range( len( metrics ) ):
-                    if( metrics[ i ] != None ):
+                    if( metrics[ i ] is not None ):
                         non_empty_metrics[ i ] += 1
                         type_aggregate_metrics[ i ] += metrics[ i ]
             if( args.corpus_out ):
@@ -1280,7 +1381,7 @@ def print_score_summary( score_card , file_mapping ,
             if( args.by_type_and_file ):
                 for filename in file_list:
                     this_file = \
-                      (  ( score_card[ fuzzy_flag ][ 'Pivot' ].isnull() ) &
+                      (  ( ( norm_engine != '' ) | score_card[ fuzzy_flag ][ 'Pivot' ].isnull() ) &
                          ( score_card[ fuzzy_flag ][ 'File' ] == filename ) &
                          ( score_card[ fuzzy_flag ][ 'Type' ] == unique_type ) )
                     file_value_counts = \
