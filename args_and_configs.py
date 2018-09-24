@@ -121,11 +121,16 @@ unstructured data extraction.
                         default = None , ## When --score-attributes is not present
                         const = [] ,     ## When --score-attributes is provided but no attributes listed
                         help="List of annotation attributes to evaluate in addition to type" )
+    
     parser.add_argument("--score-normalization", nargs = '?' ,
                         dest = 'normalization_string' ,
                         default = None , ## When --score-normalization is not present
                         const = [] ,     ## When --score-normalization is provided but no engines listed
                         help="List of normalization engines to evaluate in addition to type" )
+    parser.add_argument("--normalization-file", #nargs = 1 ,
+                        dest = 'normalization_file' ,
+                        default = None ,
+                        help="A tab-delimited, two-column file containing normalization strings that should be treated as equivalent for the purposes of scoring" )
 
     parser.add_argument( '--collapse-all-patterns' ,
                          help = "Treat all patterns extracted as of the same type" ,
@@ -509,6 +514,20 @@ def process_config( config_file ,
     ##
     log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
     return namespaces , document_data , annotations
+
+
+def process_normalization_file( normalization_file ):
+    norm_synonyms = {}
+    if( normalization_file is None ):
+        return norm_synonyms
+    with open( normalization_file , 'r' ) as fp:
+        for line in fp:
+            line = line.rstrip( '\n' )
+            lhs , rhs = line.split( '\t' )
+            if( lhs not in norm_synonyms ):
+                norm_synonyms[ lhs ] = []
+            norm_synonyms[ lhs ].append( rhs )
+    return norm_synonyms
 
 
 def align_patterns( reference_patterns , test_patterns ):
