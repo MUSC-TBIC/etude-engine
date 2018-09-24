@@ -704,7 +704,7 @@ def test_brat_normalization_ignore_unselected_reference():
     line = 'N1	Reference T1 Wikipedia:534366	Barack Obama'
     new_entry = text_extraction.extract_brat_normalization( 'test.ann' ,
                                                             line ,
-                                                            reference_names = [ 'Britanica' ] )
+                                                            normalization_engines = [ 'Britanica' ] )
     assert( new_entry == None )
 
 
@@ -713,7 +713,7 @@ def test_brat_normalization_simple_lookup():
     line = 'N1	Reference T1 Wikipedia:534366	Barack Obama'
     new_entry = text_extraction.extract_brat_normalization( 'test.ann' ,
                                                             line ,
-                                                            reference_names = [ 'Wikipedia' ] )
+                                                            normalization_engines = [ 'Wikipedia' ] )
     assert( new_entry == [ 'T1' , 'Wikipedia' , '534366' , 'Barack Obama' ] )
 
 

@@ -1158,20 +1158,20 @@ def print_score_summary( score_card , file_mapping ,
             log.warn( 'I could not write the metrics score_card to disk:  --write-score-cards set but neither --reference-out nor --test-out set' )
         else:
             if( args.reference_out ):
-                score_card[ fuzzy_flag ].to_csv( '{}/{}{}{}'.format( args.reference_out ,
-                                                                     'metrics_' ,
-                                                                     fuzzy_flag ,
-                                                                     norm_engine ,
-                                                                     '_score_card.csv' ) ,
+                score_card[ fuzzy_flag ].to_csv( '{}/{}{}{}{}'.format( args.reference_out ,
+                                                                       'metrics_' ,
+                                                                       fuzzy_flag ,
+                                                                       norm_engine ,
+                                                                       '_score_card.csv' ) ,
                                                  sep = '\t' ,
                                                  encoding = 'utf-8' ,
                                                  index = False )
             if( args.test_out ):
-                score_card[ fuzzy_flag ].to_csv( '{}/{}{}{}'.format( args.test_out ,
-                                                                     'metrics_' ,
-                                                                     fuzzy_flag ,
-                                                                     norm_engine ,
-                                                                     '_score_card.csv' ) ,
+                score_card[ fuzzy_flag ].to_csv( '{}/{}{}{}{}'.format( args.test_out ,
+                                                                       'metrics_' ,
+                                                                       fuzzy_flag ,
+                                                                       norm_engine ,
+                                                                       '_score_card.csv' ) ,
                                                  sep = '\t' ,
                                                  encoding = 'utf-8' ,
                                                  index = False )
@@ -1198,11 +1198,11 @@ def print_score_summary( score_card , file_mapping ,
     max_table_width = 0
     if( args.print_metrics ):
         if( not args.pretty_print ):
-            print( '\n{}{}{}{}'.format( args.delim_prefix ,
-                                        fuzzy_flag ,
-                                        norm_engine ,
-                                        args.delim ,
-                                        metrics_header_line ) )
+            print( '\n{}{}{}{}{}'.format( args.delim_prefix ,
+                                          fuzzy_flag ,
+                                          norm_engine ,
+                                          args.delim ,
+                                          metrics_header_line ) )
         else:
             pretty_row = '{0}{1:^30s}'.format( args.delim_prefix , '{}{}'.format( fuzzy_flag , norm_engine ) )
             for m in args.metrics_list:
