@@ -167,19 +167,30 @@ def update_score_card( condition , score_card , fuzzy_flag ,
             score_card[ ref_engine ][ fuzzy_flag ].loc[ score_card[ ref_engine ][ fuzzy_flag ].shape[ 0 ] ] = \
                 [ filename , start_pos , end_pos ,
                   type , test_annot[ test_engine ] , 'FP' ]
-        elif( ref_annot[ ref_engine ] == test_annot[ test_engine ] or
-              ( ref_annot[ ref_engine ] in norm_synonyms and
-                test_annot[ test_engine ] in norm_synonyms[ ref_annot[ ref_engine ] ] ) ):
+        elif( ref_annot[ ref_engine ] == test_annot[ test_engine ] ):
             score_card[ ref_engine ][ fuzzy_flag ].loc[ score_card[ ref_engine ][ fuzzy_flag ].shape[ 0 ] ] = \
                 [ filename , start_pos , end_pos ,
                   type , ref_annot[ ref_engine ] , 'TP' ]
         else:
-            score_card[ ref_engine ][ fuzzy_flag ].loc[ score_card[ ref_engine ][ fuzzy_flag ].shape[ 0 ] ] = \
-                [ filename , start_pos , end_pos ,
-                  type , ref_annot[ ref_engine ] , 'FN' ]
-            score_card[ ref_engine ][ fuzzy_flag ].loc[ score_card[ ref_engine ][ fuzzy_flag ].shape[ 0 ] ] = \
-                [ filename , start_pos , end_pos ,
-                  type , test_annot[ test_engine ] , 'FP' ]
+            equiv_match = False
+            ref_concept = ref_annot[ ref_engine ]
+            test_concept = test_annot[ test_engine ]
+            for lhs in norm_synonyms:
+                if( ref_concept in norm_synonyms[ lhs ] and
+                    test_concept in norm_synonyms[ lhs ] ):
+                    equiv_match = True
+                    break
+            if( equiv_match ):
+                score_card[ ref_engine ][ fuzzy_flag ].loc[ score_card[ ref_engine ][ fuzzy_flag ].shape[ 0 ] ] = \
+                  [ filename , start_pos , end_pos ,
+                    type , ref_concept , 'TP' ]
+            else:
+                score_card[ ref_engine ][ fuzzy_flag ].loc[ score_card[ ref_engine ][ fuzzy_flag ].shape[ 0 ] ] = \
+                    [ filename , start_pos , end_pos ,
+                      type , ref_annot[ ref_engine ] , 'FN' ]
+                score_card[ ref_engine ][ fuzzy_flag ].loc[ score_card[ ref_engine ][ fuzzy_flag ].shape[ 0 ] ] = \
+                    [ filename , start_pos , end_pos ,
+                      type , test_annot[ test_engine ] , 'FP' ]
 
 
 def exact_comparison_runner( reference_filename , confusion_matrix , score_card , 

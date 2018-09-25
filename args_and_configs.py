@@ -523,10 +523,9 @@ def process_normalization_file( normalization_file ):
     with open( normalization_file , 'r' ) as fp:
         for line in fp:
             line = line.rstrip( '\n' )
-            lhs , rhs = line.split( '\t' )
-            if( lhs not in norm_synonyms ):
-                norm_synonyms[ lhs ] = []
-            norm_synonyms[ lhs ].append( rhs )
+            terms = line.split( '\t' )
+            lhs = terms[ 0 ]
+            norm_synonyms[ lhs ] = terms
     return norm_synonyms
 
 
