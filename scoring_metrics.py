@@ -1247,7 +1247,10 @@ def print_score_summary( score_card , file_mapping ,
     for i in range( len( args.metrics_list ) ):
         file_aggregate_metrics.append( 0 )
         non_empty_metrics.append( 0 )
-    if( args.by_file or args.by_file_and_type ):
+    if( args.by_file or args.by_file_and_type or
+        args.corpus_out or
+        args.reference_out or
+        args.test_out ):
         for filename in file_list:
             if( args.corpus_out ):
                 update_output_dictionary( args.corpus_out ,

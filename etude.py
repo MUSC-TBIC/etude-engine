@@ -13,8 +13,6 @@ import warnings
 import re
 import json
 
-import numpy as np
-
 import args_and_configs
 import scoring_metrics
 import text_extraction
