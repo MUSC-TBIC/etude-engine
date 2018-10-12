@@ -463,6 +463,30 @@ def init_args():
             args.progressbar_file = sys.stderr
         elif( args.progressbar_output == 'stdout' ):
             args.progressbar_file = sys.stdout
+    ## F-score beta values are commonly set to 1, 2, and 0.5 but we
+    ## want to support any values.  It's easiest to do filtering at
+    ## this point in the pipeline to standardize beta values and how
+    ## they show up in the pipeline
+    if( 'F' in args.metrics_list ):
+        f_position = args.metrics_list.index( 'F' )
+        args.metrics_list.pop( f_position )
+        if( len( args.f_beta_values ) == 0 ):
+            log.warn( 'F was included in the list of metrics to calculate but no beta values were provided (--f-beta-values <betas>)' )
+        else:
+            ## Reverse the list so that they get inserted into the metrics_list
+            ## in the proper order
+            args.f_beta_values.reverse()
+            for beta in args.f_beta_values:
+                if( 'F{}'.format( beta ) not in args.metrics_list ):
+                    args.metrics_list.insert( f_position , 'F{}'.format( beta ) )
+    else:
+        if( len( args.f_beta_values ) > 0 ):
+            log.warn( 'F beta values were provided but "F" was not included in the list of metrics to calculate (--f-beta-values <betas>)' )
+            args.f_beta_values = []
+    for common_beta in [ '1' , '2' , '0.5' ]:
+        if( 'F{}'.format( common_beta ) in args.metrics_list ):
+            if( common_beta not in args.f_beta_values ):
+                args.f_beta_values.append( common_beta )
     ## Resolve conflicts between --ignore-whitespace, --heed-whitespace,
     ## and --ignore-regex flags.  Essentially, if we set something in
     ## skip_chars, use that.  Otherwise, if we tripped --ignore_whitespace

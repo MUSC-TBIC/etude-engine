@@ -9,6 +9,7 @@ import args_and_configs
 import scoring_metrics
 import text_extraction
 
+from pytest import approx
 from pandas.testing import assert_frame_equal
 
 #############################################
@@ -107,6 +108,19 @@ def test_f_score_beta_proportional_to_recall():
         scoring_metrics.f_score( 0.1 , 1.0 , beta = 0.5 )
     assert scoring_metrics.f_score( 0.1 , 1.0 , beta = 1 ) < \
         scoring_metrics.f_score( 0.1 , 1.0 , beta = 2 )
+
+def test_f_score_range_of_values():
+    precision_recall_f = [ [ 0.363636364 , 0.345098039 , 2 , 0.348652932 ] ,
+                           [ 0.363636364 , 0.345098039 , 0.5 , 0.359771055 ] ,
+                           [ 0.363636364 , 0.345098039 , 4 , 0.346136048 ] ,
+                           [ 0.363636364 , 0.345098039 , 0.34 , 0.36162341 ] ,
+                           [ 0.367088608 , 0.348 , 2 , 0.351657235 ] ,
+                           [ 0.367088608 , 0.348 , 0.5 , 0.363105175 ] ,
+                           [ 0.367088608 , 0.348 , 4 , 0.349067737 ] ,
+                           [ 0.367088608 , 0.348 , 0.34 , 0.365013915 ] ]
+    for f2_test in precision_recall_f:
+        prec, rec, beta , f = f2_test
+        assert f == approx( scoring_metrics.f_score( prec , rec , beta = beta ) )
 
 #############################################
 ## Test print_score_summary()
@@ -241,6 +255,7 @@ def test_by_file_f_metrics( capsys ):
     score_card , args , sample_config , \
       file_mapping = initialize_for_print_summary_test()
     args.metrics_list = [ 'Precision' , 'Recall' , 'F1' ]
+    args.f_beta_values = [ '1' ]
     args.by_file = True
     ##
     scoring_metrics.print_score_summary( score_card , file_mapping ,
@@ -294,6 +309,7 @@ def test_macro_average_by_file_and_type_stats( capsys ):
     args.by_file = True
     args.by_type = True
     args.metrics_list = [ 'TP' , 'FP' , 'TN' , 'FN' , 'Precision' , 'Recall' , 'F1' ]
+    args.f_beta_values = [ '1' ]
     ##
     scoring_metrics.print_score_summary( score_card , file_mapping ,
                                          sample_config , sample_config ,
@@ -325,6 +341,7 @@ def test_by_file_and_type_to_reference_file_summary_stats( capsys ):
     score_card , args , sample_config , \
       file_mapping = initialize_for_print_summary_test()
     args.metrics_list = [ 'Precision' , 'Recall' , 'F1' ]
+    args.f_beta_values = [ '1' ]
     args.by_file_and_type = True
     ##
     try:
@@ -356,6 +373,7 @@ def test_by_file_and_type_to_test_file_summary_stats( capsys ):
     score_card , args , sample_config , \
       file_mapping = initialize_for_print_summary_test()
     args.metrics_list = [ 'Precision' , 'Recall' , 'F1' ]
+    args.f_beta_values = [ '1' ]
     args.by_file_and_type = True
     ##
     try:
@@ -387,6 +405,7 @@ def test_csv_out_header_creation( capsys ):
     score_card , args , sample_config , \
       file_mapping = initialize_for_print_summary_test()
     args.metrics_list = [ 'Precision' , 'Recall' , 'F1' ]
+    args.f_beta_values = [ '1' ]
     ##
     try:
         tmp_descriptor, tmp_file = tempfile.mkstemp()
@@ -412,6 +431,7 @@ def test_csv_out_append_if_present( capsys ):
     score_card , args , sample_config , \
       file_mapping = initialize_for_print_summary_test()
     args.metrics_list = [ 'TP' , 'FP' , 'Precision' , 'Recall' , 'F1' ]
+    args.f_beta_values = [ '1' ]
     ## This flavor of named temporary file is automatically created, which should
     ## trigger the logic branching that tests if the csv_out file is already
     ## present
