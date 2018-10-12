@@ -52,8 +52,12 @@ unstructured data extraction.
                                      'Recall' , 'Sensitivity' ,
                                      'Specificity' ,
                                      'Accuracy' ,
-                                     'F1' ] ,
+                                     'F1' , 'F2' , 'F0.5' , 'F' ] ,
                          help = "List of metrics to return, in order" )
+    parser.add_argument( "--f-beta-values" , nargs = '+' ,
+                         dest = 'f_beta_values' ,
+                         default = [] ,
+                         help = "List of beta values to use in calculating the F-score. This list is only used when 'F' is a given metric." )
     
     parser.add_argument( '--empty-value' ,
                          dest = 'empty_value' ,

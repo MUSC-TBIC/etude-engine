@@ -120,6 +120,130 @@ def test_init_args_progressbar_none():
         assert args.progressbar_disabled
         assert args.progressbar_file is None
 
+################################
+
+def test_init_args_default_f_beta_values():
+    test_args = [ 'etude.py' ,
+                  '--reference-input' , '/tmp/reference' ,
+                  '--test-input' , '/tmp/test' ]
+    with patch.object( sys , 'argv' , test_args ):
+        args = etude.init_args()
+        assert args.f_beta_values == []
+
+def test_init_args_single_f_beta_value():
+    test_args = [ 'etude.py' ,
+                  '--reference-input' , '/tmp/reference' ,
+                  '--test-input' , '/tmp/test' ,
+                  '-m' , 'Precision' , 'F' , 'Recall' , 
+                  '--f-beta-values' , '1' ]
+    with patch.object( sys , 'argv' , test_args ):
+        args = etude.init_args()
+        assert 'F' not in args.metrics_list
+        assert 'F1' in args.metrics_list
+        assert [ 'Precision' , 'F1' , 'Recall' ] == args.metrics_list
+        assert args.f_beta_values == [ '1' ]
+
+def test_init_args_multiple_f_beta_values():
+    test_args = [ 'etude.py' ,
+                  '--reference-input' , '/tmp/reference' ,
+                  '--test-input' , '/tmp/test' ,
+                  '-m' , 'Precision' , 'F' , 'Recall' ,
+                  '--f-beta-values' , '4' , '0.34' ]
+    with patch.object( sys , 'argv' , test_args ):
+        args = etude.init_args()
+        assert 'F' not in args.metrics_list
+        assert [ 'Precision' , 'F4' , 'F0.34' , 'Recall' ] == args.metrics_list
+        ## Note:  the beta values are reversed because of how we need
+        ## to insert them into the metrics_list
+        assert args.f_beta_values == [ '0.34' , '4' ]
+
+def test_init_args_1():
+    test_args = [ 'etude.py' ,
+                  '--reference-input' , '/tmp/reference' ,
+                  '--test-input' , '/tmp/test' ,
+                  '-m' , 'Precision' , 'Recall' ,
+                  '--f-beta-values' , '1' ]
+    with patch.object( sys , 'argv' , test_args ):
+        args = etude.init_args()
+        assert 'F' not in args.metrics_list
+        assert 'F1' not in args.metrics_list
+        assert [ 'Precision' , 'Recall' ] == args.metrics_list
+        assert args.f_beta_values == []
+
+def test_init_args_f1():
+    test_args = [ 'etude.py' ,
+                  '--reference-input' , '/tmp/reference' ,
+                  '--test-input' , '/tmp/test' ,
+                  '-m' , 'Precision' , 'F1' , 'Recall' ]
+    with patch.object( sys , 'argv' , test_args ):
+        args = etude.init_args()
+        assert 'F' not in args.metrics_list
+        assert 'F1' in args.metrics_list
+        assert [ 'Precision' , 'F1' , 'Recall' ] == args.metrics_list
+        assert args.f_beta_values == [ '1' ]
+
+def test_init_args_f1_and_1():
+    test_args = [ 'etude.py' ,
+                  '--reference-input' , '/tmp/reference' ,
+                  '--test-input' , '/tmp/test' ,
+                  '-m' , 'Precision' , 'F1' , 'Recall' , 
+                  '--f-beta-values' , '1' ]
+    with patch.object( sys , 'argv' , test_args ):
+        args = etude.init_args()
+        assert 'F' not in args.metrics_list
+        assert [ 'Precision' , 'F1' , 'Recall' ] == args.metrics_list
+        assert args.f_beta_values == [ '1' ]
+
+def test_init_args_f1_f_and_1():
+    test_args = [ 'etude.py' ,
+                  '--reference-input' , '/tmp/reference' ,
+                  '--test-input' , '/tmp/test' ,
+                  '-m' , 'Precision' , 'F1' , 'F' , 'Recall' , 
+                  '--f-beta-values' , '1' ]
+    with patch.object( sys , 'argv' , test_args ):
+        args = etude.init_args()
+        assert 'F' not in args.metrics_list
+        assert [ 'Precision' , 'F1' , 'Recall' ] == args.metrics_list
+        assert args.f_beta_values == [ '1' ]
+
+def test_init_args_f1_f_and_34():
+    test_args = [ 'etude.py' ,
+                  '--reference-input' , '/tmp/reference' ,
+                  '--test-input' , '/tmp/test' ,
+                  '-m' , 'Precision' , 'F1' , 'F' , 'Recall' , 
+                  '--f-beta-values' , '0.34' ]
+    with patch.object( sys , 'argv' , test_args ):
+        args = etude.init_args()
+        assert 'F' not in args.metrics_list
+        assert [ 'Precision' , 'F1' , 'F0.34' , 'Recall' ] == args.metrics_list
+        assert args.f_beta_values == [ '0.34' , '1' ]
+
+def test_init_args_f1_and_34():
+    test_args = [ 'etude.py' ,
+                  '--reference-input' , '/tmp/reference' ,
+                  '--test-input' , '/tmp/test' ,
+                  '-m' , 'Precision' , 'F1' , 'Recall' , 
+                  '--f-beta-values' , '0.34' ]
+    with patch.object( sys , 'argv' , test_args ):
+        args = etude.init_args()
+        assert 'F' not in args.metrics_list
+        assert [ 'Precision' , 'F1' , 'Recall' ] == args.metrics_list
+        assert args.f_beta_values == [ '1' ]
+
+def test_init_args_f_1_and_34():
+    test_args = [ 'etude.py' ,
+                  '--reference-input' , '/tmp/reference' ,
+                  '--test-input' , '/tmp/test' ,
+                  '-m' , 'Precision' , 'F' , 'Recall' , 
+                  '--f-beta-values' , '1' , '0.34' ]
+    with patch.object( sys , 'argv' , test_args ):
+        args = etude.init_args()
+        assert 'F' not in args.metrics_list
+        assert [ 'Precision' , 'F1' , 'F0.34' , 'Recall' ] == args.metrics_list
+        assert args.f_beta_values == [ '0.34' , '1' ]
+
+################################
+
 def test_init_args_file_prefix_simplex():
     test_args = [ 'etude.py' , '--no-metrics' ,
                   '--file-prefix' , '.xyz' ]

@@ -780,7 +780,7 @@ def norm_summary( score_summary , args ):
     ## Recall,
     ## Probability of Detection
     if( 'Recall' in args.metrics_list or
-        'F1' in args.metrics_list ):
+        len( args.f_beta_values ) > 0 ):
         score_summary[ 'Recall' ] = recall( tp = score_summary[ 'TP' ] ,
                                             fn = score_summary[ 'FN' ] )
     if( 'Sensitivity' in args.metrics_list ):
@@ -789,7 +789,7 @@ def norm_summary( score_summary , args ):
     ## Positive Predictive Value (PPV),
     ## Precision
     if( 'Precision' in args.metrics_list or
-        'F1' in args.metrics_list ):
+        len( args.f_beta_values ) > 0 ):
         score_summary[ 'Precision' ] = precision( tp = score_summary[ 'TP' ] ,
                                                   fp = score_summary[ 'FP' ] )
     ## True Negative Rate (TNR),
@@ -804,9 +804,10 @@ def norm_summary( score_summary , args ):
                                                 tn = score_summary[ 'TN' ] ,
                                                 fn = score_summary[ 'FN' ] )
     ##
-    if( 'F1' in args.metrics_list ):
-        score_summary[ 'F1' ] = f_score( p = score_summary[ 'Precision' ] ,
-                                         r = score_summary[ 'Recall' ] )
+    for beta in args.f_beta_values:
+        score_summary[ 'F{}'.format( beta ) ] = f_score( p = score_summary[ 'Precision' ] ,
+                                                         r = score_summary[ 'Recall' ] ,
+                                                         beta = float( beta ) )
     ##
     metrics = []
     for metric in args.metrics_list:
@@ -1139,7 +1140,7 @@ def print_score_summary_shell( score_card , file_mapping ,
                                      args = args ,
                                      norm_engine = '_{}'.format( ref_engine ) )
     except KeyError as e:
-        log.error( 'TypeError in print_score_summary:  {}'.format( e ) )
+        log.error( 'KeyError in print_score_summary:  {}'.format( e ) )
     except TypeError , e :
         log.error( 'TypeError in print_score_summary:  {}'.format( e ) )
     except NameError , e :
