@@ -20,6 +20,7 @@ test:python2.7:
 
 test:python3.5.3:
   stage: test
+  allow_failure: true
   script:
   - cp Dockerfile.python3.5.3 Dockerfile
   - docker build -t pytest-image .
