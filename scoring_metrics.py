@@ -753,7 +753,7 @@ def f_score( p , r , beta = 1 ):
 
 def add_missing_fields( score_summary ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
-    score_types = list( score_summary )
+    score_types = score_summary.keys()
     if( 'TP' not in score_types ):
         score_summary[ 'TP' ] = 0.0
     if( 'FP' not in score_types ):

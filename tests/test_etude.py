@@ -306,7 +306,7 @@ def test_full_matching_directory():
                            file_suffix = [ '.xml' ] ,
                            skip_missing_files_flag = True )
     assert match_count == 10
-    assert len( file_mapping.keys() ) == match_count
+    assert len( file_mapping ) == match_count
 
 def test_full_matching_directory_file_mapping():
     file_mapping = \
@@ -315,7 +315,7 @@ def test_full_matching_directory_file_mapping():
                               file_prefix = '/' ,
                               file_suffix = [ '.xml' ] ,
                               skip_missing_files_flag = True )
-    assert len( file_mapping.keys() ) == 10
+    assert len( file_mapping ) == 10
 
 
 def test_identical_file_suffix_matching_directory():
@@ -326,7 +326,7 @@ def test_identical_file_suffix_matching_directory():
                            file_suffix = [ '.xml' , '.xml' ] ,
                            skip_missing_files_flag = True )
     assert match_count == 10
-    assert len( file_mapping.keys() ) == match_count
+    assert len( file_mapping ) == match_count
 
 
 def test_empty_reference_directory():

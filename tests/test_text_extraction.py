@@ -123,7 +123,7 @@ def test_default_namespace_same_as_empty():
                                                   annotation_path = \
                                                       './TAGS/DATE' ,
                                                   tag_name = 'DateTime' ,
-                                                  namespaces = [] ,
+                                                  namespaces = {} ,
                                                   begin_attribute = 'start' ,
                                                   end_attribute = 'end' )
     assert strict_starts_default == strict_starts_empty
@@ -809,7 +809,7 @@ def test_offset_mapping_matches_pos_mapped_automatically():
                                                   tag_name = 'DateTime' ,
                                                   begin_attribute = 'start' ,
                                                   end_attribute = 'end' )
-    for start_key in strict_starts.keys():
+    for start_key in strict_starts:
         begin_pos = strict_starts[ start_key ][ 0 ][ 'begin_pos' ]
         begin_pos_mapped = strict_starts[ start_key ][ 0 ][ 'begin_pos_mapped' ]
         end_pos = strict_starts[ start_key ][ 0 ][ 'end_pos' ]

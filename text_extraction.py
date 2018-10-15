@@ -142,7 +142,7 @@ def extract_annotations_xml( ingest_file ,
             if( normalization_engine in annot.attrib ):
                 new_entry[ normalization_engine ] = annot.get( normalization_engine )
         ##
-        if( begin_pos in strict_starts.keys() ):
+        if( begin_pos in strict_starts ):
             strict_starts[ begin_pos ].append( new_entry )
         else:
             strict_starts[ begin_pos ] = [ new_entry ]
