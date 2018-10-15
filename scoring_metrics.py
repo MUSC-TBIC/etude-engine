@@ -63,7 +63,7 @@ def get_annotation_from_base_entry( annotation_entry ,
 def flatten_ss_dictionary( ss_dictionary ,
                            category = '(unknown)' ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
-    all_keys = ss_dictionary.keys()
+    all_keys = list( ss_dictionary )
     if( len( all_keys ) == 0 ):
         log.debug( 'Zero {} keys in strict starts dictionary'.format( category ) )
     else:
@@ -117,8 +117,8 @@ def update_score_card( condition , score_card , fuzzy_flag ,
     for ref_attribute, test_attribute in scorable_attributes:
         ## Skip entries for which the attribute wasn't extracted in
         ## either the ref or system annotation
-        if( ref_attribute not in ref_annot.keys() or
-            test_attribute not in test_annot.keys() ):
+        if( ref_attribute not in ref_annot or
+            test_attribute not in test_annot ):
             continue
         ## TODO - add flag that treats TN and TP results both at TP
         if( ref_annot[ ref_attribute ] == test_annot[ test_attribute ] ):
@@ -148,18 +148,18 @@ def update_score_card( condition , score_card , fuzzy_flag ,
         ## If neither the ref nor the system annotation have a normalization
         ## entry for this engine, keep going. We can also consider this entry
         ## a TN for the normalization engine in question.
-        if( ref_engine not in ref_annot.keys() and
-            test_engine not in test_annot.keys() ):
+        if( ref_engine not in ref_annot and
+            test_engine not in test_annot ):
             score_card[ ref_engine ][ fuzzy_flag ].loc[ score_card[ ref_engine ][ fuzzy_flag ].shape[ 0 ] ] = \
                 [ filename , start_pos , end_pos ,
                   type , None , 'TN' ]
-        elif( test_engine not in test_annot.keys() ):
+        elif( test_engine not in test_annot ):
             ## If we don't have a normalized entry in the test,
             ## this is a FN
             score_card[ ref_engine ][ fuzzy_flag ].loc[ score_card[ ref_engine ][ fuzzy_flag ].shape[ 0 ] ] = \
                 [ filename , start_pos , end_pos ,
                   type , ref_annot[ ref_engine ] , 'FN' ]
-        elif( ref_engine not in ref_annot.keys() ):
+        elif( ref_engine not in ref_annot ):
             ## If we don't have a normalized entry in the reference,
             ## this is a FP
             score_card[ ref_engine ][ fuzzy_flag ].loc[ score_card[ ref_engine ][ fuzzy_flag ].shape[ 0 ] ] = \
@@ -753,7 +753,7 @@ def f_score( p , r , beta = 1 ):
 
 def add_missing_fields( score_summary ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
-    score_types = score_summary.keys()
+    score_types = list( score_summary )
     if( 'TP' not in score_types ):
         score_summary[ 'TP' ] = 0.0
     if( 'FP' not in score_types ):
@@ -820,7 +820,7 @@ def recursive_deep_key_value_pair( dictionary , path , key , value ):
         dictionary[ key ] = value
     else:
         pop_path = path[ 0 ]
-        if( pop_path not in dictionary.keys() ):
+        if( pop_path not in dictionary ):
             dictionary[ pop_path ] = {}
         dictionary[ pop_path ] = recursive_deep_key_value_pair( dictionary[ pop_path ] ,
                                                                 path[ 1: ] ,
@@ -918,7 +918,7 @@ def output_metrics( class_data ,
 def get_unique_types( config ):
     unique_types = set()
     for pattern in config:
-        if( 'pivot_attr' in pattern.keys() ):
+        if( 'pivot_attr' in pattern ):
             ## TODO - pull this fron the config file
             for pivot_value in [ 'met' , 'not met' ]: ##pattern[ 'pivot_values' ]:
                 this_type = '{} = "{}"'.format( pattern[ 'type' ] , pivot_value )

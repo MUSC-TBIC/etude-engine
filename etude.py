@@ -56,7 +56,7 @@ def count_ref_set( this_ns , this_dd , this_patterns ,
         except:
             e = sys.exc_info()[0]
             log.error( 'Uncaught exception in extract_annotations:  {}'.format( e ) )
-        for this_start in this_ss.keys():
+        for this_start in this_ss:
             ## loop over all entries sharing the same start position
             ## and grab type and end position
             for this_entry in this_ss[ this_start ]:

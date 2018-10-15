@@ -181,7 +181,7 @@ def extract_annotations_xml_spanless( ingest_file ,
         for optional_attr in optional_attributes:
             new_entry[ optional_attr ] = annot.get( optional_attr )
         ##
-        if( -1 in strict_starts.keys() ):
+        if( -1 in strict_starts ):
             for old_entry in strict_starts[ -1 ]:
                 ## TODO - current logic allows multiple instances of the same type
                 ## if they differ on their pivot_value.  This is good for topic
@@ -351,7 +351,7 @@ def extract_annotations_brat_standoff( ingest_file ,
                                                                   line ,
                                                                   optional_attributes )
                     if( new_attribute_value[ 0 ] != None and
-                        new_attribute_value[ 0 ] in annots_by_index.keys() and
+                        new_attribute_value[ 0 ] in annots_by_index and
                         new_attribute_value[ 2 ] != None ):
                         annots_by_index[ new_attribute_value[ 0 ] ][ new_attribute_value[ 2 ] ] = new_attribute_value[ 3 ]
                 elif( brat_annotation_type == 'R' ):
@@ -378,7 +378,7 @@ def extract_annotations_brat_standoff( ingest_file ,
                                                                     normalization_engines )
                     if( new_normalization is not None and
                         new_normalization[ 0 ] is not None and
-                        new_normalization[ 0 ] in annots_by_index.keys() and
+                        new_normalization[ 0 ] in annots_by_index and
                         new_normalization[ 1 ] is not None and
                         new_normalization[ 2 ] is not None ):
                         annots_by_index[ new_normalization[ 0 ] ][ new_normalization[ 1 ] ] = new_normalization[ 2 ]
@@ -393,7 +393,7 @@ def extract_annotations_brat_standoff( ingest_file ,
     for match_index in annots_by_index:
         new_entry = annots_by_index[ match_index ]
         begin_pos = new_entry[ 'begin_pos' ]
-        if( begin_pos in strict_starts.keys() ):
+        if( begin_pos in strict_starts ):
             strict_starts[ begin_pos ].append( new_entry )
         else:
             strict_starts[ begin_pos ] = [ new_entry ]
@@ -435,7 +435,7 @@ def extract_annotations_plaintext( offset_mapping ,
                                                  raw_text = raw_text ,
                                                  tag_name = tag_name )
             ##
-            if( begin_pos in strict_starts.keys() ):
+            if( begin_pos in strict_starts ):
                 strict_starts[ begin_pos ].append( new_entry )
             else:
                 strict_starts[ begin_pos ] = [ new_entry ]
@@ -459,7 +459,7 @@ def extract_annotations_plaintext( offset_mapping ,
                                              raw_text = raw_text ,
                                              tag_name = tag_name )
         ##
-        if( begin_pos in strict_starts.keys() ):
+        if( begin_pos in strict_starts ):
             strict_starts[ begin_pos ].append( new_entry )
         else:
             strict_starts[ begin_pos ] = [ new_entry ]
@@ -507,10 +507,10 @@ def extract_chars( ingest_file ,
     ##
     cdata_flag = False
     attribute_flag = False
-    if( 'cdata_xpath' in document_data.keys() ):
+    if( 'cdata_xpath' in document_data ):
         cdata_flag = True
         content_path = document_data[ 'cdata_xpath' ]
-    elif( 'content_attribute' in document_data.keys() ):
+    elif( 'content_attribute' in document_data ):
         attribute_flag = True
         content_path = document_data[ 'tag_xpath' ]
         attribute_name = document_data[ 'content_attribute' ]
@@ -575,7 +575,7 @@ def align_tokens_on_whitespace( dictionary ,
         os.path.exists( out_file ) ):
         os.remove( out_file )
     mapping = dictionary[ 'offset_mapping' ]
-    keys = mapping.keys()
+    keys = list( mapping )
     content = dictionary[ 'raw_content' ]
     keys.sort( key = int )
     token_start = None
@@ -656,7 +656,7 @@ def extract_annotations( ingest_file ,
     ## Normalization engines are global for the config file
     ## rather than pattern-specific
     norm_eng = []
-    if( 'normalization_engines' in document_data.keys() ):
+    if( 'normalization_engines' in document_data ):
         norm_eng = document_data[ 'normalization_engines' ]
     for pattern in patterns:
         new_annots = None
@@ -669,7 +669,7 @@ def extract_annotations( ingest_file ,
                                                tag_name = pattern[ 'type' ] )
         elif( 'type_prefix' in pattern ):
             norm_eng = []
-            if( 'normalization_engines' in document_data.keys() ):
+            if( 'normalization_engines' in document_data ):
                 norm_eng = document_data[ 'normalization_engines' ]
             new_annots = \
                 extract_annotations_brat_standoff( ingest_file ,
@@ -712,8 +712,8 @@ def extract_annotations( ingest_file ,
             print( 'WARNING:  Skipping pattern because it is missing essential elements:\n\n{}'.format( pattern ) )
         ##
         if( new_annots != None ):
-            for new_annot_key in new_annots.keys():
-                if( new_annot_key in annotations.keys() ):
+            for new_annot_key in new_annots:
+                if( new_annot_key in annotations ):
                     ## TODO - If multiple patterns are associated with the same type
                     ##        and we're evaluating annotations at the document level
                     ##        (or otherwise want at most one instance of an annotation
