@@ -4,8 +4,6 @@ import logging as log
 
 import json
 
-from sets import Set
-
 import pandas as pd
 
 def new_score_card( fuzzy_flags = [ 'exact' ] ,
@@ -32,7 +30,7 @@ def get_annotation_from_base_entry( annotation_entry ,
     try:
         annotation_type = annotation_entry[ 'type' ]
     except KeyError as e:
-        log.warn( 'Could not access annotation type.  Skipping entry.' )
+        log.warning( 'Could not access annotation type.  Skipping entry.' )
         return None , None , None
     try:
         annotation_start = annotation_entry[ start_key ]
@@ -41,7 +39,7 @@ def get_annotation_from_base_entry( annotation_entry ,
         except ValueError:
             log.debug( 'Annotation start position could not be converted to int.  Treating as a string:  {}'.format( annotation_start ) )
     except KeyError as e:
-        log.warn( 'Could not access annotation start key.  Skipping entry.' )
+        log.warning( 'Could not access annotation start key.  Skipping entry.' )
         return None , None , None
     try:
         annotation_end = annotation_entry[ end_key ]
@@ -50,7 +48,7 @@ def get_annotation_from_base_entry( annotation_entry ,
         except ValueError:
             log.debug( 'Annotation end position could not be converted to int.  Treating as a string:  {}'.format( annotation_end ) )
     except KeyError as e:
-        log.warn( 'Could not access annotation end key.  Skipping entry.' )
+        log.warning( 'Could not access annotation end key.  Skipping entry.' )
         return None , None , None
     log.debug( '{} ( {} - {} )'.format( annotation_type ,
                                         annotation_start ,
@@ -918,7 +916,7 @@ def output_metrics( class_data ,
 
 
 def get_unique_types( config ):
-    unique_types = Set()
+    unique_types = set()
     for pattern in config:
         if( 'pivot_attr' in pattern.keys() ):
             ## TODO - pull this fron the config file
@@ -941,7 +939,7 @@ def print_counts_summary( score_card , file_list ,
     if( args.write_score_cards ):
         if( set_type == 'reference' ):
             if( args.reference_out == None ):
-                log.warn( 'I could not write the reference counts score_card to disk:  --write-score-cards set but no --reference-out set' )
+                log.warning( 'I could not write the reference counts score_card to disk:  --write-score-cards set but no --reference-out set' )
             else:
                 score_card[ 'counts' ].to_csv( '{}/{}'.format( args.reference_out ,
                                                                'counts_score_card.csv' ) ,
@@ -950,7 +948,7 @@ def print_counts_summary( score_card , file_list ,
                                                index = False )
         elif( set_type == 'test' ):
             if( args.test_out == None ):
-                log.warn( 'I could not write the test counts score_card to disk:  --write-score-cards set but no --test-out set' )
+                log.warning( 'I could not write the test counts score_card to disk:  --write-score-cards set but no --test-out set' )
             else:
                 score_card[ 'counts' ].to_csv( '{}/{}'.format( args.test_out ,
                                                                'counts_score_card.csv' ) ,
@@ -1086,8 +1084,8 @@ def print_confusion_matrix( confusion_matrix ,
                             args ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     file_list = sorted( file_mapping.keys() )
-    unique_ref_types = Set()
-    unique_test_types = Set()
+    unique_ref_types = set()
+    unique_test_types = set()
     unique_ref_types.add( '*FP*' )
     unique_test_types.add( '*FN*' )
     for pattern in reference_config:
@@ -1167,7 +1165,7 @@ def print_score_summary( score_card , file_mapping ,
     if( args.write_score_cards ):
         if( args.reference_out == None and
             args.test_out == None ):
-            log.warn( 'I could not write the metrics score_card to disk:  --write-score-cards set but neither --reference-out nor --test-out set' )
+            log.warning( 'I could not write the metrics score_card to disk:  --write-score-cards set but neither --reference-out nor --test-out set' )
         else:
             if( args.reference_out ):
                 score_card[ fuzzy_flag ].to_csv( '{}/{}{}{}{}'.format( args.reference_out ,

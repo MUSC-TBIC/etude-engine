@@ -96,8 +96,8 @@ def extract_annotations_xml( ingest_file ,
     ##
     try:
         found_annots = root.findall( annotation_path , namespaces )
-    except SyntaxError, e:
-        log.warn( 'I had a problem parsing the XML file.  Are you sure your XPath is correct and matches your namespace?\n\tSkipping file ({}) and XPath ({})\n\tReported Error:  {}'.format( ingest_file , annotation_path , e ) )
+    except SyntaxError as e:
+        log.warning( 'I had a problem parsing the XML file.  Are you sure your XPath is correct and matches your namespace?\n\tSkipping file ({}) and XPath ({})\n\tReported Error:  {}'.format( ingest_file , annotation_path , e ) )
         log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
         return strict_starts
     ##
@@ -165,8 +165,8 @@ def extract_annotations_xml_spanless( ingest_file ,
     ##
     try:
         found_annots = root.findall( annotation_path , namespaces )
-    except SyntaxError, e:
-        log.warn( 'I had a problem parsing the XML file.  Are you sure your XPath is correct and matches your namespace?\n\tSkipping file ({}) and XPath ({})\n\tReported Error:  {}'.format( ingest_file , annotation_path , e ) )
+    except SyntaxError as e:
+        log.warning( 'I had a problem parsing the XML file.  Are you sure your XPath is correct and matches your namespace?\n\tSkipping file ({}) and XPath ({})\n\tReported Error:  {}'.format( ingest_file , annotation_path , e ) )
         log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
         return strict_starts
     ##
@@ -229,7 +229,7 @@ def extract_brat_text_bound_annotation( ingest_file ,
             new_entry[ optional_attr ] = 'false'
         return new_entry
     else:
-        log.warn( 'I had a problem parsing a brat text-bound annotation line ({}):{}'.format( ingest_file ,
+        log.warning( 'I had a problem parsing a brat text-bound annotation line ({}):{}'.format( ingest_file ,
                                                                                               annot_line ) )
         return None
 
@@ -284,7 +284,7 @@ def extract_brat_attribute( ingest_file ,
             key = attribute
         return( [ match_index , attribute , key , attribute_value ] )
     else:
-        log.warn( 'I had a problem parsing a brat attribute line ({}):{}'.format( ingest_file ,
+        log.warning( 'I had a problem parsing a brat attribute line ({}):{}'.format( ingest_file ,
                                                                                   annot_line ) )
         return None
 
@@ -312,7 +312,7 @@ def extract_brat_normalization( ingest_file ,
         else:
             return( None )
     else:
-        log.warn( 'I had a problem parsing a brat normalization line ({}):{}'.format( ingest_file ,
+        log.warning( 'I had a problem parsing a brat normalization line ({}):{}'.format( ingest_file ,
                                                                                       annot_line ) )
     return None
 
@@ -385,8 +385,8 @@ def extract_annotations_brat_standoff( ingest_file ,
                 ##elif( brat_annotation_type == '#' ):
                 ##    ## Do nothing.  We don't support comments.
                 ##
-    except IOError, e:
-        log.warn( 'I had a problem reading the standoff notation file ({}).\n\tReported Error:  {}'.format( ingest_file ,
+    except IOError as e:
+        log.warning( 'I had a problem reading the standoff notation file ({}).\n\tReported Error:  {}'.format( ingest_file ,
                                                                                                             e ) )
         log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
     strict_starts = {}
@@ -523,8 +523,8 @@ def extract_chars( ingest_file ,
     ##
     try:
         found_annots = root.findall( content_path , namespaces )
-    except SyntaxError, e:
-        log.warn( 'I had a problem parsing the XML file.  Are you sure your XPath is correct and matches your namespace?\n\tSkipping file ({}) and XPath ({})\n\tReported Error:  {}'.format( ingest_file , content_path , e ) )
+    except SyntaxError as e:
+        log.warning( 'I had a problem parsing the XML file.  Are you sure your XPath is correct and matches your namespace?\n\tSkipping file ({}) and XPath ({})\n\tReported Error:  {}'.format( ingest_file , content_path , e ) )
         log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
         return None , offset_mapping
     ##
@@ -532,9 +532,9 @@ def extract_chars( ingest_file ,
     log.debug( 'Found {} match(es) for the pattern \'{}\''.format( len( found_annots ) ,
                                                                    content_path ) )
     if( len( found_annots ) > 1 ):
-        log.warn( 'Expected to only find a single pattern matching content XPath (\'{}\') but found {}.  Using first match.'.format( content_path , len( found_annots ) ) )
+        log.warning( 'Expected to only find a single pattern matching content XPath (\'{}\') but found {}.  Using first match.'.format( content_path , len( found_annots ) ) )
     elif( len( found_annots ) == 0 ):
-        log.warn( 'Expected to find exactly one match for content XPath (\'{}\') but found {}.  Returning empty document content.'.format( content_path , len( found_annots ) ) )
+        log.warning( 'Expected to find exactly one match for content XPath (\'{}\') but found {}.  Returning empty document content.'.format( content_path , len( found_annots ) ) )
         log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
         return None , offset_mapping
     for annot in found_annots:
@@ -545,8 +545,8 @@ def extract_chars( ingest_file ,
             try:
                 raw_text = annot.attrib[ attribute_name ]
                 break
-            except KeyError, e:
-                log.warn( 'KeyError:  could not find attribute_name {} in the matched path \'{}\''.format( e , content_path ) )
+            except KeyError as e:
+                log.warning( 'KeyError:  could not find attribute_name {} in the matched path \'{}\''.format( e , content_path ) )
                 raw_text = None
     ##
     if( raw_text != None and skip_chars != None ):

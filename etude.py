@@ -283,7 +283,7 @@ def create_output_folders( reference_out , test_out ):
     ## Reference folders
     if( reference_out != None and
         not os.path.exists( reference_out ) ):
-        log.warn( 'Creating reference output folder because it does not exist:  {}'.format( reference_out ) )
+        log.warning( 'Creating reference output folder because it does not exist:  {}'.format( reference_out ) )
         try:
             os.makedirs( reference_out )
         except OSError as e:
@@ -294,7 +294,7 @@ def create_output_folders( reference_out , test_out ):
     ## Test (system output) folders
     if( test_out != None and
         not os.path.exists( test_out ) ):
-        log.warn( 'Creating test output folder because it does not exist:  {}'.format( test_out ) )
+        log.warning( 'Creating test output folder because it does not exist:  {}'.format( test_out ) )
         try:
             os.makedirs( test_out )
         except OSError as e:
@@ -471,7 +471,7 @@ def init_args():
         f_position = args.metrics_list.index( 'F' )
         args.metrics_list.pop( f_position )
         if( len( args.f_beta_values ) == 0 ):
-            log.warn( 'F was included in the list of metrics to calculate but no beta values were provided (--f-beta-values <betas>)' )
+            log.warning( 'F was included in the list of metrics to calculate but no beta values were provided (--f-beta-values <betas>)' )
         else:
             ## Reverse the list so that they get inserted into the metrics_list
             ## in the proper order
@@ -481,7 +481,7 @@ def init_args():
                     args.metrics_list.insert( f_position , 'F{}'.format( beta ) )
     else:
         if( len( args.f_beta_values ) > 0 ):
-            log.warn( 'F beta values were provided but "F" was not included in the list of metrics to calculate (--f-beta-values <betas>)' )
+            log.warning( 'F beta values were provided but "F" was not included in the list of metrics to calculate (--f-beta-values <betas>)' )
             args.f_beta_values = []
     for common_beta in [ '1' , '2' , '0.5' ]:
         if( 'F{}'.format( common_beta ) in args.metrics_list ):

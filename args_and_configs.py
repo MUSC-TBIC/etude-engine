@@ -3,10 +3,13 @@ import logging as log
 
 import re
 
-from sets import Set
+try:
+    set
+except NameError:
+    from sets import Set as set
 
 import argparse
-import ConfigParser
+import configparser
 
 def initialize_arg_parser():
     parser = argparse.ArgumentParser( description = """
@@ -483,11 +486,11 @@ def process_config( config_file ,
     annotations = []
     namespaces = {}
     document_data = {}
-    config = ConfigParser.ConfigParser()
+    config = configparser.ConfigParser()
     config.optionxform = str
     try:
         config.read( config_file )
-    except ConfigParser.MissingSectionHeaderError , e:
+    except configparser.MissingSectionHeaderError as e:
         log.error( 'Unable to continue due to malformed section header(s):  {}'.format( e ) )
         log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
         return namespaces , document_data , annotations
@@ -545,7 +548,7 @@ def align_patterns( reference_patterns , test_patterns ):
                 filtered_ref.append( ref_pattern )
                 break
         if( match_flag == False ):
-            log.warn( 'Could not find system output pattern matching type \'{}\' from reference config'.format( ref_pattern[ 'type' ] ) )
+            log.warning( 'Could not find system output pattern matching type \'{}\' from reference config'.format( ref_pattern[ 'type' ] ) )
     for test_pattern in test_patterns:
         match_flag = False
         for ref_pattern in reference_patterns:
@@ -554,13 +557,13 @@ def align_patterns( reference_patterns , test_patterns ):
                 filtered_test.append( test_pattern )
                 break
         if( match_flag == False ):
-            log.warn( 'Could not find reference pattern matching type \'{}\' from system output config'.format( test_pattern[ 'type' ] ) )
+            log.warning( 'Could not find reference pattern matching type \'{}\' from system output config'.format( test_pattern[ 'type' ] ) )
     log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
     return filtered_ref , filtered_test
 
 def unique_attributes( patterns ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
-    filtered_attributes = Set()
+    filtered_attributes = set()
     for pattern in patterns:
         ## Skip this pattern if there are no listed attributes
         if( 'optional_attributes' not in pattern ):
