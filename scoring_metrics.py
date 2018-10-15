@@ -839,7 +839,7 @@ def update_output_dictionary( out_file ,
         try:
             with open( out_file , 'r' ) as fp:
                 file_dictionary = json.load( fp )
-        except ValueError , e:
+        except ValueError as e:
             log.error( 'I can\'t update the output dictionary \'{}\'' + \
                        'because I had a problem loading it into memory:  ' + \
                        '{}'.format( out_file ,
@@ -1066,9 +1066,9 @@ def print_confusion_matrix_shell( confusion_matrix ,
                                     reference_patterns , test_patterns ,
                                     fuzzy_flag = fuzzy_flag ,
                                     args = args )
-    except KeyError , e:
+    except KeyError as e:
         log.error( 'KeyError exception in print_confusion_matrix:  {}'.format( e ) )
-    except NameError , e:
+    except NameError as e:
         log.error( 'NameError exception in print_confusion_matrix:  {}'.format( e ) )
     except:
         e = sys.exc_info()[0]
@@ -1139,13 +1139,13 @@ def print_score_summary_shell( score_card , file_mapping ,
                                      norm_engine = '_{}'.format( ref_engine ) )
     except KeyError as e:
         log.error( 'KeyError in print_score_summary:  {}'.format( e ) )
-    except TypeError , e :
+    except TypeError as e :
         log.error( 'TypeError in print_score_summary:  {}'.format( e ) )
-    except NameError , e :
+    except NameError as e :
         log.error( 'NameError in print_score_summary:  {}'.format( e ) )
-    except ValueError , e :
+    except ValueError as e :
         log.error( 'ValueError in print_score_summary:  {}'.format( e ) )
-    except AttributeError , e :
+    except AttributeError as e :
         log.error( 'AttributeError in print_score_summary:  {}'.format( e ) )
     except:
         e = sys.exc_info()[0]

@@ -108,7 +108,7 @@ def extract_annotations_xml( ingest_file ,
             try:
                 begin_pos = annot.get( begin_attribute )
                 begin_pos_mapped = map_position( offset_mapping , begin_pos , 1 )
-            except NameError, e:
+            except NameError as e:
                 log.error( 'NameError:  {}'.format( e ) )
         if( end_attribute != None ):
             ## TODO - add flag to distinguish between conditions
@@ -118,7 +118,7 @@ def extract_annotations_xml( ingest_file ,
             try:
                 end_pos = annot.get( end_attribute )
                 end_pos_mapped = map_position( offset_mapping , end_pos , -1 )
-            except NameError, e:
+            except NameError as e:
                 log.error( 'NameError:  {}'.format( e ) )
         if( text_attribute == None ):
             raw_text = annot.text
@@ -640,12 +640,12 @@ def extract_annotations( ingest_file ,
                                                               namespaces ,
                                                               document_data ,
                                                               skip_chars )
-            except ET.ParseError, e:
-                log.warn( 'ParseError in file ({}):  {}'.format( ingest_file , e ) )
+            except ET.ParseError as e:
+                log.warning( 'ParseError in file ({}):  {}'.format( ingest_file , e ) )
                 log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
                 return offset_mapping , annotations
-            except UnicodeEncodeError, e:
-                print( '{}'.format( e ) )
+            except UnicodeEncodeError as e:
+                print(( '{}'.format( e ) ))
             except:
                 e = sys.exc_info()[0]
                 log.error( 'Uncaught exception in extract_chars:  {}'.format( e ) )

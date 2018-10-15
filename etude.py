@@ -49,9 +49,9 @@ def count_ref_set( this_ns , this_dd , this_patterns ,
                                                    document_data = this_dd ,
                                                    patterns = this_patterns ,
                                                    out_file = None )
-        except NameError , e:
+        except NameError as e:
             log.error( 'NameError exception in extract_annotations:  {}'.format( e ) )
-        except TypeError , e:
+        except TypeError as e:
             log.error( 'TypeError exception in extract_annotations:  {}'.format( e ) )
         except:
             e = sys.exc_info()[0]
@@ -86,13 +86,13 @@ def count_ref_set( this_ns , this_dd , this_patterns ,
                                               this_patterns ,
                                               args ,
                                               set_type = set_type )
-    except AttributeError , e:
+    except AttributeError as e:
             log.error( 'AttributeError exception in print_counts_summary:  {}'.format( e ) )
-    except KeyError , e:
+    except KeyError as e:
             log.error( 'KeyError exception in print_counts_summary:  {}'.format( e ) )
-    except NameError , e:
+    except NameError as e:
             log.error( 'NameError exception in print_counts_summary:  {}'.format( e ) )
-    except TypeError , e:
+    except TypeError as e:
             log.error( 'TypeError exception in print_counts_summary:  {}'.format( e ) )
     except:
         e = sys.exc_info()[0]
@@ -360,7 +360,7 @@ def score_ref_set( reference_ns , reference_dd , reference_patterns , reference_
                                                    patterns = reference_patterns ,
                                                    skip_chars = args.skip_chars ,
                                                    out_file = reference_out_file )
-        except TypeError , e:
+        except TypeError as e:
             log.error( 'TypeError exception in extract_annotations:  {}'.format( e ) )
         except:
             e = sys.exc_info()[0]
@@ -385,7 +385,7 @@ def score_ref_set( reference_ns , reference_dd , reference_patterns , reference_
                                                        skip_chars = \
                                                          args.skip_chars ,
                                                        out_file = test_out_file )
-            except TypeError , e:
+            except TypeError as e:
                 log.error( 'TypeError exception in extract_annotations:  {}'.format( e ) )
             except:
                 e = sys.exc_info()[0]
@@ -411,11 +411,11 @@ def score_ref_set( reference_ns , reference_dd , reference_patterns , reference_
                                                       args.scorable_engines ,
                                                     norm_synonyms =\
                                                       args.normalization_synonyms )
-        except UnboundLocalError , e:
+        except UnboundLocalError as e:
             log.error( 'UnboundLocalError exception in evaluate_positions:  {}'.format( e ) )
-        except NameError , e:
+        except NameError as e:
             log.error( 'NameError exception in evaluate_positions:  {}'.format( e ) )
-        except TypeError, e:
+        except TypeError as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             log.error( 'TypeError in evaluate_positions ({}):  {}'.format( exc_tb.tb_lineno , e ) )
         except:
@@ -682,13 +682,13 @@ if __name__ == "__main__":
                                    file_prefix = args.file_prefix ,
                                    file_suffix = args.file_suffix[ len( args.file_suffix ) - 1 ] ,
                                    set_type = 'reference' )
-                except AttributeError , e:
+                except AttributeError as e:
                     log.error( 'AttributeError exception in count_ref_set for reference output corpus:  {}'.format( e ) )
-                except KeyError, e:
+                except KeyError as e:
                     log.error( 'KeyError in count_ref_set for reference output corpus:  {}'.format( e ) )
-                except NameError, e:
+                except NameError as e:
                     log.error( 'NameError in count_ref_set for reference output corpus:  {}'.format( e ) )
-                except TypeError, e:
+                except TypeError as e:
                     log.error( 'TypeError in count_ref_set for reference output corpus:  {}'.format( e ) )
                 except:
                     e = sys.exc_info()[0]
@@ -704,13 +704,13 @@ if __name__ == "__main__":
                                    file_prefix = args.file_prefix ,
                                    file_suffix = args.file_suffix[ len( args.file_suffix ) - 1 ] ,
                                    set_type = 'test' ) 
-                except AttributeError , e:
+                except AttributeError as e:
                     log.error( 'AttributeError exception in count_ref_set for reference output corpus:  {}'.format( e ) )
-                except KeyError, e:
+                except KeyError as e:
                     log.error( 'KeyError in count_ref_set for system output corpus:  {}'.format( e ) )
-                except NameError, e:
+                except NameError as e:
                     log.error( 'NameError in count_ref_set for system output corpus:  {}'.format( e ) )
-                except TypeError, e:
+                except TypeError as e:
                     log.error( 'TypeError in count_ref_set for system output corpus:  {}'.format( e ) )
                 except:
                     e = sys.exc_info()[0]
@@ -730,9 +730,9 @@ if __name__ == "__main__":
                                args = args ,
                                file_prefix = args.file_prefix ,
                                file_suffix = args.file_suffix )
-            except NameError, e:
+            except NameError as e:
                 log.error( 'NameError in score_ref_set:  {}'.format( e ) )
-            except TypeError, e:
+            except TypeError as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 log.error( 'TypeError in score_ref_set ({}):  {}'.format( exc_tb.tb_lineno , e ) )
             except:
