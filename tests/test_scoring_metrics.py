@@ -263,18 +263,33 @@ def test_by_file_f_metrics( capsys ):
                                          fuzzy_flag = 'exact' ,
                                          args = args )
     by_type_out, err = capsys.readouterr()
+    by_type_out = by_type_out.strip()
     ##
     expected_values = [ [ 'exact' , 'Precision' , 'Recall' , 'F1' ] ,
-                        [ 'micro-average' , '0.5' , '0.333333333333' , '0.4' ] ,
-                        [ 'a.xml' , '1.0' , '0.5' , '0.666666666667' ]  ,
-                        [ 'b.xml' , '0.0' , '0.0' , None ] ,
-                        [ 'macro-average by file' , '0.5' , '0.25' , '0.666666666667' ]  ]
-    for expected_values in expected_values:
-        print( args.delim.join( '{}'.format( m ) for m in expected_values ) )
-    expected_out, err = capsys.readouterr()
-    by_type_out = by_type_out.strip()
-    expected_out = expected_out.strip()
-    assert by_type_out == expected_out
+                        [ 'micro-average' , 0.5 , 0.333333333333 , 0.4 ] ,
+                        [ 'a.xml' , 1.0 , 0.5 , 0.666666666667 ]  ,
+                        [ 'b.xml' , 0.0 , 0.0 , None ] ,
+                        [ 'macro-average by file' , 0.5 , 0.25 , 0.666666666667 ]  ]
+    ##
+    by_type_values = []
+    for type_line in by_type_out.split( "\n" ):
+        by_type_values.append( type_line.split( "\t" ) )
+    for type_line, expected_line in zip( by_type_values , expected_values ):
+        for tmp_val, expected_val in zip( type_line , expected_line ):
+            ## The mixture of str and float values requires us to
+            ## make a type check first...
+            if( isinstance( expected_val , str ) ):
+                assert tmp_val == expected_val
+            elif( expected_val is None or
+                  tmp_val == 'None' ):
+                ## ...if either are None, then both must be None
+                assert expected_val is None
+                assert tmp_val == 'None'
+            else:
+                ## ...followed by an float conversion mapping to
+                ## an approximate equality due to rounding differences
+                ## between Py2 and Py3
+                assert float( tmp_val ) == approx( expected_val )
 
 
 def test_by_file_and_type_summary_stats( capsys ):
@@ -316,6 +331,7 @@ def test_macro_average_by_file_and_type_stats( capsys ):
                                          fuzzy_flag = 'exact' ,
                                          args = args )
     by_type_out, err = capsys.readouterr()
+    by_type_out = by_type_out.strip()
     ##
     expected_values = [
         [ 'exact' , 'TP' , 'FP' , 'TN' , 'FN' , 'Precision' , 'Recall' , 'F1' ] ,
@@ -329,12 +345,26 @@ def test_macro_average_by_file_and_type_stats( capsys ):
         [ 'Sentence' , 1.0 , 2.0 , 1.0 , 3.0 , 0.333333333333 , 0.25 , 0.285714285714 ] ,
         [ 'Token' , 0.0 , 0.0 , 0.0 , 0.0 , None , None , None ] ,
         [ 'macro-average by type' , 1.0 , 2.0 , 1.0 , 3.0 , 0.333333333333 , 0.25 , 0.285714285714 ] ]
-    for expected_values in expected_values:
-        print( args.delim.join( '{}'.format( m ) for m in expected_values ) )
-    expected_out, err = capsys.readouterr()
-    by_type_out = by_type_out.strip()
-    expected_out = expected_out.strip()
-    assert by_type_out == expected_out
+    ##
+    by_type_values = []
+    for type_line in by_type_out.split( "\n" ):
+        by_type_values.append( type_line.split( "\t" ) )
+    for type_line, expected_line in zip( by_type_values , expected_values ):
+        for tmp_val, expected_val in zip( type_line , expected_line ):
+            ## The mixture of str and float values requires us to
+            ## make a type check first...
+            if( isinstance( expected_val , str ) ):
+                assert tmp_val == expected_val
+            elif( expected_val is None or
+                  tmp_val == 'None' ):
+                ## ...if either are None, then both must be None
+                assert expected_val is None
+                assert tmp_val == 'None'
+            else:
+                ## ...followed by an float conversion mapping to
+                ## an approximate equality due to rounding differences
+                ## between Py2 and Py3
+                assert float( tmp_val ) == approx( expected_val )
 
 
 def test_by_file_and_type_to_reference_file_summary_stats( capsys ):
@@ -443,10 +473,19 @@ def test_csv_out_append_if_present( capsys ):
                                              args = args )
         ##
         expected_values = [ 'exact' , 'micro-average' , '' , '' , '' ,
-                            '1.0' , '1.0' , '0.5' , '0.333333333333' , '0.4' ]
+                            1.0 , 1.0 , 0.5 , 0.333333333333 , 0.4 ]
         with open( tmpfile_handle.name , 'r' ) as fp:
-            head_line = fp.readline().strip()
-            assert head_line == args.delim.join( '{}'.format( m ) for m in expected_values )
+            head_line = fp.readline().strip().split( "\t" )
+            for tmp_val, expected_val in zip( head_line , expected_values ):
+                ## The mixture of str and float values requires us to
+                ## make a type check first...
+                if( isinstance( expected_val , str ) ):
+                    assert tmp_val == expected_val
+                else:
+                    ## ...followed by an float conversion mapping to
+                    ## an approximate equality due to rounding differences
+                    ## between Py2 and Py3
+                    assert float( tmp_val ) == approx( expected_val )
 
 
 def changing_delim_to_variable( capsys , new_delim ):
