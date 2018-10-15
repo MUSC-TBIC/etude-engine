@@ -85,7 +85,8 @@ def extract_annotations_xml( ingest_file ,
                              begin_attribute = None ,
                              end_attribute = None ,
                              text_attribute = None ,
-                             optional_attributes = [] ):
+                             optional_attributes = [] ,
+                             normalization_engines = [] ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     found_annots = {}
     strict_starts = {}
@@ -129,9 +130,17 @@ def extract_annotations_xml( ingest_file ,
                                              end_pos_mapped = end_pos_mapped ,
                                              raw_text = raw_text ,
                                              tag_name = tag_name )
-        ##
+        ## TODO - do we need to sheild this in case an optional attribute
+        ##        doesn't exist in the annotation or does Python (and
+        ##        later etude engine code) handle a null correctly/safely?
         for optional_attr in optional_attributes:
             new_entry[ optional_attr ] = annot.get( optional_attr )
+        ## TODO - do we need to sheild this in case a normalization engine
+        ##        doesn't exist in the annotation or does Python (and
+        ##        later etude engine code) handle a null correctly/safely?
+        for normalization_engine in normalization_engines:
+            if( normalization_engine in annot.attrib ):
+                new_entry[ normalization_engine ] = annot.get( normalization_engine )
         ##
         if( begin_pos in strict_starts.keys() ):
             strict_starts[ begin_pos ].append( new_entry )
@@ -186,11 +195,134 @@ def extract_annotations_xml_spanless( ingest_file ,
     ## 
     return strict_starts
 
+
+def extract_brat_text_bound_annotation( ingest_file ,
+                                        annot_line ,
+                                        offset_mapping ,
+                                        tag_name ,
+                                        optional_attributes = [] ):
+    ## Continuous:
+    ## T1	Organization 0 43	International Business Machines Corporation
+    ## TODO - Discontinuous:
+    ## T1	Location 0 5;16 23	North America
+    matches = re.match( '^(T[0-9]+)\s+(\w+)\s+([0-9]+)\s+([0-9]+)\s+(.*)' ,
+                        annot_line )
+    if( matches ):
+        found_tag = matches.group( 2 )
+        if( found_tag != tag_name ):
+            ## Skip this line because we don't care about this type
+            return None
+        match_index = matches.group( 1 )
+        begin_pos = matches.group( 3 )
+        begin_pos_mapped = map_position( offset_mapping , begin_pos , 1 )
+        end_pos = matches.group( 4 )
+        end_pos_mapped = map_position( offset_mapping , end_pos , -1 )
+        raw_text = matches.group( 5 )
+        new_entry = create_annotation_entry( begin_pos = begin_pos ,
+                                             begin_pos_mapped = begin_pos_mapped ,
+                                             end_pos = end_pos ,
+                                             end_pos_mapped = end_pos_mapped ,
+                                             raw_text = raw_text ,
+                                             tag_name = tag_name )
+        new_entry[ 'match_index' ] = match_index
+        for optional_attr in optional_attributes:
+            new_entry[ optional_attr ] = 'false'
+        return new_entry
+    else:
+        log.warn( 'I had a problem parsing a brat text-bound annotation line ({}):{}'.format( ingest_file ,
+                                                                                              annot_line ) )
+        return None
+
+
+def extract_brat_relation( ingest_file ,
+                           annot_line ,
+                           tag_name ,
+                           optional_attributes = [] ):
+    ## T3	Organization 33 41	Ericsson
+    ## T4	Country 75 81	Sweden
+    ## R1	Origin Arg1:T3 Arg2:T4
+    return None
+
+
+def extract_brat_equivalence( ingest_file ,
+                              annot_line ,
+                              optional_attributes = [] ):
+    ## T1	Organization 0 43	International Business Machines Corporation
+    ## T2	Organization 45 48	IBM
+    ## T3	Organization 52 60	Big Blue
+    ## *	Equiv T1 T2 T3
+    return None
+
+
+def extract_brat_event( ingest_file ,
+                        annot_line ,
+                        tag_name ,
+                        optional_attributes = [] ):
+    ## T1	Organization 0 4	Sony
+    ## T2	MERGE-ORG 14 27	joint venture
+    ## T3	Organization 33 41	Ericsson
+    ## E1	MERGE-ORG:T2 Org1:T1 Org2:T3
+    return None
+
+
+def extract_brat_attribute( ingest_file ,
+                            annot_line ,
+                            optional_attributes = [] ):
+    ## A1	Negated T34
+    ## TODO - support multi-valued attributes
+    ## A2	Confidence E2 L1
+    matches = re.match( '^([AM][0-9]+)\s+(\w+)\s+([TREAMN\*][0-9]+)$' ,
+                        annot_line )
+    match_index = None
+    attribute = None
+    key = None
+    attribute_value = 'true'
+    if( matches ):
+        attribute = matches.group( 2 )
+        match_index = matches.group( 3 )
+        if( attribute in optional_attributes ):
+            key = attribute
+        return( [ match_index , attribute , key , attribute_value ] )
+    else:
+        log.warn( 'I had a problem parsing a brat attribute line ({}):{}'.format( ingest_file ,
+                                                                                  annot_line ) )
+        return None
+
+
+
+def extract_brat_normalization( ingest_file ,
+                                annot_line ,
+                                normalization_engines = [] ):
+    ## N1	Reference T1 Wikipedia:534366	Barack Obama
+    matches = re.match( '^(N[0-9]+)\s+Reference\s+([TREAMN\*][0-9]+)\s+([^:]+):([^\s]+)\s+(.+)$' ,
+                        annot_line )
+    match_index = None
+    normalization_engine = None
+    normalization_id = None
+    normalized_value = None
+    if( matches ):
+        match_index = matches.group( 2 )
+        normalization_engine = matches.group( 3 )
+        normalization_id = matches.group( 4 )
+        normalized_value = matches.group( 5 )
+        if( normalization_engine in normalization_engines ):
+            return( [ match_index ,
+                      normalization_engine , normalization_id ,
+                      normalized_value ] )
+        else:
+            return( None )
+    else:
+        log.warn( 'I had a problem parsing a brat normalization line ({}):{}'.format( ingest_file ,
+                                                                                      annot_line ) )
+    return None
+
+
 def extract_annotations_brat_standoff( ingest_file ,
                                        offset_mapping ,
                                        type_prefix ,
                                        tag_name ,
-                                       optional_attributes = [] ):
+                                       optional_attributes = [] ,
+                                       normalization_engines = [] ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     annots_by_index = dict()
     ##
@@ -198,47 +330,61 @@ def extract_annotations_brat_standoff( ingest_file ,
         with open( ingest_file , 'r' ) as fp:
             for line in fp:
                 line = line.rstrip()
-                ## T1	Organization 0 43	International Business Machines Corporation
-                matches = re.match( '^' + type_prefix + '([0-9]+)\s+(\w+)\s+([0-9]+)\s+([0-9]+)\s+(.*)' ,
-                                    line )
-                if( matches and matches.group( 2 ) == tag_name ):
-                    match_index = matches.group( 1 )
-                    begin_pos = matches.group( 3 )
-                    begin_pos_mapped = map_position( offset_mapping , begin_pos , 1 )
-                    end_pos = matches.group( 4 )
-                    end_pos_mapped = map_position( offset_mapping , end_pos , -1 )
-                    raw_text = matches.group( 5 )
-                    new_entry = create_annotation_entry( begin_pos = begin_pos ,
-                                                         begin_pos_mapped = begin_pos_mapped ,
-                                                         end_pos = end_pos ,
-                                                         end_pos_mapped = end_pos_mapped ,
-                                                         raw_text = raw_text ,
-                                                         tag_name = tag_name )
-                    new_entry[ 'match_index' ] = '{}{}'.format( type_prefix , match_index )
-                    for optional_attr in optional_attributes:
-                        ## TODO - quick hack to match attributes (see below)
-                        key = optional_attr.lower()
-                        if( key == 'notpatient' ):
-                            key = 'not_patient'
-                        new_entry[ key ] = 'false'
-                    ##
-                    annots_by_index[ new_entry[ 'match_index' ] ] = new_entry
-                    continue
+                brat_annotation_type = line[ 0 ]
+                if( brat_annotation_type == 'T' ):
+                    ## T1	Organization 0 43	International Business Machines Corporation
+                    new_entry = extract_brat_text_bound_annotation( ingest_file ,
+                                                                    line ,
+                                                                    offset_mapping ,
+                                                                    tag_name ,
+                                                                    optional_attributes )
+                    ## A non-None entry means we were able to parse the line 
+                    if( new_entry != None ):
+                        annots_by_index[ new_entry[ 'match_index' ] ] = new_entry
+                    ## TODO - support discontinous spans:
+                    ## T1	Location 0 5;16 23	North America
+                    ## T2	Location 10 23
+                elif( brat_annotation_type == 'A' or
+                      brat_annotation_type == 'M' ):
+                    ## A1	Negated T34
+                    new_attribute_value = extract_brat_attribute( ingest_file ,
+                                                                  line ,
+                                                                  optional_attributes )
+                    if( new_attribute_value[ 0 ] != None and
+                        new_attribute_value[ 0 ] in annots_by_index.keys() and
+                        new_attribute_value[ 2 ] != None ):
+                        annots_by_index[ new_attribute_value[ 0 ] ][ new_attribute_value[ 2 ] ] = new_attribute_value[ 3 ]
+                elif( brat_annotation_type == 'R' ):
+                    ## R1	Origin Arg1:T3 Arg2:T4
+                    new_entry = extract_brat_relation( ingest_file ,
+                                                       line ,
+                                                       tag_name ,
+                                                       optional_attributes )
+                elif( brat_annotation_type == '*' ):
+                    ## *	Equiv T1 T2 T3
+                    new_entry = extract_brat_relation( ingest_file ,
+                                                       line ,
+                                                       optional_attributes )
+                elif( brat_annotation_type == 'E' ):
+                    ## E1	MERGE-ORG:T2 Org1:T1 Org2:T3
+                    new_entry = extract_brat_relation( ingest_file ,
+                                                       line ,
+                                                       tag_name ,
+                                                       optional_attributes )
+                elif( brat_annotation_type == 'N' ):
+                    ## N1	Reference T1 Wikipedia:534366	Barack Obama
+                    new_normalization = extract_brat_normalization( ingest_file ,
+                                                                    line ,
+                                                                    normalization_engines )
+                    if( new_normalization is not None and
+                        new_normalization[ 0 ] is not None and
+                        new_normalization[ 0 ] in annots_by_index.keys() and
+                        new_normalization[ 1 ] is not None and
+                        new_normalization[ 2 ] is not None ):
+                        annots_by_index[ new_normalization[ 0 ] ][ new_normalization[ 1 ] ] = new_normalization[ 2 ]
+                ##elif( brat_annotation_type == '#' ):
+                ##    ## Do nothing.  We don't support comments.
                 ##
-                ## A1	Negated T34
-                matches = re.match( '^A([0-9]+)\s+(\w+)\s+([A-Z][0-9]+)$' ,
-                                    line )
-                if( matches ):
-                    match_index = matches.group( 3 )
-                    attribute = matches.group( 2 )
-                    if( attribute in optional_attributes and
-                        match_index in annots_by_index.keys() ):
-                        ## TODO - quick hack to match attributes (see above)
-                        key = attribute.lower()
-                        if( key == 'notpatient' ):
-                            key = 'not_patient'
-                        annots_by_index[ match_index ][ key ] = 'true'
-                        continue
     except IOError, e:
         log.warn( 'I had a problem reading the standoff notation file ({}).\n\tReported Error:  {}'.format( ingest_file ,
                                                                                                             e ) )
@@ -507,6 +653,11 @@ def extract_annotations( ingest_file ,
         log.error( 'I could not find the raw content for this document but was asked to ignore its whitespace.  Add document data to the config file for extracting raw content or use the --heed-whitespace flag.' )
         log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
         return offset_mapping , annotations
+    ## Normalization engines are global for the config file
+    ## rather than pattern-specific
+    norm_eng = []
+    if( 'normalization_engines' in document_data.keys() ):
+        norm_eng = document_data[ 'normalization_engines' ]
     for pattern in patterns:
         new_annots = None
         if( 'delimiter' in pattern ):
@@ -517,6 +668,9 @@ def extract_annotations( ingest_file ,
                                                  pattern[ 'delimiter' ] ,
                                                tag_name = pattern[ 'type' ] )
         elif( 'type_prefix' in pattern ):
+            norm_eng = []
+            if( 'normalization_engines' in document_data.keys() ):
+                norm_eng = document_data[ 'normalization_engines' ]
             new_annots = \
                 extract_annotations_brat_standoff( ingest_file ,
                                                    offset_mapping = offset_mapping ,
@@ -524,7 +678,9 @@ def extract_annotations( ingest_file ,
                                                      pattern[ 'type_prefix' ] ,
                                                    tag_name = pattern[ 'type' ] ,
                                                    optional_attributes = \
-                                                   pattern[ 'optional_attributes' ] )
+                                                     pattern[ 'optional_attributes' ] ,
+                                                   normalization_engines = norm_eng )
+                                                     
         elif( 'xpath' in pattern and
               'begin_attr' in pattern and
               'end_attr' in pattern ):
@@ -539,7 +695,8 @@ def extract_annotations( ingest_file ,
                                          end_attribute = \
                                            pattern[ 'end_attr' ] ,
                                          optional_attributes = \
-                                           pattern[ 'optional_attributes' ] )
+                                           pattern[ 'optional_attributes' ] ,
+                                         normalization_engines = norm_eng )
         elif( 'xpath' in pattern and
               'pivot_attr' in pattern ):
             new_annots = \

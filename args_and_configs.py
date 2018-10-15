@@ -3,6 +3,8 @@ import logging as log
 
 import re
 
+from sets import Set
+
 import argparse
 import ConfigParser
 
@@ -50,8 +52,12 @@ unstructured data extraction.
                                      'Recall' , 'Sensitivity' ,
                                      'Specificity' ,
                                      'Accuracy' ,
-                                     'F1' ] ,
+                                     'F1' , 'F2' , 'F0.5' , 'F' ] ,
                          help = "List of metrics to return, in order" )
+    parser.add_argument( "--f-beta-values" , nargs = '+' ,
+                         dest = 'f_beta_values' ,
+                         default = [] ,
+                         help = "List of beta values to use in calculating the F-score. This list is only used when 'F' is a given metric." )
     
     parser.add_argument( '--empty-value' ,
                          dest = 'empty_value' ,
@@ -84,8 +90,15 @@ unstructured data extraction.
     parser.add_argument( '--by-type' , dest = 'by_type' ,
                          help = "Print metrics by annotation type" ,
                          action = "store_true" )
+    parser.add_argument( '--by-type-and-attribute' , dest = 'by_type_and_attribute' ,
+                         help = "Print metrics by attribute nested within annotation type" ,
+                         action = "store_true" )
     parser.add_argument( '--by-type-and-file' , dest = 'by_type_and_file' ,
                          help = "Print metrics by file nested within annotation type" ,
+                         action = "store_true" )
+
+    parser.add_argument( '--by-attribute' , dest = 'by_attribute' ,
+                         help = "Print metrics by annotation attribute" ,
                          action = "store_true" )
 
     parser.add_argument( "--reference-config", 
@@ -106,6 +119,22 @@ unstructured data extraction.
                         dest = 'score_values' ,
                         default = [ '.*' ] ,
                         help="List of values associated with the score key to count in scoring" )
+
+    parser.add_argument("--score-attributes", nargs = '?' ,
+                        dest = 'attributes_string' ,
+                        default = None , ## When --score-attributes is not present
+                        const = [] ,     ## When --score-attributes is provided but no attributes listed
+                        help="List of annotation attributes to evaluate in addition to type" )
+    
+    parser.add_argument("--score-normalization", nargs = '?' ,
+                        dest = 'normalization_string' ,
+                        default = None , ## When --score-normalization is not present
+                        const = [] ,     ## When --score-normalization is provided but no engines listed
+                        help="List of normalization engines to evaluate in addition to type" )
+    parser.add_argument("--normalization-file", #nargs = 1 ,
+                        dest = 'normalization_file' ,
+                        default = None ,
+                        help="A tab-delimited, two-column file containing normalization strings that should be treated as equivalent for the purposes of scoring" )
 
     parser.add_argument( '--collapse-all-patterns' ,
                          help = "Treat all patterns extracted as of the same type" ,
@@ -254,6 +283,13 @@ def extract_document_data( document_data ,
         else:
             document_data[ 'cdata_xpath' ] = config.get( sect ,
                                                          'Content XPath' )
+    if( config.has_option( sect , 'Normalization Engines' ) ):
+        engines_string = config.get( sect , 'Normalization Engines' )
+        engines_split = engines_string.split( ',' )
+        if( isinstance( engines_split , basestring ) ):
+            document_data[ 'normalization_engines' ] = [ engines_split ]
+        else:
+            document_data[ 'normalization_engines' ] = engines_split
     log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
     return document_data
 
@@ -484,6 +520,19 @@ def process_config( config_file ,
     return namespaces , document_data , annotations
 
 
+def process_normalization_file( normalization_file ):
+    norm_synonyms = {}
+    if( normalization_file is None ):
+        return norm_synonyms
+    with open( normalization_file , 'r' ) as fp:
+        for line in fp:
+            line = line.rstrip( '\n' )
+            terms = line.split( '\t' )
+            lhs = terms[ 0 ]
+            norm_synonyms[ lhs ] = terms
+    return norm_synonyms
+
+
 def align_patterns( reference_patterns , test_patterns ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     filtered_ref = []
@@ -508,3 +557,14 @@ def align_patterns( reference_patterns , test_patterns ):
             log.warn( 'Could not find reference pattern matching type \'{}\' from system output config'.format( test_pattern[ 'type' ] ) )
     log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
     return filtered_ref , filtered_test
+
+def unique_attributes( patterns ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
+    filtered_attributes = Set()
+    for pattern in patterns:
+        ## Skip this pattern if there are no listed attributes
+        if( 'optional_attributes' not in pattern ):
+            continue
+        for attribute in pattern[ 'optional_attributes' ]:
+            filtered_attributes.add( attribute )
+    return( filtered_attributes )

@@ -519,6 +519,10 @@ def test_empty_contents_of_write_of_dictionary_for_brat_patterns():
                                                out_file = tmpfile_handle.name )
         assert strict_starts == {}
         assert os.path.exists( tmpfile_handle.name )
+        with open( tmpfile_handle.name , 'r' ) as rf:
+            reloaded_out_file = json.load( rf )
+        assert reloaded_out_file[ "annotations" ] == {}
+        assert reloaded_out_file[ "raw_content" ] == "International Business Machines Corporation: IBM is Big Blue\n"
     assert os.path.exists( tmpfile_handle.name ) == False
 
 def test_contents_of_write_of_dictionary_for_brat_patterns():
@@ -544,10 +548,173 @@ def test_contents_of_write_of_dictionary_for_brat_patterns():
         assert strict_starts[ '474' ][ 0 ][ 'begin_pos' ] == '474'
         assert strict_starts[ '474' ][ 0 ][ 'end_pos' ] == '493'
         assert strict_starts[ '474' ][ 0 ][ 'raw_text' ] == 'shortness of breath'
-        assert strict_starts[ '474' ][ 0 ][ 'historical' ] == 'false'
-        assert strict_starts[ '474' ][ 0 ][ 'negated' ] == 'true'
+        assert strict_starts[ '474' ][ 0 ][ 'Historical' ] == 'false'
+        assert strict_starts[ '474' ][ 0 ][ 'Negated' ] == 'true'
         assert os.path.exists( tmpfile_handle.name )
     assert os.path.exists( tmpfile_handle.name ) == False
+
+
+def test_brat_text_bound_annotation_simple():
+    line = 'T1	Organization 0 43	International Business Machines Corporation'
+    new_entry = text_extraction.extract_brat_text_bound_annotation( 'test.ann' ,
+                                                                    line ,
+                                                                    offset_mapping = {} ,
+                                                                    tag_name = 'Organization' ,
+                                                                    optional_attributes = [] )
+    assert( new_entry[ 'match_index' ] == 'T1' )
+    assert( new_entry[ 'type' ] == 'Organization' )
+    assert( new_entry[ 'begin_pos' ] == '0' )
+    assert( new_entry[ 'end_pos' ] == '43' )
+    assert( new_entry[ 'raw_text' ] == 'International Business Machines Corporation' )
+
+def test_brat_text_bound_annotation_attributes_default_to_false():
+    line = 'T1	Organization 0 43	International Business Machines Corporation'
+    new_entry = text_extraction.extract_brat_text_bound_annotation( 'test.ann' ,
+                                                                    line ,
+                                                                    offset_mapping = {} ,
+                                                                    tag_name = 'Organization' ,
+                                                                    optional_attributes = [ 'Negated' ,
+                                                                                            'Historical' ] )
+    assert( new_entry[ 'Negated' ] == 'false' )
+    assert( new_entry[ 'Historical' ] == 'false' )
+
+def test_brat_text_bound_annotation_offset_mapping_works():
+    line = 'T1	Organization 0 43	International Business Machines Corporation'
+    new_entry = text_extraction.extract_brat_text_bound_annotation( 'test.ann' ,
+                                                                    line ,
+                                                                    offset_mapping = { "0": "3" ,
+                                                                                       "43": "42" } ,
+                                                                    tag_name = 'Organization' ,
+                                                                    optional_attributes = [] )
+    assert( new_entry[ 'begin_pos' ] == '0' )
+    assert( new_entry[ 'begin_pos_mapped' ] == '3' )
+    assert( new_entry[ 'end_pos' ] == '43' )
+    assert( new_entry[ 'end_pos_mapped' ] == '42' )
+
+def test_brat_text_bound_annotation_skip_other_tags():
+    line = 'T1	Organization 0 43	International Business Machines Corporation'
+    new_entry = text_extraction.extract_brat_text_bound_annotation( 'test.ann' ,
+                                                                    line ,
+                                                                    offset_mapping = {} ,
+                                                                    tag_name = 'Person' ,
+                                                                    optional_attributes = [] )
+    assert( new_entry == None )
+
+def test_brat_text_bound_annotation_discontinuous():
+    ## North and South America
+    ## T1	Location 0 5;16 23	North America
+    ## T2	Location 10 23	South America
+    line = 'T1	Location 0 5;16 23	North America'
+    new_entry = text_extraction.extract_brat_text_bound_annotation( 'test.ann' ,
+                                                                    line ,
+                                                                    offset_mapping = {} ,
+                                                                    tag_name = 'Location' ,
+                                                                    optional_attributes = [] )
+    assert( new_entry == None )
+
+def test_brat_relation_binary():
+    ## T3	Organization 33 41	Ericsson
+    ## T4	Country 75 81	Sweden
+    ## R1	Origin Arg1:T3 Arg2:T4
+    line = 'R1	Origin Arg1:T3 Arg2:T4'
+    new_entry = text_extraction.extract_brat_relation( 'test.ann' ,
+                                                       line ,
+                                                       tag_name = '' ,
+                                                       optional_attributes = [] )
+    assert( new_entry == None )
+    
+def test_brat_relation_equivalence():
+    ## T1	Organization 0 43	International Business Machines Corporation
+    ## T2	Organization 45 48	IBM
+    ## T3	Organization 52 60	Big Blue
+    ## *	Equiv T1 T2 T3
+    line = '*	Equiv T1 T2 T3'
+    new_entry = text_extraction.extract_brat_equivalence( 'test.ann' ,
+                                                          line ,
+                                                          optional_attributes = [] )
+    assert( new_entry == None )
+
+
+def test_brat_event():
+    ## T1	Organization 0 4	Sony
+    ## T2	MERGE-ORG 14 27	joint venture
+    ## T3	Organization 33 41	Ericsson
+    ## E1	MERGE-ORG:T2 Org1:T1 Org2:T3
+    line = 'E1	MERGE-ORG:T2 Org1:T1 Org2:T3'
+    new_entry = text_extraction.extract_brat_event( 'test.ann' ,
+                                                    line ,
+                                                    tag_name = '' ,
+                                                    optional_attributes = [] )
+    assert( new_entry == None )
+
+ 
+def test_brat_skip_non_optional_attributes():
+    ## T1	Organization 0 4	Sony
+    ## T2	MERGE-ORG 14 27	joint venture
+    ## T3	Organization 33 41	Ericsson
+    ## E1	MERGE-ORG:T2 Org1:T1 Org2:T3
+    ## A1	Negation E1
+    line = 'A1	Negation E1'
+    new_attribute_value = text_extraction.extract_brat_attribute( 'test.ann' ,
+                                                                  line ,
+                                                                  optional_attributes = [ 'Negated' ,
+                                                                                          'Historical' ] )
+    assert( new_attribute_value == [ 'E1' , 'Negation' , None , 'true' ] )
+
+def test_brat_attribute_binary():
+    ## T1	Organization 0 4	Sony
+    ## T2	MERGE-ORG 14 27	joint venture
+    ## T3	Organization 33 41	Ericsson
+    ## E1	MERGE-ORG:T2 Org1:T1 Org2:T3
+    ## A1	Negation E1
+    line = 'A1	Negation E1'
+    new_attribute_value = text_extraction.extract_brat_attribute( 'test.ann' ,
+                                                                  line ,
+                                                                  optional_attributes = [ 'Negation' ] )
+    assert( new_attribute_value == [ 'E1' , 'Negation' , 'Negation' , 'true' ] )
+
+def test_brat_attribute_binary_m_prefix():
+    ## T1	Organization 0 4	Sony
+    ## T2	MERGE-ORG 14 27	joint venture
+    ## T3	Organization 33 41	Ericsson
+    ## E1	MERGE-ORG:T2 Org1:T1 Org2:T3
+    ## M1	Negation E1
+    line = 'M1	Negation E1'
+    new_attribute_value = text_extraction.extract_brat_attribute( 'test.ann' ,
+                                                                  line ,
+                                                                  optional_attributes = [ 'Negation' ] )
+    assert( new_attribute_value == [ 'E1' , 'Negation' , 'Negation' , 'true' ] )
+
+
+def test_brat_attribute_multivalue_string():
+    ## T1	Organization 0 4	Sony
+    ## T2	MERGE-ORG 14 27	joint venture
+    ## T3	Organization 33 41	Ericsson
+    ## E1	MERGE-ORG:T2 Org1:T1 Org2:T3
+    ## A2	Confidence E2 L1
+    line = 'A2	Confidence E2 L1'
+    new_attribute_value = text_extraction.extract_brat_attribute( 'test.ann' ,
+                                                                  line ,
+                                                                  optional_attributes = [ 'Confidence' ] )
+    assert( new_attribute_value == None )
+
+
+def test_brat_normalization_ignore_unselected_reference():
+    ## N1	Reference T1 Wikipedia:534366	Barack Obama
+    line = 'N1	Reference T1 Wikipedia:534366	Barack Obama'
+    new_entry = text_extraction.extract_brat_normalization( 'test.ann' ,
+                                                            line ,
+                                                            normalization_engines = [ 'Britanica' ] )
+    assert( new_entry == None )
+
+
+def test_brat_normalization_simple_lookup():
+    ## N1	Reference T1 Wikipedia:534366	Barack Obama
+    line = 'N1	Reference T1 Wikipedia:534366	Barack Obama'
+    new_entry = text_extraction.extract_brat_normalization( 'test.ann' ,
+                                                            line ,
+                                                            normalization_engines = [ 'Wikipedia' ] )
+    assert( new_entry == [ 'T1' , 'Wikipedia' , '534366' , 'Barack Obama' ] )
 
 
 #############################################
