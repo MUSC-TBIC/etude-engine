@@ -11,8 +11,9 @@ services:
 before_script:
   - docker info
 
-test:
+test:2.7:
   stage: test
   script:
+  - cp Dockerfile.Python2.7 Dockerfile
   - docker build -t pytest-image .
   - docker run pytest-image /usr/local/bin/python -m pytest --cov=/home/etude /home/etude/tests
