@@ -424,7 +424,7 @@ def test_writing_dictionary_for_datetime_from_0005_gs():
                                              namespaces = namespaces ,
                                              document_data = document_data ,
                                              patterns = patterns ,
-                                             skip_chars = '[\s]' ,
+                                             skip_chars = r'[\s]' ,
                                              out_file = tmp_file )
         with open( reference_file , 'r' ) as rf:
             reloaded_reference = json.load( rf )
@@ -453,7 +453,7 @@ def test_of_presaved_dictionary_for_complex_patterns():
                                            namespaces = namespaces ,
                                            document_data = document_data ,
                                            patterns = patterns ,
-                                           skip_chars = '[\s]' ,
+                                           skip_chars = r'[\s]' ,
                                            out_file = None )
     assert reloaded_json[ 'annotations' ] == strict_starts
 
@@ -472,7 +472,7 @@ def test_of_identity_read_write_of_dictionary_for_complex_patterns():
                                                namespaces = namespaces ,
                                                document_data = document_data ,
                                                patterns = patterns ,
-                                               skip_chars = '[\s]' ,
+                                               skip_chars = r'[\s]' ,
                                                out_file = tmpfile_handle.name )
         reloaded_json = json.load( tmpfile_handle )
         assert reloaded_json[ 'annotations' ] == strict_starts
@@ -494,7 +494,7 @@ def test_of_identity_read_write_of_dictionary_for_complex_patterns():
 #                                                namespaces = namespaces ,
 #                                                document_data = document_data ,
 #                                                patterns = patterns ,
-#                                                skip_chars = '[\s]' ,
+#                                                skip_chars = r'[\s]' ,
 #                                                out_file = tmpfile_handle.name )
 #         reloaded_json = json.load( tmpfile_handle )
 #         assert reloaded_json[ 'annotations' ] == strict_starts
@@ -515,7 +515,7 @@ def test_empty_contents_of_write_of_dictionary_for_brat_patterns():
                                                namespaces = namespaces ,
                                                document_data = document_data ,
                                                patterns = patterns ,
-                                               skip_chars = '[\s]' ,
+                                               skip_chars = r'[\s]' ,
                                                out_file = tmpfile_handle.name )
         assert strict_starts == {}
         assert os.path.exists( tmpfile_handle.name )
@@ -539,7 +539,7 @@ def test_contents_of_write_of_dictionary_for_brat_patterns():
                                                namespaces = namespaces ,
                                                document_data = document_data ,
                                                patterns = patterns ,
-                                               skip_chars = '[\s]' ,
+                                               skip_chars = r'[\s]' ,
                                                out_file = tmpfile_handle.name )
         reloaded_json = json.load( tmpfile_handle )
         assert reloaded_json[ 'annotations' ] == strict_starts
@@ -729,7 +729,7 @@ def test_empty_extraction_of_doc_content_from_0016_gs():
       text_extraction.extract_chars( ingest_file ,
                                      namespaces = {} ,
                                      document_data = test_dd ,
-                                     skip_chars = '[\s]' )
+                                     skip_chars = r'[\s]' )
     expected_output = {}
     assert offset_mapping == expected_output
 
@@ -740,7 +740,7 @@ def test_extracting_doc_content_from_0016_gs():
       text_extraction.extract_chars( ingest_file ,
                                      namespaces = {} ,
                                      document_data = test_dd ,
-                                     skip_chars = '[\s]' )
+                                     skip_chars = r'[\s]' )
     expected_output = { '0': None ,
                         '1': None ,
                         '2': None ,
@@ -755,7 +755,7 @@ def test_extracting_doc_content_from_0016_gs_skip_z_char():
       text_extraction.extract_chars( ingest_file ,
                                      namespaces = {} ,
                                      document_data = test_dd ,
-                                     skip_chars = '[\sz]' )
+                                     skip_chars = r'[\sz]' )
     expected_output = { '0': None ,
                         '1': None ,
                         '2': None ,
@@ -787,7 +787,7 @@ def test_extracting_doc_content_from_995723_sentences_xmi():
                                      namespaces = { 'cas' :
                                                     "http:///uima/cas.ecore" } ,
                                      document_data = test_dd ,
-                                     skip_chars = '[\s]' )
+                                     skip_chars = r'[\s]' )
     expected_output = { '0': '0' , '1': '1' , '2': '2' , '3': '3' , '4': '4' ,
                         '5': '5' , '6': '6' , '7': '7' }
     assert offset_mapping == expected_output
@@ -800,7 +800,7 @@ def test_offset_mapping_matches_pos_mapped_automatically():
       text_extraction.extract_chars( ingest_file ,
                                      namespaces = {} ,
                                      document_data = document_data ,
-                                     skip_chars = '[\s]' )
+                                     skip_chars = r'[\s]' )
     strict_starts = \
       text_extraction.extract_annotations_xml( ingest_file ,
                                                   offset_mapping = offset_mapping ,
@@ -835,7 +835,7 @@ def test_offset_mapping_matches_pos_mapped_manually():
       text_extraction.extract_chars( ingest_file ,
                                      namespaces = {} ,
                                      document_data = document_data ,
-                                     skip_chars = '[\s]' )
+                                     skip_chars = r'[\s]' )
     strict_starts = \
       text_extraction.extract_annotations_xml( ingest_file ,
                                                offset_mapping = offset_mapping ,
@@ -867,7 +867,7 @@ def test_brat_standoff_extraction():
       text_extraction.extract_chars( ingest_file ,
                                      namespaces = {} ,
                                      document_data = document_data ,
-                                     skip_chars = '[\s]' )
+                                     skip_chars = r'[\s]' )
     strict_starts = \
       text_extraction.extract_annotations_brat_standoff( ingest_file ,
                                                          offset_mapping = offset_mapping ,
@@ -892,7 +892,7 @@ def test_brat_standoff_extraction_with_attributes():
       text_extraction.extract_chars( ingest_file ,
                                      namespaces = {} ,
                                      document_data = document_data ,
-                                     skip_chars = '[\s]' )
+                                     skip_chars = r'[\s]' )
     strict_starts = \
       text_extraction.extract_annotations_brat_standoff( ingest_file ,
                                                          offset_mapping = offset_mapping ,

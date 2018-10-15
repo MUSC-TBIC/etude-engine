@@ -205,7 +205,7 @@ def extract_brat_text_bound_annotation( ingest_file ,
     ## T1	Organization 0 43	International Business Machines Corporation
     ## TODO - Discontinuous:
     ## T1	Location 0 5;16 23	North America
-    matches = re.match( '^(T[0-9]+)\s+(\w+)\s+([0-9]+)\s+([0-9]+)\s+(.*)' ,
+    matches = re.match( r'^(T[0-9]+)\s+(\w+)\s+([0-9]+)\s+([0-9]+)\s+(.*)' ,
                         annot_line )
     if( matches ):
         found_tag = matches.group( 2 )
@@ -271,7 +271,7 @@ def extract_brat_attribute( ingest_file ,
     ## A1	Negated T34
     ## TODO - support multi-valued attributes
     ## A2	Confidence E2 L1
-    matches = re.match( '^([AM][0-9]+)\s+(\w+)\s+([TREAMN\*][0-9]+)$' ,
+    matches = re.match( r'^([AM][0-9]+)\s+(\w+)\s+([TREAMN\*][0-9]+)$' ,
                         annot_line )
     match_index = None
     attribute = None
@@ -294,7 +294,7 @@ def extract_brat_normalization( ingest_file ,
                                 annot_line ,
                                 normalization_engines = [] ):
     ## N1	Reference T1 Wikipedia:534366	Barack Obama
-    matches = re.match( '^(N[0-9]+)\s+Reference\s+([TREAMN\*][0-9]+)\s+([^:]+):([^\s]+)\s+(.+)$' ,
+    matches = re.match( r'^(N[0-9]+)\s+Reference\s+([TREAMN\*][0-9]+)\s+([^:]+):([^\s]+)\s+(.+)$' ,
                         annot_line )
     match_index = None
     normalization_engine = None

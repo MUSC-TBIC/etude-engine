@@ -708,7 +708,7 @@ def test_evaluate_positions_tweak_annotation_dictionary_ignore_whitespace():
       text_extraction.extract_chars( ingest_file ,
                                      namespaces = {} ,
                                      document_data = document_data ,
-                                     skip_chars = '[\s]' )
+                                     skip_chars = r'[\s]' )
     reference_ss = \
       text_extraction.extract_annotations_xml( ingest_file ,
                                                   offset_mapping = reference_om ,
@@ -750,7 +750,7 @@ def prepare_evaluate_positions_structs():
       text_extraction.extract_chars( ingest_file ,
                                      namespaces = {} ,
                                      document_data = document_data ,
-                                     skip_chars = '[\s]' )
+                                     skip_chars = r'[\s]' )
     reference_ss = \
       text_extraction.extract_annotations_xml( ingest_file ,
                                                offset_mapping = reference_om ,
@@ -1065,7 +1065,7 @@ def prepare_evaluate_positions_offset_alignment( test_filename ):
       text_extraction.extract_chars( ingest_file = reference_filename ,
                                      namespaces = namespaces ,
                                      document_data = document_data ,
-                                     skip_chars = '[\s]' )
+                                     skip_chars = r'[\s]' )
     test_om = reference_om
     tag_set = { 'DateTime' : './custom:PHI[@Time="DateTime"]' ,
                 'Age' : './custom:PHI[@Time="Age"]' }

@@ -289,7 +289,7 @@ def extract_document_data( document_data ,
     if( config.has_option( sect , 'Normalization Engines' ) ):
         engines_string = config.get( sect , 'Normalization Engines' )
         engines_split = engines_string.split( ',' )
-        if( isinstance( engines_split , basestring ) ):
+        if( isinstance( engines_split , str ) ):
             document_data[ 'normalization_engines' ] = [ engines_split ]
         else:
             document_data[ 'normalization_engines' ] = engines_split

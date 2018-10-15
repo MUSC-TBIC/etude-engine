@@ -493,7 +493,7 @@ def init_args():
     ## then set skip_chars accordingly
     if( args.ignore_whitespace and
         args.skip_chars == None ):
-        args.skip_chars = '[\s]'
+        args.skip_chars = r'[\s]'
     ## lstrip hack added to handle prefixes and suffixes with dashes
     ##   https://stackoverflow.com/questions/16174992/cant-get-argparse-to-read-quoted-string-with-dashes-in-it
     args.file_prefix = args.file_prefix.lstrip()
@@ -503,7 +503,7 @@ def init_args():
     ## Initialize the list of annotation attributes to score
     args.attributes_list = []
     args.scorable_attributes = []
-    if( isinstance( args.attributes_string , basestring ) ):
+    if( isinstance( args.attributes_string , str ) ):
         for attribute_key in args.attributes_string.split( ',' ):
             ## Strip off any extra whitespace before processing
             attribute_key = attribute_key.strip()
@@ -515,7 +515,7 @@ def init_args():
     args.normalization_list = []
     args.scorable_engines = []
     args.normalization_synonyms = {}
-    if( isinstance( args.normalization_string , basestring ) ):
+    if( isinstance( args.normalization_string , str ) ):
         for normalization_key in args.normalization_string.split( ',' ):
             ## Strip off any extra whitespace before processing
             normalization_key = normalization_key.strip()

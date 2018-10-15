@@ -62,28 +62,28 @@ def test_init_args_ignore_whitespace():
     with patch.object( sys , 'argv' , test_args ):
         args = etude.init_args()
         assert args.ignore_whitespace == True
-        assert args.skip_chars == '[\s]'
+        assert args.skip_chars == r'[\s]'
 
 def test_init_args_skip_chars():
     test_args = [ 'etude.py' ,
                   '--reference-input' , '/tmp/reference' ,
                   '--test-input' , '/tmp/test' ,
-                  '--skip-chars' , '[z\|]' ]
+                  '--skip-chars' , r'[z\|]' ]
     with patch.object( sys , 'argv' , test_args ):
         args = etude.init_args()
         assert args.ignore_whitespace == True
-        assert args.skip_chars == '[z\|]'
+        assert args.skip_chars == r'[z\|]'
 
 def test_init_args_skip_chars_and_whitespace_flag():
     test_args = [ 'etude.py' ,
                   '--reference-input' , '/tmp/reference' ,
                   '--test-input' , '/tmp/test' ,
                   '--ignore-whitespace' ,
-                  '--skip-chars' , '[z\|]' ]
+                  '--skip-chars' , r'[z\|]' ]
     with patch.object( sys , 'argv' , test_args ):
         args = etude.init_args()
         assert args.ignore_whitespace == True
-        assert args.skip_chars == '[z\|]'
+        assert args.skip_chars == r'[z\|]'
 
 def test_init_args_progressbar_default():
     test_args = [ 'etude.py' , '--no-metrics' ]
