@@ -96,8 +96,8 @@ def extract_annotations_xml( ingest_file ,
     ##
     try:
         found_annots = root.findall( annotation_path , namespaces )
-    except SyntaxError, e:
-        log.warn( 'I had a problem parsing the XML file.  Are you sure your XPath is correct and matches your namespace?\n\tSkipping file ({}) and XPath ({})\n\tReported Error:  {}'.format( ingest_file , annotation_path , e ) )
+    except SyntaxError as e:
+        log.warning( 'I had a problem parsing the XML file.  Are you sure your XPath is correct and matches your namespace?\n\tSkipping file ({}) and XPath ({})\n\tReported Error:  {}'.format( ingest_file , annotation_path , e ) )
         log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
         return strict_starts
     ##
@@ -108,7 +108,7 @@ def extract_annotations_xml( ingest_file ,
             try:
                 begin_pos = annot.get( begin_attribute )
                 begin_pos_mapped = map_position( offset_mapping , begin_pos , 1 )
-            except NameError, e:
+            except NameError as e:
                 log.error( 'NameError:  {}'.format( e ) )
         if( end_attribute != None ):
             ## TODO - add flag to distinguish between conditions
@@ -118,7 +118,7 @@ def extract_annotations_xml( ingest_file ,
             try:
                 end_pos = annot.get( end_attribute )
                 end_pos_mapped = map_position( offset_mapping , end_pos , -1 )
-            except NameError, e:
+            except NameError as e:
                 log.error( 'NameError:  {}'.format( e ) )
         if( text_attribute == None ):
             raw_text = annot.text
@@ -142,7 +142,7 @@ def extract_annotations_xml( ingest_file ,
             if( normalization_engine in annot.attrib ):
                 new_entry[ normalization_engine ] = annot.get( normalization_engine )
         ##
-        if( begin_pos in strict_starts.keys() ):
+        if( begin_pos in strict_starts ):
             strict_starts[ begin_pos ].append( new_entry )
         else:
             strict_starts[ begin_pos ] = [ new_entry ]
@@ -165,8 +165,8 @@ def extract_annotations_xml_spanless( ingest_file ,
     ##
     try:
         found_annots = root.findall( annotation_path , namespaces )
-    except SyntaxError, e:
-        log.warn( 'I had a problem parsing the XML file.  Are you sure your XPath is correct and matches your namespace?\n\tSkipping file ({}) and XPath ({})\n\tReported Error:  {}'.format( ingest_file , annotation_path , e ) )
+    except SyntaxError as e:
+        log.warning( 'I had a problem parsing the XML file.  Are you sure your XPath is correct and matches your namespace?\n\tSkipping file ({}) and XPath ({})\n\tReported Error:  {}'.format( ingest_file , annotation_path , e ) )
         log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
         return strict_starts
     ##
@@ -181,7 +181,7 @@ def extract_annotations_xml_spanless( ingest_file ,
         for optional_attr in optional_attributes:
             new_entry[ optional_attr ] = annot.get( optional_attr )
         ##
-        if( -1 in strict_starts.keys() ):
+        if( -1 in strict_starts ):
             for old_entry in strict_starts[ -1 ]:
                 ## TODO - current logic allows multiple instances of the same type
                 ## if they differ on their pivot_value.  This is good for topic
@@ -205,7 +205,7 @@ def extract_brat_text_bound_annotation( ingest_file ,
     ## T1	Organization 0 43	International Business Machines Corporation
     ## TODO - Discontinuous:
     ## T1	Location 0 5;16 23	North America
-    matches = re.match( '^(T[0-9]+)\s+(\w+)\s+([0-9]+)\s+([0-9]+)\s+(.*)' ,
+    matches = re.match( r'^(T[0-9]+)\s+(\w+)\s+([0-9]+)\s+([0-9]+)\s+(.*)' ,
                         annot_line )
     if( matches ):
         found_tag = matches.group( 2 )
@@ -229,7 +229,7 @@ def extract_brat_text_bound_annotation( ingest_file ,
             new_entry[ optional_attr ] = 'false'
         return new_entry
     else:
-        log.warn( 'I had a problem parsing a brat text-bound annotation line ({}):{}'.format( ingest_file ,
+        log.warning( 'I had a problem parsing a brat text-bound annotation line ({}):{}'.format( ingest_file ,
                                                                                               annot_line ) )
         return None
 
@@ -271,7 +271,7 @@ def extract_brat_attribute( ingest_file ,
     ## A1	Negated T34
     ## TODO - support multi-valued attributes
     ## A2	Confidence E2 L1
-    matches = re.match( '^([AM][0-9]+)\s+(\w+)\s+([TREAMN\*][0-9]+)$' ,
+    matches = re.match( r'^([AM][0-9]+)\s+(\w+)\s+([TREAMN\*][0-9]+)$' ,
                         annot_line )
     match_index = None
     attribute = None
@@ -284,7 +284,7 @@ def extract_brat_attribute( ingest_file ,
             key = attribute
         return( [ match_index , attribute , key , attribute_value ] )
     else:
-        log.warn( 'I had a problem parsing a brat attribute line ({}):{}'.format( ingest_file ,
+        log.warning( 'I had a problem parsing a brat attribute line ({}):{}'.format( ingest_file ,
                                                                                   annot_line ) )
         return None
 
@@ -294,7 +294,7 @@ def extract_brat_normalization( ingest_file ,
                                 annot_line ,
                                 normalization_engines = [] ):
     ## N1	Reference T1 Wikipedia:534366	Barack Obama
-    matches = re.match( '^(N[0-9]+)\s+Reference\s+([TREAMN\*][0-9]+)\s+([^:]+):([^\s]+)\s+(.+)$' ,
+    matches = re.match( r'^(N[0-9]+)\s+Reference\s+([TREAMN\*][0-9]+)\s+([^:]+):([^\s]+)\s+(.+)$' ,
                         annot_line )
     match_index = None
     normalization_engine = None
@@ -312,7 +312,7 @@ def extract_brat_normalization( ingest_file ,
         else:
             return( None )
     else:
-        log.warn( 'I had a problem parsing a brat normalization line ({}):{}'.format( ingest_file ,
+        log.warning( 'I had a problem parsing a brat normalization line ({}):{}'.format( ingest_file ,
                                                                                       annot_line ) )
     return None
 
@@ -351,7 +351,7 @@ def extract_annotations_brat_standoff( ingest_file ,
                                                                   line ,
                                                                   optional_attributes )
                     if( new_attribute_value[ 0 ] != None and
-                        new_attribute_value[ 0 ] in annots_by_index.keys() and
+                        new_attribute_value[ 0 ] in annots_by_index and
                         new_attribute_value[ 2 ] != None ):
                         annots_by_index[ new_attribute_value[ 0 ] ][ new_attribute_value[ 2 ] ] = new_attribute_value[ 3 ]
                 elif( brat_annotation_type == 'R' ):
@@ -378,22 +378,22 @@ def extract_annotations_brat_standoff( ingest_file ,
                                                                     normalization_engines )
                     if( new_normalization is not None and
                         new_normalization[ 0 ] is not None and
-                        new_normalization[ 0 ] in annots_by_index.keys() and
+                        new_normalization[ 0 ] in annots_by_index and
                         new_normalization[ 1 ] is not None and
                         new_normalization[ 2 ] is not None ):
                         annots_by_index[ new_normalization[ 0 ] ][ new_normalization[ 1 ] ] = new_normalization[ 2 ]
                 ##elif( brat_annotation_type == '#' ):
                 ##    ## Do nothing.  We don't support comments.
                 ##
-    except IOError, e:
-        log.warn( 'I had a problem reading the standoff notation file ({}).\n\tReported Error:  {}'.format( ingest_file ,
+    except IOError as e:
+        log.warning( 'I had a problem reading the standoff notation file ({}).\n\tReported Error:  {}'.format( ingest_file ,
                                                                                                             e ) )
         log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
     strict_starts = {}
     for match_index in annots_by_index:
         new_entry = annots_by_index[ match_index ]
         begin_pos = new_entry[ 'begin_pos' ]
-        if( begin_pos in strict_starts.keys() ):
+        if( begin_pos in strict_starts ):
             strict_starts[ begin_pos ].append( new_entry )
         else:
             strict_starts[ begin_pos ] = [ new_entry ]
@@ -435,7 +435,7 @@ def extract_annotations_plaintext( offset_mapping ,
                                                  raw_text = raw_text ,
                                                  tag_name = tag_name )
             ##
-            if( begin_pos in strict_starts.keys() ):
+            if( begin_pos in strict_starts ):
                 strict_starts[ begin_pos ].append( new_entry )
             else:
                 strict_starts[ begin_pos ] = [ new_entry ]
@@ -459,7 +459,7 @@ def extract_annotations_plaintext( offset_mapping ,
                                              raw_text = raw_text ,
                                              tag_name = tag_name )
         ##
-        if( begin_pos in strict_starts.keys() ):
+        if( begin_pos in strict_starts ):
             strict_starts[ begin_pos ].append( new_entry )
         else:
             strict_starts[ begin_pos ] = [ new_entry ]
@@ -507,10 +507,10 @@ def extract_chars( ingest_file ,
     ##
     cdata_flag = False
     attribute_flag = False
-    if( 'cdata_xpath' in document_data.keys() ):
+    if( 'cdata_xpath' in document_data ):
         cdata_flag = True
         content_path = document_data[ 'cdata_xpath' ]
-    elif( 'content_attribute' in document_data.keys() ):
+    elif( 'content_attribute' in document_data ):
         attribute_flag = True
         content_path = document_data[ 'tag_xpath' ]
         attribute_name = document_data[ 'content_attribute' ]
@@ -523,8 +523,8 @@ def extract_chars( ingest_file ,
     ##
     try:
         found_annots = root.findall( content_path , namespaces )
-    except SyntaxError, e:
-        log.warn( 'I had a problem parsing the XML file.  Are you sure your XPath is correct and matches your namespace?\n\tSkipping file ({}) and XPath ({})\n\tReported Error:  {}'.format( ingest_file , content_path , e ) )
+    except SyntaxError as e:
+        log.warning( 'I had a problem parsing the XML file.  Are you sure your XPath is correct and matches your namespace?\n\tSkipping file ({}) and XPath ({})\n\tReported Error:  {}'.format( ingest_file , content_path , e ) )
         log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
         return None , offset_mapping
     ##
@@ -532,9 +532,9 @@ def extract_chars( ingest_file ,
     log.debug( 'Found {} match(es) for the pattern \'{}\''.format( len( found_annots ) ,
                                                                    content_path ) )
     if( len( found_annots ) > 1 ):
-        log.warn( 'Expected to only find a single pattern matching content XPath (\'{}\') but found {}.  Using first match.'.format( content_path , len( found_annots ) ) )
+        log.warning( 'Expected to only find a single pattern matching content XPath (\'{}\') but found {}.  Using first match.'.format( content_path , len( found_annots ) ) )
     elif( len( found_annots ) == 0 ):
-        log.warn( 'Expected to find exactly one match for content XPath (\'{}\') but found {}.  Returning empty document content.'.format( content_path , len( found_annots ) ) )
+        log.warning( 'Expected to find exactly one match for content XPath (\'{}\') but found {}.  Returning empty document content.'.format( content_path , len( found_annots ) ) )
         log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
         return None , offset_mapping
     for annot in found_annots:
@@ -545,8 +545,8 @@ def extract_chars( ingest_file ,
             try:
                 raw_text = annot.attrib[ attribute_name ]
                 break
-            except KeyError, e:
-                log.warn( 'KeyError:  could not find attribute_name {} in the matched path \'{}\''.format( e , content_path ) )
+            except KeyError as e:
+                log.warning( 'KeyError:  could not find attribute_name {} in the matched path \'{}\''.format( e , content_path ) )
                 raw_text = None
     ##
     if( raw_text != None and skip_chars != None ):
@@ -575,7 +575,7 @@ def align_tokens_on_whitespace( dictionary ,
         os.path.exists( out_file ) ):
         os.remove( out_file )
     mapping = dictionary[ 'offset_mapping' ]
-    keys = mapping.keys()
+    keys = list( mapping )
     content = dictionary[ 'raw_content' ]
     keys.sort( key = int )
     token_start = None
@@ -640,12 +640,12 @@ def extract_annotations( ingest_file ,
                                                               namespaces ,
                                                               document_data ,
                                                               skip_chars )
-            except ET.ParseError, e:
-                log.warn( 'ParseError in file ({}):  {}'.format( ingest_file , e ) )
+            except ET.ParseError as e:
+                log.warning( 'ParseError in file ({}):  {}'.format( ingest_file , e ) )
                 log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
                 return offset_mapping , annotations
-            except UnicodeEncodeError, e:
-                print( '{}'.format( e ) )
+            except UnicodeEncodeError as e:
+                print(( '{}'.format( e ) ))
             except:
                 e = sys.exc_info()[0]
                 log.error( 'Uncaught exception in extract_chars:  {}'.format( e ) )
@@ -656,7 +656,7 @@ def extract_annotations( ingest_file ,
     ## Normalization engines are global for the config file
     ## rather than pattern-specific
     norm_eng = []
-    if( 'normalization_engines' in document_data.keys() ):
+    if( 'normalization_engines' in document_data ):
         norm_eng = document_data[ 'normalization_engines' ]
     for pattern in patterns:
         new_annots = None
@@ -669,7 +669,7 @@ def extract_annotations( ingest_file ,
                                                tag_name = pattern[ 'type' ] )
         elif( 'type_prefix' in pattern ):
             norm_eng = []
-            if( 'normalization_engines' in document_data.keys() ):
+            if( 'normalization_engines' in document_data ):
                 norm_eng = document_data[ 'normalization_engines' ]
             new_annots = \
                 extract_annotations_brat_standoff( ingest_file ,
@@ -712,8 +712,8 @@ def extract_annotations( ingest_file ,
             print( 'WARNING:  Skipping pattern because it is missing essential elements:\n\n{}'.format( pattern ) )
         ##
         if( new_annots != None ):
-            for new_annot_key in new_annots.keys():
-                if( new_annot_key in annotations.keys() ):
+            for new_annot_key in new_annots:
+                if( new_annot_key in annotations ):
                     ## TODO - If multiple patterns are associated with the same type
                     ##        and we're evaluating annotations at the document level
                     ##        (or otherwise want at most one instance of an annotation

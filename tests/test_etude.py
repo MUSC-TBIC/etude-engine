@@ -62,28 +62,28 @@ def test_init_args_ignore_whitespace():
     with patch.object( sys , 'argv' , test_args ):
         args = etude.init_args()
         assert args.ignore_whitespace == True
-        assert args.skip_chars == '[\s]'
+        assert args.skip_chars == r'[\s]'
 
 def test_init_args_skip_chars():
     test_args = [ 'etude.py' ,
                   '--reference-input' , '/tmp/reference' ,
                   '--test-input' , '/tmp/test' ,
-                  '--skip-chars' , '[z\|]' ]
+                  '--skip-chars' , r'[z\|]' ]
     with patch.object( sys , 'argv' , test_args ):
         args = etude.init_args()
         assert args.ignore_whitespace == True
-        assert args.skip_chars == '[z\|]'
+        assert args.skip_chars == r'[z\|]'
 
 def test_init_args_skip_chars_and_whitespace_flag():
     test_args = [ 'etude.py' ,
                   '--reference-input' , '/tmp/reference' ,
                   '--test-input' , '/tmp/test' ,
                   '--ignore-whitespace' ,
-                  '--skip-chars' , '[z\|]' ]
+                  '--skip-chars' , r'[z\|]' ]
     with patch.object( sys , 'argv' , test_args ):
         args = etude.init_args()
         assert args.ignore_whitespace == True
-        assert args.skip_chars == '[z\|]'
+        assert args.skip_chars == r'[z\|]'
 
 def test_init_args_progressbar_default():
     test_args = [ 'etude.py' , '--no-metrics' ]
@@ -306,7 +306,7 @@ def test_full_matching_directory():
                            file_suffix = [ '.xml' ] ,
                            skip_missing_files_flag = True )
     assert match_count == 10
-    assert len( file_mapping.keys() ) == match_count
+    assert len( file_mapping ) == match_count
 
 def test_full_matching_directory_file_mapping():
     file_mapping = \
@@ -315,7 +315,7 @@ def test_full_matching_directory_file_mapping():
                               file_prefix = '/' ,
                               file_suffix = [ '.xml' ] ,
                               skip_missing_files_flag = True )
-    assert len( file_mapping.keys() ) == 10
+    assert len( file_mapping ) == 10
 
 
 def test_identical_file_suffix_matching_directory():
@@ -326,7 +326,7 @@ def test_identical_file_suffix_matching_directory():
                            file_suffix = [ '.xml' , '.xml' ] ,
                            skip_missing_files_flag = True )
     assert match_count == 10
-    assert len( file_mapping.keys() ) == match_count
+    assert len( file_mapping ) == match_count
 
 
 def test_empty_reference_directory():

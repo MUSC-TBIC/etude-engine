@@ -49,14 +49,14 @@ def count_ref_set( this_ns , this_dd , this_patterns ,
                                                    document_data = this_dd ,
                                                    patterns = this_patterns ,
                                                    out_file = None )
-        except NameError , e:
+        except NameError as e:
             log.error( 'NameError exception in extract_annotations:  {}'.format( e ) )
-        except TypeError , e:
+        except TypeError as e:
             log.error( 'TypeError exception in extract_annotations:  {}'.format( e ) )
         except:
             e = sys.exc_info()[0]
             log.error( 'Uncaught exception in extract_annotations:  {}'.format( e ) )
-        for this_start in this_ss.keys():
+        for this_start in this_ss:
             ## loop over all entries sharing the same start position
             ## and grab type and end position
             for this_entry in this_ss[ this_start ]:
@@ -86,13 +86,13 @@ def count_ref_set( this_ns , this_dd , this_patterns ,
                                               this_patterns ,
                                               args ,
                                               set_type = set_type )
-    except AttributeError , e:
+    except AttributeError as e:
             log.error( 'AttributeError exception in print_counts_summary:  {}'.format( e ) )
-    except KeyError , e:
+    except KeyError as e:
             log.error( 'KeyError exception in print_counts_summary:  {}'.format( e ) )
-    except NameError , e:
+    except NameError as e:
             log.error( 'NameError exception in print_counts_summary:  {}'.format( e ) )
-    except TypeError , e:
+    except TypeError as e:
             log.error( 'TypeError exception in print_counts_summary:  {}'.format( e ) )
     except:
         e = sys.exc_info()[0]
@@ -283,7 +283,7 @@ def create_output_folders( reference_out , test_out ):
     ## Reference folders
     if( reference_out != None and
         not os.path.exists( reference_out ) ):
-        log.warn( 'Creating reference output folder because it does not exist:  {}'.format( reference_out ) )
+        log.warning( 'Creating reference output folder because it does not exist:  {}'.format( reference_out ) )
         try:
             os.makedirs( reference_out )
         except OSError as e:
@@ -294,7 +294,7 @@ def create_output_folders( reference_out , test_out ):
     ## Test (system output) folders
     if( test_out != None and
         not os.path.exists( test_out ) ):
-        log.warn( 'Creating test output folder because it does not exist:  {}'.format( test_out ) )
+        log.warning( 'Creating test output folder because it does not exist:  {}'.format( test_out ) )
         try:
             os.makedirs( test_out )
         except OSError as e:
@@ -360,7 +360,7 @@ def score_ref_set( reference_ns , reference_dd , reference_patterns , reference_
                                                    patterns = reference_patterns ,
                                                    skip_chars = args.skip_chars ,
                                                    out_file = reference_out_file )
-        except TypeError , e:
+        except TypeError as e:
             log.error( 'TypeError exception in extract_annotations:  {}'.format( e ) )
         except:
             e = sys.exc_info()[0]
@@ -385,7 +385,7 @@ def score_ref_set( reference_ns , reference_dd , reference_patterns , reference_
                                                        skip_chars = \
                                                          args.skip_chars ,
                                                        out_file = test_out_file )
-            except TypeError , e:
+            except TypeError as e:
                 log.error( 'TypeError exception in extract_annotations:  {}'.format( e ) )
             except:
                 e = sys.exc_info()[0]
@@ -411,11 +411,11 @@ def score_ref_set( reference_ns , reference_dd , reference_patterns , reference_
                                                       args.scorable_engines ,
                                                     norm_synonyms =\
                                                       args.normalization_synonyms )
-        except UnboundLocalError , e:
+        except UnboundLocalError as e:
             log.error( 'UnboundLocalError exception in evaluate_positions:  {}'.format( e ) )
-        except NameError , e:
+        except NameError as e:
             log.error( 'NameError exception in evaluate_positions:  {}'.format( e ) )
-        except TypeError, e:
+        except TypeError as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             log.error( 'TypeError in evaluate_positions ({}):  {}'.format( exc_tb.tb_lineno , e ) )
         except:
@@ -471,7 +471,7 @@ def init_args():
         f_position = args.metrics_list.index( 'F' )
         args.metrics_list.pop( f_position )
         if( len( args.f_beta_values ) == 0 ):
-            log.warn( 'F was included in the list of metrics to calculate but no beta values were provided (--f-beta-values <betas>)' )
+            log.warning( 'F was included in the list of metrics to calculate but no beta values were provided (--f-beta-values <betas>)' )
         else:
             ## Reverse the list so that they get inserted into the metrics_list
             ## in the proper order
@@ -481,7 +481,7 @@ def init_args():
                     args.metrics_list.insert( f_position , 'F{}'.format( beta ) )
     else:
         if( len( args.f_beta_values ) > 0 ):
-            log.warn( 'F beta values were provided but "F" was not included in the list of metrics to calculate (--f-beta-values <betas>)' )
+            log.warning( 'F beta values were provided but "F" was not included in the list of metrics to calculate (--f-beta-values <betas>)' )
             args.f_beta_values = []
     for common_beta in [ '1' , '2' , '0.5' ]:
         if( 'F{}'.format( common_beta ) in args.metrics_list ):
@@ -493,7 +493,7 @@ def init_args():
     ## then set skip_chars accordingly
     if( args.ignore_whitespace and
         args.skip_chars == None ):
-        args.skip_chars = '[\s]'
+        args.skip_chars = r'[\s]'
     ## lstrip hack added to handle prefixes and suffixes with dashes
     ##   https://stackoverflow.com/questions/16174992/cant-get-argparse-to-read-quoted-string-with-dashes-in-it
     args.file_prefix = args.file_prefix.lstrip()
@@ -503,7 +503,7 @@ def init_args():
     ## Initialize the list of annotation attributes to score
     args.attributes_list = []
     args.scorable_attributes = []
-    if( isinstance( args.attributes_string , basestring ) ):
+    if( isinstance( args.attributes_string , str ) ):
         for attribute_key in args.attributes_string.split( ',' ):
             ## Strip off any extra whitespace before processing
             attribute_key = attribute_key.strip()
@@ -515,7 +515,7 @@ def init_args():
     args.normalization_list = []
     args.scorable_engines = []
     args.normalization_synonyms = {}
-    if( isinstance( args.normalization_string , basestring ) ):
+    if( isinstance( args.normalization_string , str ) ):
         for normalization_key in args.normalization_string.split( ',' ):
             ## Strip off any extra whitespace before processing
             normalization_key = normalization_key.strip()
@@ -682,13 +682,13 @@ if __name__ == "__main__":
                                    file_prefix = args.file_prefix ,
                                    file_suffix = args.file_suffix[ len( args.file_suffix ) - 1 ] ,
                                    set_type = 'reference' )
-                except AttributeError , e:
+                except AttributeError as e:
                     log.error( 'AttributeError exception in count_ref_set for reference output corpus:  {}'.format( e ) )
-                except KeyError, e:
+                except KeyError as e:
                     log.error( 'KeyError in count_ref_set for reference output corpus:  {}'.format( e ) )
-                except NameError, e:
+                except NameError as e:
                     log.error( 'NameError in count_ref_set for reference output corpus:  {}'.format( e ) )
-                except TypeError, e:
+                except TypeError as e:
                     log.error( 'TypeError in count_ref_set for reference output corpus:  {}'.format( e ) )
                 except:
                     e = sys.exc_info()[0]
@@ -704,13 +704,13 @@ if __name__ == "__main__":
                                    file_prefix = args.file_prefix ,
                                    file_suffix = args.file_suffix[ len( args.file_suffix ) - 1 ] ,
                                    set_type = 'test' ) 
-                except AttributeError , e:
+                except AttributeError as e:
                     log.error( 'AttributeError exception in count_ref_set for reference output corpus:  {}'.format( e ) )
-                except KeyError, e:
+                except KeyError as e:
                     log.error( 'KeyError in count_ref_set for system output corpus:  {}'.format( e ) )
-                except NameError, e:
+                except NameError as e:
                     log.error( 'NameError in count_ref_set for system output corpus:  {}'.format( e ) )
-                except TypeError, e:
+                except TypeError as e:
                     log.error( 'TypeError in count_ref_set for system output corpus:  {}'.format( e ) )
                 except:
                     e = sys.exc_info()[0]
@@ -730,9 +730,9 @@ if __name__ == "__main__":
                                args = args ,
                                file_prefix = args.file_prefix ,
                                file_suffix = args.file_suffix )
-            except NameError, e:
+            except NameError as e:
                 log.error( 'NameError in score_ref_set:  {}'.format( e ) )
-            except TypeError, e:
+            except TypeError as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 log.error( 'TypeError in score_ref_set ({}):  {}'.format( exc_tb.tb_lineno , e ) )
             except:
