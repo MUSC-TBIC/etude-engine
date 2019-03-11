@@ -4,8 +4,6 @@ import logging as log
 
 import json
 
-from sets import Set
-
 import pandas as pd
 
 def new_score_card( fuzzy_flags = [ 'exact' ] ,
@@ -32,7 +30,7 @@ def get_annotation_from_base_entry( annotation_entry ,
     try:
         annotation_type = annotation_entry[ 'type' ]
     except KeyError as e:
-        log.warn( 'Could not access annotation type.  Skipping entry.' )
+        log.warning( 'Could not access annotation type.  Skipping entry.' )
         return None , None , None
     try:
         annotation_start = annotation_entry[ start_key ]
@@ -41,7 +39,7 @@ def get_annotation_from_base_entry( annotation_entry ,
         except ValueError:
             log.debug( 'Annotation start position could not be converted to int.  Treating as a string:  {}'.format( annotation_start ) )
     except KeyError as e:
-        log.warn( 'Could not access annotation start key.  Skipping entry.' )
+        log.warning( 'Could not access annotation start key.  Skipping entry.' )
         return None , None , None
     try:
         annotation_end = annotation_entry[ end_key ]
@@ -50,7 +48,7 @@ def get_annotation_from_base_entry( annotation_entry ,
         except ValueError:
             log.debug( 'Annotation end position could not be converted to int.  Treating as a string:  {}'.format( annotation_end ) )
     except KeyError as e:
-        log.warn( 'Could not access annotation end key.  Skipping entry.' )
+        log.warning( 'Could not access annotation end key.  Skipping entry.' )
         return None , None , None
     log.debug( '{} ( {} - {} )'.format( annotation_type ,
                                         annotation_start ,
@@ -65,7 +63,7 @@ def get_annotation_from_base_entry( annotation_entry ,
 def flatten_ss_dictionary( ss_dictionary ,
                            category = '(unknown)' ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
-    all_keys = ss_dictionary.keys()
+    all_keys = list( ss_dictionary )
     if( len( all_keys ) == 0 ):
         log.debug( 'Zero {} keys in strict starts dictionary'.format( category ) )
     else:
@@ -119,8 +117,8 @@ def update_score_card( condition , score_card , fuzzy_flag ,
     for ref_attribute, test_attribute in scorable_attributes:
         ## Skip entries for which the attribute wasn't extracted in
         ## either the ref or system annotation
-        if( ref_attribute not in ref_annot.keys() or
-            test_attribute not in test_annot.keys() ):
+        if( ref_attribute not in ref_annot or
+            test_attribute not in test_annot ):
             continue
         ## TODO - add flag that treats TN and TP results both at TP
         if( ref_annot[ ref_attribute ] == test_annot[ test_attribute ] ):
@@ -150,18 +148,18 @@ def update_score_card( condition , score_card , fuzzy_flag ,
         ## If neither the ref nor the system annotation have a normalization
         ## entry for this engine, keep going. We can also consider this entry
         ## a TN for the normalization engine in question.
-        if( ref_engine not in ref_annot.keys() and
-            test_engine not in test_annot.keys() ):
+        if( ref_engine not in ref_annot and
+            test_engine not in test_annot ):
             score_card[ ref_engine ][ fuzzy_flag ].loc[ score_card[ ref_engine ][ fuzzy_flag ].shape[ 0 ] ] = \
                 [ filename , start_pos , end_pos ,
                   type , None , 'TN' ]
-        elif( test_engine not in test_annot.keys() ):
+        elif( test_engine not in test_annot ):
             ## If we don't have a normalized entry in the test,
             ## this is a FN
             score_card[ ref_engine ][ fuzzy_flag ].loc[ score_card[ ref_engine ][ fuzzy_flag ].shape[ 0 ] ] = \
                 [ filename , start_pos , end_pos ,
                   type , ref_annot[ ref_engine ] , 'FN' ]
-        elif( ref_engine not in ref_annot.keys() ):
+        elif( ref_engine not in ref_annot ):
             ## If we don't have a normalized entry in the reference,
             ## this is a FP
             score_card[ ref_engine ][ fuzzy_flag ].loc[ score_card[ ref_engine ][ fuzzy_flag ].shape[ 0 ] ] = \
@@ -822,7 +820,7 @@ def recursive_deep_key_value_pair( dictionary , path , key , value ):
         dictionary[ key ] = value
     else:
         pop_path = path[ 0 ]
-        if( pop_path not in dictionary.keys() ):
+        if( pop_path not in dictionary ):
             dictionary[ pop_path ] = {}
         dictionary[ pop_path ] = recursive_deep_key_value_pair( dictionary[ pop_path ] ,
                                                                 path[ 1: ] ,
@@ -841,7 +839,7 @@ def update_output_dictionary( out_file ,
         try:
             with open( out_file , 'r' ) as fp:
                 file_dictionary = json.load( fp )
-        except ValueError , e:
+        except ValueError as e:
             log.error( 'I can\'t update the output dictionary \'{}\'' + \
                        'because I had a problem loading it into memory:  ' + \
                        '{}'.format( out_file ,
@@ -918,9 +916,9 @@ def output_metrics( class_data ,
 
 
 def get_unique_types( config ):
-    unique_types = Set()
+    unique_types = set()
     for pattern in config:
-        if( 'pivot_attr' in pattern.keys() ):
+        if( 'pivot_attr' in pattern ):
             ## TODO - pull this fron the config file
             for pivot_value in [ 'met' , 'not met' ]: ##pattern[ 'pivot_values' ]:
                 this_type = '{} = "{}"'.format( pattern[ 'type' ] , pivot_value )
@@ -941,7 +939,7 @@ def print_counts_summary( score_card , file_list ,
     if( args.write_score_cards ):
         if( set_type == 'reference' ):
             if( args.reference_out == None ):
-                log.warn( 'I could not write the reference counts score_card to disk:  --write-score-cards set but no --reference-out set' )
+                log.warning( 'I could not write the reference counts score_card to disk:  --write-score-cards set but no --reference-out set' )
             else:
                 score_card[ 'counts' ].to_csv( '{}/{}'.format( args.reference_out ,
                                                                'counts_score_card.csv' ) ,
@@ -950,7 +948,7 @@ def print_counts_summary( score_card , file_list ,
                                                index = False )
         elif( set_type == 'test' ):
             if( args.test_out == None ):
-                log.warn( 'I could not write the test counts score_card to disk:  --write-score-cards set but no --test-out set' )
+                log.warning( 'I could not write the test counts score_card to disk:  --write-score-cards set but no --test-out set' )
             else:
                 score_card[ 'counts' ].to_csv( '{}/{}'.format( args.test_out ,
                                                                'counts_score_card.csv' ) ,
@@ -1068,9 +1066,9 @@ def print_confusion_matrix_shell( confusion_matrix ,
                                     reference_patterns , test_patterns ,
                                     fuzzy_flag = fuzzy_flag ,
                                     args = args )
-    except KeyError , e:
+    except KeyError as e:
         log.error( 'KeyError exception in print_confusion_matrix:  {}'.format( e ) )
-    except NameError , e:
+    except NameError as e:
         log.error( 'NameError exception in print_confusion_matrix:  {}'.format( e ) )
     except:
         e = sys.exc_info()[0]
@@ -1086,8 +1084,8 @@ def print_confusion_matrix( confusion_matrix ,
                             args ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     file_list = sorted( file_mapping.keys() )
-    unique_ref_types = Set()
-    unique_test_types = Set()
+    unique_ref_types = set()
+    unique_test_types = set()
     unique_ref_types.add( '*FP*' )
     unique_test_types.add( '*FN*' )
     for pattern in reference_config:
@@ -1141,13 +1139,13 @@ def print_score_summary_shell( score_card , file_mapping ,
                                      norm_engine = '_{}'.format( ref_engine ) )
     except KeyError as e:
         log.error( 'KeyError in print_score_summary:  {}'.format( e ) )
-    except TypeError , e :
+    except TypeError as e :
         log.error( 'TypeError in print_score_summary:  {}'.format( e ) )
-    except NameError , e :
+    except NameError as e :
         log.error( 'NameError in print_score_summary:  {}'.format( e ) )
-    except ValueError , e :
+    except ValueError as e :
         log.error( 'ValueError in print_score_summary:  {}'.format( e ) )
-    except AttributeError , e :
+    except AttributeError as e :
         log.error( 'AttributeError in print_score_summary:  {}'.format( e ) )
     except:
         e = sys.exc_info()[0]
@@ -1167,7 +1165,7 @@ def print_score_summary( score_card , file_mapping ,
     if( args.write_score_cards ):
         if( args.reference_out == None and
             args.test_out == None ):
-            log.warn( 'I could not write the metrics score_card to disk:  --write-score-cards set but neither --reference-out nor --test-out set' )
+            log.warning( 'I could not write the metrics score_card to disk:  --write-score-cards set but neither --reference-out nor --test-out set' )
         else:
             if( args.reference_out ):
                 score_card[ fuzzy_flag ].to_csv( '{}/{}{}{}{}'.format( args.reference_out ,
