@@ -501,11 +501,11 @@ def init_args():
     if( args.empty_value is not None and
         args.empty_value != '' ):
         try:
-            args.empty_value = args.empty_value.astype( int )
+            args.empty_value = int( args.empty_value )
         except ValueError:
             log.debug( 'Default empty_value is not an int' )
             try:
-                args.empty_value = args.empty_value.astype( float )
+                args.empty_value = float( args.empty_value )
             except ValueError:
                 log.debug( 'Default empty_value is not a float' )
     ## Resolve conflicts between --ignore-whitespace, --heed-whitespace,

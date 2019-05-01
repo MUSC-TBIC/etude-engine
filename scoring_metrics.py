@@ -570,7 +570,7 @@ def document_level_annot_comparison_runner( reference_filename , confusion_matri
                     log.warn( 'Multiple system annotations found for annotation type:  {}'.format( test_type ) )
                 ## TODO - We're going to skip over 'Any', 'First', and 'Last' annotations for now
             else:
-            test_leftovers.append( test_annot )
+                test_leftovers.append( test_annot )
             continue
         ##
         test_pivot_value = test_annot[ 'pivot_value' ]
