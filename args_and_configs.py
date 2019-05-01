@@ -64,7 +64,7 @@ unstructured data extraction.
     
     parser.add_argument( '--empty-value' ,
                          dest = 'empty_value' ,
-                         default = '' ,
+                         default = None ,
                          help = "Value to print when metrics are undefined or values are null" )
 
     parser.add_argument( "--fuzzy-match-flags" , nargs = "+" ,
@@ -99,11 +99,11 @@ unstructured data extraction.
     parser.add_argument( '--by-type-and-file' , dest = 'by_type_and_file' ,
                          help = "Print metrics by file nested within annotation type" ,
                          action = "store_true" )
-
+    
     parser.add_argument( '--by-attribute' , dest = 'by_attribute' ,
                          help = "Print metrics by annotation attribute" ,
                          action = "store_true" )
-
+    
     parser.add_argument( "--reference-config", 
                          dest = 'reference_config' ,
                          default = 'config/i2b2_2016_track-1.conf' ,
@@ -208,6 +208,14 @@ unstructured data extraction.
                          dest = 'print_metrics' ,
                          help = "Suppress the metrics (provided via --metrics-list) scored" ,
                          action = "store_false" )
+    
+    ## TODO - make it easy to load / reference these special print functions
+    ##        from separate files
+    parser.add_argument( "--print-custom" , nargs = '+' ,
+                         dest = 'print_custom' ,
+                         default = [ ] ,
+                         choices = [ '2018 n2c2 track 1' ] ,
+                         help = "Use one of any custom output print functions.  Usually, these are created to replicate the output of a different tool." )
 
     parser.add_argument( '--align-tokens' ,
                          dest = 'align_tokens' ,
@@ -356,8 +364,17 @@ def extract_xpath_spanless_patterns( annotations ,
                                   short_name = config.get( sect ,
                                                            'Short Name' ) ,
                                   pivot_attr = config.get( sect ,
-                                                         'Pivot Attr' ) ,
+                                                           'Pivot Attr' ) ,
+                                  parity = config.get( sect ,
+                                                       'Parity' ) ,
                                   optional_attributes = [] )
+            if( pattern_entry[ 'parity' ] not in [ 'First' , 'Last' ,
+                                                   'Unique' , 'Any' ] ):
+                log.warn( '{} {} ( {} , {} )'.format( 
+                    'Unexpected setting for annotation parity.' ,
+                    'This may have unpredictable consequences:' ,
+                    pattern_entry[ 'long_name' ] ,
+                    pattern_entry[ 'parity' ] ) )
             if( config.has_option( sect , 'Opt Attr' ) ):
                 optional_attributes = config.get( sect , 'Opt Attr' )
                 pattern_entry[ 'optional_attributes' ] = \
