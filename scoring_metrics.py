@@ -1253,7 +1253,7 @@ def print_2018_n2c2_track1( score_card ,
         macro_not_met_f1 / len( tags ) ,
         macro_f1 / len( tags ) ,
         macro_auc / len( tags ) ) )
-    print()
+    print( '' )
     print('{:>20}  {:^74}'.format('', '  {} files found  '.format( len( file_mapping ) ) ) )
 
 
