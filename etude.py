@@ -430,14 +430,20 @@ def score_ref_set( reference_ns , reference_dd , reference_patterns , reference_
     #                                             file_mapping ,
     #                                             reference_patterns , test_patterns ,
     #                                             args = args )
-    scoring_metrics.print_confusion_matrix_shell( confusion_matrix ,
-                                                  file_mapping ,
-                                                  reference_patterns , test_patterns ,
-                                                  args = args )
-    scoring_metrics.print_score_summary_shell( score_card ,
-                                               file_mapping ,
-                                               reference_patterns , test_patterns ,
-                                               args = args )
+    if( args.print_confusion_matrix ):
+        scoring_metrics.print_confusion_matrix_shell( confusion_matrix ,
+                                                      file_mapping ,
+                                                      reference_patterns , test_patterns ,
+                                                      args = args )
+    if( args.print_metrics ):
+        scoring_metrics.print_score_summary_shell( score_card ,
+                                                   file_mapping ,
+                                                   reference_patterns , test_patterns ,
+                                                   args = args )
+    if( '2018 n2c2 track 1' in args.print_custom ):
+        scoring_metrics.print_2018_n2c2_track1( score_card ,
+                                                file_mapping ,
+                                                args = args )
     #########
     log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
 
@@ -487,6 +493,21 @@ def init_args():
         if( 'F{}'.format( common_beta ) in args.metrics_list ):
             if( common_beta not in args.f_beta_values ):
                 args.f_beta_values.append( common_beta )
+    ## The command line parameters are always initially cast as strings.
+    ## That works fine for some empty values.  Sometimes we want to use
+    ## 0 (int) or 0.0 (float) or -1 as empty values.  In this case,
+    ## it's best to cast the string to the appropriate numerical
+    ## type for formatting later.
+    if( args.empty_value is not None and
+        args.empty_value != '' ):
+        try:
+            args.empty_value = args.empty_value.astype( int )
+        except ValueError:
+            log.debug( 'Default empty_value is not an int' )
+            try:
+                args.empty_value = args.empty_value.astype( float )
+            except ValueError:
+                log.debug( 'Default empty_value is not a float' )
     ## Resolve conflicts between --ignore-whitespace, --heed-whitespace,
     ## and --ignore-regex flags.  Essentially, if we set something in
     ## skip_chars, use that.  Otherwise, if we tripped --ignore_whitespace
@@ -717,7 +738,9 @@ if __name__ == "__main__":
                     log.error( 'Uncaught exception in count_ref_set for system output corpus:  {}'.format( e ) )
 
         ##
-        if( args.print_confusion_matrix or args.print_metrics ):
+        if( args.print_confusion_matrix or
+            args.print_metrics or
+            len( args.print_custom ) > 0 ):
             try:
                 score_ref_set( reference_ns = reference_ns ,
                                reference_dd = reference_dd ,

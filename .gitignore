@@ -19,7 +19,7 @@ __pycache__
 .coverage
 coverage.xml
 junit.xml
-htmlcov/
+cov_*/
 
 # ############################
 # pyinstaller related files
