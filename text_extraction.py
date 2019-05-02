@@ -19,6 +19,7 @@ def create_annotation_entry( begin_pos = -1 , begin_pos_mapped = None ,
                              end_pos = -1 , end_pos_mapped = None ,
                              raw_text = None ,
                              pivot_attr = None , pivot_value = None ,
+                             parity = None ,
                              tag_name = None ):
     new_entry = dict( begin_pos = begin_pos ,
                       end_pos = end_pos ,
@@ -35,6 +36,8 @@ def create_annotation_entry( begin_pos = -1 , begin_pos_mapped = None ,
         new_entry[ 'pivot_attr' ] = pivot_attr
     if( pivot_value != None ):
         new_entry[ 'pivot_value' ] = pivot_value
+    if( parity != None ):
+        new_entry[ 'parity' ] = parity
     return new_entry
 
 
@@ -153,6 +156,7 @@ def extract_annotations_xml_spanless( ingest_file ,
                                       annotation_path ,
                                       tag_name ,
                                       pivot_attribute ,
+                                      parity ,
                                       namespaces = {} ,
                                       text_attribute = None ,
                                       optional_attributes = [] ):
@@ -176,6 +180,7 @@ def extract_annotations_xml_spanless( ingest_file ,
         pivot_value = annot.get( pivot_attribute )
         new_entry = create_annotation_entry( pivot_attr = pivot_attribute ,
                                              pivot_value = pivot_value ,
+                                             parity = parity ,
                                              tag_name = tag_name )
         ##
         for optional_attr in optional_attributes:
@@ -706,6 +711,8 @@ def extract_annotations( ingest_file ,
                                                   tag_name = pattern[ 'type' ] ,
                                                   pivot_attribute = \
                                                     pattern[ 'pivot_attr' ] ,
+                                                  parity = \
+                                                    pattern[ 'parity' ] ,
                                                   optional_attributes = \
                                                     pattern[ 'optional_attributes' ] )
         else:

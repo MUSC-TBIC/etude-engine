@@ -277,6 +277,62 @@ such as the parent class or long description.
 | macro-average by type          | 340.0 | 8.0 | 0.0 | 105.0 |
 +--------------------------------+-------+-----+-----+-------+
 
+Custom Evaluation Print-Outs
+--------------------------------
+
+The majority of you evaluation output customization can be handled by the above command-line arguments.
+However, sometimes you'll need to generate output that exactly matches some very specific formatting requirements.
+For these instances, ETUDE supports custom print functions.
+Currently, those print functions must be hard-coded into `scoring_metrics.py`.
+Our roadmap includes the ability to load and trigger these print functions from a standard folder to make the system much more modular.
+Until that point, you can see an example custom print-out that targets the `2018 n2c2 Track 1 <https://www.aclweb.org/portal/content/2018-n2c2-nlp-shared-task-and-workshop>`_ output format.
+The configurations for this sample are in our sister repository:
+`ETUDE Engine Configs for n2c2 <https://github.com/MUSC-TBIC/etude-engine-configs/tree/master/n2c2>`_
+The original evaluation script for the competition, used as a point of reference, can be found on github:
+`Evaluation scripts for the 2018 N2C2 shared tasks on clinical NLP  <https://github.com/filannim/2018_n2c2_evaluation_scripts>`_
+
+.. code:: bash
+
+   export ETUDE_DIR=etude-engine
+   export ETUDE_CONFIGS_DIR=etude-engine-configs
+   
+   export N2C2_DATA=/tmp/n2c2
+
+   python ${ETUDE_DIR}/etude.py \
+     --reference-input ${N2C2_DATA}/train_annotations \
+      --reference-config ${ETUDE_CONFIGS_DIR}/n2c2/2018_n2c2_track-1.conf \
+      --test-input ${N2C2_DATA}/train_annotations \
+      --test-config ${ETUDE_CONFIGS_DIR}/n2c2/2018_n2c2_track-1.conf \
+      --no-metrics \
+      --print-custom "2018 n2c2 track 1" \
+      --fuzzy-match-flag exact \
+      --file-suffix ".xml" \
+      --empty-value 0.0
+
+
+   ******************************************* TRACK 1 ********************************************
+                         ------------ met -------------    ------ not met -------    -- overall ---
+                         Prec.   Rec.    Speci.  F(b=1)    Prec.   Rec.    F(b=1)    F(b=1)  AUC   
+              Abdominal  1.0000  1.0000  1.0000  1.0000    1.0000  1.0000  1.0000    1.0000  1.0000
+           Advanced-cad  1.0000  1.0000  0.0000  1.0000    0.0000  0.0000  0.0000    0.5000  0.5000
+          Alcohol-abuse  0.0000  0.0000  1.0000  0.0000    1.0000  1.0000  1.0000    0.5000  0.5000
+             Asp-for-mi  1.0000  1.0000  0.0000  1.0000    0.0000  0.0000  0.0000    0.5000  0.5000
+             Creatinine  1.0000  1.0000  1.0000  1.0000    1.0000  1.0000  1.0000    1.0000  1.0000
+          Dietsupp-2mos  1.0000  1.0000  1.0000  1.0000    1.0000  1.0000  1.0000    1.0000  1.0000
+             Drug-abuse  0.0000  0.0000  1.0000  0.0000    1.0000  1.0000  1.0000    0.5000  0.5000
+                English  1.0000  1.0000  0.0000  1.0000    0.0000  0.0000  0.0000    0.5000  0.5000
+                  Hba1c  1.0000  1.0000  1.0000  1.0000    1.0000  1.0000  1.0000    1.0000  1.0000
+               Keto-1yr  0.0000  0.0000  1.0000  0.0000    1.0000  1.0000  1.0000    0.5000  0.5000
+         Major-diabetes  1.0000  1.0000  1.0000  1.0000    1.0000  1.0000  1.0000    1.0000  1.0000
+        Makes-decisions  1.0000  1.0000  0.0000  1.0000    0.0000  0.0000  0.0000    0.5000  0.5000
+                Mi-6mos  1.0000  1.0000  1.0000  1.0000    1.0000  1.0000  1.0000    1.0000  1.0000
+                         ------------------------------    ----------------------    --------------
+        Overall (micro)  1.0000  1.0000  1.0000  1.0000    1.0000  1.0000  1.0000    1.0000  1.0000
+        Overall (macro)  0.7692  0.7692  0.6923  0.7692    0.6923  0.6923  0.6923    0.7308  0.7308
+   
+                                                       10 files found
+
+
 Configuring Annotation Extraction
 =================================
 
@@ -296,6 +352,11 @@ and end attribute are required for a pattern to be scorable.
    Begin Attr:     (required; beginning or start offset attribute name)
    End Attr:       (required; end offset attribute name)
    Text Attr:      (optional; not used by anything currently)
+
+
+Additional interesting or useful configuration files can be found in
+our sister repository:
+`ETUDE Engine Configs <https://github.com/MUSC-TBIC/etude-engine-configs>`_
 
 Dependencies
 ============
@@ -320,7 +381,8 @@ rather than directly:
    python -m pytest tests/
 
    ## You can also generate a coverate report in html format
-   python -m pytest --cov-report html --cov=./ tests/
-
+   python2.7 -m pytest --cov-report html:cov_html_py2.7 --cov=./ tests/
+   python3.7 -m pytest --cov-report html:cov_html_py3.7 --cov=./ tests/
+   
    ## The junit file is helpful for automated systems or CI pipelines
    python -m pytest --junitxml=junit.xml tests

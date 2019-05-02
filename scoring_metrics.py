@@ -32,6 +32,9 @@ def get_annotation_from_base_entry( annotation_entry ,
     except KeyError as e:
         log.warning( 'Could not access annotation type.  Skipping entry.' )
         return None , None , None
+    if( 'parity' in annotation_entry ):
+        log.debug( '{} ( -1 )'.format( annotation_type ) )
+        return annotation_type , -1 , -1
     try:
         annotation_start = annotation_entry[ start_key ]
         try:
@@ -549,6 +552,7 @@ def document_level_annot_comparison_runner( reference_filename , confusion_matri
     ##
     reference_type = reference_annot[ 'type' ]
     reference_pivot_value = reference_annot[ 'pivot_value' ]
+    annot_parity = reference_annot[ 'parity' ]
     if( reference_type == None ):
         ## If we couldn't extract a type, consider this
         ## an invalid annotations    
@@ -559,28 +563,41 @@ def document_level_annot_comparison_runner( reference_filename , confusion_matri
     matched_flag = False
     for test_annot in test_entries:
         ## TODO - nesting comparisons, multiple overlaps
+        test_type = test_annot[ 'type' ]
         if( matched_flag ):
-            test_leftovers.append( test_annot )
+            if( reference_type == test_type ):
+                if( annot_parity == 'Unique' ):
+                    log.warn( 'Multiple system annotations found for annotation type:  {}'.format( test_type ) )
+                ## TODO - We're going to skip over 'Any', 'First', and 'Last' annotations for now
+            else:
+                test_leftovers.append( test_annot )
             continue
         ##
-        test_type = test_annot[ 'type' ]
         test_pivot_value = test_annot[ 'pivot_value' ]
         if( test_type == None ):
             ## If we couldn't extract a type, consider this
             ## an invalid annotation
             continue
         if( reference_type == test_type ):
-            matched_flag = True
-            this_type = '{} = "{}"'.format( reference_type , reference_pivot_value )
-            that_type = '{} = "{}"'.format( test_type , test_pivot_value )
-            update_confusion_matrix( confusion_matrix , fuzzy_flag , this_type , that_type )
+            this_type = '{}'.format( reference_type , reference_pivot_value )
+            that_type = '{}'.format( test_type , test_pivot_value )
             ## If the pivot_values match...
             if( reference_pivot_value == test_pivot_value ):
+                matched_flag = True
+                update_confusion_matrix( confusion_matrix , fuzzy_flag , this_type , that_type )
                 update_score_card( 'TP' , score_card , fuzzy_flag ,
                                    reference_filename , -1 , -1 ,
                                    this_type , pivot_value = reference_pivot_value ,
-                                   scorable_attributes = scorable_attributes )
+                                   scorable_attributes = scorable_attributes ,
+                                   scorable_engines = [] )
+            elif( annot_parity == 'Any' ):
+                ## Not matching with the 'Any' parity flag means that it could
+                ## potentially match another annotation later so we won't be
+                ## worried about scoring it yet.
+                test_leftovers.append( test_annot )
             else:
+                matched_flag = True
+                update_confusion_matrix( confusion_matrix , fuzzy_flag , this_type , that_type )
                 update_score_card( 'FN' , score_card , fuzzy_flag ,
                                    reference_filename , -1 , -1 ,
                                    this_type , pivot_value = reference_pivot_value )
@@ -736,11 +753,12 @@ def recall( tp , fn ):
         return None
 
 
-def specificity( tn , fn ):
-    if( tn + fn > 0 ):
-        return tn / float( tn + fn )
+def specificity( tn , fp , empty_value = None ):
+    ##print( '{} + {}'.format( tn , fp ) )
+    if( tn + fp > 0 ):
+        return tn / float( tn + fp )
     else:
-        return None
+        return empty_value
 
 
 def f_score( p , r , beta = 1 ):
@@ -794,7 +812,7 @@ def norm_summary( score_summary , args ):
     ## Specificity (SPC) 
     if( 'Specificity' in args.metrics_list ):
         score_summary[ 'Specificity' ] = specificity( tn = score_summary[ 'TN' ] ,
-                                                      fn = score_summary[ 'FN' ] )
+                                                      fp = score_summary[ 'FP' ] )
     ## Accuracy
     if( 'Accuracy' in args.metrics_list ):
         score_summary[ 'Accuracy' ] = accuracy( tp = score_summary[ 'TP' ] ,
@@ -809,7 +827,10 @@ def norm_summary( score_summary , args ):
     ##
     metrics = []
     for metric in args.metrics_list:
-        metrics.append( score_summary[ metric ] )
+        score = score_summary[ metric ]
+        if( score is None ):
+            score = args.empty_value
+        metrics.append( score )
     log.debug( "Leaving '{}'".format( sys._getframe().f_code.co_name ) )
     return metrics
 
@@ -1118,6 +1139,124 @@ def print_confusion_matrix( confusion_matrix ,
     log.debug( "Leaving '{}'".format( sys._getframe().f_code.co_name ) )
 
 
+## TODO - load this from an external file
+def print_2018_n2c2_track1( score_card ,
+                            file_mapping ,
+                            args ):
+    ## TODO - pull these tags from the patterns file
+    tags = ('ABDOMINAL', 'ADVANCED-CAD', 'ALCOHOL-ABUSE',
+            'ASP-FOR-MI', 'CREATININE', 'DIETSUPP-2MOS',
+            'DRUG-ABUSE', 'ENGLISH', 'HBA1C', 'KETO-1YR',
+            'MAJOR-DIABETES', 'MAKES-DECISIONS', 'MI-6MOS')
+    for display_metric in [ 'Precision' , 'Recall' , 'Specificity' , 'F1' ]:
+        if( display_metric not in args.metrics_list ):
+            args.metrics_list.append( display_metric )
+    if( '1' not in args.f_beta_values ):
+        args.f_beta_values.append( '1' )
+    ##
+    macro_met_p , macro_met_r , macro_met_spec , macro_met_f1 = 0 , 0 , 0 , 0
+    macro_not_met_p , macro_not_met_r , macro_not_met_f1 = 0 , 0 , 0
+    macro_f1, macro_auc = 0, 0
+    print('{:*^96}'.format(' TRACK 1 '))
+    print('{:20}  {:-^30}    {:-^22}    {:-^14}'.format('', ' met ',
+                                                        ' not met ',
+                                                        ' overall '))
+    print('{:20}  {:6}  {:6}  {:6}  {:6}    {:6}  {:6}  {:6}    {:6}  {:6}'.format(
+        '', 'Prec.', 'Rec.', 'Speci.', 'F(b=1)', 'Prec.', 'Rec.', 'F(b=1)', 'F(b=1)', 'AUC'))
+    for tag in tags:
+        ## met = 'met'
+        met_type = ( ( score_card[ 'exact' ][ 'Pivot' ] == 'met' ) &
+                      ( score_card[ 'exact' ][ 'Type' ] == tag ) )
+        met_value_counts = score_card[ 'exact' ][ met_type ][ 'Score' ].value_counts()
+        met_metrics = norm_summary( met_value_counts ,
+                                    args = args )
+        ## met = 'not met'
+        not_met_type = ( ( score_card[ 'exact' ][ 'Pivot' ] == 'not met' ) &
+                         ( score_card[ 'exact' ][ 'Type' ] == tag ) )
+        not_met_value_counts = score_card[ 'exact' ][ not_met_type ][ 'Score' ].value_counts()
+        not_met_metrics = norm_summary( not_met_value_counts ,
+                                        args = args )
+        ## combined across all entries of this tag type
+        this_type = ( score_card[ 'exact' ][ 'Type' ] == tag )
+        type_value_counts = score_card[ 'exact' ][ this_type ][ 'Score' ].value_counts()
+        type_metrics = norm_summary( type_value_counts ,
+                                     args = args )
+        ## NB - the AUC is for met = 'met' and that's the trick for easily
+        ##      calculating TN values without having counted them out before
+        met_specificity = specificity( tn = not_met_metrics[ args.metrics_list.index( 'TP' ) ] ,
+                                       fp = met_metrics[ args.metrics_list.index( 'FP' ) ] ,
+                                       empty_value = args.empty_value )
+        avg_type_f1 = ( float( met_metrics[ args.metrics_list.index( 'F1' ) ] ) + \
+                        float( not_met_metrics[ args.metrics_list.index( 'F1' ) ] ) ) / 2
+        met_auc = ( float( met_metrics[ args.metrics_list.index( 'Recall' ) ] ) + \
+                    met_specificity ) / 2
+        ## TODO - support empty string as a valid value for incomputable scores
+        print('{:>20}  {:<5.4f}  {:<5.4f}  {:<5.4f}  {:<5.4f}    {:<5.4f}  {:<5.4f}  {:<5.4f}    {:<5.4f}  {:<5.4f}'.format(
+            tag.capitalize(),
+            ## TODO - do these really need to be floats with the new handling of
+            ##        args.empty_value?
+            float( met_metrics[ args.metrics_list.index( 'Precision' ) ] ) ,
+            float( met_metrics[ args.metrics_list.index( 'Recall' ) ] ) ,
+            met_specificity ,
+            float( met_metrics[ args.metrics_list.index( 'F1' ) ] ) ,
+            float( not_met_metrics[ args.metrics_list.index( 'Precision' ) ] ) ,
+            float( not_met_metrics[ args.metrics_list.index( 'Recall' ) ] ) ,
+            float( not_met_metrics[ args.metrics_list.index( 'F1' ) ] ) ,
+            avg_type_f1 ,
+            met_auc ) )
+        macro_met_p += float( met_metrics[ args.metrics_list.index( 'Precision' ) ] )
+        macro_met_r += float( met_metrics[ args.metrics_list.index( 'Recall' ) ] )
+        macro_met_spec += met_specificity
+        macro_met_f1 += float( met_metrics[ args.metrics_list.index( 'F1' ) ] )
+        macro_not_met_p += float( not_met_metrics[ args.metrics_list.index( 'Precision' ) ] )
+        macro_not_met_r += float( not_met_metrics[ args.metrics_list.index( 'Recall' ) ] )
+        macro_not_met_f1 += float( not_met_metrics[ args.metrics_list.index( 'F1' ) ] )
+        macro_f1 += avg_type_f1
+        macro_auc += met_auc
+    print('{:20}  {:-^30}    {:-^22}    {:-^14}'.format('', '', '', ''))
+    ## met = 'met' (ignoring tag type)
+    met_type = ( score_card[ 'exact' ][ 'Pivot' ] == 'met' )
+    met_value_counts = score_card[ 'exact' ][ met_type ][ 'Score' ].value_counts()
+    met_metrics = norm_summary( met_value_counts ,
+                                args = args )
+    ## met = 'not met' (ignoring tag type)
+    not_met_type = ( score_card[ 'exact' ][ 'Pivot' ] == 'not met' )
+    not_met_value_counts = score_card[ 'exact' ][ not_met_type ][ 'Score' ].value_counts()
+    not_met_metrics = norm_summary( not_met_value_counts ,
+                                    args = args )
+    ##
+    met_specificity = specificity( tn = not_met_metrics[ args.metrics_list.index( 'TP' ) ] ,
+                                   fp = met_metrics[ args.metrics_list.index( 'FP' ) ] )
+    avg_type_f1 = ( float( met_metrics[ args.metrics_list.index( 'F1' ) ] ) + \
+                    float( not_met_metrics[ args.metrics_list.index( 'F1' ) ] ) ) / 2
+    met_auc = ( float( met_metrics[ args.metrics_list.index( 'Recall' ) ] ) + \
+                met_specificity ) / 2
+    print('{:>20}  {:<5.4f}  {:<5.4f}  {:<5.4f}  {:<5.4f}    {:<5.4f}  {:<5.4f}  {:<5.4f}    {:<5.4f}  {:<5.4f}'.format(
+        'Overall (micro)',
+        float( met_metrics[ args.metrics_list.index( 'Precision' ) ] ),
+        float( met_metrics[ args.metrics_list.index( 'Recall' ) ] ),
+        met_specificity ,
+        float( met_metrics[ args.metrics_list.index( 'F1' ) ] ),
+        float( not_met_metrics[ args.metrics_list.index( 'Precision' ) ] ),
+        float( not_met_metrics[ args.metrics_list.index( 'Recall' ) ] ),
+        float( not_met_metrics[ args.metrics_list.index( 'F1' ) ] ),
+        avg_type_f1 ,
+        met_auc ) )
+    print('{:>20}  {:<5.4f}  {:<5.4f}  {:<5.4f}  {:<5.4f}    {:<5.4f}  {:<5.4f}  {:<5.4f}    {:<5.4f}  {:<5.4f}'.format(
+        'Overall (macro)',
+        macro_met_p / len( tags ) ,
+        macro_met_r / len( tags ) ,
+        macro_met_spec / len( tags ) ,
+        macro_met_f1 / len( tags ) ,
+        macro_not_met_p / len( tags ) ,
+        macro_not_met_r / len( tags ) ,
+        macro_not_met_f1 / len( tags ) ,
+        macro_f1 / len( tags ) ,
+        macro_auc / len( tags ) ) )
+    print( '' )
+    print('{:>20}  {:^74}'.format('', '  {} files found  '.format( len( file_mapping ) ) ) )
+
+
 def print_score_summary_shell( score_card , file_mapping ,
                                reference_config , test_config ,
                                args ):
@@ -1244,8 +1383,8 @@ def print_score_summary( score_card , file_mapping ,
     file_aggregate_metrics = []
     non_empty_metrics = []
     for i in range( len( args.metrics_list ) ):
-        file_aggregate_metrics.append( 0 )
-        non_empty_metrics.append( 0 )
+        file_aggregate_metrics.append( 0.0 )
+        non_empty_metrics.append( 0.0 )
     if( args.by_file or args.by_file_and_type or
         args.corpus_out or
         args.reference_out or
