@@ -98,7 +98,6 @@ if __name__ == "__main__":
             if( score_type not in args.metrics_list ):
                 continue
             if( filename != last_filename ):
-                print( 'File:\t{}'.format( filename ) )
                 last_filename = filename
                 with open( os.path.join( args.test_out , filename ) ) as json_data:
                     d = json.load( json_data )
@@ -111,13 +110,14 @@ if __name__ == "__main__":
                 begin_offset = offset_mapping[ int( begin_offset_mapped ) ]
                 end_offset = offset_mapping[ int( end_offset_mapped ) + 1 ]
                 target = note_text[ begin_offset:end_offset ]
+                target = re.sub( '[\r\n]+' , ' ' , target )
                 left_begin = max( 0 , begin_offset - args.left_margin )
                 right_end = min( note_max , end_offset + args.right_margin )
                 left_context = note_text[ left_begin:begin_offset ]
-                left_context = re.sub( r'\n' , ' ' , left_context )
+                left_context = re.sub( '[\r\n]+' , ' ' , left_context )
                 left_context = left_context.ljust( args.left_margin )
                 right_context = note_text[ end_offset:right_end ]
-                right_context = re.sub( r'\n' , ' ' , right_context )
+                right_context = re.sub( '[\r\n]+' , ' ' , right_context )
                 right_context = right_context.rjust( args.right_margin )
                 ##    
                 print( '{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}'.format( filename ,
