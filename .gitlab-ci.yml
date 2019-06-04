@@ -11,10 +11,25 @@ services:
 before_script:
   - docker info
 
+test:python3.7:
+  stage: test
+  script:
+  - cp Dockerfile.python3.7 Dockerfile
+  - docker build -t pytest-image .
+  - docker run pytest-image /usr/local/bin/python -m pytest --cov=/home/etude /home/etude/tests
+
 test:python2.7:
   stage: test
   script:
   - cp Dockerfile.python2.7 Dockerfile
+  - docker build -t pytest-image .
+  - docker run pytest-image /usr/local/bin/python -m pytest --cov=/home/etude /home/etude/tests
+
+test:python3.6.8:
+  stage: test
+  allow_failure: true
+  script:
+  - cp tests/Dockerfile_templates/Dockerfile.python3.6.8 Dockerfile
   - docker build -t pytest-image .
   - docker run pytest-image /usr/local/bin/python -m pytest --cov=/home/etude /home/etude/tests
 
@@ -26,9 +41,4 @@ test:python3.5.3:
   - docker build -t pytest-image .
   - docker run pytest-image /usr/local/bin/python -m pytest --cov=/home/etude /home/etude/tests
 
-test:python3.7:
-  stage: test
-  script:
-  - cp Dockerfile.python3.7 Dockerfile
-  - docker build -t pytest-image .
-  - docker run pytest-image /usr/local/bin/python -m pytest --cov=/home/etude /home/etude/tests
+
