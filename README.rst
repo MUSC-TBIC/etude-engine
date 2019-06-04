@@ -278,7 +278,7 @@ such as the parent class or long description.
 +--------------------------------+-------+-----+-----+-------+
 
 Custom Evaluation Print-Outs
---------------------------------
+================================
 
 The majority of you evaluation output customization can be handled by the above command-line arguments.
 However, sometimes you'll need to generate output that exactly matches some very specific formatting requirements.
@@ -331,6 +331,51 @@ The original evaluation script for the competition, used as a point of reference
         Overall (macro)  0.7692  0.7692  0.6923  0.7692    0.6923  0.6923  0.6923    0.7308  0.7308
    
                                                        10 files found
+
+
+Contextually-Grounded Annotation Examples
+---------------------------------------------
+
+A second class of custom outputs is to generate listings of real annotations with left- and right-margins of context. Most often, you will want to use this type of output to generate a listing of all the FP annotations your system generated or all the FN annotations your system failed to find.
+
+The generation of this output is dependent on a score card having been written to disk during a normal evaluation run. You'll also want to make sure to have generated a system output directory.  Both flags are show in examples below.  Additional flags let you determine how much of a context window (in characters) you want to see on the left and right of the annotation.
+
+If we focus solely on the `partial` matches, then we're guaranteed to get FP and FN annotations that don't overlap. We don't distinguish between span mismatches and type mismatches.
+
+.. code:: bash
+
+   export ETUDE_DIR=etude-engine
+
+   python3 ${ETUDE_DIR}/etude.py \
+     --reference-input ${ETUDE_DIR}/tests/data/i2b2_2016_track-1_reference \
+     --reference-config ${ETUDE_DIR}/config/i2b2_2016_track-1.conf \
+     --test-input ${ETUDE_DIR}/tests/data/i2b2_2016_track-1_test \
+     --test-config ${ETUDE_DIR}/config/i2b2_2016_track-1.conf \
+     --file-suffix "xml" \
+     --by-type \
+     -m FP FN \
+     --fuzzy-match-flags partial \
+     --pretty-print \
+     --test-out /tmp/system \
+     --write-score-cards
+
+   ## Use standard settings
+   python3 ${ETUDE_DIR}/extract_samples.py \
+     --score-card /tmp/system/metrics_partial_score_card.csv \
+     --test-out /tmp/system
+
+   ## Show a larger left margin than right margin
+   python3 ${ETUDE_DIR}/extract_samples.py \
+     --score-card /tmp/system/metrics_partial_score_card.csv \
+     --test-out /tmp/system \
+     --left-margin 25 \
+     --right-margin 10
+
+   ## Only print the FP annotations
+   python3 ${ETUDE_DIR}/extract_samples.py \
+     --score-card /tmp/system/metrics_partial_score_card.csv \
+     --test-out /tmp/system \
+     --metrics FP
 
 
 Configuring Annotation Extraction
