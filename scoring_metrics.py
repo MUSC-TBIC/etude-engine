@@ -962,8 +962,8 @@ def print_counts_summary( score_card , file_list ,
             if( args.reference_out == None ):
                 log.warning( 'I could not write the reference counts score_card to disk:  --write-score-cards set but no --reference-out set' )
             else:
-                score_card[ 'counts' ].to_csv( '{}/{}'.format( args.reference_out ,
-                                                               'counts_score_card.csv' ) ,
+                score_card[ 'counts' ].to_csv( os.path.join( args.reference_out ,
+                                                             'counts_score_card.csv' ) ,
                                                sep = '\t' ,
                                                encoding = 'utf-8' ,
                                                index = False )
@@ -971,8 +971,8 @@ def print_counts_summary( score_card , file_list ,
             if( args.test_out == None ):
                 log.warning( 'I could not write the test counts score_card to disk:  --write-score-cards set but no --test-out set' )
             else:
-                score_card[ 'counts' ].to_csv( '{}/{}'.format( args.test_out ,
-                                                               'counts_score_card.csv' ) ,
+                score_card[ 'counts' ].to_csv( os.path.join( args.test_out ,
+                                                             'counts_score_card.csv' ) ,
                                                sep = '\t' ,
                                                encoding = 'utf-8' ,
                                                index = False )
@@ -1307,20 +1307,20 @@ def print_score_summary( score_card , file_mapping ,
             log.warning( 'I could not write the metrics score_card to disk:  --write-score-cards set but neither --reference-out nor --test-out set' )
         else:
             if( args.reference_out ):
-                score_card[ fuzzy_flag ].to_csv( '{}/{}{}{}{}'.format( args.reference_out ,
-                                                                       'metrics_' ,
-                                                                       fuzzy_flag ,
-                                                                       norm_engine ,
-                                                                       '_score_card.csv' ) ,
+                score_card[ fuzzy_flag ].to_csv( os.path.join( args.reference_out ,
+                                                               '{}{}{}{}'.format( 'metrics_' ,
+                                                                                  fuzzy_flag ,
+                                                                                  norm_engine ,
+                                                                                  '_score_card.csv' ) ) ,
                                                  sep = '\t' ,
                                                  encoding = 'utf-8' ,
                                                  index = False )
             if( args.test_out ):
-                score_card[ fuzzy_flag ].to_csv( '{}/{}{}{}{}'.format( args.test_out ,
-                                                                       'metrics_' ,
-                                                                       fuzzy_flag ,
-                                                                       norm_engine ,
-                                                                       '_score_card.csv' ) ,
+                score_card[ fuzzy_flag ].to_csv( os.path.join( args.test_out ,
+                                                               '{}{}{}{}'.format( 'metrics_' ,
+                                                                                  fuzzy_flag ,
+                                                                                  norm_engine ,
+                                                                                  '_score_card.csv' ) ) ,
                                                  sep = '\t' ,
                                                  encoding = 'utf-8' ,
                                                  index = False )
@@ -1412,8 +1412,8 @@ def print_score_summary( score_card , file_mapping ,
                         non_empty_metrics[ i ] += 1
                         file_aggregate_metrics[ i ] += metrics[ i ]
             if( args.reference_out ):
-                out_file = '{}/{}'.format( args.reference_out ,
-                                           filename )
+                out_file = os.path.join( args.reference_out ,
+                                         filename )
                 update_output_dictionary( out_file ,
                                           [ 'metrics' ,
                                             fuzzy_flag ,
@@ -1421,8 +1421,8 @@ def print_score_summary( score_card , file_mapping ,
                                           args.metrics_list ,
                                           metrics )
             if( args.test_out and file_mapping[ filename ] != None ):
-                out_file = '{}/{}'.format( args.test_out ,
-                                           file_mapping[ filename ] )
+                out_file = os.path.join( args.test_out ,
+                                         file_mapping[ filename ] )
                 update_output_dictionary( out_file ,
                                           [ 'metrics' ,
                                             fuzzy_flag ,
@@ -1447,8 +1447,8 @@ def print_score_summary( score_card , file_mapping ,
                                     args.print_metrics , args.csv_out ,
                                     args.pretty_print )
                 if( args.reference_out ):
-                    out_file = '{}/{}'.format( args.reference_out ,
-                                               filename )
+                    out_file = os.path.join( args.reference_out ,
+                                             filename )
                     update_output_dictionary( out_file ,
                                               [ 'metrics' ,
                                                 fuzzy_flag ,
@@ -1456,8 +1456,8 @@ def print_score_summary( score_card , file_mapping ,
                                               args.metrics_list ,
                                               metrics )
                 if( args.test_out and file_mapping[ filename ] != None ):
-                    out_file = '{}/{}'.format( args.test_out ,
-                                               file_mapping[ filename ] )
+                    out_file = os.path.join( args.test_out ,
+                                             file_mapping[ filename ] )
                     update_output_dictionary( out_file ,
                                               [ 'metrics' ,
                                                 fuzzy_flag ,

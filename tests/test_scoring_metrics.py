@@ -382,10 +382,10 @@ def test_by_file_and_type_to_reference_file_summary_stats( capsys ):
                                              args = args )
         ##
         for filename in [ 'a.xml' , 'b.xml' ]:
-            ref_file = '{}/{}'.format( 'tests/data/print_summary_reference_out' ,
-                                       filename )
-            test_file = '{}/{}'.format( args.reference_out ,
-                                        filename )
+            ref_file = os.path.join( 'tests/data/print_summary_reference_out' ,
+                                     filename )
+            test_file = os.path.join( args.reference_out ,
+                                      filename )
             with open( ref_file , 'r' ) as fp:
                 reference_json = json.load( fp )
             with open( test_file , 'r' ) as fp:
@@ -414,10 +414,10 @@ def test_by_file_and_type_to_test_file_summary_stats( capsys ):
                                              args = args )
         ##
         for filename in [ 'a.xml' , 'b.xml' ]:
-            ref_file = '{}/{}'.format( 'tests/data/print_summary_test_out' ,
-                                       filename )
-            test_file = '{}/{}'.format( args.test_out ,
-                                        filename )
+            ref_file = os.path.join( 'tests/data/print_summary_test_out' ,
+                                     filename )
+            test_file = os.path.join( args.test_out ,
+                                      filename )
             with open( ref_file , 'r' ) as fp:
                 reference_json = json.load( fp )
             with open( test_file , 'r' ) as fp:

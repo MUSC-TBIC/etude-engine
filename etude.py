@@ -41,8 +41,8 @@ def count_ref_set( this_ns , this_dd , this_patterns ,
                                file = args.progressbar_file ,
                                disable = args.progressbar_disabled ):
         try:
-            this_full_path = '{}/{}'.format( this_folder ,
-                                             this_filename )
+            this_full_path = os.path.join( this_folder ,
+                                           this_filename )
             this_om , this_ss = \
               text_extraction.extract_annotations( this_full_path ,
                                                    namespaces = this_ns ,
@@ -119,8 +119,8 @@ def collect_files( reference_folder , test_folder ,
             test_filename = re.sub( file_suffix[ 0 ] + '$' ,
                                     file_suffix[ 1 ] ,
                                     reference_filename )
-        if( os.path.exists( '{}/{}'.format( test_folder ,
-                                            test_filename ) ) ):
+        if( os.path.exists( os.path.join( test_folder ,
+                                          test_filename ) ) ):
             match_count += 1
             file_mapping[ reference_filename ] = test_filename
         else:
@@ -169,8 +169,8 @@ def count_chars_profile( reference_ns , reference_dd , reference_folder ,
         ##
         try:
             reference_chars = \
-              text_extraction.extract_chars( '{}/{}'.format( reference_folder ,
-                                                             reference_filename ) ,
+              text_extraction.extract_chars( os.path.join( reference_folder ,
+                                                           reference_filename ) ,
                                              namespaces = reference_ns ,
                                              document_data = reference_dd )
         except:
@@ -185,8 +185,8 @@ def count_chars_profile( reference_ns , reference_dd , reference_folder ,
                                                test_filename )
             ##
             try:
-                test_full_path = '{}/{}'.format( test_folder ,
-                                                 test_filename )
+                test_full_path = os.path.join( test_folder ,
+                                               test_filename )
                 test_chars = \
                   text_extraction.extract_chars( test_full_path ,
                                                  namespaces = test_ns ,
@@ -227,7 +227,8 @@ def align_tokens(  reference_folder ,
                                                 reference_filename )
         ##
         reference_dictionary = {}
-        with open( '{}/{}'.format( reference_folder , reference_filename ) , 'r' ) as fp:
+        with open( os.path.join( reference_folder ,
+                                 reference_filename ) , 'r' ) as fp:
             reference_dictionary = json.load( fp )
         text_extraction.align_tokens_on_whitespace( reference_dictionary ,
                                                     reference_out_file )
@@ -238,8 +239,8 @@ def align_tokens(  reference_folder ,
                                                reference_filename )
             ##
             test_dictionary = {}
-            with open( '{}/{}'.format( test_folder ,
-                                       test_filename ) , 'r' ) as fp:
+            with open( os.path.join( test_folder ,
+                                     test_filename ) , 'r' ) as fp:
                 test_dictionary = json.load( fp )
             text_extraction.align_tokens_on_whitespace( test_dictionary ,
                                                         test_out_file )
@@ -314,8 +315,8 @@ def generate_out_file( output_dir , input_filename ):
     else:
         ## TODO - replace this and all path generation strings with
         ##        OS generic version
-        return( '{}/{}'.format( output_dir ,
-                                input_filename ) )
+        return( os.path.join( output_dir ,
+                              input_filename ) )
 
 
 def score_ref_set( reference_ns , reference_dd , reference_patterns , reference_folder ,
@@ -351,8 +352,8 @@ def score_ref_set( reference_ns , reference_dd , reference_patterns , reference_
                                                 reference_filename )
         ##
         try:
-            reference_full_path = '{}/{}'.format( reference_folder ,
-                                                  reference_filename )
+            reference_full_path = os.path.join( reference_folder ,
+                                                reference_filename )
             reference_om , reference_ss = \
               text_extraction.extract_annotations( reference_full_path ,
                                                    namespaces = reference_ns ,
@@ -374,8 +375,8 @@ def score_ref_set( reference_ns , reference_dd , reference_patterns , reference_
             test_out_file = generate_out_file( args.test_out ,
                                                test_filename )
             ##
-            test_full_path = '{}/{}'.format( test_folder ,
-                                             test_filename )
+            test_full_path = os.path.join( test_folder ,
+                                           test_filename )
             try:
                 test_om , test_ss = \
                   text_extraction.extract_annotations( test_full_path ,
