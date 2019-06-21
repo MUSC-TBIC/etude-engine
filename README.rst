@@ -362,20 +362,28 @@ If we focus solely on the `partial` matches, then we're guaranteed to get FP and
    ## Use standard settings
    python3 ${ETUDE_DIR}/extract_samples.py \
      --score-card /tmp/system/metrics_partial_score_card.csv \
-     --test-out /tmp/system
+     --annotation-out /tmp/system
 
    ## Show a larger left margin than right margin
    python3 ${ETUDE_DIR}/extract_samples.py \
      --score-card /tmp/system/metrics_partial_score_card.csv \
-     --test-out /tmp/system \
+     --annotation-out /tmp/system \
      --left-margin 25 \
      --right-margin 10
 
    ## Only print the FP annotations
    python3 ${ETUDE_DIR}/extract_samples.py \
      --score-card /tmp/system/metrics_partial_score_card.csv \
-     --test-out /tmp/system \
+     --annotation-out /tmp/system \
      --metrics FP
+
+   ## The system output filenames differ from the reference
+   ## filenames in that they end in '.txt.xmi' rather than
+   ## just '.txt'
+   python3 ${ETUDE_DIR}/extract_samples.py \
+     --score-card /tmp/system/metrics_partial_score_card.csv \
+     --annotation-out /tmp/system \
+     --file-suffix ".txt" ".txt.xmi"
 
 
 Configuring Annotation Extraction
@@ -414,6 +422,22 @@ packages using pip:
 
    pip install -r requirements
 
+   
+Building with PyInstaller
+================================
+
+After installing all required dependencies (as above), you can opt to create a stand-alone version of the ETUDE engine with `PyInstaller <https://www.pyinstaller.org/>`_. 
+
+The vanilla creation is
+.. code:: bash
+
+   cd $ETUDE_ENGINE_DIR
+   
+   pyinstaller --onefile --distpath=dist/linux etude.py
+   pyinstaller --onefile --distpath=dist/osx etude.py
+   pyinstaller --onefile --distpath=dist/windows etude.py
+
+   
 Testing
 =======
 
@@ -431,3 +455,4 @@ rather than directly:
    
    ## The junit file is helpful for automated systems or CI pipelines
    python -m pytest --junitxml=junit.xml tests
+
