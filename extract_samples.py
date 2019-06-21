@@ -26,10 +26,17 @@ unstructured data extraction.
                          choices = [ 'TP' , 'FP' , 'TN' , 'FN' ] ,
                          help = "List of metrics to return examples for" )
 
-    parser.add_argument( '--test-out' ,
-                         dest = 'test_out' ,
+    ## TODO - lstrip hack added to handle suffixes with dashes
+    ##   https://stackoverflow.com/questions/16174992/cant-get-argparse-to-read-quoted-string-with-dashes-in-it
+    parser.add_argument( "--file-suffix", nargs = 2 ,
+                         dest = 'file_suffix' ,
+                         default = None ,
+                         help="Suffix used for filename matching.  If the file names match between reference and system output, you don't need to provide this argument.  Otherwise, the span of the reference filename that matches the file suffix will be replaced with the contents of the second suffix string (e.g., '001.txt' -> '001.xmi')" )
+
+    parser.add_argument( '--annotation-out' ,
+                         dest = 'annotation_out' ,
                          required = True ,
-                         help = 'Directory containing a dictionary of extracted test annotations' )
+                         help = 'Directory containing a dictionary of extracted annotations' )
     
     parser.add_argument( '--score-card' , required = True ,
                          dest = 'score_card' ,
@@ -64,6 +71,10 @@ def init_args():
     else:
         log.basicConfig( format="%(levelname)s: %(message)s" )
     ##
+    if( args.file_suffix is not None ):
+        args.file_suffix[ 0 ] = args.file_suffix[ 0 ].lstrip()
+        args.file_suffix[ 1 ] = args.file_suffix[ 1 ].lstrip()
+    ##
     try:
         args.left_margin = int( args.left_margin )
     except ValueError:
@@ -89,7 +100,7 @@ if __name__ == "__main__":
         for line in fp:
             line = line.rstrip()
             cols = re.split( r'\t' , line )
-            filename = cols[ 0 ]
+            reference_filename = cols[ 0 ]
             begin_offset_mapped = int( cols[ 1 ] )
             end_offset_mapped = int( cols[ 2 ] )
             type_str = cols[ 3 ]
@@ -97,9 +108,16 @@ if __name__ == "__main__":
             score_type = cols[ 5 ]
             if( score_type not in args.metrics_list ):
                 continue
-            if( filename != last_filename ):
-                last_filename = filename
-                with open( os.path.join( args.test_out , filename ) ) as json_data:
+            if( reference_filename != last_filename ):
+                last_filename = reference_filename
+                if( args.file_suffix is None ):
+                    target_filename = reference_filename
+                else:
+                    target_filename = re.sub( args.file_suffix[ 0 ] + '$' ,
+                                              args.file_suffix[ 1 ] ,
+                                              reference_filename )
+                with open( os.path.join( args.annotation_out ,
+                                         target_filename ) ) as json_data:
                     d = json.load( json_data )
                     note_text = d[ 'raw_content' ]
                     note_max = len( note_text )
@@ -121,7 +139,7 @@ if __name__ == "__main__":
                 right_context = re.sub( '[\r\n]+' , ' ' , right_context )
                 right_context = right_context.rjust( args.right_margin )
                 ##    
-                print( '{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}'.format( filename ,
+                print( '{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}'.format( target_filename ,
                                                                 begin_offset , end_offset ,
                                                                 type_str ,
                                                                 score_type ,
