@@ -108,7 +108,8 @@ if __name__ == "__main__":
                             offset_mapping[ int( d[ 'offset_mapping' ][ key ] ) ] = int( key )
             if( note_text is not None ):
                 begin_offset = offset_mapping[ int( begin_offset_mapped ) ]
-                end_offset = offset_mapping[ int( end_offset_mapped ) + 1 ]
+                end_offset = min( note_max ,
+                                  offset_mapping[ int( end_offset_mapped ) ] + 1 )
                 target = note_text[ begin_offset:end_offset ]
                 target = re.sub( '[\r\n]+' , ' ' , target )
                 left_begin = max( 0 , begin_offset - args.left_margin )
