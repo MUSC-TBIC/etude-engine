@@ -1,0 +1,44 @@
+T10	Drug	0 9	ofloxacin
+T11	Strength 10 16	200mg
+R1	Strength-Drug Arg1:T11 Arg2:T10
+T12	Route 18 22	p.o.
+R2	Route-Drug Arg1:T12 Arg2:T10
+T9	Frequency 23 28	q 12.
+R3	Frequency-Drug Arg1:T9 Arg2:T7
+T1	Drug	30 38	klonopin
+T8	Dosage 39 49	one tablet
+R4	Dosage-Drug Arg1:T8 Arg2:T7
+T6	Drug 50 61	twice - a - day
+T4	Drug 76 84	klonopin
+T5	Dosage 85 93	1 tablet
+R5	Dosage-Drug Arg1:T5 Arg2:T4
+T7	Drug 108 116	klonopin
+T2	Form 119 125	tablet
+R6	Form-Drug Arg1:T2 Arg2:T1
+T3	Duration 130 137	2 weeks
+R7	Duration-Drug Arg1:T3 Arg2:T1
+T13	Drug 163 171	coumadin
+T14	Strength 183 187	10mg
+R8	Strength-Drug Arg1:T14 Arg2:T13
+T15	Route 188 190	po
+R9	Route-Drug Arg1:T15 Arg2:T13
+T16	Frequency 191 195	qday
+R10	Frequency-Drug Arg1:T16 Arg2:T13
+T17	Duration 200 206	1 week
+R11	Duration-Drug Arg1:T17 Arg2:T13
+T18	Drug 316 325	ibuprofen
+T20	Strength 326 332	200mg
+R12	Strength-Drug Arg1:T20 Arg2:T18
+T19	Form 335 343	capsules
+R13	Form-Drug Arg1:T19 Arg2:T18
+T21	Frequency 344 347	prn
+R14	Frequency-Drug Arg1:T21 Arg2:T18
+T22	Drug 349 354	advil
+T23	Strength 355 363	200mg / ml
+R15	Strength-Drug Arg1:T23 Arg2:T22
+T24	Route 369 371	sq
+R16	Route-Drug Arg1:T24 Arg2:T22
+T25	Frequency 372 375	bid
+R17	Frequency-Drug Arg1:T25 Arg2:T22
+T26	Duration 380 386	3 days
+R18	Duration-Drug Arg1:T26 Arg2:T22
