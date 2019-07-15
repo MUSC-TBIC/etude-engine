@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?><CAS version="2">
+    <uima.cas.Sofa _indexed="0" _id="3" sofaNum="1" sofaID="_InitialView" mimeType="text" sofaString="Ofloxacin 200 mg p.o. q 12&#10;&#10;klonopin one tablet twice-a-day for 2 weeks&#10;&#10;After 12/5 INR at 1.5, Coumadin was set to 10mg PO qDay for 1 week, followed by new INR.&#10;"/>
+    <org.apache.ctakes.typesystem.type.structured.DocumentID _indexed="1" _id="1" documentID="data_medications_001.txt"/>
+    <uima.tcas.DocumentAnnotation _indexed="1" _id="10" _ref_sofa="3" begin="0" end="162" language="x-unspecified"/>
+    <org.apache.ctakes.typesystem.type.textspan.Segment _indexed="1" _id="15" _ref_sofa="3" begin="0" end="162" id="SIMPLE_SEGMENT"/>
+    <org.apache.ctakes.typesystem.type.textspan.Sentence _indexed="1" _id="21" _ref_sofa="3" begin="0" end="21" sentenceNumber="0"/>
+    <org.apache.ctakes.typesystem.type.textspan.Sentence _indexed="1" _id="27" _ref_sofa="3" begin="22" end="26" sentenceNumber="1"/>
+    <org.apache.ctakes.typesystem.type.textspan.Sentence _indexed="1" _id="33" _ref_sofa="3" begin="28" end="71" sentenceNumber="2"/>
+    <org.apache.ctakes.typesystem.type.textspan.Sentence _indexed="1" _id="39" _ref_sofa="3" begin="73" end="161" sentenceNumber="3"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="45" _ref_sofa="3" begin="26" end="27" tokenNumber="9"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="53" _ref_sofa="3" begin="27" end="28" tokenNumber="10"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="61" _ref_sofa="3" begin="71" end="72" tokenNumber="20"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="69" _ref_sofa="3" begin="72" end="73" tokenNumber="21"/>
+    <org.apache.ctakes.typesystem.type.syntax.NewlineToken _indexed="1" _id="77" _ref_sofa="3" begin="161" end="162" tokenNumber="46"/>
+    <org.apache.ctakes.typesystem.type.syntax.WordToken _indexed="1" _id="85" _ref_sofa="3" begin="0" end="9" tokenNumber="0" partOfSpeech="NNP" capitalization="1" numPosition="0" canonicalForm="ofloxacin"/>
+    <org.apache.ctakes.typesystem.type.syntax.WordToken _indexed="1" _id="106" _ref_sofa="3" begin="14" end="16" tokenNumber="2" partOfSpeech="NNS" capitalization="0" numPosition="0" canonicalForm="Mg"/>
+    <org.apache.ctakes.typesystem.type.syntax.WordToken _indexed="1" _id="118" _ref_sofa="3" begin="17" end="18" tokenNumber="3" partOfSpeech="RB" capitalization="0" numPosition="0" canonicalForm="P"/>
+    <org.apache.ctakes.typesystem.type.syntax.WordToken _indexed="1" _id="138" _ref_sofa="3" begin="19" end="20" tokenNumber="5" partOfSpeech="NN" capitalization="0" numPosition="0" canonicalForm="O"/>
+    <org.apache.ctakes.typesystem.type.syntax.WordToken _indexed="1" _id="158" _ref_sofa="3" begin="22" end="23" tokenNumber="7" partOfSpeech="FW" capitalization="0" numPosition="0" canonicalForm="Q"/>
+    <org.apache.ctakes.typesystem.type.syntax.WordToken _indexed="1" _id="179" _ref_sofa="3" begin="28" end="36" tokenNumber="11" partOfSpeech="NN" capitalization="0" numPosition="0" canonicalForm="klonopin"/>
+    <org.apache.ctakes.typesystem.type.syntax.WordToken _indexed="1" _id="191" _ref_sofa="3" begin="37" end="40" tokenNumber="12" partOfSpeech="CD" capitalization="0" numPosition="0" canonicalForm="one"/>
+    <org.apache.ctakes.typesystem.type.syntax.WordToken _indexed="1" _id="203" _ref_sofa="3" begin="41" end="47" tokenNumber="13" partOfSpeech="NN" capitalization="0" numPosition="0" canonicalForm="tablet"/>
+    <org.apache.ctakes.typesystem.type.syntax.WordToken _indexed="1" _id="215" _ref_sofa="3" begin="48" end="53" tokenNumber="14" partOfSpeech="RB" capitalization="0" numPosition="0" canonicalForm="twice"/>
+    <org.apache.ctakes.typesystem.type.syntax.WordToken _indexed="1" _id="235" _ref_sofa="3" begin="54" end="59" tokenNumber="16" partOfSpeech="NN" capitalization="0" numPosition="0" canonicalForm="a-day"/>
+    <org.apache.ctakes.typesystem.type.syntax.WordToken _indexed="1" _id="247" _ref_sofa="3" begin="60" end="63" tokenNumber="17" partOfSpeech="IN" capitalization="0" numPosition="0"/>
+    <org.apache.ctakes.typesystem.type.syntax.WordToken _indexed="1" _id="268" _ref_sofa="3" begin="66" end="71" tokenNumber="19" partOfSpeech="NNS" capitalization="0" numPosition="0" canonicalForm="Weeks"/>
+    <org.apache.ctakes.typesystem.type.syntax.WordToken _indexed="1" _id="280" _ref_sofa="3" begin="73" end="78" tokenNumber="22" partOfSpeech="IN" capitalization="1" numPosition="0" canonicalForm="after"/>
+    <org.apache.ctakes.typesystem.type.syntax.WordToken _indexed="1" _id="318" _ref_sofa="3" begin="84" end="87" tokenNumber="26" partOfSpeech="NN" capitalization="3" numPosition="0" canonicalForm="INR"/>
+    <org.apache.ctakes.typesystem.type.syntax.WordToken _indexed="1" _id="330" _ref_sofa="3" begin="88" end="90" tokenNumber="27" partOfSpeech="IN" capitalization="0" numPosition="0" canonicalForm="AT"/>
+    <org.apache.ctakes.typesystem.type.syntax.WordToken _indexed="1" _id="359" _ref_sofa="3" begin="96" end="104" tokenNumber="30" partOfSpeech="NNP" capitalization="1" numPosition="0" canonicalForm="Coumadin"/>
+    <org.apache.ctakes.typesystem.type.syntax.WordToken _indexed="1" _id="371" _ref_sofa="3" begin="105" end="108" tokenNumber="31" partOfSpeech="VBD" capitalization="0" numPosition="0" canonicalForm="WA"/>
+    <org.apache.ctakes.typesystem.type.syntax.WordToken _indexed="1" _id="383" _ref_sofa="3" begin="109" end="112" tokenNumber="32" partOfSpeech="VBN" capitalization="0" numPosition="0" canonicalForm="set"/>
+    <org.apache.ctakes.typesystem.type.syntax.WordToken _indexed="1" _id="395" _ref_sofa="3" begin="113" end="115" tokenNumber="33" partOfSpeech="IN" capitalization="0" numPosition="0"/>
+    <org.apache.ctakes.typesystem.type.syntax.WordToken _indexed="1" _id="407" _ref_sofa="3" begin="116" end="120" tokenNumber="34" partOfSpeech="NNS" capitalization="0" numPosition="1" canonicalForm="10mg"/>
+    <org.apache.ctakes.typesystem.type.syntax.WordToken _indexed="1" _id="419" _ref_sofa="3" begin="121" end="123" tokenNumber="35" partOfSpeech="JJ" capitalization="3" numPosition="0" canonicalForm="PO"/>
+    <org.apache.ctakes.typesystem.type.syntax.WordToken _indexed="1" _id="431" _ref_sofa="3" begin="124" end="128" tokenNumber="36" partOfSpeech="NN" capitalization="2" numPosition="0" canonicalForm="qday"/>
+    <org.apache.ctakes.typesystem.type.syntax.WordToken _indexed="1" _id="443" _ref_sofa="3" begin="129" end="132" tokenNumber="37" partOfSpeech="IN" capitalization="0" numPosition="0"/>
+    <org.apache.ctakes.typesystem.type.syntax.WordToken _indexed="1" _id="464" _ref_sofa="3" begin="135" end="139" tokenNumber="39" partOfSpeech="NN" capitalization="0" numPosition="0" canonicalForm="week"/>
+    <org.apache.ctakes.typesystem.type.syntax.WordToken _indexed="1" _id="484" _ref_sofa="3" begin="141" end="149" tokenNumber="41" partOfSpeech="VBN" capitalization="0" numPosition="0" canonicalForm="follow"/>
+    <org.apache.ctakes.typesystem.type.syntax.WordToken _indexed="1" _id="496" _ref_sofa="3" begin="150" end="152" tokenNumber="42" partOfSpeech="IN" capitalization="0" numPosition="0"/>
+    <org.apache.ctakes.typesystem.type.syntax.WordToken _indexed="1" _id="508" _ref_sofa="3" begin="153" end="156" tokenNumber="43" partOfSpeech="JJ" capitalization="0" numPosition="0" canonicalForm="new"/>
+    <org.apache.ctakes.typesystem.type.syntax.WordToken _indexed="1" _id="520" _ref_sofa="3" begin="157" end="160" tokenNumber="44" partOfSpeech="NN" capitalization="3" numPosition="0" canonicalForm="INR"/>
+    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="97" _ref_sofa="3" begin="10" end="13" tokenNumber="1" partOfSpeech="CD" numType="1"/>
+    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="170" _ref_sofa="3" begin="24" end="26" tokenNumber="8" partOfSpeech="CD" numType="1"/>
+    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="259" _ref_sofa="3" begin="64" end="65" tokenNumber="18" partOfSpeech="CD" numType="1"/>
+    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="292" _ref_sofa="3" begin="79" end="81" tokenNumber="23" partOfSpeech="CD" numType="1"/>
+    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="309" _ref_sofa="3" begin="82" end="83" tokenNumber="25" partOfSpeech="CD" numType="1"/>
+    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="342" _ref_sofa="3" begin="91" end="94" tokenNumber="28" partOfSpeech="CD" numType="2"/>
+    <org.apache.ctakes.typesystem.type.syntax.NumToken _indexed="1" _id="455" _ref_sofa="3" begin="133" end="134" tokenNumber="38" partOfSpeech="CD" numType="1"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="130" _ref_sofa="3" begin="18" end="19" tokenNumber="4" partOfSpeech="IN"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="150" _ref_sofa="3" begin="20" end="21" tokenNumber="6" partOfSpeech="."/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="227" _ref_sofa="3" begin="53" end="54" tokenNumber="15" partOfSpeech="HYPH"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="301" _ref_sofa="3" begin="81" end="82" tokenNumber="24" partOfSpeech="SYM"/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="351" _ref_sofa="3" begin="94" end="95" tokenNumber="29" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="476" _ref_sofa="3" begin="139" end="140" tokenNumber="40" partOfSpeech=","/>
+    <org.apache.ctakes.typesystem.type.syntax.PunctuationToken _indexed="1" _id="532" _ref_sofa="3" begin="160" end="161" tokenNumber="45" partOfSpeech="."/>
+    <org.apache.ctakes.typesystem.type.syntax.Chunk _indexed="1" _id="540" _ref_sofa="3" begin="0" end="9" chunkType="NP"/>
+    <org.apache.ctakes.typesystem.type.syntax.Chunk _indexed="1" _id="545" _ref_sofa="3" begin="10" end="16" chunkType="NP"/>
+    <org.apache.ctakes.typesystem.type.syntax.Chunk _indexed="1" _id="550" _ref_sofa="3" begin="17" end="18" chunkType="ADVP"/>
+    <org.apache.ctakes.typesystem.type.syntax.Chunk _indexed="1" _id="555" _ref_sofa="3" begin="18" end="19" chunkType="PP"/>
+    <org.apache.ctakes.typesystem.type.syntax.Chunk _indexed="1" _id="560" _ref_sofa="3" begin="19" end="20" chunkType="NP"/>
+    <org.apache.ctakes.typesystem.type.syntax.Chunk _indexed="1" _id="565" _ref_sofa="3" begin="22" end="26" chunkType="NP"/>
+    <org.apache.ctakes.typesystem.type.syntax.Chunk _indexed="1" _id="570" _ref_sofa="3" begin="28" end="36" chunkType="NP"/>
+    <org.apache.ctakes.typesystem.type.syntax.Chunk _indexed="1" _id="575" _ref_sofa="3" begin="37" end="47" chunkType="NP"/>
+    <org.apache.ctakes.typesystem.type.syntax.Chunk _indexed="1" _id="580" _ref_sofa="3" begin="48" end="59" chunkType="NP"/>
+    <org.apache.ctakes.typesystem.type.syntax.Chunk _indexed="1" _id="585" _ref_sofa="3" begin="60" end="63" chunkType="PP"/>
+    <org.apache.ctakes.typesystem.type.syntax.Chunk _indexed="1" _id="590" _ref_sofa="3" begin="64" end="71" chunkType="NP"/>
+    <org.apache.ctakes.typesystem.type.syntax.Chunk _indexed="1" _id="595" _ref_sofa="3" begin="73" end="78" chunkType="PP"/>
+    <org.apache.ctakes.typesystem.type.syntax.Chunk _indexed="1" _id="600" _ref_sofa="3" begin="79" end="81" chunkType="NP"/>
+    <org.apache.ctakes.typesystem.type.syntax.Chunk _indexed="1" _id="605" _ref_sofa="3" begin="81" end="82" chunkType="O"/>
+    <org.apache.ctakes.typesystem.type.syntax.Chunk _indexed="1" _id="610" _ref_sofa="3" begin="82" end="87" chunkType="NP"/>
+    <org.apache.ctakes.typesystem.type.syntax.Chunk _indexed="1" _id="615" _ref_sofa="3" begin="88" end="90" chunkType="PP"/>
+    <org.apache.ctakes.typesystem.type.syntax.Chunk _indexed="1" _id="620" _ref_sofa="3" begin="91" end="94" chunkType="NP"/>
+    <org.apache.ctakes.typesystem.type.syntax.Chunk _indexed="1" _id="625" _ref_sofa="3" begin="94" end="95" chunkType="O"/>
+    <org.apache.ctakes.typesystem.type.syntax.Chunk _indexed="1" _id="630" _ref_sofa="3" begin="96" end="104" chunkType="NP"/>
+    <org.apache.ctakes.typesystem.type.syntax.Chunk _indexed="1" _id="635" _ref_sofa="3" begin="105" end="112" chunkType="VP"/>
+    <org.apache.ctakes.typesystem.type.syntax.Chunk _indexed="1" _id="640" _ref_sofa="3" begin="113" end="115" chunkType="PP"/>
+    <org.apache.ctakes.typesystem.type.syntax.Chunk _indexed="1" _id="645" _ref_sofa="3" begin="116" end="120" chunkType="NP"/>
+    <org.apache.ctakes.typesystem.type.syntax.Chunk _indexed="1" _id="650" _ref_sofa="3" begin="121" end="128" chunkType="NP"/>
+    <org.apache.ctakes.typesystem.type.syntax.Chunk _indexed="1" _id="655" _ref_sofa="3" begin="129" end="132" chunkType="PP"/>
+    <org.apache.ctakes.typesystem.type.syntax.Chunk _indexed="1" _id="660" _ref_sofa="3" begin="133" end="139" chunkType="NP"/>
+    <org.apache.ctakes.typesystem.type.syntax.Chunk _indexed="1" _id="665" _ref_sofa="3" begin="139" end="140" chunkType="O"/>
+    <org.apache.ctakes.typesystem.type.syntax.Chunk _indexed="1" _id="670" _ref_sofa="3" begin="141" end="149" chunkType="VP"/>
+    <org.apache.ctakes.typesystem.type.syntax.Chunk _indexed="1" _id="675" _ref_sofa="3" begin="150" end="152" chunkType="PP"/>
+    <org.apache.ctakes.typesystem.type.syntax.Chunk _indexed="1" _id="680" _ref_sofa="3" begin="153" end="160" chunkType="NP"/>
+    <org.apache.ctakes.typesystem.type.textsem.MedicationMention _indexed="1" _id="872" _ref_sofa="3" begin="0" end="9" id="0" _ref_ontologyConceptArr="864" typeID="1" discoveryTechnique="1" confidence="0.19500001" polarity="0" uncertainty="0" conditional="false" generic="false" historyOf="0" _ref_medicationRoute="2002" _ref_medicationStatusChange="1969" _ref_medicationStrength="2035"/>
+    <org.apache.ctakes.typesystem.type.textsem.MedicationMention _indexed="1" _id="926" _ref_sofa="3" begin="28" end="36" id="1" _ref_ontologyConceptArr="922" typeID="1" discoveryTechnique="1" confidence="0.1" polarity="0" uncertainty="0" conditional="false" generic="false" historyOf="0" _ref_medicationStatusChange="2214" _ref_medicationDosage="2181"/>
+    <org.apache.ctakes.typesystem.type.textsem.MedicationMention _indexed="1" _id="720" _ref_sofa="3" begin="41" end="47" id="2" _ref_ontologyConceptArr="715" typeID="1" discoveryTechnique="1" confidence="0.08449999" polarity="0" uncertainty="0" conditional="false" generic="false" historyOf="0" _ref_medicationDuration="2363" _ref_medicationStatusChange="2396" _ref_medicationForm="2429"/>
+    <org.apache.ctakes.typesystem.type.textsem.MedicationMention _indexed="1" _id="774" _ref_sofa="3" begin="96" end="104" id="3" _ref_ontologyConceptArr="770" typeID="1" discoveryTechnique="1" confidence="0.05" polarity="0" uncertainty="0" conditional="false" generic="false" historyOf="0" _ref_medicationStatusChange="2828" _ref_medicationStrength="2861"/>
+    <org.apache.ctakes.typesystem.type.textsem.MedicationMention _indexed="1" _id="2895" _ref_sofa="3" begin="96" end="104" id="4" typeID="0" discoveryTechnique="0" confidence="0.0" polarity="0" uncertainty="0" conditional="false" generic="false" historyOf="0" _ref_medicationFrequency="2958" _ref_medicationStatusChange="2925" _ref_medicationStrength="2992"/>
+    <org.apache.ctakes.typesystem.type.textsem.ProcedureMention _indexed="1" _id="980" _ref_sofa="3" begin="84" end="87" id="0" _ref_ontologyConceptArr="976" typeID="5" discoveryTechnique="1" confidence="0.0" polarity="0" uncertainty="0" conditional="false" generic="false" historyOf="0"/>
+    <org.apache.ctakes.typesystem.type.textsem.ProcedureMention _indexed="1" _id="1032" _ref_sofa="3" begin="157" end="160" id="0" _ref_ontologyConceptArr="1028" typeID="5" discoveryTechnique="1" confidence="0.0" polarity="0" uncertainty="0" conditional="false" generic="false" historyOf="0"/>
+    <org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode _indexed="1" _id="1060" _ref_sofa="3" begin="0" end="21" id="0"/>
+    <org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode _indexed="1" _id="1074" _ref_sofa="3" begin="0" end="9" id="1" form="Ofloxacin" lemma="ofloxacin" cpostag="NNP" postag="NNP" feats="_" _ref_head="1060" deprel="root" pdeprel="_"/>
+    <org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode _indexed="1" _id="1088" _ref_sofa="3" begin="10" end="13" id="2" form="200" lemma="0" cpostag="CD" postag="CD" feats="_" _ref_head="1102" deprel="num" pdeprel="_"/>
+    <org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode _indexed="1" _id="1102" _ref_sofa="3" begin="14" end="16" id="3" form="mg" lemma="mg" cpostag="NNS" postag="NNS" feats="_" _ref_head="1074" deprel="npadvmod" pdeprel="_"/>
+    <org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode _indexed="1" _id="1116" _ref_sofa="3" begin="17" end="18" id="4" form="p" lemma="p" cpostag="RB" postag="RB" feats="_" _ref_head="1102" deprel="advmod" pdeprel="_"/>
+    <org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode _indexed="1" _id="1130" _ref_sofa="3" begin="18" end="19" id="5" form="." lemma="." cpostag="IN" postag="IN" feats="_" _ref_head="1074" deprel="punct" pdeprel="_"/>
+    <org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode _indexed="1" _id="1144" _ref_sofa="3" begin="19" end="20" id="6" form="o" lemma="o" cpostag="NN" postag="NN" feats="_" _ref_head="1130" deprel="pobj" pdeprel="_"/>
+    <org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode _indexed="1" _id="1158" _ref_sofa="3" begin="20" end="21" id="7" form="." lemma="." cpostag="." postag="." feats="_" _ref_head="1074" deprel="punct" pdeprel="_"/>
+    <org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode _indexed="1" _id="1172" _ref_sofa="3" begin="22" end="26" id="0"/>
+    <org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode _indexed="1" _id="1186" _ref_sofa="3" begin="22" end="23" id="1" form="q" lemma="q" cpostag="FW" postag="FW" feats="_" _ref_head="1200" deprel="nn" pdeprel="_"/>
+    <org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode _indexed="1" _id="1200" _ref_sofa="3" begin="24" end="26" id="2" form="12" lemma="0" cpostag="CD" postag="CD" feats="_" _ref_head="1172" deprel="root" pdeprel="_"/>
+    <org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode _indexed="1" _id="1214" _ref_sofa="3" begin="28" end="71" id="0"/>
+    <org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode _indexed="1" _id="1228" _ref_sofa="3" begin="28" end="36" id="1" form="klonopin" lemma="klonopin" cpostag="NN" postag="NN" feats="_" _ref_head="1214" deprel="root" pdeprel="_"/>
+    <org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode _indexed="1" _id="1242" _ref_sofa="3" begin="37" end="40" id="2" form="one" lemma="#crd#" cpostag="CD" postag="CD" feats="_" _ref_head="1256" deprel="num" pdeprel="_"/>
+    <org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode _indexed="1" _id="1256" _ref_sofa="3" begin="41" end="47" id="3" form="tablet" lemma="tablet" cpostag="NN" postag="NN" feats="_" _ref_head="1228" deprel="npadvmod" pdeprel="_"/>
+    <org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode _indexed="1" _id="1270" _ref_sofa="3" begin="48" end="53" id="4" form="twice" lemma="twice" cpostag="RB" postag="RB" feats="_" _ref_head="1298" deprel="hmod" pdeprel="_"/>
+    <org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode _indexed="1" _id="1284" _ref_sofa="3" begin="53" end="54" id="5" form="-" lemma="-" cpostag="HYPH" postag="HYPH" feats="_" _ref_head="1298" deprel="hyph" pdeprel="_"/>
+    <org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode _indexed="1" _id="1298" _ref_sofa="3" begin="54" end="59" id="6" form="a-day" lemma="a-day" cpostag="NN" postag="NN" feats="_" _ref_head="1228" deprel="npadvmod" pdeprel="_"/>
+    <org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode _indexed="1" _id="1312" _ref_sofa="3" begin="60" end="63" id="7" form="for" lemma="for" cpostag="IN" postag="IN" feats="_" _ref_head="1228" deprel="prep" pdeprel="_"/>
+    <org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode _indexed="1" _id="1326" _ref_sofa="3" begin="64" end="65" id="8" form="2" lemma="0" cpostag="CD" postag="CD" feats="_" _ref_head="1340" deprel="num" pdeprel="_"/>
+    <org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode _indexed="1" _id="1340" _ref_sofa="3" begin="66" end="71" id="9" form="weeks" lemma="week" cpostag="NNS" postag="NNS" feats="_" _ref_head="1312" deprel="pobj" pdeprel="_"/>
+    <org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode _indexed="1" _id="1354" _ref_sofa="3" begin="73" end="161" id="0"/>
+    <org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode _indexed="1" _id="1368" _ref_sofa="3" begin="73" end="78" id="1" form="After" lemma="after" cpostag="IN" postag="IN" feats="_" _ref_head="1438" deprel="prep" pdeprel="_"/>
+    <org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode _indexed="1" _id="1382" _ref_sofa="3" begin="79" end="81" id="2" form="12" lemma="0" cpostag="CD" postag="CD" feats="_" _ref_head="1410" deprel="number" pdeprel="_"/>
+    <org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode _indexed="1" _id="1396" _ref_sofa="3" begin="81" end="82" id="3" form="/" lemma="/" cpostag="SYM" postag="SYM" feats="_" _ref_head="1410" deprel="punct" pdeprel="_"/>
+    <org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode _indexed="1" _id="1410" _ref_sofa="3" begin="82" end="83" id="4" form="5" lemma="0" cpostag="CD" postag="CD" feats="_" _ref_head="1424" deprel="nn" pdeprel="_"/>
+    <org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode _indexed="1" _id="1424" _ref_sofa="3" begin="84" end="87" id="5" form="INR" lemma="inr" cpostag="NN" postag="NN" feats="_" _ref_head="1368" deprel="pobj" pdeprel="_"/>
+    <org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode _indexed="1" _id="1438" _ref_sofa="3" begin="88" end="90" id="6" form="at" lemma="at" cpostag="IN" postag="IN" feats="_" _ref_head="1508" deprel="prep" pdeprel="_"/>
+    <org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode _indexed="1" _id="1452" _ref_sofa="3" begin="91" end="94" id="7" form="1.5" lemma="0" cpostag="CD" postag="CD" feats="_" _ref_head="1438" deprel="pobj" pdeprel="_"/>
+    <org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode _indexed="1" _id="1466" _ref_sofa="3" begin="94" end="95" id="8" form="," lemma="," cpostag="," postag="," feats="_" _ref_head="1508" deprel="punct" pdeprel="_"/>
+    <org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode _indexed="1" _id="1480" _ref_sofa="3" begin="96" end="104" id="9" form="Coumadin" lemma="coumadin" cpostag="NNP" postag="NNP" feats="_" _ref_head="1508" deprel="nsubjpass" pdeprel="_"/>
+    <org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode _indexed="1" _id="1494" _ref_sofa="3" begin="105" end="108" id="10" form="was" lemma="be" cpostag="VBD" postag="VBD" feats="_" _ref_head="1508" deprel="auxpass" pdeprel="_"/>
+    <org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode _indexed="1" _id="1508" _ref_sofa="3" begin="109" end="112" id="11" form="set" lemma="set" cpostag="VBN" postag="VBN" feats="_" _ref_head="1354" deprel="root" pdeprel="_"/>
+    <org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode _indexed="1" _id="1522" _ref_sofa="3" begin="113" end="115" id="12" form="to" lemma="to" cpostag="IN" postag="IN" feats="_" _ref_head="1508" deprel="prep" pdeprel="_"/>
+    <org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode _indexed="1" _id="1536" _ref_sofa="3" begin="116" end="120" id="13" form="10mg" lemma="0mg" cpostag="NNS" postag="NNS" feats="_" _ref_head="1522" deprel="pobj" pdeprel="_"/>
+    <org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode _indexed="1" _id="1550" _ref_sofa="3" begin="121" end="123" id="14" form="PO" lemma="po" cpostag="JJ" postag="JJ" feats="_" _ref_head="1564" deprel="amod" pdeprel="_"/>
+    <org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode _indexed="1" _id="1564" _ref_sofa="3" begin="124" end="128" id="15" form="qDay" lemma="qday" cpostag="NN" postag="NN" feats="_" _ref_head="1536" deprel="npadvmod" pdeprel="_"/>
+    <org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode _indexed="1" _id="1578" _ref_sofa="3" begin="129" end="132" id="16" form="for" lemma="for" cpostag="IN" postag="IN" feats="_" _ref_head="1536" deprel="prep" pdeprel="_"/>
+    <org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode _indexed="1" _id="1592" _ref_sofa="3" begin="133" end="134" id="17" form="1" lemma="0" cpostag="CD" postag="CD" feats="_" _ref_head="1606" deprel="num" pdeprel="_"/>
+    <org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode _indexed="1" _id="1606" _ref_sofa="3" begin="135" end="139" id="18" form="week" lemma="week" cpostag="NN" postag="NN" feats="_" _ref_head="1578" deprel="pobj" pdeprel="_"/>
+    <org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode _indexed="1" _id="1620" _ref_sofa="3" begin="139" end="140" id="19" form="," lemma="," cpostag="," postag="," feats="_" _ref_head="1536" deprel="punct" pdeprel="_"/>
+    <org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode _indexed="1" _id="1634" _ref_sofa="3" begin="141" end="149" id="20" form="followed" lemma="follow" cpostag="VBN" postag="VBN" feats="_" _ref_head="1536" deprel="partmod" pdeprel="_"/>
+    <org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode _indexed="1" _id="1648" _ref_sofa="3" begin="150" end="152" id="21" form="by" lemma="by" cpostag="IN" postag="IN" feats="_" _ref_head="1634" deprel="agent" pdeprel="_"/>
+    <org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode _indexed="1" _id="1662" _ref_sofa="3" begin="153" end="156" id="22" form="new" lemma="new" cpostag="JJ" postag="JJ" feats="_" _ref_head="1676" deprel="amod" pdeprel="_"/>
+    <org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode _indexed="1" _id="1676" _ref_sofa="3" begin="157" end="160" id="23" form="INR" lemma="inr" cpostag="NN" postag="NN" feats="_" _ref_head="1648" deprel="pobj" pdeprel="_"/>
+    <org.apache.ctakes.typesystem.type.syntax.ConllDependencyNode _indexed="1" _id="1690" _ref_sofa="3" begin="160" end="161" id="24" form="." lemma="." cpostag="." postag="." feats="_" _ref_head="1508" deprel="punct" pdeprel="_"/>
+    <org.apache.ctakes.typesystem.type.refsem.UmlsConcept _id="1018" codingScheme="SNOMEDCT_US" code="165581004" score="0.0" disambiguated="false" cui="C0525032" tui="T059" preferredText="International Normalized Ratio"/>
+    <org.apache.ctakes.typesystem.type.refsem.UmlsConcept _id="1008" codingScheme="SNOMEDCT_US" code="1951000175101" score="0.0" disambiguated="false" cui="C0525032" tui="T059" preferredText="International Normalized Ratio"/>
+    <uima.cas.FSArray _id="1028" size="2">
+        <i>1008</i>
+        <i>1018</i>
+    </uima.cas.FSArray>
+    <org.apache.ctakes.typesystem.type.refsem.UmlsConcept _id="956" codingScheme="SNOMEDCT_US" code="1951000175101" score="0.0" disambiguated="false" cui="C0525032" tui="T059" preferredText="International Normalized Ratio"/>
+    <org.apache.ctakes.typesystem.type.refsem.UmlsConcept _id="966" codingScheme="SNOMEDCT_US" code="165581004" score="0.0" disambiguated="false" cui="C0525032" tui="T059" preferredText="International Normalized Ratio"/>
+    <uima.cas.FSArray _id="976" size="2">
+        <i>966</i>
+        <i>956</i>
+    </uima.cas.FSArray>
+    <org.apache.ctakes.typesystem.type.refsem.MedicationStrength _id="3012" id="0" discoveryTechnique="0" confidence="0.0" conditional="false" generic="false" polarity="0" uncertainty="0" historyOf="0" number="10" unit="mg"/>
+    <org.apache.ctakes.typesystem.type.textsem.MedicationStrengthModifier _id="2992" _ref_sofa="3" begin="0" end="0" id="0" typeID="0" discoveryTechnique="0" confidence="0.0" polarity="0" uncertainty="0" conditional="false" generic="false" historyOf="0" _ref_normalizedForm="3012" category="10mg"/>
+    <org.apache.ctakes.typesystem.type.refsem.MedicationStatusChange _id="2945" id="0" discoveryTechnique="0" confidence="0.0" conditional="false" generic="false" polarity="0" uncertainty="0" historyOf="0" value="noChange"/>
+    <org.apache.ctakes.typesystem.type.textsem.MedicationStatusChangeModifier _id="2925" _ref_sofa="3" begin="0" end="0" id="0" typeID="0" discoveryTechnique="0" confidence="0.0" polarity="0" uncertainty="0" conditional="false" generic="false" historyOf="0" _ref_normalizedForm="2945" category="noChange"/>
+    <org.apache.ctakes.typesystem.type.refsem.MedicationFrequency _id="2978" id="0" discoveryTechnique="0" confidence="0.0" conditional="false" generic="false" polarity="0" uncertainty="0" historyOf="0" number="1"/>
+    <org.apache.ctakes.typesystem.type.textsem.MedicationFrequencyModifier _id="2958" _ref_sofa="3" begin="0" end="0" id="0" typeID="0" discoveryTechnique="0" confidence="0.0" polarity="0" uncertainty="0" conditional="false" generic="false" historyOf="0" _ref_normalizedForm="2978" category="1null"/>
+    <org.apache.ctakes.typesystem.type.refsem.MedicationStrength _id="2881" id="0" discoveryTechnique="0" confidence="0.0" conditional="false" generic="false" polarity="0" uncertainty="0" historyOf="0" number="10" unit="mg"/>
+    <org.apache.ctakes.typesystem.type.textsem.MedicationStrengthModifier _id="2861" _ref_sofa="3" begin="0" end="0" id="0" typeID="0" discoveryTechnique="0" confidence="0.0" polarity="0" uncertainty="0" conditional="false" generic="false" historyOf="0" _ref_normalizedForm="2881" category="10mg"/>
+    <org.apache.ctakes.typesystem.type.refsem.MedicationStatusChange _id="2848" id="0" discoveryTechnique="0" confidence="0.0" conditional="false" generic="false" polarity="0" uncertainty="0" historyOf="0" value="decrease"/>
+    <org.apache.ctakes.typesystem.type.textsem.MedicationStatusChangeModifier _id="2828" _ref_sofa="3" begin="0" end="0" id="0" typeID="0" discoveryTechnique="0" confidence="0.0" polarity="0" uncertainty="0" conditional="false" generic="false" historyOf="0" _ref_normalizedForm="2848" category="decrease"/>
+    <org.apache.ctakes.typesystem.type.refsem.UmlsConcept _id="750" codingScheme="RXNORM" code="202421" score="0.0" disambiguated="false" cui="C0699129" tui="T109" preferredText="Coumadin"/>
+    <org.apache.ctakes.typesystem.type.refsem.UmlsConcept _id="760" codingScheme="RXNORM" code="202421" score="0.0" disambiguated="false" cui="C0699129" tui="T121" preferredText="Coumadin"/>
+    <uima.cas.FSArray _id="770" size="2">
+        <i>760</i>
+        <i>750</i>
+    </uima.cas.FSArray>
+    <org.apache.ctakes.typesystem.type.refsem.MedicationForm _id="2449" id="0" discoveryTechnique="0" confidence="0.0" conditional="false" generic="false" polarity="0" uncertainty="0" historyOf="0" value="tablet"/>
+    <org.apache.ctakes.typesystem.type.textsem.MedicationFormModifier _id="2429" _ref_sofa="3" begin="0" end="0" id="0" typeID="0" discoveryTechnique="0" confidence="0.0" polarity="0" uncertainty="0" conditional="false" generic="false" historyOf="0" _ref_normalizedForm="2449" category="tablet"/>
+    <org.apache.ctakes.typesystem.type.refsem.MedicationStatusChange _id="2416" id="0" discoveryTechnique="0" confidence="0.0" conditional="false" generic="false" polarity="0" uncertainty="0" historyOf="0" value="noChange"/>
+    <org.apache.ctakes.typesystem.type.textsem.MedicationStatusChangeModifier _id="2396" _ref_sofa="3" begin="0" end="0" id="0" typeID="0" discoveryTechnique="0" confidence="0.0" polarity="0" uncertainty="0" conditional="false" generic="false" historyOf="0" _ref_normalizedForm="2416" category="noChange"/>
+    <org.apache.ctakes.typesystem.type.refsem.MedicationDuration _id="2383" id="0" discoveryTechnique="0" confidence="0.0" conditional="false" generic="false" polarity="0" uncertainty="0" historyOf="0" value="for 2 weeks"/>
+    <org.apache.ctakes.typesystem.type.textsem.MedicationDurationModifier _id="2363" _ref_sofa="3" begin="0" end="0" id="0" typeID="0" discoveryTechnique="0" confidence="0.0" polarity="0" uncertainty="0" conditional="false" generic="false" historyOf="0" _ref_normalizedForm="2383" category="for 2 weeks"/>
+    <org.apache.ctakes.typesystem.type.refsem.UmlsConcept _id="685" codingScheme="RXNORM" code="10311" score="0.0" disambiguated="false" cui="C0039225" tui="T122" preferredText="Tablet Dosage Form"/>
+    <org.apache.ctakes.typesystem.type.refsem.UmlsConcept _id="695" codingScheme="SNOMEDCT_US" code="385055001" score="0.0" disambiguated="false" cui="C0039225" tui="T122" preferredText="Tablet Dosage Form"/>
+    <org.apache.ctakes.typesystem.type.refsem.UmlsConcept _id="705" codingScheme="SNOMEDCT_US" code="46992007" score="0.0" disambiguated="false" cui="C0039225" tui="T122" preferredText="Tablet Dosage Form"/>
+    <uima.cas.FSArray _id="715" size="3">
+        <i>705</i>
+        <i>695</i>
+        <i>685</i>
+    </uima.cas.FSArray>
+    <org.apache.ctakes.typesystem.type.refsem.MedicationDosage _id="2201" id="0" discoveryTechnique="0" confidence="0.0" conditional="false" generic="false" polarity="0" uncertainty="0" historyOf="0" value="1"/>
+    <org.apache.ctakes.typesystem.type.textsem.MedicationDosageModifier _id="2181" _ref_sofa="3" begin="0" end="0" id="0" typeID="0" discoveryTechnique="0" confidence="0.0" polarity="0" uncertainty="0" conditional="false" generic="false" historyOf="0" _ref_normalizedForm="2201" category="1"/>
+    <org.apache.ctakes.typesystem.type.refsem.MedicationStatusChange _id="2234" id="0" discoveryTechnique="0" confidence="0.0" conditional="false" generic="false" polarity="0" uncertainty="0" historyOf="0" value="noChange"/>
+    <org.apache.ctakes.typesystem.type.textsem.MedicationStatusChangeModifier _id="2214" _ref_sofa="3" begin="0" end="0" id="0" typeID="0" discoveryTechnique="0" confidence="0.0" polarity="0" uncertainty="0" conditional="false" generic="false" historyOf="0" _ref_normalizedForm="2234" category="noChange"/>
+    <org.apache.ctakes.typesystem.type.refsem.UmlsConcept _id="902" codingScheme="RXNORM" code="202585" score="0.0" disambiguated="false" cui="C0699315" tui="T109" preferredText="Klonopin"/>
+    <org.apache.ctakes.typesystem.type.refsem.UmlsConcept _id="912" codingScheme="RXNORM" code="202585" score="0.0" disambiguated="false" cui="C0699315" tui="T121" preferredText="Klonopin"/>
+    <uima.cas.FSArray _id="922" size="2">
+        <i>912</i>
+        <i>902</i>
+    </uima.cas.FSArray>
+    <org.apache.ctakes.typesystem.type.refsem.MedicationStrength _id="2055" id="0" discoveryTechnique="0" confidence="0.0" conditional="false" generic="false" polarity="0" uncertainty="0" historyOf="0" number="200" unit="mg"/>
+    <org.apache.ctakes.typesystem.type.textsem.MedicationStrengthModifier _id="2035" _ref_sofa="3" begin="0" end="0" id="0" typeID="0" discoveryTechnique="0" confidence="0.0" polarity="0" uncertainty="0" conditional="false" generic="false" historyOf="0" _ref_normalizedForm="2055" category="200mg"/>
+    <org.apache.ctakes.typesystem.type.refsem.MedicationStatusChange _id="1989" id="0" discoveryTechnique="0" confidence="0.0" conditional="false" generic="false" polarity="0" uncertainty="0" historyOf="0" value="noChange"/>
+    <org.apache.ctakes.typesystem.type.textsem.MedicationStatusChangeModifier _id="1969" _ref_sofa="3" begin="0" end="0" id="0" typeID="0" discoveryTechnique="0" confidence="0.0" polarity="0" uncertainty="0" conditional="false" generic="false" historyOf="0" _ref_normalizedForm="1989" category="noChange"/>
+    <org.apache.ctakes.typesystem.type.refsem.MedicationRoute _id="2022" id="0" discoveryTechnique="0" confidence="0.0" conditional="false" generic="false" polarity="0" uncertainty="0" historyOf="0" value="Enteral_Oral"/>
+    <org.apache.ctakes.typesystem.type.textsem.MedicationRouteModifier _id="2002" _ref_sofa="3" begin="0" end="0" id="0" typeID="0" discoveryTechnique="0" confidence="0.0" polarity="0" uncertainty="0" conditional="false" generic="false" historyOf="0" _ref_normalizedForm="2022" category="Enteral_Oral"/>
+    <org.apache.ctakes.typesystem.type.refsem.UmlsConcept _id="814" codingScheme="SNOMEDCT_US" code="96086002" score="0.0" disambiguated="false" cui="C0028902" tui="T109" preferredText="Ofloxacin"/>
+    <org.apache.ctakes.typesystem.type.refsem.UmlsConcept _id="844" codingScheme="SNOMEDCT_US" code="96086002" score="0.0" disambiguated="false" cui="C0028902" tui="T195" preferredText="Ofloxacin"/>
+    <org.apache.ctakes.typesystem.type.refsem.UmlsConcept _id="824" codingScheme="SNOMEDCT_US" code="387551000" score="0.0" disambiguated="false" cui="C0028902" tui="T109" preferredText="Ofloxacin"/>
+    <org.apache.ctakes.typesystem.type.refsem.UmlsConcept _id="854" codingScheme="SNOMEDCT_US" code="387551000" score="0.0" disambiguated="false" cui="C0028902" tui="T195" preferredText="Ofloxacin"/>
+    <org.apache.ctakes.typesystem.type.refsem.UmlsConcept _id="804" codingScheme="RXNORM" code="7623" score="0.0" disambiguated="false" cui="C0028902" tui="T109" preferredText="Ofloxacin"/>
+    <org.apache.ctakes.typesystem.type.refsem.UmlsConcept _id="834" codingScheme="RXNORM" code="7623" score="0.0" disambiguated="false" cui="C0028902" tui="T195" preferredText="Ofloxacin"/>
+    <uima.cas.FSArray _id="864" size="6">
+        <i>834</i>
+        <i>804</i>
+        <i>854</i>
+        <i>824</i>
+        <i>844</i>
+        <i>814</i>
+    </uima.cas.FSArray>
+</CAS>
