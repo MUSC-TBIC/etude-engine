@@ -361,6 +361,8 @@ def score_ref_set( reference_ns , reference_dd , reference_patterns , reference_
                                                    patterns = reference_patterns ,
                                                    skip_chars = args.skip_chars ,
                                                    out_file = reference_out_file )
+        except KeyError as e:
+            log.error( 'KeyError exception in extract_annotations:  {}'.format( e ) )
         except TypeError as e:
             log.error( 'TypeError exception in extract_annotations:  {}'.format( e ) )
         except:
@@ -386,6 +388,8 @@ def score_ref_set( reference_ns , reference_dd , reference_patterns , reference_
                                                        skip_chars = \
                                                          args.skip_chars ,
                                                        out_file = test_out_file )
+            except KeyError as e:
+                log.error( 'KeyError exception in extract_annotations:  {}'.format( e ) )
             except TypeError as e:
                 log.error( 'TypeError exception in extract_annotations:  {}'.format( e ) )
             except:
