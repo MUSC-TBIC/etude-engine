@@ -676,14 +676,16 @@ def extract_annotations( ingest_file ,
             norm_eng = []
             if( 'normalization_engines' in document_data ):
                 norm_eng = document_data[ 'normalization_engines' ]
+            opt_attr = []
+            if( 'optional_attributes' in document_data ):
+                opt_attr = pattern[ 'optional_attributes' ]
             new_annots = \
                 extract_annotations_brat_standoff( ingest_file ,
                                                    offset_mapping = offset_mapping ,
                                                    type_prefix = \
                                                      pattern[ 'type_prefix' ] ,
                                                    tag_name = pattern[ 'type' ] ,
-                                                   optional_attributes = \
-                                                     pattern[ 'optional_attributes' ] ,
+                                                   optional_attributes = opt_attr ,
                                                    normalization_engines = norm_eng )
                                                      
         elif( 'xpath' in pattern and
