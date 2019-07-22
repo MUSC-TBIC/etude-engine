@@ -14,6 +14,10 @@ import java.util.TreeMap;
 /**
  *
  * @author jun
+ * 
+ * Isabel:
+ * Edited from AnnFromMedEx
+ *
  */
 public class AnnFromMedXN {
 
