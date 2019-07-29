@@ -27,3 +27,5 @@ cov_*/
 etude.spec
 build/
 dist/
+
+data/tests

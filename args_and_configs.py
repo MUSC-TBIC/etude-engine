@@ -415,15 +415,30 @@ def extract_brat_patterns( annotations ,
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     ## Loop through all the provided score_values to see if any
     ## provided values match the currently extracted value
-    for score_value in score_values:
+    for score_value in score_values:            
         if( re.search( score_value , key_value ) ):
-            pattern_entry = dict( type = key_value ,
-                                  long_name = sect.strip() ,
-                                  type_prefix = config.get( sect ,
+            ## Used for text bound annotation if using a different
+            ## score key rather than short name.  This will give
+            ## the option of checking for the key_value in files and
+            ## if not, will check for the line_type in files.
+            if(config.has_option( sect, 'Type Prefix')):
+                pattern_entry = dict( type = key_value ,
+                                        line_type = config.get( sect ,
+                                                                'Short Name') ,
+                                        long_name = sect.strip() ,
+                                        type_prefix = config.get( sect ,
+                                                            'Type Prefix') ,
+                                        short_name = config.get( sect ,
+                                                            'Short Name') ,
+                                        )
+            else:
+                pattern_entry = dict( type = key_value ,
+                                        long_name = sect.strip() ,
+                                        type_prefix = config.get( sect ,
                                                             'Type Prefix' ) ,
-                                  display_name = display_name ,
-                                  short_name = config.get( sect ,
-                                                           'Short Name' ) )
+                                        display_name = display_name ,
+                                        short_name = config.get( sect ,
+                                                            'Short Name' ) )       
             if( config.has_option( sect , 'Opt Attr' ) ):
                 optional_attributes = config.get( sect , 'Opt Attr' )
                 pattern_entry[ 'optional_attributes' ] = \
@@ -444,7 +459,7 @@ def extract_patterns( annotations ,
         display_name = 'All Patterns'
     else:
         display_name = '{} ({})'.format( sect.strip() ,
-                                         config.get( sect , 'Short Name' ) )
+                                         config.get( sect , score_key ) )
     if( score_key == 'Long Name' or
         score_key == 'Section' ):
         key_value = sect.strip()
