@@ -28,4 +28,4 @@ etude.spec
 build/
 dist/
 
-data/tests
+tests/data/*
