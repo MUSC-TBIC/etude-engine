@@ -344,6 +344,7 @@ def extract_annotations_brat_standoff( ingest_file ,
                                                                     line ,
                                                                     offset_mapping ,
                                                                     tag_name ,
+                                                                    line_type,
                                                                     optional_attributes )
                     ## A non-None entry means we were able to parse the line 
                     if( new_entry != None ):
@@ -735,6 +736,8 @@ def extract_annotations( ingest_file ,
                     ## Fixed: If pattern and type are the same, the annotation is
                     ## counted twice.
                     if( new_annots[ new_annot_key ] == annotations[ new_annot_key ] ):
+                        ##print(new_annots[ new_annot_key ], annotations[ new_annot_key])
+                        ##print("\n")
                         combined_annots = annotations[ new_annot_key ]
                     annotations.update( { new_annot_key : combined_annots } )
                 else:

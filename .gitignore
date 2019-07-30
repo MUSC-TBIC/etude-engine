@@ -29,3 +29,7 @@ build/
 dist/
 
 tests/data/*
+
+.project
+
+.pydevproject
