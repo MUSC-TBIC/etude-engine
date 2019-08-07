@@ -1,0 +1,23 @@
+T1	Drug 0 9	 ofloxacin
+T2	Strength 10 16	200 mg
+R1	Strength-Drug Arg1:T2 Arg2:T1
+T3	Route 17 21	p.o.
+R2	Route-Drug Arg1:T3 Arg2:T1
+T4	Drug 28 36	klonopin
+T5	Dosage 37 40	one
+R3	Dosage-Drug Arg1:T5 Arg2:T4
+T6	Form 41 47	tablet
+R4	Form-Drug Arg1:T6 Arg2:T4
+T7	Frequency 48 59	twice-a-day
+R5	Frequency-Drug Arg1:T7 Arg2:T4
+T8	Duration 64 71	2 weeks
+R6	Duration-Drug Arg1:T8 Arg2:T4
+T9	Drug 96 104	coumadin
+T10	Strength 116 120	10mg
+R7	Strength-Drug Arg1:T10 Arg2:T9
+T11	Route 121 123	po
+R8	Route-Drug Arg1:T11 Arg2:T9
+T12	Frequency 124 128	qday
+R9	Frequency-Drug Arg1:T12 Arg2:T9
+T13	Duration 133 139	1 week
+R10	Duration-Drug Arg1:T13 Arg2:T9

@@ -24,7 +24,8 @@ def create_annotation_entry( begin_pos = -1 , begin_pos_mapped = None ,
     new_entry = dict( begin_pos = begin_pos ,
                       end_pos = end_pos ,
                       raw_text = raw_text ,
-                      type = tag_name )
+                      type = tag_name
+                      )
     ##
     if( begin_pos_mapped != None ):
         new_entry[ 'begin_pos_mapped' ] = begin_pos_mapped
@@ -205,17 +206,17 @@ def extract_brat_text_bound_annotation( ingest_file ,
                                         annot_line ,
                                         offset_mapping ,
                                         tag_name ,
+                                        line_type,
                                         optional_attributes = [] ):
     ## Continuous:
-    ## T1	Organization 0 43	International Business Machines Corporation
+    ## T1    Organization 0 43    International Business Machines Corporation
     ## TODO - Discontinuous:
     ## T1	Location 0 5;16 23	North America
     matches = re.match( r'^(T[0-9]+)\s+([^\s]+)\s+([0-9]+)\s+([0-9]+)\s+(.*)' ,
                         annot_line )
     if( matches ):
         found_tag = matches.group( 2 )
-        if( found_tag != tag_name ):
-            ## Skip this line because we don't care about this type
+        if( found_tag != tag_name and found_tag != line_type):
             return None
         match_index = matches.group( 1 )
         begin_pos = matches.group( 3 )
@@ -326,6 +327,7 @@ def extract_annotations_brat_standoff( ingest_file ,
                                        offset_mapping ,
                                        type_prefix ,
                                        tag_name ,
+                                       line_type ,
                                        optional_attributes = [] ,
                                        normalization_engines = [] ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
@@ -342,6 +344,7 @@ def extract_annotations_brat_standoff( ingest_file ,
                                                                     line ,
                                                                     offset_mapping ,
                                                                     tag_name ,
+                                                                    line_type,
                                                                     optional_attributes )
                     ## A non-None entry means we were able to parse the line 
                     if( new_entry != None ):
@@ -683,8 +686,9 @@ def extract_annotations( ingest_file ,
                 extract_annotations_brat_standoff( ingest_file ,
                                                    offset_mapping = offset_mapping ,
                                                    type_prefix = \
-                                                     pattern[ 'type_prefix' ] ,
+                                                   pattern[ 'type_prefix' ] ,
                                                    tag_name = pattern[ 'type' ] ,
+                                                   line_type = pattern [ 'short_name' ] ,
                                                    optional_attributes = opt_attr ,
                                                    normalization_engines = norm_eng )
                                                      
@@ -729,6 +733,12 @@ def extract_annotations( ingest_file ,
                     ##        type at a given position), then we need to de-dup some
                     ##        of the annotation entries before combining them here.
                     combined_annots = annotations[ new_annot_key ] + new_annots[ new_annot_key ] 
+                    ## Fixed: If pattern and type are the same, the annotation is
+                    ## counted twice.
+                    if( new_annots[ new_annot_key ] == annotations[ new_annot_key ] ):
+                        ##print(new_annots[ new_annot_key ], annotations[ new_annot_key])
+                        ##print("\n")
+                        combined_annots = annotations[ new_annot_key ]
                     annotations.update( { new_annot_key : combined_annots } )
                 else:
                     annotations.update( { new_annot_key : new_annots[ new_annot_key ] } )
