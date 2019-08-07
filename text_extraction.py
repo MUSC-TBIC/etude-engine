@@ -210,7 +210,7 @@ def extract_brat_text_bound_annotation( ingest_file ,
     ## T1	Organization 0 43	International Business Machines Corporation
     ## TODO - Discontinuous:
     ## T1	Location 0 5;16 23	North America
-    matches = re.match( r'^(T[0-9]+)\s+(\w+)\s+([0-9]+)\s+([0-9]+)\s+(.*)' ,
+    matches = re.match( r'^(T[0-9]+)\s+([^\s]+)\s+([0-9]+)\s+([0-9]+)\s+(.*)' ,
                         annot_line )
     if( matches ):
         found_tag = matches.group( 2 )
