@@ -411,34 +411,39 @@ def extract_brat_patterns( annotations ,
                            display_name ,
                            key_value ,
                            score_values ,
+                           collapse_all_patterns = False ,
                            verbose = False ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     ## Loop through all the provided score_values to see if any
     ## provided values match the currently extracted value
     for score_value in score_values:            
         if( re.search( score_value , key_value ) ):
+            if( collapse_all_patterns ):
+                type_value = 'All Patterns'
+            else:
+                type_value = key_value
             ## Used for text bound annotation if using a different
             ## score key rather than short name.  This will give
             ## the option of checking for the key_value in files and
             ## if not, will check for the line_type in files.
-            if(config.has_option( sect, 'Type Prefix')):
-                pattern_entry = dict( type = key_value ,
-                                        line_type = config.get( sect ,
-                                                                'Short Name') ,
-                                        long_name = sect.strip() ,
-                                        type_prefix = config.get( sect ,
-                                                            'Type Prefix') ,
-                                        short_name = config.get( sect ,
-                                                            'Short Name') ,
-                                        )
+            if( key_value != 'Short Name' ): ##config.has_option( sect, 'Type Prefix')):
+                pattern_entry = dict( type = type_value ,
+                                      line_type = config.get( sect ,
+                                                              'Short Name') ,
+                                      long_name = sect.strip() ,
+                                      type_prefix = config.get( sect ,
+                                                                'Type Prefix') ,
+                                      short_name = config.get( sect ,
+                                                               'Short Name') ,
+                )
             else:
-                pattern_entry = dict( type = key_value ,
-                                        long_name = sect.strip() ,
-                                        type_prefix = config.get( sect ,
-                                                            'Type Prefix' ) ,
-                                        display_name = display_name ,
-                                        short_name = config.get( sect ,
-                                                            'Short Name' ) )       
+                pattern_entry = dict( type = type_value ,
+                                      long_name = sect.strip() ,
+                                      type_prefix = config.get( sect ,
+                                                                'Type Prefix' ) ,
+                                      display_name = display_name ,
+                                      short_name = config.get( sect ,
+                                                               'Short Name' ) )       
             if( config.has_option( sect , 'Opt Attr' ) ):
                 optional_attributes = config.get( sect , 'Opt Attr' )
                 pattern_entry[ 'optional_attributes' ] = \
@@ -455,6 +460,10 @@ def extract_patterns( annotations ,
                       collapse_all_patterns = False ,
                       verbose = False ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
+    ## Skip any entry missing the score_key we're interested in
+    if( not config.has_option( sect , score_key ) ):
+        log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
+        return
     if( collapse_all_patterns ):
         display_name = 'All Patterns'
     else:
@@ -505,7 +514,8 @@ def extract_patterns( annotations ,
                                display_name ,
                                key_value ,
                                score_values ,
-                               verbose )        
+                               collapse_all_patterns ,
+                               verbose )
     log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
 
 
