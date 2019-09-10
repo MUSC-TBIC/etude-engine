@@ -1579,6 +1579,92 @@ def test_match_overlap_type_mismatch_contained_on_right():
                             expected_score_card[ fuzzy_flag ] )
 
 
+def test_match_overlap_EOF_in_ref():
+    test_filename = 'tests/data/offset_matching/the_doctors_age_contained_on_right.xmi'
+    ## NB:  we flipped the normal return order of these to make sure
+    ##      the EOF marker is in the reference file rather than the
+    ##      system output file
+    test_ss , reference_ss = \
+        prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
+    assert reference_ss != test_ss
+    reference_entries = scoring_metrics.flatten_ss_dictionary( reference_ss , 'reference' )
+    test_entries = scoring_metrics.flatten_ss_dictionary( test_ss , 'test' )
+    ## In case there are no reference_entries, initialize test_leftovers
+    ## as the full list of test_entries
+    test_leftovers = test_entries
+    ##
+    score_card , fuzzy_flags = \
+      prepare_offset_alignment_score_cards( test_filename ,
+                                            reference_ss ,
+                                            test_ss )
+    ##
+    confusion_matrix = {}
+    start_key = 'begin_pos_mapped'
+    end_key = 'end_pos_mapped'
+    scorable_attributes = []
+    scorable_engines = []
+    norm_synonyms = {}
+    ##
+    for fuzzy_flag in [ 'exact' , 'partial' , 'fully-contained' ]:
+        for reference_annot in reference_entries:
+            reference_matched , test_leftovers = \
+              scoring_metrics.reference_annot_comparison_runner( test_filename ,
+                                                                 confusion_matrix ,
+                                                                 score_card ,
+                                                                 reference_annot ,
+                                                                 test_entries ,
+                                                                 start_key , end_key ,
+                                                                 fuzzy_flag ,
+                                                                 scorable_attributes ,
+                                                                 scorable_engines ,
+                                                                 norm_synonyms )
+            ## exact and fully-contained fail this particular match but
+            ## still get to check that etude doesn't crash on the file
+            ## even those these matches come back as false.
+            assert ( fuzzy_flag in [ 'exact' , 'fully-contained' ] or reference_matched )
+
+
+def test_match_overlap_EOF_in_sys():
+    test_filename = 'tests/data/offset_matching/the_doctors_age_contained_on_right.xmi'
+    reference_ss , test_ss = \
+        prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
+    assert reference_ss != test_ss
+    reference_entries = scoring_metrics.flatten_ss_dictionary( reference_ss , 'reference' )
+    test_entries = scoring_metrics.flatten_ss_dictionary( test_ss , 'test' )
+    ## In case there are no reference_entries, initialize test_leftovers
+    ## as the full list of test_entries
+    test_leftovers = test_entries
+    ##
+    score_card , fuzzy_flags = \
+      prepare_offset_alignment_score_cards( test_filename ,
+                                            reference_ss ,
+                                            test_ss )
+    ##
+    confusion_matrix = {}
+    start_key = 'begin_pos_mapped'
+    end_key = 'end_pos_mapped'
+    scorable_attributes = []
+    scorable_engines = []
+    norm_synonyms = {}
+    ##
+    for fuzzy_flag in [ 'exact' , 'partial' , 'fully-contained' ]:
+        for reference_annot in reference_entries:
+            reference_matched , test_leftovers = \
+              scoring_metrics.reference_annot_comparison_runner( test_filename ,
+                                                                 confusion_matrix ,
+                                                                 score_card ,
+                                                                 reference_annot ,
+                                                                 test_entries ,
+                                                                 start_key , end_key ,
+                                                                 fuzzy_flag ,
+                                                                 scorable_attributes ,
+                                                                 scorable_engines ,
+                                                                 norm_synonyms )
+            ## exact and fully-contained fail this particular match but
+            ## still get to check that etude doesn't crash on the file
+            ## even those these matches come back as false.
+            assert ( fuzzy_flag in [ 'exact' , 'fully-contained' ] or reference_matched )
+
 
 #############################################
 ## Test augmenting dictionaries on disk

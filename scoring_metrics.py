@@ -374,9 +374,11 @@ def fully_contained_comparison_runner( reference_filename , confusion_matrix , s
             ## an invalid annotation
             continue
         if( ( test_start == 'SOF' or
-              test_start <= reference_start ) and
+              ( reference_start != 'SOF' and
+                test_start <= reference_start ) ) and
             ( test_end == 'EOF' or
-              reference_end <= test_end ) ):
+              ( reference_end != 'EOF' and
+                reference_end <= test_end ) ) ):
             matched_flag = True
             update_confusion_matrix( confusion_matrix , fuzzy_flag , reference_type , test_type )
             ## If the types match...
