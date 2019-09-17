@@ -405,6 +405,47 @@ def extract_annotations_brat_standoff( ingest_file ,
     return strict_starts
 
 
+def extract_annotations_semeval_pipes( ingest_file ,
+                                       offset_mapping ,
+                                       tag_name ,
+                                       optional_attributes = [] ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
+    strict_starts = {}
+    ##
+    try:
+        with open( ingest_file , 'r' ) as fp:
+            for line in fp:
+                line = line.rstrip()
+                cols = line.split( '|' )
+                ## TODO - we treat all discontinous spans as the maximal span
+                spans = cols[ 1 ].split( '-' )
+                begin_pos = spans[ 0 ]
+                begin_pos_mapped = map_position( offset_mapping , begin_pos , 1 )
+                end_pos = spans[ -1 ]
+                end_pos_mapped = map_position( offset_mapping , end_pos , -1 )
+                raw_text = ''
+                cui = cols[ 2 ]
+                new_entry = create_annotation_entry( begin_pos = begin_pos ,
+                                                     begin_pos_mapped = begin_pos_mapped ,
+                                                     end_pos = end_pos ,
+                                                     end_pos_mapped = end_pos_mapped ,
+                                                     raw_text = raw_text ,
+                                                     tag_name = tag_name )
+                new_entry[ 'CUI' ] = cui
+                ## TODO - parse optional attributes, attribute ordering
+                #for optional_attr in optional_attributes:
+                #    new_entry[ optional_attr ] = 'false'
+                if( begin_pos in strict_starts ):
+                    strict_starts[ begin_pos ].append( new_entry )
+                else:
+                    strict_starts[ begin_pos ] = [ new_entry ]
+    except IOError as e:
+        log.warning( 'I had a problem reading the pipe-delimited notation file ({}).\n\tReported Error:  {}'.format( ingest_file ,
+                                                                                                            e ) )
+        log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
+    return strict_starts
+
+
 def extract_annotations_plaintext( offset_mapping ,
                                    raw_content ,
                                    delimiter ,
@@ -573,6 +614,18 @@ def extract_plaintext( ingest_file , skip_chars ):
                                         skip_chars )
     return raw_text , offset_mapping
 
+def extract_piped_text( ingest_file , skip_chars ):
+    offset_mapping = {}
+    ##
+    with open( ingest_file , 'r' ) as fp:
+        raw_text = fp.read()
+    if( raw_text != None and skip_chars != None ):
+        text_body = raw_text.split( '\t||||\t' )[ -1 ]
+        offset_mapping = split_content( text_body ,
+                                        offset_mapping ,
+                                        skip_chars )
+    return raw_text , offset_mapping
+
 
 def align_tokens_on_whitespace( dictionary ,
                                 out_file ):
@@ -639,6 +692,21 @@ def extract_annotations( ingest_file ,
             except:
                 e = sys.exc_info()[0]
                 log.error( 'Uncaught exception in extract_plaintext:  {}'.format( e ) )
+        elif( 'format' in document_data and
+              document_data[ 'format' ] == '.pipe .text' ):
+            ## TODO use format to change filename according to pattern
+            ## document_data[ 'format' ]
+            piped_text_alternate_file = re.sub( '.pipe$' ,
+                                                '.text' ,
+                                                ingest_file )
+            try:
+                raw_content , offset_mapping = extract_piped_text( piped_text_alternate_file ,
+                                                                   skip_chars )
+            except NameError as e:
+                log.error( 'NameError in extract_piped_text:  {}'.format( e ) )
+            except:
+                e = sys.exc_info()[0]
+                log.error( 'Uncaught exception in extract_piped_text:  {}'.format( e ) )
         else:
             try:
                 raw_content , offset_mapping = extract_chars( ingest_file ,
@@ -672,6 +740,15 @@ def extract_annotations( ingest_file ,
                                                delimiter = \
                                                  pattern[ 'delimiter' ] ,
                                                tag_name = pattern[ 'type' ] )
+        elif( 'format' in document_data and
+              document_data[ 'format' ] == '.pipe .text' ):
+            new_annots = \
+                extract_annotations_semeval_pipes( ingest_file ,
+                                                   offset_mapping = offset_mapping ,
+                                                   tag_name = pattern[ 'type' ] ,
+                                                   optional_attributes = \
+                                                     pattern[ 'optional_attributes' ] )
+            
         elif( 'type_prefix' in pattern ):
             norm_eng = []
             if( 'normalization_engines' in document_data ):
