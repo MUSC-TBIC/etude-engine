@@ -210,9 +210,12 @@ def extract_brat_text_bound_annotation( ingest_file ,
                                         optional_attributes = [] ):
     ## Continuous:
     ## T1    Organization 0 43    International Business Machines Corporation
-    ## TODO - Discontinuous:
+    ## Discontinuous (0..23):
     ## T1	Location 0 5;16 23	North America
-    matches = re.match( r'^(T[0-9]+)\s+([^\s]+)\s+([0-9]+)\s+([0-9]+)\s+(.*)' ,
+    ## TODO - add flag to accommodate different scoring styles for
+    ##        discontinuous spans.  Current approach treats these
+    ##        spans as equivalent to the maximal span or all sub-spans.
+    matches = re.match( r'^(T[0-9]+)\s+([^\s]+)\s+([0-9]+)\s+([0-9]+;[0-9]+\s+)*([0-9]+)\s+(.*)' ,
                         annot_line )
     if( matches ):
         found_tag = matches.group( 2 )
@@ -221,9 +224,9 @@ def extract_brat_text_bound_annotation( ingest_file ,
         match_index = matches.group( 1 )
         begin_pos = matches.group( 3 )
         begin_pos_mapped = map_position( offset_mapping , begin_pos , 1 )
-        end_pos = matches.group( 4 )
+        end_pos = matches.group( 5 )
         end_pos_mapped = map_position( offset_mapping , end_pos , -1 )
-        raw_text = matches.group( 5 )
+        raw_text = matches.group( 6 )
         new_entry = create_annotation_entry( begin_pos = begin_pos ,
                                              begin_pos_mapped = begin_pos_mapped ,
                                              end_pos = end_pos ,
