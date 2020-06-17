@@ -560,6 +560,7 @@ def test_brat_text_bound_annotation_simple():
                                                                     line ,
                                                                     offset_mapping = {} ,
                                                                     tag_name = 'Organization' ,
+                                                                    line_type = 'Organization' ,
                                                                     optional_attributes = [] )
     assert( new_entry[ 'match_index' ] == 'T1' )
     assert( new_entry[ 'type' ] == 'Organization' )
@@ -573,6 +574,7 @@ def test_brat_text_bound_annotation_attributes_default_to_false():
                                                                     line ,
                                                                     offset_mapping = {} ,
                                                                     tag_name = 'Organization' ,
+                                                                    line_type = 'Organization' ,
                                                                     optional_attributes = [ 'Negated' ,
                                                                                             'Historical' ] )
     assert( new_entry[ 'Negated' ] == 'false' )
@@ -585,6 +587,7 @@ def test_brat_text_bound_annotation_offset_mapping_works():
                                                                     offset_mapping = { "0": "3" ,
                                                                                        "43": "42" } ,
                                                                     tag_name = 'Organization' ,
+                                                                    line_type = 'Organization' ,
                                                                     optional_attributes = [] )
     assert( new_entry[ 'begin_pos' ] == '0' )
     assert( new_entry[ 'begin_pos_mapped' ] == '3' )
@@ -597,20 +600,43 @@ def test_brat_text_bound_annotation_skip_other_tags():
                                                                     line ,
                                                                     offset_mapping = {} ,
                                                                     tag_name = 'Person' ,
+                                                                    line_type = 'Person' ,
                                                                     optional_attributes = [] )
     assert( new_entry == None )
 
-def test_brat_text_bound_annotation_discontinuous():
+def test_brat_text_bound_annotation_two_span_discontinuous():
     ## North and South America
     ## T1	Location 0 5;16 23	North America
     ## T2	Location 10 23	South America
     line = 'T1	Location 0 5;16 23	North America'
     new_entry = text_extraction.extract_brat_text_bound_annotation( 'test.ann' ,
                                                                     line ,
-                                                                    offset_mapping = {} ,
+                                                                    offset_mapping = { "0": "3" ,
+                                                                                       "23": "42" } ,
                                                                     tag_name = 'Location' ,
+                                                                    line_type = 'Location' ,
                                                                     optional_attributes = [] )
-    assert( new_entry == None )
+    assert( new_entry[ 'begin_pos' ] == '0' )
+    assert( new_entry[ 'begin_pos_mapped' ] == '3' )
+    assert( new_entry[ 'end_pos' ] == '23' )
+    assert( new_entry[ 'end_pos_mapped' ] == '42' )
+
+def test_brat_text_bound_annotation_three_span_discontinuous():
+    ## North and South America
+    ## T1	Location 0 5;16 23	North America
+    ## T2	Location 10 23	South America
+    line = 'T1	Location 0 5;8 12;16 23	North America'
+    new_entry = text_extraction.extract_brat_text_bound_annotation( 'test.ann' ,
+                                                                    line ,
+                                                                    offset_mapping = { "0": "3" ,
+                                                                                       "23": "42" } ,
+                                                                    tag_name = 'Location' ,
+                                                                    line_type = 'Location' ,
+                                                                    optional_attributes = [] )
+    assert( new_entry[ 'begin_pos' ] == '0' )
+    assert( new_entry[ 'begin_pos_mapped' ] == '3' )
+    assert( new_entry[ 'end_pos' ] == '23' )
+    assert( new_entry[ 'end_pos_mapped' ] == '42' )
 
 def test_brat_relation_binary():
     ## T3	Organization 33 41	Ericsson
@@ -872,7 +898,8 @@ def test_brat_standoff_extraction():
       text_extraction.extract_annotations_brat_standoff( ingest_file ,
                                                          offset_mapping = offset_mapping ,
                                                          type_prefix = 'T' ,
-                                                         tag_name = 'Organization' )
+                                                         tag_name = 'Organization' ,
+                                                         line_type = 'Organization' )
     ##
     assert strict_starts[ '0' ][ 0 ][ 'begin_pos' ] == '0'
     assert strict_starts[ '0' ][ 0 ][ 'end_pos' ] == '43'
@@ -898,6 +925,7 @@ def test_brat_standoff_extraction_with_attributes():
                                                          offset_mapping = offset_mapping ,
                                                          type_prefix = 'T' ,
                                                          tag_name = 'Problem' ,
+                                                         line_type = 'Problem' ,
                                                          optional_attributes = [ 'Conditional' ,
                                                                                  'Generic' ,
                                                                                  'Historical' ,
