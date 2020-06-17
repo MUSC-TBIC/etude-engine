@@ -683,7 +683,7 @@ def extract_annotations( ingest_file ,
             if( 'normalization_engines' in document_data ):
                 norm_eng = document_data[ 'normalization_engines' ]
             opt_attr = []
-            if( 'optional_attributes' in document_data ):
+            if( 'optional_attributes' in pattern ):
                 opt_attr = pattern[ 'optional_attributes' ]
             new_annots = \
                 extract_annotations_brat_standoff( ingest_file ,

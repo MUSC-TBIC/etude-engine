@@ -426,7 +426,7 @@ def extract_brat_patterns( annotations ,
             ## score key rather than short name.  This will give
             ## the option of checking for the key_value in files and
             ## if not, will check for the line_type in files.
-            if( key_value != 'Short Name' ): ##config.has_option( sect, 'Type Prefix')):
+            if( key_value != 'Short Name' ):
                 pattern_entry = dict( type = type_value ,
                                       line_type = config.get( sect ,
                                                               'Short Name') ,
