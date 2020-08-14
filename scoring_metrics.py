@@ -264,6 +264,85 @@ def exact_comparison_runner( reference_filename , confusion_matrix , score_card 
     return( matched_flag , test_leftovers )
 
 
+def start_comparison_runner( reference_filename , confusion_matrix , score_card , 
+                             reference_annot ,
+                             test_entries ,
+                             start_key , end_key ,
+                             fuzzy_flag ,
+                             scorable_attributes ,
+                             scorable_engines ,
+                             norm_synonyms ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
+    ## grab type and end position
+    reference_type , reference_start , reference_end = \
+      get_annotation_from_base_entry( reference_annot ,
+                                      start_key ,
+                                      end_key )
+    if( reference_type == None ):
+        ## If we couldn't extract a type, consider this
+        ## an invalid annotations    
+        return( False , test_entries )
+    ## Loop through all the test annotations
+    ## that haven't been matched yet
+    test_leftovers = []
+    matched_flag = False
+    for test_annot in test_entries:
+        ## TODO - nesting comparisons, multiple overlaps
+        if( matched_flag ):
+            test_leftovers.append( test_annot )
+            continue
+        ## grab type and end position
+        test_type , test_start , test_end = \
+          get_annotation_from_base_entry( test_annot ,
+                                          start_key ,
+                                          end_key )
+        if( test_type == None ):
+            ## If we couldn't extract a type, consider this
+            ## an invalid annotation
+            continue
+        if( reference_start == test_start or
+            ## TODO - the SOF guard isn't needed here.
+            ##        Need to research the best approach
+            ##        or data representation when we have
+            ##        the equivalent overrun prior to the
+            ##        start of a file as after the
+            ##        SOF (START OF FILE) indicator
+            ( reference_start != 'SOF' and
+              test_start != 'SOF' and
+              reference_start >= test_start - 1 and
+              reference_start <= test_start + 1 ) ):
+            matched_flag = True
+            update_confusion_matrix( confusion_matrix , fuzzy_flag , reference_type , test_type )
+            ## If the types match...
+            if( reference_type == test_type ):
+                ## ... and the end positions match, then we have a
+                ##     perfect match
+                update_score_card( 'TP' , score_card , fuzzy_flag ,
+                                   reference_filename , reference_start , reference_end ,
+                                   reference_type ,
+                                   ref_annot = reference_annot ,
+                                   test_annot = test_annot ,
+                                   scorable_attributes = scorable_attributes ,
+                                   scorable_engines = scorable_engines ,
+                                   norm_synonyms = norm_synonyms )
+            else:
+                update_score_card( 'FN' , score_card , fuzzy_flag ,
+                                   reference_filename , reference_start , reference_end ,
+                                   reference_type , 
+                                   ref_annot = reference_annot ,
+                                   test_annot = test_annot )
+                update_score_card( 'FP' , score_card , fuzzy_flag ,
+                                   reference_filename , test_start , test_end ,
+                                   test_type , 
+                                   ref_annot = reference_annot ,
+                                   test_annot = test_annot )
+        else:
+            test_leftovers.append( test_annot )
+    #########
+    log.debug( "Leaving '{}'".format( sys._getframe().f_code.co_name ) )
+    return( matched_flag , test_leftovers )
+
+
 def end_comparison_runner( reference_filename , confusion_matrix , score_card , 
                            reference_annot ,
                            test_entries ,
@@ -492,6 +571,19 @@ def reference_annot_comparison_runner( reference_filename , confusion_matrix , s
                                        scorable_engines ,
                                        norm_synonyms ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
+    ## Start offset matching is special and gets run alone
+    if( fuzzy_flag == 'start' ):
+        reference_matched, test_leftovers = start_comparison_runner( reference_filename ,
+                                                                     confusion_matrix ,
+                                                                     score_card , 
+                                                                     reference_annot ,
+                                                                     test_entries ,
+                                                                     start_key , end_key ,
+                                                                     fuzzy_flag ,
+                                                                     scorable_attributes ,
+                                                                     scorable_engines ,
+                                                                     norm_synonyms )
+        return( reference_matched , test_leftovers )
     ## End offset matching is special and gets run alone
     if( fuzzy_flag == 'end' ):
         reference_matched, test_leftovers = end_comparison_runner( reference_filename ,
