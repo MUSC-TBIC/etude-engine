@@ -1,3 +1,4 @@
+import os
 import sys
 import logging as log
 
@@ -70,7 +71,7 @@ unstructured data extraction.
     parser.add_argument( "--fuzzy-match-flags" , nargs = "+" ,
                          dest = 'fuzzy_flags' ,
                          default = [ 'exact' ] ,
-                         choices = [ 'exact' , 'fully-contained' , 'partial' , 'end' ] ,
+                         choices = [ 'exact' , 'fully-contained' , 'partial' , 'start' , 'end' ] ,
                          help = "List of strictness levels to use in matching offsets." )
 
     parser.add_argument( "-d" , "--delim" , 
@@ -263,6 +264,9 @@ def get_arguments( command_line_args ):
         ( args.reference_input is None or args.test_input is None ) ):
         parser.error( "Both --reference-input and --test-input are required for printing metrics and printing a confusion matrix." )
     ##
+    if( 'start' in args.fuzzy_flags and
+        len( args.fuzzy_flags ) > 1 ):
+        parser.error( "Using the fuzzy match flag 'start' is not compatible with other flags." )
     if( 'end' in args.fuzzy_flags and
         len( args.fuzzy_flags ) > 1 ):
         parser.error( "Using the fuzzy match flag 'end' is not compatible with other flags." )
@@ -530,6 +534,10 @@ def process_config( config_file ,
     document_data = {}
     config = configparser.ConfigParser()
     config.optionxform = str
+    if( not os.path.exists( config_file ) ):
+        log.error( 'Config file is missing or unreadable:  {}'.format( config_file ) )
+        log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
+        return namespaces , document_data , annotations
     try:
         config.read( config_file )
     except configparser.MissingSectionHeaderError as e:

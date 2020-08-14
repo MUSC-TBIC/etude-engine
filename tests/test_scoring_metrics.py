@@ -1130,10 +1130,10 @@ def prepare_evaluate_positions_offset_alignment( test_filename ):
     return reference_ss , test_ss
 
 
-def prepare_offset_alignment_score_cards( filename , reference_ss , test_ss ):
-    fuzzy_flags = [ 'exact' ,
-                    'fully-contained' ,
-                    'partial' ]
+def prepare_offset_alignment_score_cards( filename , reference_ss , test_ss ,
+                                          fuzzy_flags = [ 'exact' ,
+                                                          'fully-contained' ,
+                                                          'partial' ] ):
     confusion_matrix = {}
     score_card = scoring_metrics.new_score_card( fuzzy_flags = fuzzy_flags )
     for fuzzy_flag in fuzzy_flags:
@@ -1174,6 +1174,54 @@ def test_exact_match_overlap():
                             expected_score_card[ fuzzy_flag ] )
 
 
+def test_exact_match_overlap_start_fuzzy_flag():
+    test_filename = 'tests/data/offset_matching/the_doctors_age_reference.xmi'
+    reference_ss , test_ss = \
+        prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
+    assert reference_ss == test_ss
+    ##
+    system_score_card , fuzzy_flags = \
+      prepare_offset_alignment_score_cards( test_filename ,
+                                            reference_ss ,
+                                            test_ss ,
+                                            fuzzy_flags = [ 'start' ] )
+    expected_score_card = \
+      scoring_metrics.new_score_card( fuzzy_flags = fuzzy_flags )
+    ## start offset match
+    expected_score_card[ 'start' ].loc[ expected_score_card[ 'start' ].shape[ 0 ] ] = \
+      [ test_filename , 19 , 21 , 'Age' , None , 'TP' ]
+    expected_score_card[ 'start' ].loc[ expected_score_card[ 'start' ].shape[ 0 ] ] = \
+      [ test_filename , 32 , 48 , 'DateTime' , None , 'TP' ]
+    ##
+    for fuzzy_flag in fuzzy_flags:
+        assert_frame_equal( system_score_card[ fuzzy_flag ] ,
+                            expected_score_card[ fuzzy_flag ] )
+
+
+def test_exact_match_overlap_end_fuzzy_flag():
+    test_filename = 'tests/data/offset_matching/the_doctors_age_reference.xmi'
+    reference_ss , test_ss = \
+        prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
+    assert reference_ss == test_ss
+    ##
+    system_score_card , fuzzy_flags = \
+      prepare_offset_alignment_score_cards( test_filename ,
+                                            reference_ss ,
+                                            test_ss ,
+                                            fuzzy_flags = [ 'end' ] )
+    expected_score_card = \
+      scoring_metrics.new_score_card( fuzzy_flags = fuzzy_flags )
+    ## end offset match
+    expected_score_card[ 'end' ].loc[ expected_score_card[ 'end' ].shape[ 0 ] ] = \
+      [ test_filename , 19 , 21 , 'Age' , None , 'TP' ]
+    expected_score_card[ 'end' ].loc[ expected_score_card[ 'end' ].shape[ 0 ] ] = \
+      [ test_filename , 32 , 48 , 'DateTime' , None , 'TP' ]
+    ##
+    for fuzzy_flag in fuzzy_flags:
+        assert_frame_equal( system_score_card[ fuzzy_flag ] ,
+                            expected_score_card[ fuzzy_flag ] )
+
+
 def test_match_overlap_contained_on_both_sides():
     test_filename = 'tests/data/offset_matching/the_doctors_age_contained_on_both_sides.xmi'
     reference_ss , test_ss = \
@@ -1200,6 +1248,58 @@ def test_match_overlap_contained_on_both_sides():
       [ test_filename , 32 , 48 , 'DateTime' , None , 'TP' ]
     ## overlapping matches
     expected_score_card[ 'partial' ] = expected_score_card[ 'fully-contained' ]
+    ##
+    for fuzzy_flag in fuzzy_flags:
+        assert_frame_equal( system_score_card[ fuzzy_flag ] ,
+                            expected_score_card[ fuzzy_flag ] )
+
+
+def test_match_overlap_contained_on_both_sides_start_fuzzy_flag():
+    test_filename = 'tests/data/offset_matching/the_doctors_age_contained_on_both_sides.xmi'
+    reference_ss , test_ss = \
+        prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
+    assert reference_ss != test_ss
+    ##
+    system_score_card , fuzzy_flags = \
+      prepare_offset_alignment_score_cards( test_filename ,
+                                            reference_ss ,
+                                            test_ss ,
+                                            fuzzy_flags = [ 'start' ] )
+    expected_score_card = \
+      scoring_metrics.new_score_card( fuzzy_flags = fuzzy_flags )
+    ## start offset match
+    expected_score_card[ 'start' ].loc[ expected_score_card[ 'start' ].shape[ 0 ] ] = \
+      [ test_filename , 19 , 21 , 'Age' , None , 'TP' ]
+    expected_score_card[ 'start' ].loc[ expected_score_card[ 'start' ].shape[ 0 ] ] = \
+      [ test_filename , 32 , 48 , 'DateTime' , None , 'FN' ]
+    expected_score_card[ 'start' ].loc[ expected_score_card[ 'start' ].shape[ 0 ] ] = \
+      [ test_filename , 30 , 'EOF' , 'DateTime' , None , 'FP' ]
+    ##
+    for fuzzy_flag in fuzzy_flags:
+        assert_frame_equal( system_score_card[ fuzzy_flag ] ,
+                            expected_score_card[ fuzzy_flag ] )
+
+
+def test_match_overlap_contained_on_both_sides_end_fuzzy_flag():
+    test_filename = 'tests/data/offset_matching/the_doctors_age_contained_on_both_sides.xmi'
+    reference_ss , test_ss = \
+        prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
+    assert reference_ss != test_ss
+    ##
+    system_score_card , fuzzy_flags = \
+      prepare_offset_alignment_score_cards( test_filename ,
+                                            reference_ss ,
+                                            test_ss ,
+                                            fuzzy_flags = [ 'end' ] )
+    expected_score_card = \
+      scoring_metrics.new_score_card( fuzzy_flags = fuzzy_flags )
+    ## end offset match
+    expected_score_card[ 'end' ].loc[ expected_score_card[ 'end' ].shape[ 0 ] ] = \
+      [ test_filename , 19 , 21 , 'Age' , None , 'TP' ]
+    expected_score_card[ 'end' ].loc[ expected_score_card[ 'end' ].shape[ 0 ] ] = \
+      [ test_filename , 32 , 48 , 'DateTime' , None , 'FN' ]
+    expected_score_card[ 'end' ].loc[ expected_score_card[ 'end' ].shape[ 0 ] ] = \
+      [ test_filename , 30 , 'EOF' , 'DateTime' , None , 'FP' ]
     ##
     for fuzzy_flag in fuzzy_flags:
         assert_frame_equal( system_score_card[ fuzzy_flag ] ,
@@ -1238,6 +1338,56 @@ def test_match_overlap_contained_on_left():
                             expected_score_card[ fuzzy_flag ] )
 
 
+def test_match_overlap_contained_on_left_start_fuzzy_flag():
+    test_filename = 'tests/data/offset_matching/the_doctors_age_contained_on_left.xmi'
+    reference_ss , test_ss = \
+        prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
+    assert reference_ss != test_ss
+    ##
+    system_score_card , fuzzy_flags = \
+      prepare_offset_alignment_score_cards( test_filename ,
+                                            reference_ss ,
+                                            test_ss ,
+                                            fuzzy_flags = [ 'start' ] )
+    expected_score_card = \
+      scoring_metrics.new_score_card( fuzzy_flags = fuzzy_flags )
+    ## start offset match
+    expected_score_card[ 'start' ].loc[ expected_score_card[ 'start' ].shape[ 0 ] ] = \
+      [ test_filename , 19 , 21 , 'Age' , None , 'TP' ]
+    expected_score_card[ 'start' ].loc[ expected_score_card[ 'start' ].shape[ 0 ] ] = \
+      [ test_filename , 32 , 48 , 'DateTime' , None , 'FN' ]
+    expected_score_card[ 'start' ].loc[ expected_score_card[ 'start' ].shape[ 0 ] ] = \
+      [ test_filename , 30 , 48 , 'DateTime' , None , 'FP' ]
+    ##
+    for fuzzy_flag in fuzzy_flags:
+        assert_frame_equal( system_score_card[ fuzzy_flag ] ,
+                            expected_score_card[ fuzzy_flag ] )
+
+
+def test_match_overlap_contained_on_left_end_fuzzy_flag():
+    test_filename = 'tests/data/offset_matching/the_doctors_age_contained_on_left.xmi'
+    reference_ss , test_ss = \
+        prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
+    assert reference_ss != test_ss
+    ##
+    system_score_card , fuzzy_flags = \
+      prepare_offset_alignment_score_cards( test_filename ,
+                                            reference_ss ,
+                                            test_ss ,
+                                            fuzzy_flags = [ 'end' ] )
+    expected_score_card = \
+      scoring_metrics.new_score_card( fuzzy_flags = fuzzy_flags )
+    ## end offset match
+    expected_score_card[ 'end' ].loc[ expected_score_card[ 'end' ].shape[ 0 ] ] = \
+      [ test_filename , 19 , 21 , 'Age' , None , 'TP' ]
+    expected_score_card[ 'end' ].loc[ expected_score_card[ 'end' ].shape[ 0 ] ] = \
+      [ test_filename , 32 , 48 , 'DateTime' , None , 'TP' ]
+    ##
+    for fuzzy_flag in fuzzy_flags:
+        assert_frame_equal( system_score_card[ fuzzy_flag ] ,
+                            expected_score_card[ fuzzy_flag ] )
+
+
 def test_match_overlap_contained_on_right():
     test_filename = 'tests/data/offset_matching/the_doctors_age_contained_on_right.xmi'
     reference_ss , test_ss = \
@@ -1264,6 +1414,56 @@ def test_match_overlap_contained_on_right():
       [ test_filename , 32 , 48 , 'DateTime' , None , 'TP' ]
     ## overlapping matches
     expected_score_card[ 'partial' ] = expected_score_card[ 'fully-contained' ]
+    ##
+    for fuzzy_flag in fuzzy_flags:
+        assert_frame_equal( system_score_card[ fuzzy_flag ] ,
+                            expected_score_card[ fuzzy_flag ] )
+
+
+def test_match_overlap_contained_on_right_start_fuzzy_flag():
+    test_filename = 'tests/data/offset_matching/the_doctors_age_contained_on_right.xmi'
+    reference_ss , test_ss = \
+        prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
+    assert reference_ss != test_ss
+    ##
+    system_score_card , fuzzy_flags = \
+      prepare_offset_alignment_score_cards( test_filename ,
+                                            reference_ss ,
+                                            test_ss ,
+                                            fuzzy_flags = [ 'start' ] )
+    expected_score_card = \
+      scoring_metrics.new_score_card( fuzzy_flags = fuzzy_flags )
+    ## start offset match
+    expected_score_card[ 'start' ].loc[ expected_score_card[ 'start' ].shape[ 0 ] ] = \
+      [ test_filename , 19 , 21 , 'Age' , None , 'TP' ]
+    expected_score_card[ 'start' ].loc[ expected_score_card[ 'start' ].shape[ 0 ] ] = \
+      [ test_filename , 32 , 48 , 'DateTime' , None , 'TP' ]
+    ##
+    for fuzzy_flag in fuzzy_flags:
+        assert_frame_equal( system_score_card[ fuzzy_flag ] ,
+                            expected_score_card[ fuzzy_flag ] )
+
+
+def test_match_overlap_contained_on_right_end_fuzzy_flag():
+    test_filename = 'tests/data/offset_matching/the_doctors_age_contained_on_right.xmi'
+    reference_ss , test_ss = \
+        prepare_evaluate_positions_offset_alignment( test_filename = test_filename )
+    assert reference_ss != test_ss
+    ##
+    system_score_card , fuzzy_flags = \
+      prepare_offset_alignment_score_cards( test_filename ,
+                                            reference_ss ,
+                                            test_ss ,
+                                            fuzzy_flags = [ 'end' ] )
+    expected_score_card = \
+      scoring_metrics.new_score_card( fuzzy_flags = fuzzy_flags )
+    ## end offset match
+    expected_score_card[ 'end' ].loc[ expected_score_card[ 'end' ].shape[ 0 ] ] = \
+      [ test_filename , 19 , 21 , 'Age' , None , 'TP' ]
+    expected_score_card[ 'end' ].loc[ expected_score_card[ 'end' ].shape[ 0 ] ] = \
+      [ test_filename , 32 , 48 , 'DateTime' , None , 'FN' ]
+    expected_score_card[ 'end' ].loc[ expected_score_card[ 'end' ].shape[ 0 ] ] = \
+      [ test_filename , 32 , 'EOF' , 'DateTime' , None , 'FP' ]
     ##
     for fuzzy_flag in fuzzy_flags:
         assert_frame_equal( system_score_card[ fuzzy_flag ] ,
