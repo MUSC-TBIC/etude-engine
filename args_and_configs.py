@@ -1,3 +1,4 @@
+import os
 import sys
 import logging as log
 
@@ -70,7 +71,7 @@ unstructured data extraction.
     parser.add_argument( "--fuzzy-match-flags" , nargs = "+" ,
                          dest = 'fuzzy_flags' ,
                          default = [ 'exact' ] ,
-                         choices = [ 'exact' , 'fully-contained' , 'partial' , 'end' ] ,
+                         choices = [ 'exact' , 'fully-contained' , 'partial' , 'start' , 'end' ] ,
                          help = "List of strictness levels to use in matching offsets." )
 
     parser.add_argument( "-d" , "--delim" , 
@@ -263,6 +264,9 @@ def get_arguments( command_line_args ):
         ( args.reference_input is None or args.test_input is None ) ):
         parser.error( "Both --reference-input and --test-input are required for printing metrics and printing a confusion matrix." )
     ##
+    if( 'start' in args.fuzzy_flags and
+        len( args.fuzzy_flags ) > 1 ):
+        parser.error( "Using the fuzzy match flag 'start' is not compatible with other flags." )
     if( 'end' in args.fuzzy_flags and
         len( args.fuzzy_flags ) > 1 ):
         parser.error( "Using the fuzzy match flag 'end' is not compatible with other flags." )
@@ -411,7 +415,54 @@ def extract_brat_patterns( annotations ,
                            display_name ,
                            key_value ,
                            score_values ,
+                           collapse_all_patterns = False ,
                            verbose = False ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
+    ## Loop through all the provided score_values to see if any
+    ## provided values match the currently extracted value
+    for score_value in score_values:            
+        if( re.search( score_value , key_value ) ):
+            if( collapse_all_patterns ):
+                type_value = 'All Patterns'
+            else:
+                type_value = key_value
+            ## Used for text bound annotation if using a different
+            ## score key rather than short name.  This will give
+            ## the option of checking for the key_value in files and
+            ## if not, will check for the line_type in files.
+            if( key_value != 'Short Name' ):
+                pattern_entry = dict( type = type_value ,
+                                      line_type = config.get( sect ,
+                                                              'Short Name') ,
+                                      long_name = sect.strip() ,
+                                      type_prefix = config.get( sect ,
+                                                                'Type Prefix') ,
+                                      short_name = config.get( sect ,
+                                                               'Short Name') ,
+                )
+            else:
+                pattern_entry = dict( type = type_value ,
+                                      long_name = sect.strip() ,
+                                      type_prefix = config.get( sect ,
+                                                                'Type Prefix' ) ,
+                                      display_name = display_name ,
+                                      short_name = config.get( sect ,
+                                                               'Short Name' ) )       
+            if( config.has_option( sect , 'Opt Attr' ) ):
+                optional_attributes = config.get( sect , 'Opt Attr' )
+                pattern_entry[ 'optional_attributes' ] = \
+                  optional_attributes.split( ',' )
+            annotations.append( pattern_entry )
+            break
+    log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
+
+
+def extract_semeval_patterns( annotations ,
+                              config , sect ,
+                              display_name ,
+                              key_value ,
+                              score_values ,
+                              verbose = False ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     ## Loop through all the provided score_values to see if any
     ## provided values match the currently extracted value
@@ -419,8 +470,6 @@ def extract_brat_patterns( annotations ,
         if( re.search( score_value , key_value ) ):
             pattern_entry = dict( type = key_value ,
                                   long_name = sect.strip() ,
-                                  type_prefix = config.get( sect ,
-                                                            'Type Prefix' ) ,
                                   display_name = display_name ,
                                   short_name = config.get( sect ,
                                                            'Short Name' ) )
@@ -440,11 +489,15 @@ def extract_patterns( annotations ,
                       collapse_all_patterns = False ,
                       verbose = False ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
+    ## Skip any entry missing the score_key we're interested in
+    if( not config.has_option( sect , score_key ) ):
+        log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
+        return
     if( collapse_all_patterns ):
         display_name = 'All Patterns'
     else:
         display_name = '{} ({})'.format( sect.strip() ,
-                                         config.get( sect , 'Short Name' ) )
+                                         config.get( sect , score_key ) )
     if( score_key == 'Long Name' or
         score_key == 'Section' ):
         key_value = sect.strip()
@@ -490,7 +543,15 @@ def extract_patterns( annotations ,
                                display_name ,
                                key_value ,
                                score_values ,
-                               verbose )        
+                               collapse_all_patterns ,
+                               verbose )
+    else:
+        extract_semeval_patterns( annotations ,
+                                  config , sect ,
+                                  display_name ,
+                                  key_value ,
+                                  score_values ,
+                                  verbose )
     log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
 
 
@@ -505,6 +566,10 @@ def process_config( config_file ,
     document_data = {}
     config = configparser.ConfigParser()
     config.optionxform = str
+    if( not os.path.exists( config_file ) ):
+        log.error( 'Config file is missing or unreadable:  {}'.format( config_file ) )
+        log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
+        return namespaces , document_data , annotations
     try:
         config.read( config_file )
     except configparser.MissingSectionHeaderError as e:

@@ -264,6 +264,85 @@ def exact_comparison_runner( reference_filename , confusion_matrix , score_card 
     return( matched_flag , test_leftovers )
 
 
+def start_comparison_runner( reference_filename , confusion_matrix , score_card , 
+                             reference_annot ,
+                             test_entries ,
+                             start_key , end_key ,
+                             fuzzy_flag ,
+                             scorable_attributes ,
+                             scorable_engines ,
+                             norm_synonyms ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
+    ## grab type and end position
+    reference_type , reference_start , reference_end = \
+      get_annotation_from_base_entry( reference_annot ,
+                                      start_key ,
+                                      end_key )
+    if( reference_type == None ):
+        ## If we couldn't extract a type, consider this
+        ## an invalid annotations    
+        return( False , test_entries )
+    ## Loop through all the test annotations
+    ## that haven't been matched yet
+    test_leftovers = []
+    matched_flag = False
+    for test_annot in test_entries:
+        ## TODO - nesting comparisons, multiple overlaps
+        if( matched_flag ):
+            test_leftovers.append( test_annot )
+            continue
+        ## grab type and end position
+        test_type , test_start , test_end = \
+          get_annotation_from_base_entry( test_annot ,
+                                          start_key ,
+                                          end_key )
+        if( test_type == None ):
+            ## If we couldn't extract a type, consider this
+            ## an invalid annotation
+            continue
+        if( reference_start == test_start or
+            ## TODO - the SOF guard isn't needed here.
+            ##        Need to research the best approach
+            ##        or data representation when we have
+            ##        the equivalent overrun prior to the
+            ##        start of a file as after the
+            ##        SOF (START OF FILE) indicator
+            ( reference_start != 'SOF' and
+              test_start != 'SOF' and
+              reference_start >= test_start - 1 and
+              reference_start <= test_start + 1 ) ):
+            matched_flag = True
+            update_confusion_matrix( confusion_matrix , fuzzy_flag , reference_type , test_type )
+            ## If the types match...
+            if( reference_type == test_type ):
+                ## ... and the end positions match, then we have a
+                ##     perfect match
+                update_score_card( 'TP' , score_card , fuzzy_flag ,
+                                   reference_filename , reference_start , reference_end ,
+                                   reference_type ,
+                                   ref_annot = reference_annot ,
+                                   test_annot = test_annot ,
+                                   scorable_attributes = scorable_attributes ,
+                                   scorable_engines = scorable_engines ,
+                                   norm_synonyms = norm_synonyms )
+            else:
+                update_score_card( 'FN' , score_card , fuzzy_flag ,
+                                   reference_filename , reference_start , reference_end ,
+                                   reference_type , 
+                                   ref_annot = reference_annot ,
+                                   test_annot = test_annot )
+                update_score_card( 'FP' , score_card , fuzzy_flag ,
+                                   reference_filename , test_start , test_end ,
+                                   test_type , 
+                                   ref_annot = reference_annot ,
+                                   test_annot = test_annot )
+        else:
+            test_leftovers.append( test_annot )
+    #########
+    log.debug( "Leaving '{}'".format( sys._getframe().f_code.co_name ) )
+    return( matched_flag , test_leftovers )
+
+
 def end_comparison_runner( reference_filename , confusion_matrix , score_card , 
                            reference_annot ,
                            test_entries ,
@@ -374,9 +453,11 @@ def fully_contained_comparison_runner( reference_filename , confusion_matrix , s
             ## an invalid annotation
             continue
         if( ( test_start == 'SOF' or
-              test_start <= reference_start ) and
+              ( reference_start != 'SOF' and
+                test_start <= reference_start ) ) and
             ( test_end == 'EOF' or
-              reference_end <= test_end ) ):
+              ( reference_end != 'EOF' and
+                reference_end <= test_end ) ) ):
             matched_flag = True
             update_confusion_matrix( confusion_matrix , fuzzy_flag , reference_type , test_type )
             ## If the types match...
@@ -490,6 +571,19 @@ def reference_annot_comparison_runner( reference_filename , confusion_matrix , s
                                        scorable_engines ,
                                        norm_synonyms ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
+    ## Start offset matching is special and gets run alone
+    if( fuzzy_flag == 'start' ):
+        reference_matched, test_leftovers = start_comparison_runner( reference_filename ,
+                                                                     confusion_matrix ,
+                                                                     score_card , 
+                                                                     reference_annot ,
+                                                                     test_entries ,
+                                                                     start_key , end_key ,
+                                                                     fuzzy_flag ,
+                                                                     scorable_attributes ,
+                                                                     scorable_engines ,
+                                                                     norm_synonyms )
+        return( reference_matched , test_leftovers )
     ## End offset matching is special and gets run alone
     if( fuzzy_flag == 'end' ):
         reference_matched, test_leftovers = end_comparison_runner( reference_filename ,
@@ -962,8 +1056,8 @@ def print_counts_summary( score_card , file_list ,
             if( args.reference_out == None ):
                 log.warning( 'I could not write the reference counts score_card to disk:  --write-score-cards set but no --reference-out set' )
             else:
-                score_card[ 'counts' ].to_csv( '{}/{}'.format( args.reference_out ,
-                                                               'counts_score_card.csv' ) ,
+                score_card[ 'counts' ].to_csv( os.path.join( args.reference_out ,
+                                                             'counts_score_card.csv' ) ,
                                                sep = '\t' ,
                                                encoding = 'utf-8' ,
                                                index = False )
@@ -971,8 +1065,8 @@ def print_counts_summary( score_card , file_list ,
             if( args.test_out == None ):
                 log.warning( 'I could not write the test counts score_card to disk:  --write-score-cards set but no --test-out set' )
             else:
-                score_card[ 'counts' ].to_csv( '{}/{}'.format( args.test_out ,
-                                                               'counts_score_card.csv' ) ,
+                score_card[ 'counts' ].to_csv( os.path.join( args.test_out ,
+                                                             'counts_score_card.csv' ) ,
                                                sep = '\t' ,
                                                encoding = 'utf-8' ,
                                                index = False )
@@ -1307,20 +1401,20 @@ def print_score_summary( score_card , file_mapping ,
             log.warning( 'I could not write the metrics score_card to disk:  --write-score-cards set but neither --reference-out nor --test-out set' )
         else:
             if( args.reference_out ):
-                score_card[ fuzzy_flag ].to_csv( '{}/{}{}{}{}'.format( args.reference_out ,
-                                                                       'metrics_' ,
-                                                                       fuzzy_flag ,
-                                                                       norm_engine ,
-                                                                       '_score_card.csv' ) ,
+                score_card[ fuzzy_flag ].to_csv( os.path.join( args.reference_out ,
+                                                               '{}{}{}{}'.format( 'metrics_' ,
+                                                                                  fuzzy_flag ,
+                                                                                  norm_engine ,
+                                                                                  '_score_card.csv' ) ) ,
                                                  sep = '\t' ,
                                                  encoding = 'utf-8' ,
                                                  index = False )
             if( args.test_out ):
-                score_card[ fuzzy_flag ].to_csv( '{}/{}{}{}{}'.format( args.test_out ,
-                                                                       'metrics_' ,
-                                                                       fuzzy_flag ,
-                                                                       norm_engine ,
-                                                                       '_score_card.csv' ) ,
+                score_card[ fuzzy_flag ].to_csv( os.path.join( args.test_out ,
+                                                               '{}{}{}{}'.format( 'metrics_' ,
+                                                                                  fuzzy_flag ,
+                                                                                  norm_engine ,
+                                                                                  '_score_card.csv' ) ) ,
                                                  sep = '\t' ,
                                                  encoding = 'utf-8' ,
                                                  index = False )
@@ -1412,8 +1506,8 @@ def print_score_summary( score_card , file_mapping ,
                         non_empty_metrics[ i ] += 1
                         file_aggregate_metrics[ i ] += metrics[ i ]
             if( args.reference_out ):
-                out_file = '{}/{}'.format( args.reference_out ,
-                                           filename )
+                out_file = os.path.join( args.reference_out ,
+                                         filename )
                 update_output_dictionary( out_file ,
                                           [ 'metrics' ,
                                             fuzzy_flag ,
@@ -1421,8 +1515,8 @@ def print_score_summary( score_card , file_mapping ,
                                           args.metrics_list ,
                                           metrics )
             if( args.test_out and file_mapping[ filename ] != None ):
-                out_file = '{}/{}'.format( args.test_out ,
-                                           file_mapping[ filename ] )
+                out_file = os.path.join( args.test_out ,
+                                         file_mapping[ filename ] )
                 update_output_dictionary( out_file ,
                                           [ 'metrics' ,
                                             fuzzy_flag ,
@@ -1447,8 +1541,8 @@ def print_score_summary( score_card , file_mapping ,
                                     args.print_metrics , args.csv_out ,
                                     args.pretty_print )
                 if( args.reference_out ):
-                    out_file = '{}/{}'.format( args.reference_out ,
-                                               filename )
+                    out_file = os.path.join( args.reference_out ,
+                                             filename )
                     update_output_dictionary( out_file ,
                                               [ 'metrics' ,
                                                 fuzzy_flag ,
@@ -1456,8 +1550,8 @@ def print_score_summary( score_card , file_mapping ,
                                               args.metrics_list ,
                                               metrics )
                 if( args.test_out and file_mapping[ filename ] != None ):
-                    out_file = '{}/{}'.format( args.test_out ,
-                                               file_mapping[ filename ] )
+                    out_file = os.path.join( args.test_out ,
+                                             file_mapping[ filename ] )
                     update_output_dictionary( out_file ,
                                               [ 'metrics' ,
                                                 fuzzy_flag ,
