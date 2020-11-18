@@ -454,6 +454,58 @@ def extract_annotations_semeval_pipes( ingest_file ,
     return strict_starts
 
 
+#############################################
+## 
+#############################################
+
+def extract_annotations_csv( csv_file ,
+                             delimiter ,
+                             tag_name ,
+                             begin_column = None ,
+                             end_column = None ,
+                             text_column = None ,
+                             optional_attributes = [] ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
+    found_annots = {}
+    strict_starts = {}
+    ##
+    with open( csv_file , 'r' ) as fp:
+        fp.readline()
+        for line in fp:
+            line = line.strip()
+            cols = line.split( delimiter )
+            begin_pos = cols[ 1 ]
+            begin_pos_mapped = begin_pos
+            end_pos = cols[ 2 ]
+            end_pos_mapped = end_pos
+            raw_text = cols[ 0 ]
+            new_entry = create_annotation_entry( begin_pos = begin_pos ,
+                                                 begin_pos_mapped = begin_pos_mapped ,
+                                                 end_pos = end_pos ,
+                                                 end_pos_mapped = end_pos_mapped ,
+                                                 raw_text = raw_text ,
+                                                 tag_name = tag_name )
+            ## TODO - do we need to sheild this in case an optional attribute
+            ##        doesn't exist in the annotation or does Python (and
+            ##        later etude engine code) handle a null correctly/safely?
+            for optional_attr in optional_attributes:
+                ## Empty negation columns appear to also mean 'affirmed'
+                if( optional_attr == 'affirmed' and
+                    cols[ 3 ] == '' ):
+                    new_entry[ optional_attr ] = "true"
+                elif( cols[ 3 ] == optional_attr ):
+                    new_entry[ optional_attr ] = "true"
+                else:
+                    new_entry[ optional_attr ] = "false"
+            ##
+            if( begin_pos in strict_starts ):
+                strict_starts[ begin_pos ].append( new_entry )
+            else:
+                strict_starts[ begin_pos ] = [ new_entry ]
+    ## 
+    return strict_starts
+
+
 def extract_annotations_plaintext( offset_mapping ,
                                    raw_content ,
                                    delimiter ,
@@ -701,6 +753,9 @@ def extract_annotations( ingest_file ,
                 e = sys.exc_info()[0]
                 log.error( 'Uncaught exception in extract_plaintext:  {}'.format( e ) )
         elif( 'format' in document_data and
+              document_data[ 'format' ] == 'csv' ):
+            1 ## no-op for now.  TODO - make this function more flexible
+        elif( 'format' in document_data and
               document_data[ 'format' ] == '.pipe .text' ):
             ## TODO use format to change filename according to pattern
             ## document_data[ 'format' ]
@@ -742,12 +797,21 @@ def extract_annotations( ingest_file ,
     for pattern in patterns:
         new_annots = None
         if( 'delimiter' in pattern ):
-            new_annots = \
-                extract_annotations_plaintext( offset_mapping = offset_mapping ,
-                                               raw_content = raw_content ,
-                                               delimiter = \
-                                                 pattern[ 'delimiter' ] ,
-                                               tag_name = pattern[ 'type' ] )
+            if( pattern[ 'delimiter' ] == ',' ):
+                new_annots = \
+                    extract_annotations_csv( csv_file = ingest_file ,
+                                             delimiter = \
+                                               pattern[ 'delimiter' ] ,
+                                             tag_name = pattern[ 'type' ] ,
+                                             optional_attributes = \
+                                               pattern[ 'optional_attributes' ] )
+            else:
+                new_annots = \
+                    extract_annotations_plaintext( offset_mapping = offset_mapping ,
+                                                   raw_content = raw_content ,
+                                                   delimiter = \
+                                                   pattern[ 'delimiter' ] ,
+                                                   tag_name = pattern[ 'type' ] )
         elif( 'format' in document_data and
               document_data[ 'format' ] == '.pipe .text' ):
             new_annots = \
