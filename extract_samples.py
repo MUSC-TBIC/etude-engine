@@ -50,6 +50,11 @@ unstructured data extraction.
                          dest = 'right_margin' ,
                          help = "Characters to the right of the annotation to include" )
     
+    parser.add_argument( '--quote-strings' , default = False ,
+                         dest = 'quote_strings_flag' ,
+                         action = "store_true" ,
+                         help = "Quote strings in output" )
+    
     ##
     return parser
 
@@ -101,8 +106,14 @@ if __name__ == "__main__":
             line = line.rstrip()
             cols = re.split( r'\t' , line )
             reference_filename = cols[ 0 ]
-            begin_offset_mapped = int( cols[ 1 ] )
-            end_offset_mapped = int( cols[ 2 ] )
+            try:
+                begin_offset_mapped = int( cols[ 1 ] )
+            except ValueError:
+                begin_offset_mapped = cols[ 1 ]
+            try:
+                end_offset_mapped = int( cols[ 2 ] )
+            except ValueError:
+                end_offset_mapped = cols[ 2 ]
             type_str = cols[ 3 ]
             pivot_str = cols[ 4 ]
             score_type = cols[ 5 ]
@@ -125,9 +136,15 @@ if __name__ == "__main__":
                         if( d[ 'offset_mapping' ][ key ] is not None ):
                             offset_mapping[ int( d[ 'offset_mapping' ][ key ] ) ] = int( key )
             if( note_text is not None ):
-                begin_offset = offset_mapping[ int( begin_offset_mapped ) ]
-                end_offset = min( note_max ,
-                                  offset_mapping[ int( end_offset_mapped ) ] + 1 )
+                try:
+                    begin_offset = offset_mapping[ int( begin_offset_mapped ) ]
+                except ValueError:
+                    begin_offset = 0
+                try:
+                    end_offset = min( note_max ,
+                                      offset_mapping[ int( end_offset_mapped ) ] + 1 )
+                except ValueError:
+                    end_offset = note_max
                 target = note_text[ begin_offset:end_offset ]
                 target = re.sub( '[\r\n]+' , ' ' , target )
                 left_begin = max( 0 , begin_offset - args.left_margin )
@@ -138,11 +155,21 @@ if __name__ == "__main__":
                 right_context = note_text[ end_offset:right_end ]
                 right_context = re.sub( '[\r\n]+' , ' ' , right_context )
                 right_context = right_context.rjust( args.right_margin )
-                ##    
-                print( '{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}'.format( target_filename ,
-                                                                begin_offset , end_offset ,
-                                                                type_str ,
-                                                                score_type ,
-                                                                left_context ,
-                                                                target ,
-                                                                right_context ) )
+                ##
+                if( args.quote_strings_flag ):
+                    print( '"{}"\t{}\t{}\t"{}"\t"{}"\t"{}"\t"{}"\t"{}"'.format( target_filename ,
+                                                                                begin_offset ,
+                                                                                end_offset ,
+                                                                                type_str ,
+                                                                                score_type ,
+                                                                                left_context ,
+                                                                                target ,
+                                                                                right_context ) )
+                else:
+                    print( '{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}'.format( target_filename ,
+                                                                    begin_offset , end_offset ,
+                                                                    type_str ,
+                                                                    score_type ,
+                                                                    left_context ,
+                                                                    target ,
+                                                                    right_context ) )
