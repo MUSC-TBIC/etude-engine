@@ -399,13 +399,26 @@ def extract_delimited_patterns( annotations ,
     ## provided values match the currently extracted value
     for score_value in score_values:
         if( re.search( score_value , key_value ) ):
-            annotations.append( dict( type = key_value ,
-                                      long_name = sect.strip() ,
-                                      delimiter = config.get( sect ,
-                                                              'Delimiter' ) ,
-                                      display_name = display_name ,
-                                      short_name = config.get( sect ,
-                                                               'Short Name' ) ) )
+            pattern_entry = dict( type = key_value ,
+                                  long_name = sect.strip() ,
+                                  delimiter = config.get( sect ,
+                                                          'Delimiter' ) ,
+                                  display_name = display_name ,
+                                  short_name = config.get( sect ,
+                                                           'Short Name' ) )
+            if( config.has_option( sect , 'Opt Col' ) ):
+                ## TODO - hard-coded for special CSV files
+                pattern_entry[ 'optional_attributes' ] = \
+                  [ 'affirmed' , 'negated' , 'possible' ]
+
+            if( config.get( sect , 'Delimiter' ) == "," ):
+                pattern_entry[ 'begin_attr' ] = config.get( sect ,
+                                                            'Begin Col' ) ,
+                pattern_entry[ 'end_attr' ] = config.get( sect ,
+                                                          'End Col' ) ,
+                ## TODO - support span column
+                ## pattern_entry[ '' ] = config.get( sect , 'Text Col' )                
+            annotations.append( pattern_entry )
             break
     log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
 
