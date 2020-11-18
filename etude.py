@@ -760,6 +760,12 @@ if __name__ == "__main__":
                                file_suffix = args.file_suffix )
             except NameError as e:
                 log.error( 'NameError in score_ref_set:  {}'.format( e ) )
+            except IndexError as e:
+                log.error( 'IndexError in score_ref_set:  {}'.format( e ) )
+            except KeyError as e:
+                log.error( 'KeyError in score_ref_set:  {}'.format( e ) )
+            except ValueError as e:
+                log.error( 'ValueError in score_ref_set:  {}'.format( e ) )
             except TypeError as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 log.error( 'TypeError in score_ref_set ({}):  {}'.format( exc_tb.tb_lineno , e ) )

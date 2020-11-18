@@ -309,6 +309,8 @@ def start_comparison_runner( reference_filename , confusion_matrix , score_card 
             ##        SOF (START OF FILE) indicator
             ( reference_start != 'SOF' and
               test_start != 'SOF' and
+              reference_start != 'EOF' and
+              test_start != 'EOF' and
               reference_start >= test_start - 1 and
               reference_start <= test_start + 1 ) ):
             matched_flag = True
@@ -380,7 +382,9 @@ def end_comparison_runner( reference_filename , confusion_matrix , score_card ,
             ## an invalid annotation
             continue
         if( reference_end == test_end or
-            ( reference_end != 'EOF' and
+            ( reference_end != 'SOF' and
+              test_end != 'SOF' and
+              reference_end != 'EOF' and
               test_end != 'EOF' and
               reference_end >= test_end - 1 and
               reference_end <= test_end + 1 ) ):
