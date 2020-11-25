@@ -3,6 +3,7 @@ import logging as log
 
 import os
 import json
+from csv import DictReader
 from lxml import etree as ET
 import re
 
@@ -470,15 +471,13 @@ def extract_annotations_csv( csv_file ,
     strict_starts = {}
     ##
     with open( csv_file , 'r' ) as fp:
-        fp.readline()
-        for line in fp:
-            line = line.strip()
-            cols = line.split( delimiter )
-            begin_pos = cols[ 1 ]
+        csv_dict_reader = DictReader( fp )
+        for cols in csv_dict_reader:
+            begin_pos = cols[ 'START' ]
             begin_pos_mapped = begin_pos
-            end_pos = cols[ 2 ]
+            end_pos = cols[ 'END' ]
             end_pos_mapped = end_pos
-            raw_text = cols[ 0 ]
+            raw_text = cols[ 'SPAN' ]
             new_entry = create_annotation_entry( begin_pos = begin_pos ,
                                                  begin_pos_mapped = begin_pos_mapped ,
                                                  end_pos = end_pos ,
@@ -491,9 +490,9 @@ def extract_annotations_csv( csv_file ,
             for optional_attr in optional_attributes:
                 ## Empty negation columns appear to also mean 'affirmed'
                 if( optional_attr == 'affirmed' and
-                    cols[ 3 ] == '' ):
+                    cols[ 'NEGATION' ] == '' ):
                     new_entry[ optional_attr ] = "true"
-                elif( cols[ 3 ] == optional_attr ):
+                elif( cols[ 'NEGATION' ] == optional_attr ):
                     new_entry[ optional_attr ] = "true"
                 else:
                     new_entry[ optional_attr ] = "false"
