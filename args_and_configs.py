@@ -284,6 +284,9 @@ def extract_namespaces( namespaces ,
 
 def extract_document_data( document_data ,
                            config , sect ):
+    """
+    Add handling for any special document-level data fields
+    """
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     if( config.has_option( sect , 'Format' ) ):
         document_data[ 'format' ] = config.get( sect , 'Format' )
@@ -405,7 +408,8 @@ def extract_delimited_patterns( annotations ,
                                                           'Delimiter' ) ,
                                   display_name = display_name ,
                                   short_name = config.get( sect ,
-                                                           'Short Name' ) )
+                                                           'Short Name' ) ,
+                                  optional_attributes = [] )
             if( config.has_option( sect , 'Opt Col' ) ):
                 ## TODO - hard-coded for special CSV files
                 pattern_entry[ 'optional_attributes' ] = \
@@ -452,7 +456,7 @@ def extract_brat_patterns( annotations ,
                                                                 'Type Prefix') ,
                                       short_name = config.get( sect ,
                                                                'Short Name') ,
-                )
+                                      optional_attributes = [] )
             else:
                 pattern_entry = dict( type = type_value ,
                                       long_name = sect.strip() ,
@@ -460,7 +464,8 @@ def extract_brat_patterns( annotations ,
                                                                 'Type Prefix' ) ,
                                       display_name = display_name ,
                                       short_name = config.get( sect ,
-                                                               'Short Name' ) )       
+                                                               'Short Name' ) ,
+                                      optional_attributes = [] )
             if( config.has_option( sect , 'Opt Attr' ) ):
                 optional_attributes = config.get( sect , 'Opt Attr' )
                 pattern_entry[ 'optional_attributes' ] = \
@@ -485,7 +490,8 @@ def extract_semeval_patterns( annotations ,
                                   long_name = sect.strip() ,
                                   display_name = display_name ,
                                   short_name = config.get( sect ,
-                                                           'Short Name' ) )
+                                                           'Short Name' ) ,
+                                  optional_attributes = [] )
             if( config.has_option( sect , 'Opt Attr' ) ):
                 optional_attributes = config.get( sect , 'Opt Attr' )
                 pattern_entry[ 'optional_attributes' ] = \
@@ -501,6 +507,10 @@ def extract_patterns( annotations ,
                       score_values ,
                       collapse_all_patterns = False ,
                       verbose = False ):
+    """Iterates over each config section not handled by
+    extract_namespaces() or extract_document_data() and pulls out the
+    pattern-level configuration details.
+    """
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     ## Skip any entry missing the score_key we're interested in
     if( not config.has_option( sect , score_key ) ):

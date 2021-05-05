@@ -505,6 +505,50 @@ def extract_annotations_csv( csv_file ,
     return strict_starts
 
 
+def extract_annotations_tsv( tsv_file ,
+                             raw_content ,
+                             offset_mapping ,
+                             tag_name ,
+                             optional_attributes = [] ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
+    found_annots = {}
+    strict_starts = {}
+    ## TODO - I re-used this bit from
+    ## extract_annotations_plaintext(). Is there a reason to do this
+    ## rather than direct string positional extraction?  I'm concerned
+    ## that there may be a mutli-char bug lurking in either this
+    ## choice of the other choice.  Hmmm.
+    list_of_chars = list( raw_content )
+    ##
+    with open( tsv_file , 'r' ) as fp:
+        tsv_dict_reader = DictReader( fp ,
+                                      delimiter = '\t' ,
+                                      fieldnames = [ 'index' ,
+                                                     'start' ,
+                                                     'end' ] )
+        for cols in tsv_dict_reader:
+            if( cols[ 'end' ] is None ):
+                continue
+            begin_pos = cols[ 'start' ]
+            begin_pos_mapped = map_position( offset_mapping , begin_pos , 1 )
+            end_pos = cols[ 'end' ]
+            end_pos_mapped = map_position( offset_mapping , end_pos , -1 )
+            raw_text = ''.join( list_of_chars[ int( begin_pos ):int( end_pos ) ] )
+            new_entry = create_annotation_entry( begin_pos = begin_pos ,
+                                                 begin_pos_mapped = begin_pos_mapped ,
+                                                 end_pos = end_pos ,
+                                                 end_pos_mapped = end_pos_mapped ,
+                                                 raw_text = raw_text ,
+                                                 tag_name = tag_name )
+            ##
+            if( begin_pos in strict_starts ):
+                strict_starts[ begin_pos ].append( new_entry )
+            else:
+                strict_starts[ begin_pos ] = [ new_entry ]
+    ## 
+    return strict_starts
+
+
 def extract_annotations_plaintext( offset_mapping ,
                                    raw_content ,
                                    delimiter ,
@@ -739,11 +783,11 @@ def extract_annotations( ingest_file ,
                 e = sys.exc_info()[0]
                 log.error( 'Uncaught exception in extract_plaintext:  {}'.format( e ) )
         elif( 'format' in document_data and
-              document_data[ 'format' ] == '.ann .txt' ):
-            ## TODO use format to change filename according to pattern
-            ## document_data[ 'format' ]
-            plaintext_alternate_file = re.sub( '.ann$' ,
-                                               '.txt' ,
+              ( document_data[ 'format' ] == '.ann .txt' or
+                document_data[ 'format' ] == '.phi .text' ) ):
+            annot_suffix , txt_suffix = document_data[ 'format' ].split( ' ' )
+            plaintext_alternate_file = re.sub( '{}$'.format( annot_suffix ) ,
+                                               txt_suffix ,
                                                ingest_file )
             try:
                 raw_content , offset_mapping = extract_plaintext( plaintext_alternate_file ,
@@ -801,6 +845,14 @@ def extract_annotations( ingest_file ,
                     extract_annotations_csv( csv_file = ingest_file ,
                                              delimiter = \
                                                pattern[ 'delimiter' ] ,
+                                             tag_name = pattern[ 'type' ] ,
+                                             optional_attributes = \
+                                               pattern[ 'optional_attributes' ] )
+            elif( pattern[ 'delimiter' ] == '\\t' ):
+                new_annots = \
+                    extract_annotations_tsv( tsv_file = ingest_file ,
+                                             raw_content = raw_content ,
+                                             offset_mapping = offset_mapping ,
                                              tag_name = pattern[ 'type' ] ,
                                              optional_attributes = \
                                                pattern[ 'optional_attributes' ] )
