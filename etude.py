@@ -49,6 +49,8 @@ def count_ref_set( this_ns , this_dd , this_patterns ,
                                                    document_data = this_dd ,
                                                    patterns = this_patterns ,
                                                    out_file = None )
+        except KeyError as e:
+            log.error( 'KeyError exception in extract_annotations:  {}'.format( e ) )
         except NameError as e:
             log.error( 'NameError exception in extract_annotations:  {}'.format( e ) )
         except TypeError as e:
