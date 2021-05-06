@@ -301,6 +301,9 @@ def extract_document_data( document_data ,
         else:
             document_data[ 'cdata_xpath' ] = config.get( sect ,
                                                          'Content XPath' )
+    elif( config.has_option( sect , 'Content JSONPath' ) ):
+        document_data[ 'content_jsonpath' ] = config.get( sect ,
+                                                          'Content JSONPath' )
     if( config.has_option( sect , 'Normalization Engines' ) ):
         engines_string = config.get( sect , 'Normalization Engines' )
         engines_split = engines_string.split( ',' )
@@ -501,6 +504,42 @@ def extract_semeval_patterns( annotations ,
     log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
 
 
+def extract_json_patterns( annotations ,
+                           config , sect ,
+                           display_name ,
+                           key_value ,
+                           score_values ,
+                           collapse_all_patterns = False ,
+                           verbose = False ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
+    ## Loop through all the provided score_values to see if any
+    ## provided values match the currently extracted value
+    for score_value in score_values:
+        if( re.search( score_value , key_value ) ):
+            if( collapse_all_patterns ):
+                type_value = 'All Patterns'
+            else:
+                type_value = key_value
+            pattern_entry = dict( type = type_value ,
+                                  long_name = sect.strip() ,
+                                  jsonpath = config.get( sect , 'JSONPath' ) ,
+                                  display_name = display_name ,
+                                  short_name = config.get( sect ,
+                                                           'Short Name' ) ,
+                                  begin_attr = config.get( sect ,
+                                                           'Begin Attr' ) ,
+                                  end_attr = config.get( sect ,
+                                                         'End Attr' ) ,
+                                  optional_attributes = [] )
+            if( config.has_option( sect , 'Opt Attr' ) ):
+                optional_attributes = config.get( sect , 'Opt Attr' )
+                pattern_entry[ 'optional_attributes' ] = \
+                  optional_attributes.split( ',' )
+            annotations.append( pattern_entry )
+            break
+    log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
+
+
 def extract_patterns( annotations ,
                       config , sect ,
                       score_key ,
@@ -568,6 +607,14 @@ def extract_patterns( annotations ,
                                score_values ,
                                collapse_all_patterns ,
                                verbose )
+    elif( config.has_option( sect , 'JSONPath' ) ):
+        extract_json_patterns( annotations ,
+                               config , sect ,
+                               display_name ,
+                               key_value ,
+                               score_values ,
+                               collapse_all_patterns ,
+                               verbose )        
     else:
         extract_semeval_patterns( annotations ,
                                   config , sect ,
