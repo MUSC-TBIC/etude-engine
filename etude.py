@@ -49,6 +49,8 @@ def count_ref_set( this_ns , this_dd , this_patterns ,
                                                    document_data = this_dd ,
                                                    patterns = this_patterns ,
                                                    out_file = None )
+        except KeyError as e:
+            log.error( 'KeyError exception in extract_annotations:  {}'.format( e ) )
         except NameError as e:
             log.error( 'NameError exception in extract_annotations:  {}'.format( e ) )
         except TypeError as e:
@@ -614,6 +616,8 @@ if __name__ == "__main__":
                                                score_values = args.score_values ,
                                                collapse_all_patterns = args.collapse_all_patterns ,
                                                verbose = args.verbose )
+        except NameError as e:
+            log.error( 'NameError in process_config for system output config:  {}'.format( e ) )
         except:
             e = sys.exc_info()[0]
             log.error( 'Uncaught exception in process_config for system output config:  {}'.format( e ) )
@@ -623,7 +627,8 @@ if __name__ == "__main__":
     if( args.reference_input and args.test_input ):
         try:
             reference_patterns , test_patterns = \
-              args_and_configs.align_patterns( reference_patterns , test_patterns )
+              args_and_configs.align_patterns( reference_patterns , test_patterns ,
+                                               collapse_all_patterns = args.collapse_all_patterns )
             if( len( reference_patterns ) == 0 ):
                 log.error( 'Zero annotation patterns found in reference config after filtering against system output config.' )
                 exit( 1 )

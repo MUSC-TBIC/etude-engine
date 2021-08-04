@@ -203,6 +203,59 @@ def extract_annotations_xml_spanless( ingest_file ,
     return strict_starts
 
 
+#############################################
+## 
+#############################################
+
+def extract_annotations_json( ingest_file ,
+                              raw_content ,
+                              offset_mapping ,
+                              annotation_path ,
+                              tag_name ,
+                              begin_attribute = None ,
+                              end_attribute = None ,
+                              optional_attributes = [] ,
+                              normalization_engines = [] ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
+    found_annots = {}
+    strict_starts = {}
+    ##
+    with open( ingest_file , 'r' ) as fp:
+        raw_json = json.load( fp )
+    ## TODO - we're assuming four levels to the annotation path
+    ## because that's what our first sample dataset has. This needs to
+    ## be made generic (preferably through integration with a JSONPath
+    ## library).
+    levels = annotation_path.split( '/' )
+    type_key , type_value = levels[ 2 ].split( '=' )
+    if( levels[ 0 ] in raw_json ):
+        for aset in raw_json[ levels[ 0 ] ]:
+            if( type_key in aset and
+                aset[ type_key ] == type_value ):
+                ## TODO - this branching tree in the JSON is currently
+                ## hard-coded but should not be. We need to integrate
+                ## this path into the config file as well
+                for annot in aset[ 'annots' ]:
+                    begin_pos = annot[ 0 ]
+                    begin_pos_mapped = map_position( offset_mapping , begin_pos , 1 )
+                    end_pos = annot[ 1 ]
+                    end_pos_mapped = map_position( offset_mapping , end_pos , -1 )
+                    raw_text = raw_content[ begin_pos:end_pos ]
+                    new_entry = create_annotation_entry( begin_pos = begin_pos ,
+                                                         begin_pos_mapped = begin_pos_mapped ,
+                                                         end_pos = end_pos ,
+                                                         end_pos_mapped = end_pos_mapped ,
+                                                         raw_text = raw_text ,
+                                                         tag_name = tag_name )
+                    ##
+                    if( begin_pos in strict_starts ):
+                        strict_starts[ begin_pos ].append( new_entry )
+                    else:
+                        strict_starts[ begin_pos ] = [ new_entry ]
+    ## 
+    return strict_starts
+
+
 def extract_brat_text_bound_annotation( ingest_file ,
                                         annot_line ,
                                         offset_mapping ,
@@ -216,9 +269,8 @@ def extract_brat_text_bound_annotation( ingest_file ,
     ## T1	Location 0 5;8 12;16 23	North America
     ## TODO - add flag to accommodate different scoring styles for
     ##        discontinuous spans.  Current approach treats these
-    ##        spans as equivalent to the maximal span or all sub-spans.
-    matches = re.match( r'^(T[0-9]+)\s+(\w+)\s+([0-9]+)\s+([0-9]+;[0-9]+\s+)*([0-9]+)\s+(.*)' ,
-                        
+    ##        spans as equivalent to the maximal span of all sub-spans.
+    matches = re.match( r'^(T[0-9]+)\s+([\w\-]+)\s+([0-9]+)\s+([0-9]+;[0-9]+\s+)*([0-9]+)\s+(.*)' ,
                         annot_line )
     if( matches ):
         found_tag = matches.group( 2 )
@@ -505,6 +557,50 @@ def extract_annotations_csv( csv_file ,
     return strict_starts
 
 
+def extract_annotations_tsv( tsv_file ,
+                             raw_content ,
+                             offset_mapping ,
+                             tag_name ,
+                             optional_attributes = [] ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
+    found_annots = {}
+    strict_starts = {}
+    ## TODO - I re-used this bit from
+    ## extract_annotations_plaintext(). Is there a reason to do this
+    ## rather than direct string positional extraction?  I'm concerned
+    ## that there may be a mutli-char bug lurking in either this
+    ## choice of the other choice.  Hmmm.
+    list_of_chars = list( raw_content )
+    ##
+    with open( tsv_file , 'r' ) as fp:
+        tsv_dict_reader = DictReader( fp ,
+                                      delimiter = '\t' ,
+                                      fieldnames = [ 'index' ,
+                                                     'start' ,
+                                                     'end' ] )
+        for cols in tsv_dict_reader:
+            if( cols[ 'end' ] is None ):
+                continue
+            begin_pos = cols[ 'start' ]
+            begin_pos_mapped = map_position( offset_mapping , begin_pos , 1 )
+            end_pos = cols[ 'end' ]
+            end_pos_mapped = map_position( offset_mapping , end_pos , -1 )
+            raw_text = ''.join( list_of_chars[ int( begin_pos ):int( end_pos ) ] )
+            new_entry = create_annotation_entry( begin_pos = begin_pos ,
+                                                 begin_pos_mapped = begin_pos_mapped ,
+                                                 end_pos = end_pos ,
+                                                 end_pos_mapped = end_pos_mapped ,
+                                                 raw_text = raw_text ,
+                                                 tag_name = tag_name )
+            ##
+            if( begin_pos in strict_starts ):
+                strict_starts[ begin_pos ].append( new_entry )
+            else:
+                strict_starts[ begin_pos ] = [ new_entry ]
+    ## 
+    return strict_starts
+
+
 def extract_annotations_plaintext( offset_mapping ,
                                    raw_content ,
                                    delimiter ,
@@ -660,6 +756,28 @@ def extract_chars( ingest_file ,
                                         skip_chars )
     log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
     return raw_text , offset_mapping
+
+
+def extract_json_chars( ingest_file ,
+                        document_data ,
+                        skip_chars = None ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
+    offset_mapping = {}
+    ##
+    raw_text = None
+    with open( ingest_file , 'r' ) as fp:
+        raw_json = json.load( fp )
+    if( document_data[ 'content_jsonpath' ] not in raw_json ):
+        log.debug( 'JSON name pair not found for content JSONPath (\'{}\')'.format( document_data[ 'content_jsonpath' ] ) )
+    else:
+        raw_text = raw_json[ document_data[ 'content_jsonpath' ] ]
+    ##
+    if( raw_text != None and skip_chars != None ):
+        offset_mapping = split_content( raw_text ,
+                                        offset_mapping ,
+                                        skip_chars )
+    log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
+    return raw_text , offset_mapping
     
 
 def extract_plaintext( ingest_file , skip_chars ):
@@ -739,11 +857,11 @@ def extract_annotations( ingest_file ,
                 e = sys.exc_info()[0]
                 log.error( 'Uncaught exception in extract_plaintext:  {}'.format( e ) )
         elif( 'format' in document_data and
-              document_data[ 'format' ] == '.ann .txt' ):
-            ## TODO use format to change filename according to pattern
-            ## document_data[ 'format' ]
-            plaintext_alternate_file = re.sub( '.ann$' ,
-                                               '.txt' ,
+              ( document_data[ 'format' ] == '.ann .txt' or
+                document_data[ 'format' ] == '.phi .text' ) ):
+            annot_suffix , txt_suffix = document_data[ 'format' ].split( ' ' )
+            plaintext_alternate_file = re.sub( '{}$'.format( annot_suffix ) ,
+                                               txt_suffix ,
                                                ingest_file )
             try:
                 raw_content , offset_mapping = extract_plaintext( plaintext_alternate_file ,
@@ -769,6 +887,11 @@ def extract_annotations( ingest_file ,
             except:
                 e = sys.exc_info()[0]
                 log.error( 'Uncaught exception in extract_piped_text:  {}'.format( e ) )
+        elif( 'format' in document_data and
+              document_data[ 'format' ] == 'JSON' ):
+            raw_content , offset_mapping = extract_json_chars( ingest_file ,
+                                                               document_data ,
+                                                               skip_chars )
         else:
             try:
                 raw_content , offset_mapping = extract_chars( ingest_file ,
@@ -804,6 +927,14 @@ def extract_annotations( ingest_file ,
                                              tag_name = pattern[ 'type' ] ,
                                              optional_attributes = \
                                                pattern[ 'optional_attributes' ] )
+            elif( pattern[ 'delimiter' ] == '\\t' ):
+                new_annots = \
+                    extract_annotations_tsv( tsv_file = ingest_file ,
+                                             raw_content = raw_content ,
+                                             offset_mapping = offset_mapping ,
+                                             tag_name = pattern[ 'type' ] ,
+                                             optional_attributes = \
+                                               pattern[ 'optional_attributes' ] )
             else:
                 new_annots = \
                     extract_annotations_plaintext( offset_mapping = offset_mapping ,
@@ -836,7 +967,6 @@ def extract_annotations( ingest_file ,
                                                    line_type = pattern [ 'short_name' ] ,
                                                    optional_attributes = opt_attr ,
                                                    normalization_engines = norm_eng )
-                                                     
         elif( 'xpath' in pattern and
               'begin_attr' in pattern and
               'end_attr' in pattern ):
@@ -853,6 +983,20 @@ def extract_annotations( ingest_file ,
                                          optional_attributes = \
                                            pattern[ 'optional_attributes' ] ,
                                          normalization_engines = norm_eng )
+        elif( 'jsonpath' in pattern ):
+            new_annots = \
+                extract_annotations_json( ingest_file ,
+                                          raw_content = raw_content ,
+                                          offset_mapping = offset_mapping ,
+                                          annotation_path = pattern[ 'jsonpath' ] ,
+                                          tag_name = pattern[ 'type' ] ,
+                                          begin_attribute = \
+                                            pattern[ 'begin_attr' ] ,
+                                          end_attribute = \
+                                            pattern[ 'end_attr' ] ,
+                                          optional_attributes = \
+                                            pattern[ 'optional_attributes' ] ,
+                                          normalization_engines = norm_eng )
         elif( 'xpath' in pattern and
               'pivot_attr' in pattern ):
             new_annots = \

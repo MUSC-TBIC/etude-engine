@@ -284,6 +284,9 @@ def extract_namespaces( namespaces ,
 
 def extract_document_data( document_data ,
                            config , sect ):
+    """
+    Add handling for any special document-level data fields
+    """
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     if( config.has_option( sect , 'Format' ) ):
         document_data[ 'format' ] = config.get( sect , 'Format' )
@@ -298,6 +301,9 @@ def extract_document_data( document_data ,
         else:
             document_data[ 'cdata_xpath' ] = config.get( sect ,
                                                          'Content XPath' )
+    elif( config.has_option( sect , 'Content JSONPath' ) ):
+        document_data[ 'content_jsonpath' ] = config.get( sect ,
+                                                          'Content JSONPath' )
     if( config.has_option( sect , 'Normalization Engines' ) ):
         engines_string = config.get( sect , 'Normalization Engines' )
         engines_split = engines_string.split( ',' )
@@ -393,19 +399,25 @@ def extract_delimited_patterns( annotations ,
                                 display_name ,
                                 key_value ,
                                 score_values ,
+                                collapse_all_patterns = False ,
                                 verbose = False ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     ## Loop through all the provided score_values to see if any
     ## provided values match the currently extracted value
     for score_value in score_values:
         if( re.search( score_value , key_value ) ):
-            pattern_entry = dict( type = key_value ,
+            if( collapse_all_patterns ):
+                type_value = 'All Patterns'
+            else:
+                type_value = key_value
+            pattern_entry = dict( type = type_value ,
                                   long_name = sect.strip() ,
                                   delimiter = config.get( sect ,
                                                           'Delimiter' ) ,
                                   display_name = display_name ,
                                   short_name = config.get( sect ,
-                                                           'Short Name' ) )
+                                                           'Short Name' ) ,
+                                  optional_attributes = [] )
             if( config.has_option( sect , 'Opt Col' ) ):
                 ## TODO - hard-coded for special CSV files
                 pattern_entry[ 'optional_attributes' ] = \
@@ -452,7 +464,7 @@ def extract_brat_patterns( annotations ,
                                                                 'Type Prefix') ,
                                       short_name = config.get( sect ,
                                                                'Short Name') ,
-                )
+                                      optional_attributes = [] )
             else:
                 pattern_entry = dict( type = type_value ,
                                       long_name = sect.strip() ,
@@ -460,7 +472,8 @@ def extract_brat_patterns( annotations ,
                                                                 'Type Prefix' ) ,
                                       display_name = display_name ,
                                       short_name = config.get( sect ,
-                                                               'Short Name' ) )       
+                                                               'Short Name' ) ,
+                                      optional_attributes = [] )
             if( config.has_option( sect , 'Opt Attr' ) ):
                 optional_attributes = config.get( sect , 'Opt Attr' )
                 pattern_entry[ 'optional_attributes' ] = \
@@ -475,17 +488,59 @@ def extract_semeval_patterns( annotations ,
                               display_name ,
                               key_value ,
                               score_values ,
+                              collapse_all_patterns = False ,
                               verbose = False ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     ## Loop through all the provided score_values to see if any
     ## provided values match the currently extracted value
     for score_value in score_values:
         if( re.search( score_value , key_value ) ):
-            pattern_entry = dict( type = key_value ,
+            if( collapse_all_patterns ):
+                type_value = 'All Patterns'
+            else:
+                type_value = key_value
+            pattern_entry = dict( type = type_value ,
                                   long_name = sect.strip() ,
                                   display_name = display_name ,
                                   short_name = config.get( sect ,
-                                                           'Short Name' ) )
+                                                           'Short Name' ) ,
+                                  optional_attributes = [] )
+            if( config.has_option( sect , 'Opt Attr' ) ):
+                optional_attributes = config.get( sect , 'Opt Attr' )
+                pattern_entry[ 'optional_attributes' ] = \
+                  optional_attributes.split( ',' )
+            annotations.append( pattern_entry )
+            break
+    log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
+
+
+def extract_json_patterns( annotations ,
+                           config , sect ,
+                           display_name ,
+                           key_value ,
+                           score_values ,
+                           collapse_all_patterns = False ,
+                           verbose = False ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
+    ## Loop through all the provided score_values to see if any
+    ## provided values match the currently extracted value
+    for score_value in score_values:
+        if( re.search( score_value , key_value ) ):
+            if( collapse_all_patterns ):
+                type_value = 'All Patterns'
+            else:
+                type_value = key_value
+            pattern_entry = dict( type = type_value ,
+                                  long_name = sect.strip() ,
+                                  jsonpath = config.get( sect , 'JSONPath' ) ,
+                                  display_name = display_name ,
+                                  short_name = config.get( sect ,
+                                                           'Short Name' ) ,
+                                  begin_attr = config.get( sect ,
+                                                           'Begin Attr' ) ,
+                                  end_attr = config.get( sect ,
+                                                         'End Attr' ) ,
+                                  optional_attributes = [] )
             if( config.has_option( sect , 'Opt Attr' ) ):
                 optional_attributes = config.get( sect , 'Opt Attr' )
                 pattern_entry[ 'optional_attributes' ] = \
@@ -501,6 +556,10 @@ def extract_patterns( annotations ,
                       score_values ,
                       collapse_all_patterns = False ,
                       verbose = False ):
+    """Iterates over each config section not handled by
+    extract_namespaces() or extract_document_data() and pulls out the
+    pattern-level configuration details.
+    """
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     ## Skip any entry missing the score_key we're interested in
     if( not config.has_option( sect , score_key ) ):
@@ -549,6 +608,7 @@ def extract_patterns( annotations ,
                                     display_name ,
                                     key_value ,
                                     score_values ,
+                                    collapse_all_patterns ,
                                     verbose )
     elif( config.has_option( sect , 'Type Prefix' ) ):
         extract_brat_patterns( annotations ,
@@ -558,12 +618,21 @@ def extract_patterns( annotations ,
                                score_values ,
                                collapse_all_patterns ,
                                verbose )
+    elif( config.has_option( sect , 'JSONPath' ) ):
+        extract_json_patterns( annotations ,
+                               config , sect ,
+                               display_name ,
+                               key_value ,
+                               score_values ,
+                               collapse_all_patterns ,
+                               verbose )        
     else:
         extract_semeval_patterns( annotations ,
                                   config , sect ,
                                   display_name ,
                                   key_value ,
                                   score_values ,
+                                  collapse_all_patterns ,
                                   verbose )
     log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
 
@@ -631,11 +700,16 @@ def process_normalization_file( normalization_file ):
     return norm_synonyms
 
 
-def align_patterns( reference_patterns , test_patterns ):
+def align_patterns( reference_patterns , 
+                    test_patterns ,
+                    collapse_all_patterns ):
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
     filtered_ref = []
     filtered_test = []
     for ref_pattern in reference_patterns:
+        ## TODO - distinguish between collapsing all patterns blindly
+        ## and still filtering the two patterns before collapsing all
+        ## together
         match_flag = False
         for test_pattern in test_patterns:
             if( test_pattern[ 'type' ] == ref_pattern[ 'type' ] ):
