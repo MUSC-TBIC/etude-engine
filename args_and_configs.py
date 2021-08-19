@@ -71,7 +71,10 @@ unstructured data extraction.
     parser.add_argument( "--fuzzy-match-flags" , nargs = "+" ,
                          dest = 'fuzzy_flags' ,
                          default = [ 'exact' ] ,
-                         choices = [ 'exact' , 'fully-contained' , 'partial' , 'start' , 'end' ] ,
+                         choices = [ 'exact' , 'fully-contained' , 'partial' ,
+                                     'start' ,
+                                     'end' ,
+                                     'doc-property' ] ,
                          help = "List of strictness levels to use in matching offsets." )
 
     parser.add_argument( "-d" , "--delim" , 

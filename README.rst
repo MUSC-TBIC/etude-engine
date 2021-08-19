@@ -221,7 +221,7 @@ such as the parent class or long description.
        --reference-input $ETUDE_DIR/tests/data/i2b2_2016_track-1_reference \
        --test-input $ETUDE_DIR/tests/data/i2b2_2016_track-1_test \
        --by-type \
-       --score-key "Long Name"
+       --score-key "i2b2 14/16"
 
 +-----------------------+-------+-----+-----+-------+
 | exact                 | TP    | FP  | TN  | FN    |
