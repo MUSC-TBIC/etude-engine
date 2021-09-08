@@ -3,7 +3,7 @@ Documentation
 ================================
 
 The latest documentation (compiled from the contents of the `docs` folder) can be viewed on-line:
-`ETUDE Engine’s documentation <https://etude-engine.readthedocs.io/en/latest/index.html>`_
+`ETUDE Engine's documentation <https://etude-engine.readthedocs.io/en/latest/index.html>`_
 
 Documentation for the ETUDE engine is managed via reStructuredText files and `Sphinx <http://www.sphinx-doc.org/>`_.
 If you don't have Sphinx installed, you should check out a quick primer (`First Steps with Sphinx <http://www.sphinx-doc.org/en/1.7/tutorial.html>`_) or install it as below:
@@ -28,7 +28,7 @@ Basic Run
 
 The simplest test run requires that we specify a reference directory and
 a test directory. The default file matching assumes that our reference
-and test files match names exactly and both end in ‘.xml’. With just the
+and test files match names exactly and both end in `.xml`. With just the
 two directory arguments, we get micro-average scores for the default
 metrics across the full directory.
 
@@ -49,8 +49,8 @@ metrics across the full directory.
    You may get a warning if you run the previous command from a
    directory other than `$ETUDE_DIR`:
    
-   ``ERROR: No reference patterns extracted from config.  Bailing out
-   now.``
+   ``ERROR: Config file is missing or unreadable:  config/i2b2_2016_track-1.conf
+   ERROR: No reference patterns extracted from config.  Bailing out now.``
 
    This warning is because the default configuration files use
    relative paths.  See the section below
@@ -68,29 +68,29 @@ breakdown and a per-annotation-type score breakdown.
 +-----------------------+-------+-----+-----+-------+
 | exact                 | TP    | FP  | TN  | FN    |
 +=======================+=======+=====+=====+=======+
-| micro-average         | 340.0 | 8.0 | 0.0 | 105.0 |
+| micro-average         | 374.0 | 8.0 | 0.0 | 108.0 |
 +-----------------------+-------+-----+-----+-------+
-| 0005_gs.xml           | 31.0  | 0.0 | 0.0 | 0.0   |
+| 0005_gs.xml           | 36.0  | 0.0 | 0.0 | 0.0   |
 +-----------------------+-------+-----+-----+-------+
-| 0016_gs.xml           | 21.0  | 0.0 | 0.0 | 30.0  |
+| 0016_gs.xml           | 23.0  | 0.0 | 0.0 | 31.0  |
 +-----------------------+-------+-----+-----+-------+
-| 0267_gs.xml           | 27.0  | 0.0 | 0.0 | 32.0  |
+| 0267_gs.xml           | 29.0  | 0.0 | 0.0 | 34.0  |
 +-----------------------+-------+-----+-----+-------+
 | 0273_gs.xml           | 0.0   | 0.0 | 0.0 | 35.0  |
 +-----------------------+-------+-----+-----+-------+
-| 0389_gs.xml           | 26.0  | 8.0 | 0.0 | 8.0   |
+| 0389_gs.xml           | 32.0  | 8.0 | 0.0 | 8.0   |
 +-----------------------+-------+-----+-----+-------+
-| 0475_gs.xml           | 45.0  | 0.0 | 0.0 | 0.0   |
+| 0475_gs.xml           | 46.0  | 0.0 | 0.0 | 0.0   |
 +-----------------------+-------+-----+-----+-------+
-| 0617_gs.xml           | 32.0  | 0.0 | 0.0 | 0.0   |
+| 0617_gs.xml           | 38.0  | 0.0 | 0.0 | 0.0   |
 +-----------------------+-------+-----+-----+-------+
-| 0709_gs.xml           | 41.0  | 0.0 | 0.0 | 0.0   |
+| 0709_gs.xml           | 45.0  | 0.0 | 0.0 | 0.0   |
 +-----------------------+-------+-----+-----+-------+
-| 0982_gs.xml           | 95.0  | 0.0 | 0.0 | 0.0   |
+| 0982_gs.xml           | 100.0 | 0.0 | 0.0 | 0.0   |
 +-----------------------+-------+-----+-----+-------+
-| 0992_gs.xml           | 22.0  | 0.0 | 0.0 | 0.0   |
+| 0992_gs.xml           | 25.0  | 0.0 | 0.0 | 0.0   |
 +-----------------------+-------+-----+-----+-------+
-| macro-average by file | 340.0 | 8.0 | 0.0 | 105.0 |
+| macro-average by file | 374.0 | 8.0 | 0.0 | 108.0 |
 +-----------------------+-------+-----+-----+-------+
 
 .. code:: bash
@@ -103,7 +103,7 @@ breakdown and a per-annotation-type score breakdown.
 +-----------------------+-------+-----+-----+-------+
 | exact                 | TP    | FP  | TN  | FN    |
 +=======================+=======+=====+=====+=======+
-| micro-average         | 340.0 | 8.0 | 0.0 | 105.0 |
+| micro-average         | 374.0 | 8.0 | 0.0 | 108.0 |
 +-----------------------+-------+-----+-----+-------+
 | Age                   | 63.0  | 2.0 | 0.0 | 29.0  |
 +-----------------------+-------+-----+-----+-------+
@@ -111,9 +111,9 @@ breakdown and a per-annotation-type score breakdown.
 +-----------------------+-------+-----+-----+-------+
 | HCUnit                | 61.0  | 4.0 | 0.0 | 15.0  |
 +-----------------------+-------+-----+-----+-------+
+| OtherGeo              | 1.0   | 0.0 | 0.0 | 4.0   |
++-----------------------+-------+-----+-----+------+|
 | OtherID               | 7.0   | 0.0 | 0.0 | 0.0   |
-+-----------------------+-------+-----+-----+-------+
-| OtherLoc              | 1.0   | 0.0 | 0.0 | 4.0   |
 +-----------------------+-------+-----+-----+-------+
 | OtherOrg              | 18.0  | 0.0 | 0.0 | 3.0   |
 +-----------------------+-------+-----+-----+-------+
@@ -123,32 +123,32 @@ breakdown and a per-annotation-type score breakdown.
 +-----------------------+-------+-----+-----+-------+
 | Provider              | 54.0  | 0.0 | 0.0 | 10.0  |
 +-----------------------+-------+-----+-----+-------+
-| StateCountry          | 14.0  | 0.0 | 0.0 | 7.0   |
+| SSN                   | 0.0   | 0.0 | 0.0 | 0.0   |
 +-----------------------+-------+-----+-----+-------+
-| StreetCity            | 4.0   | 0.0 | 0.0 | 0.0   |
+| StateCountry          | 24.0  | 0.0 | 0.0 | 9.0   |
++-----------------------+-------+-----+-----+-------+
+| StreetCity            | 28.0  | 0.0 | 0.0 | 1.0   |
 +-----------------------+-------+-----+-----+-------+
 | Zip                   | 4.0   | 0.0 | 0.0 | 0.0   |
 +-----------------------+-------+-----+-----+-------+
 | eAddress              | 2.0   | 0.0 | 0.0 | 0.0   |
 +-----------------------+-------+-----+-----+-------+
-| macro-average by type | 340.0 | 8.0 | 0.0 | 105.0 |
+| macro-average by type | 374.0 | 8.0 | 0.0 | 108.0 |
 +-----------------------+-------+-----+-----+-------+
 
 Specifying Annotation Configs
 -----------------------------
 
 We can use the same reference corpus to analyze annotations generated by
-UIMA’s DateTime tutorial (see link below). A minimal run requires
+UIMA's DateTime tutorial (see link below). A minimal run requires
 creating a matching dataset for the default configurations. Process the
 I2B2 dev set using the DateTime tutorial provided with UIMA. Then,
-because the output files for the I2B2 dev-annotations end in ‘.xml’ but
-the UIMA tutorial files end in ‘.txt’, you need to specify a file suffix
+because the output files for the I2B2 dev-annotations end in `.xml` but
+the UIMA tutorial files end in `.txt`, you need to specify a file suffix
 translation rule. Also, the annotations are encoded slightly differently
 by the tutorial descriptor than by the I2B2 reference. As such, you will
 need to load a different configuration for the test directory to tell
-ETUDE how to find and extract the annotations. (If you run this example
-without the ‘–test-config’ argument, you should see all FN matches
-because nothing can be extracted from the test corpus.)
+ETUDE how to find and extract the annotations.
 
 Link:
 http://uima.apache.org/downloads/releaseDocs/2.2.2-incubating/docs/html/tutorials_and_users_guides/tutorials_and_users_guides.html#ugr.tug.aae.building_aggregates
@@ -172,29 +172,64 @@ http://uima.apache.org/downloads/releaseDocs/2.2.2-incubating/docs/html/tutorial
        --file-suffix ".xml" ".txt" \
        --test-config config/CAS_XMI.conf
 
-   #########   TP  FP  TN  FN
-   aggregate   19.0    20.0    0.0 426.0
-   Age 0.0 0.0 0.0 92.0
-   DateTime    19.0    20.0    0.0 105.0
-   HCUnit  0.0 0.0 0.0 76.0
-   OtherID 0.0 0.0 0.0 7.0
-   OtherLoc    0.0 0.0 0.0 5.0
-   OtherOrg    0.0 0.0 0.0 21.0
-   Patient 0.0 0.0 0.0 19.0
-   PhoneFax    0.0 0.0 0.0 6.0
-   Provider    0.0 0.0 0.0 64.0
-   StateCountry    0.0 0.0 0.0 21.0
-   StreetCity  0.0 0.0 0.0 4.0
-   Zip 0.0 0.0 0.0 4.0
-   eAddress    0.0 0.0 0.0 2.0
++---------------+-------+------+-----+-------+
+| exact         | TP    | FP   | TN  | FN    |
++===============+=======+======+=====+=======+
+| micro-average | 0.0   | 39.0 | 0.0 | 124.0 |
++---------------+-------+------+-----+-------+
+| DateTime      | 0.0   | 39.0 | 0.0 | 124.0 |
++---------------+-------+------+-----+-------+
+| macro-average | 0.0   | 39.0 | 0.0 | 124.0 |
++---------------+-------+------+-----+-------+
 
+You may be surprised that the UIMA tutorial doesn't seem to get a
+single DateTime annotation correct. When you look at the annotations,
+they seem correct. This discrepancy arises because the default
+matching style is "exact" matching. This means that the character
+offset spans needs to be identical. You can select a different
+matching style with the `--fuzzy-match-flags` option.  Using `partial`
+matching instead shows True Positives (TPs) for all spans that at
+least partially overlap. See the more thorough coverage on the various
+options under `Evaluating Matches
+<https://etude-engine.readthedocs.io/en/latest/evaluating_matches.html>`_
+in our documentation.
+
+.. code:: bash
+
+   python $ETUDE_DIR/etude.py \
+       --reference-input $ETUDE_DIR/tests/data/i2b2_2016_track-1_reference \
+       --test-input $I2B2_OUTPUT \
+       --by-type \
+       --file-suffix ".xml" ".txt" \
+       --test-config config/CAS_XMI.conf \
+       --fuzzy-match-flags partial
+
++---------------+-------+------+-----+------+
+| exact         | TP    | FP   | TN  | FN   |
++===============+=======+======+=====+======+
+| micro-average | 39.0  | 0.0  | 0.0 | 85.0 |
++---------------+-------+------+-----+------+
+| DateTime      | 39.0  | 0.0  | 0.0 | 85.0 |
++---------------+-------+------+-----+------+
+| macro-average | 39.0  | 0.0  | 0.0 | 85.0 |
++---------------+-------+------+-----+------+
+
+If you run this example without the `-–test-config` argument, you
+should see all FN matches because nothing can be extracted from the
+test corpus.
+
+.. code:: bash
+   
    python $ETUDE_DIR/etude.py \
        --reference-input $ETUDE_DIR/tests/data/i2b2_2016_track-1_reference \
        --test-input $I2B2_OUTPUT \
        --file-suffix ".xml" ".txt"
 
-   #########   TP  FP  TN  FN
-   aggregate   0.0 0.0 0.0 445.0
++---------------+-------+-----+-----+-------+
+| exact         | TP    | FP  | TN  | FN    |
++===============+=======+=====+=====+=======+
+| micro-average | 0.0   | 0.0 | 0.0 | 482.0 |
++---------------+-------+-----+-----+-------+
 
 Scoring on Different Fields
 ---------------------------
@@ -202,10 +237,14 @@ Scoring on Different Fields
 The above examples show scoring based on the default key in the
 configuration file used for matching the reference to the test
 configuration. You may wish to group annotations on different fields,
-such as the parent class or long description.
+such as the parent class or long description. See the more thorough
+coverage on the various options under `Configuration Files
+<https://etude-engine.readthedocs.io/en/latest/config_files.html>`_ in
+our documentation.
 
 .. code:: bash
 
+   ## You can see output for this command above
    python $ETUDE_DIR/etude.py \
        --reference-input $ETUDE_DIR/tests/data/i2b2_2016_track-1_reference \
        --test-input $ETUDE_DIR/tests/data/i2b2_2016_track-1_test \
@@ -226,9 +265,9 @@ such as the parent class or long description.
 +-----------------------+-------+-----+-----+-------+
 | exact                 | TP    | FP  | TN  | FN    |
 +=======================+=======+=====+=====+=======+
-| micro-average         | 341.0 | 7.0 | 0.0 | 104.0 |
+| micro-average         | 375.0 | 7.0 | 0.0 | 107.0 |
 +-----------------------+-------+-----+-----+-------+
-| Address               | 22.0  | 0.0 | 0.0 | 7.0   |
+| Address               | 56.0  | 0.0 | 0.0 | 10.0  |
 +-----------------------+-------+-----+-----+-------+
 | Contact Information   | 7.0   | 0.0 | 0.0 | 1.0   |
 +-----------------------+-------+-----+-----+-------+
@@ -240,56 +279,94 @@ such as the parent class or long description.
 +-----------------------+-------+-----+-----+-------+
 | Time                  | 155.0 | 3.0 | 0.0 | 61.0  |
 +-----------------------+-------+-----+-----+-------+
-| macro-average by type | 341.0 | 7.0 | 0.0 | 104.0 |
+| macro-average by type | 375.0 | 7.0 | 0.0 | 107.0 |
 +-----------------------+-------+-----+-----+-------+
 
-+--------------------------------+-------+-----+-----+-------+
-| exact                          | TP    | FP  | TN  | FN    |
-+================================+=======+=====+=====+=======+
-| micro-average                  | 340.0 | 8.0 | 0.0 | 105.0 |
-+--------------------------------+-------+-----+-----+-------+
-| Age Greater than 89            | 63.0  | 2.0 | 0.0 | 29.0  |
-+--------------------------------+-------+-----+-----+-------+
-| Date and Time Information      | 91.0  | 2.0 | 0.0 | 33.0  |
-+--------------------------------+-------+-----+-----+-------+
-| Electronic Address Information | 2.0   | 0.0 | 0.0 | 0.0   |
-+--------------------------------+-------+-----+-----+-------+
-| Health Care Provider Name      | 54.0  | 0.0 | 0.0 | 10.0  |
-+--------------------------------+-------+-----+-----+-------+
-| Health Care Unit Name          | 61.0  | 4.0 | 0.0 | 15.0  |
-+--------------------------------+-------+-----+-----+-------+
-| Other ID Numbers               | 7.0   | 0.0 | 0.0 | 0.0   |
-+--------------------------------+-------+-----+-----+-------+
-| Other Locations                | 1.0   | 0.0 | 0.0 | 4.0   |
-+--------------------------------+-------+-----+-----+-------+
-| Other Organization Name        | 18.0  | 0.0 | 0.0 | 3.0   |
-+--------------------------------+-------+-----+-----+-------+
-| Patient Name                   | 16.0  | 0.0 | 0.0 | 3.0   |
-+--------------------------------+-------+-----+-----+-------+
-| Phone, Fax, or Pager Number    | 5.0   | 0.0 | 0.0 | 1.0   |
-+--------------------------------+-------+-----+-----+-------+
-| State or Country               | 14.0  | 0.0 | 0.0 | 7.0   |
-+--------------------------------+-------+-----+-----+-------+
-| Street City Name               | 4.0   | 0.0 | 0.0 | 0.0   |
-+--------------------------------+-------+-----+-----+-------+
-| ZIP Code                       | 4.0   | 0.0 | 0.0 | 0.0   |
-+--------------------------------+-------+-----+-----+-------+
-| macro-average by type          | 340.0 | 8.0 | 0.0 | 105.0 |
-+--------------------------------+-------+-----+-----+-------+
++-----------------------+-------+-----+-----+-------+
+| exact                 |    TP |  FP |  TN |    FN |
++=======================+=======+=====+=====+=======+
+| micro-average         | 374.0 | 8.0 | 0.0 | 108.0 |
++-----------------------+-------+-----+-----+-------+
+| ACCOUNT               |   0.0 | 0.0 | 0.0 |   0.0 |
++-----------------------+-------+-----+-----+-------+
+| AGE                   |  63.0 | 2.0 | 0.0 |  29.0 |
++-----------------------+-------+-----+-----+-------+
+| BIOID                 |   0.0 | 0.0 | 0.0 |   0.0 |
++-----------------------+-------+-----+-----+-------+
+| CITY                  |  24.0 | 0.0 | 0.0 |   1.0 |
++-----------------------+-------+-----+-----+-------+
+| COUNTRY               |  14.0 | 0.0 | 0.0 |   7.0 |
++-----------------------+-------+-----+-----+-------+
+| DATE                  |  91.0 | 2.0 | 0.0 |  33.0 |
++-----------------------+-------+-----+-----+-------+
+| DEVICE                |   0.0 | 0.0 | 0.0 |   0.0 |
++-----------------------+-------+-----+-----+-------+
+| DOCTOR                |  54.0 | 0.0 | 0.0 |  10.0 |
++-----------------------+-------+-----+-----+-------+
+| EMAIL                 |   0.0 | 0.0 | 0.0 |   0.0 |
++-----------------------+-------+-----+-----+-------+
+| FAX                   |   0.0 | 0.0 | 0.0 |   0.0 |
++-----------------------+-------+-----+-----+-------+
+| HEALTHPLAN            |   0.0 | 0.0 | 0.0 |   0.0 |
++-----------------------+-------+-----+-----+-------+
+| HOSPITAL              |  61.0 | 4.0 | 0.0 |  15.0 |
++-----------------------+-------+-----+-----+-------+
+| IDNUM                 |   0.0 | 0.0 | 0.0 |   0.0 |
++-----------------------+-------+-----+-----+-------+
+| IPADDRESS             |   0.0 | 0.0 | 0.0 |   0.0 |
++-----------------------+-------+-----+-----+-------+
+| LICENSE               |   7.0 | 0.0 | 0.0 |   0.0 |
++-----------------------+-------+-----+-----+-------+
+| LOCATION-OTHER        |   1.0 | 0.0 | 0.0 |   4.0 |
++-----------------------+-------+-----+-----+-------+
+| MEDICALRECORD         |   0.0 | 0.0 | 0.0 |   0.0 |
++-----------------------+-------+-----+-----+-------+
+| ORGANIZATION          |  18.0 | 0.0 | 0.0 |   3.0 |
++-----------------------+-------+-----+-----+-------+
+| PATIENT               |  16.0 | 0.0 | 0.0 |   3.0 |
++-----------------------+-------+-----+-----+-------+
+| PHONE                 |   5.0 | 0.0 | 0.0 |   1.0 |
++-----------------------+-------+-----+-----+-------+
+| SSN                   |   0.0 | 0.0 | 0.0 |   0.0 |
++-----------------------+-------+-----+-----+-------+
+| STATE                 |  10.0 | 0.0 | 0.0 |   2.0 |
++-----------------------+-------+-----+-----+-------+
+| STREET                |   4.0 | 0.0 | 0.0 |   0.0 |
++-----------------------+-------+-----+-----+-------+
+| URL                   |   2.0 | 0.0 | 0.0 |   0.0 |
++-----------------------+-------+-----+-----+-------+
+| USERNAME              |   0.0 | 0.0 | 0.0 |   0.0 |
++-----------------------+-------+-----+-----+-------+
+| VEHICLE               |   0.0 | 0.0 | 0.0 |   0.0 |
++-----------------------+-------+-----+-----+-------+
+| ZIP                   |   4.0 | 0.0 | 0.0 |   0.0 |
++-----------------------+-------+-----+-----+-------+
+| macro-average by type | 374.0 | 8.0 | 0.0 | 108.0 |
++-----------------------+-------+-----+-----+-------+
 
 Custom Evaluation Print-Outs
 ================================
 
-The majority of you evaluation output customization can be handled by the above command-line arguments.
-However, sometimes you'll need to generate output that exactly matches some very specific formatting requirements.
-For these instances, ETUDE supports custom print functions.
-Currently, those print functions must be hard-coded into `scoring_metrics.py`.
-Our roadmap includes the ability to load and trigger these print functions from a standard folder to make the system much more modular.
-Until that point, you can see an example custom print-out that targets the `2018 n2c2 Track 1 <https://www.aclweb.org/portal/content/2018-n2c2-nlp-shared-task-and-workshop>`_ output format.
-The configurations for this sample are in our sister repository:
-`ETUDE Engine Configs for n2c2 <https://github.com/MUSC-TBIC/etude-engine-configs/tree/master/n2c2>`_
-The original evaluation script for the competition, used as a point of reference, can be found on github:
-`Evaluation scripts for the 2018 N2C2 shared tasks on clinical NLP  <https://github.com/filannim/2018_n2c2_evaluation_scripts>`_
+The majority of you evaluation output customization can be handled by
+the above command-line arguments.  However, sometimes you'll need to
+generate output that exactly matches some very specific formatting
+requirements.  For these instances, ETUDE supports custom print
+functions.  Currently, those print functions must be hard-coded into
+`scoring_metrics.py`.  Our roadmap includes the ability to load and
+trigger these print functions from a standard folder to make the
+system much more modular.  Until that point, you can see an example
+custom print-out that targets the `2018 n2c2 Track 1
+<https://www.aclweb.org/portal/content/2018-n2c2-nlp-shared-task-and-workshop>`_
+output format.  The configurations for this sample are in our sister
+repository: `ETUDE Engine Configs for n2c2
+<https://github.com/MUSC-TBIC/etude-engine-configs/tree/stable/n2c2>`_
+The original evaluation script for the competition, used as a point of
+reference, can be found on github: `Evaluation scripts for the 2018
+N2C2 shared tasks on clinical NLP
+<https://github.com/filannim/2018_n2c2_evaluation_scripts>`_ See the
+more thorough coverage on the various `Output Formats
+<https://etude-engine.readthedocs.io/en/latest/output_formats.html>`_
+in our documentation.
 
 .. code:: bash
 
@@ -336,11 +413,22 @@ The original evaluation script for the competition, used as a point of reference
 Contextually-Grounded Annotation Examples
 ---------------------------------------------
 
-A second class of custom outputs is to generate listings of real annotations with left- and right-margins of context. Most often, you will want to use this type of output to generate a listing of all the FP annotations your system generated or all the FN annotations your system failed to find.
+A second class of custom outputs is to generate listings of real
+annotations with left- and right-margins of context. Most often, you
+will want to use this type of output to generate a listing of all the
+FP annotations your system generated or all the FN annotations your
+system failed to find.
 
-The generation of this output is dependent on a score card having been written to disk during a normal evaluation run. You'll also want to make sure to have generated a system output directory.  Both flags are show in examples below.  Additional flags let you determine how much of a context window (in characters) you want to see on the left and right of the annotation.
+The generation of this output is dependent on a score card having been
+written to disk during a normal evaluation run. You'll also want to
+make sure to have generated a system output directory.  Both flags are
+show in examples below.  Additional flags let you determine how much
+of a context window (in characters) you want to see on the left and
+right of the annotation.
 
-If we focus solely on the `partial` matches, then we're guaranteed to get FP and FN annotations that don't overlap. We don't distinguish between span mismatches and type mismatches.
+If we focus solely on the `partial` matches, then we're guaranteed to
+get FP and FN annotations that don't overlap. We don't distinguish
+between span mismatches and type mismatches.
 
 .. code:: bash
 
@@ -391,17 +479,17 @@ Configuring Annotation Extraction
 
 Several sample configurations are provided in the config/ folder. Each
 long name for an annotation description should be unique due to how
-Python’s configuration parser works. XPath’s should also be unique
+Python's configuration parser works. XPath's should also be unique
 within a config file but do not programmitically need to be. The begin
 and end attribute are required for a pattern to be scorable.
 
 ::
 
    [ Long Name or Description ]
-   Parent:           (optional; useful for merging multiple child types together for scoring)
-   Short Name:  (optional; useful for displaying as column output name and merging
-                          multiple XPaths into a single scoring category)
-   XPath:            (required; pattern used by XPath to find annotation)
+   Parent:         (optional; useful for merging multiple child types together for scoring)
+   Short Name:     (optional; useful for displaying as column output name and merging
+                      multiple XPaths into a single scoring category)
+   XPath:          (required for XML; pattern used by XPath to find annotation)
    Begin Attr:     (required; beginning or start offset attribute name)
    End Attr:       (required; end offset attribute name)
    Text Attr:      (optional; not used by anything currently)
@@ -442,15 +530,14 @@ Testing
 =======
 
 Unit testing is done with the pytest module. Because of a bug in how
-tests are processed in Python 2.7, you should run pytest indirectly
-rather than directly:
+tests are processed in Python, you should run pytest indirectly rather
+than directly:
 
 .. code:: bash
 
    python -m pytest tests/
 
    ## You can also generate a coverate report in html format
-   python2.7 -m pytest --cov-report html:cov_html_py2.7 --cov=./ tests/
    python3.7 -m pytest --cov-report html:cov_html_py3.7 --cov=./ tests/
    
    ## The junit file is helpful for automated systems or CI pipelines

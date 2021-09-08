@@ -662,6 +662,10 @@ if __name__ == "__main__":
                                                score_values = args.score_values ,
                                                collapse_all_patterns = args.collapse_all_patterns ,
                                                verbose = args.verbose )
+        except args_and_configs.configparser.NoOptionError as e:
+            log.error( 'NoOptionError in process_config for reference config:  {}'.format( e ) )
+        except NameError as e:
+            log.error( 'NameError in process_config for reference config:  {}'.format( e ) )
         except:
             e = sys.exc_info()[0]
             log.error( 'Uncaught exception in process_config for reference config:  {}'.format( e ) )
@@ -676,6 +680,8 @@ if __name__ == "__main__":
                                                score_values = args.score_values ,
                                                collapse_all_patterns = args.collapse_all_patterns ,
                                                verbose = args.verbose )
+        except args_and_configs.configparser.NoOptionError as e:
+            log.error( 'NoOptionError in process_config for system output config:  {}'.format( e ) )
         except NameError as e:
             log.error( 'NameError in process_config for system output config:  {}'.format( e ) )
         except:
