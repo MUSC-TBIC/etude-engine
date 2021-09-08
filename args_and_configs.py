@@ -71,7 +71,10 @@ unstructured data extraction.
     parser.add_argument( "--fuzzy-match-flags" , nargs = "+" ,
                          dest = 'fuzzy_flags' ,
                          default = [ 'exact' ] ,
-                         choices = [ 'exact' , 'fully-contained' , 'partial' , 'start' , 'end' ] ,
+                         choices = [ 'exact' , 'fully-contained' , 'partial' ,
+                                     'start' ,
+                                     'end' ,
+                                     'doc-property' ] ,
                          help = "List of strictness levels to use in matching offsets." )
 
     parser.add_argument( "-d" , "--delim" , 
@@ -561,20 +564,24 @@ def extract_patterns( annotations ,
     pattern-level configuration details.
     """
     log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
-    ## Skip any entry missing the score_key we're interested in
-    if( not config.has_option( sect , score_key ) ):
-        log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
-        return
-    if( collapse_all_patterns ):
-        display_name = 'All Patterns'
-    else:
-        display_name = '{} ({})'.format( sect.strip() ,
-                                         config.get( sect , score_key ) )
+    ####
     if( score_key == 'Long Name' or
         score_key == 'Section' ):
         key_value = sect.strip()
+        display_name = key_value
     else:
+        ## Skip any entry missing the score_key we're interested in
+        if( not config.has_option( sect , score_key ) ):
+            log.debug( "-- Leaving '{}'".format( sys._getframe().f_code.co_name ) )
+            return
+        ##
         key_value = config.get( sect , score_key )
+        display_name = '{} ({})'.format( sect.strip() ,
+                                         config.get( sect , score_key ) )
+    ## Overwrite the display_name with a general title if we're collapsing all patterns
+    if( collapse_all_patterns ):
+        display_name = 'All Patterns'
+    ####
     if( config.has_option( sect , 'XPath' ) and
         config.has_option( sect , 'Begin Attr' ) and
         config.has_option( sect , 'End Attr' ) ):

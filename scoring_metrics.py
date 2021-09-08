@@ -825,6 +825,101 @@ def evaluate_positions( reference_filename ,
     ##
     log.debug( "Leaving '{}'".format( sys._getframe().f_code.co_name ) )
 
+
+def evaluate_doc_properties( reference_filename ,
+                             confusion_matrix ,
+                             score_card ,
+                             reference_ss ,
+                             test_ss ,
+                             patterns ,
+                             fuzzy_flag = 'doc-property' ,
+                             scorable_attributes = [] ,
+                             scorable_engines = [] ,
+                             norm_synonyms = {} ):
+    log.debug( "Entering '{}'".format( sys._getframe().f_code.co_name ) )
+    ##
+    log.debug( 'Anchoring positions at the document level' )
+    start_key = 'begin_pos'
+    end_key = 'end_pos'
+    reference_entries = flatten_ss_dictionary( reference_ss , 'reference' )
+    test_entries = flatten_ss_dictionary( test_ss , 'test' )
+    ## In case there are no reference_entries, initialize test_leftovers
+    ## as the full list of test_entries
+    test_leftovers = test_entries
+    ####
+    tn_types = set()
+    for pattern in patterns:
+        tn_types.add( pattern[ 'type' ] )
+    ####
+    for reference_annot in reference_entries:
+        ## grab type and end position
+        reference_type , reference_start , reference_end = \
+              get_annotation_from_base_entry( reference_annot ,
+                                              start_key ,
+                                              end_key )
+        if( reference_type in tn_types ):
+            tn_types.remove( reference_type )
+        test_leftovers = []
+        matched_flag = False
+        for test_annot in test_entries:
+            ## TODO - nesting comparisons, multiple overlaps
+            if( matched_flag ):
+                test_leftovers.append( test_annot )
+                continue
+            ## grab type and end position
+            test_type , test_start , test_end = \
+                get_annotation_from_base_entry( test_annot ,
+                                                start_key ,
+                                                end_key )
+            if( test_type == None ):
+                ## If we couldn't extract a type, consider this
+                ## an invalid annotation
+                continue
+            if( reference_type == test_type ):
+                matched_flag = True
+                update_confusion_matrix( confusion_matrix , fuzzy_flag , reference_type , test_type )
+                update_score_card( 'TP' , score_card , fuzzy_flag ,
+                                   reference_filename , reference_start , reference_end ,
+                                   reference_type ,
+                                   ref_annot = reference_annot ,
+                                   test_annot = test_annot ,
+                                   scorable_attributes = scorable_attributes ,
+                                   scorable_engines = scorable_engines ,
+                                   norm_synonyms = norm_synonyms )
+        if( not matched_flag ):
+            update_confusion_matrix( confusion_matrix , fuzzy_flag , reference_type , '*FN*' )
+            update_score_card( 'FN' , score_card , fuzzy_flag ,
+                               reference_filename , reference_start , reference_end ,
+                               reference_type ,
+                               ref_annot = reference_annot ,
+                               test_annot = None )
+        ####
+        test_entries = test_leftovers
+    ## any remaining entries in the test set are FPs
+    for test_annot in test_leftovers:
+        ## grab type and end position
+        test_type , test_start , test_end = \
+          get_annotation_from_base_entry( test_annot ,
+                                          start_key ,
+                                          end_key )
+        if( test_type == None ):
+            continue
+        if( test_type in tn_types ):
+            tn_types.remove( test_type )
+        update_confusion_matrix( confusion_matrix , fuzzy_flag , '*FP*' , test_type )
+        update_score_card( 'FP' , score_card , fuzzy_flag ,
+                           reference_filename , test_start , test_end ,
+                           test_type , None , test_annot )
+    ## any remaining entries in the type system, we consider those TNs
+    for tn_type in tn_types:
+        update_confusion_matrix( confusion_matrix , fuzzy_flag , tn_type , '*TN*' )
+        update_score_card( 'TN' , score_card , fuzzy_flag ,
+                           reference_filename , -1 , -1 ,
+                           tn_type ,
+                           ref_annot = None , test_annot = None )
+    ##
+    log.debug( "Leaving '{}'".format( sys._getframe().f_code.co_name ) )
+
 ##
 ## All functions related to printing and calculating scoring metrics
 ##
