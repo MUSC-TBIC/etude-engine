@@ -55,6 +55,9 @@ def count_ref_set( this_ns , this_dd , this_patterns ,
             log.error( 'NameError exception in extract_annotations:  {}'.format( e ) )
         except TypeError as e:
             log.error( 'TypeError exception in extract_annotations:  {}'.format( e ) )
+        except KeyboardInterrupt as e:
+            log.error( 'KeyboardInterrupt in extract_annotations:  {}'.format( e ) )
+            sys.exit( 0 )
         except:
             e = sys.exc_info()[0]
             log.error( 'Uncaught exception in extract_annotations:  {}'.format( e ) )
@@ -371,6 +374,9 @@ def score_ref_set( reference_ns , reference_dd , reference_patterns , reference_
             log.error( 'IndexError exception in extract_annotations:  {}'.format( e ) )
         except TypeError as e:
             log.error( 'TypeError exception in extract_annotations:  {}'.format( e ) )
+        except KeyboardInterrupt as e:
+            log.error( 'KeyboardInterrupt in extract_annotations:  {}'.format( e ) )
+            sys.exit( 0 )
         except:
             e = sys.exc_info()[0]
             log.error( 'Uncaught exception in extract_annotations:  {}'.format( e ) )
@@ -398,30 +404,81 @@ def score_ref_set( reference_ns , reference_dd , reference_patterns , reference_
                 log.error( 'KeyError exception in extract_annotations:  {}'.format( e ) )
             except TypeError as e:
                 log.error( 'TypeError exception in extract_annotations:  {}'.format( e ) )
+            except KeyboardInterrupt as e:
+                log.error( 'KeyboardInterrupt in extract_annotations:  {}'.format( e ) )
+                sys.exit( 0 )
             except:
                 e = sys.exc_info()[0]
                 log.error( 'Uncaught exception in extract_annotations:  {}'.format( e ) )
         ##
         try:
-            for fuzzy_flag in args.fuzzy_flags:
-                if( args.skip_chars == None ):
-                    ignore_chars = False
-                else:
-                    ignore_chars = True
+            if( args.skip_chars == None ):
+                ignore_chars = False
+            else:
+                ignore_chars = True
+            ## Stricly enforce the constraint that 'start', 'end', and
+            ## 'doc-property' match flags must be run individually on
+            ## their own runs
+            if( 'start' in args.fuzzy_flags ):
                 scoring_metrics.evaluate_positions( reference_filename ,
                                                     confusion_matrix ,
                                                     score_card ,
                                                     reference_ss ,
                                                     test_ss ,
-                                                    fuzzy_flag = fuzzy_flag ,
+                                                    fuzzy_flag = 'start' ,
                                                     use_mapped_chars = \
-                                                      ignore_chars ,
+                                                        ignore_chars ,
                                                     scorable_attributes = \
-                                                      args.scorable_attributes ,
+                                                        args.scorable_attributes ,
                                                     scorable_engines = \
-                                                      args.scorable_engines ,
+                                                        args.scorable_engines ,
                                                     norm_synonyms =\
-                                                      args.normalization_synonyms )
+                                                        args.normalization_synonyms )
+            elif( 'end' in args.fuzzy_flags ):
+                scoring_metrics.evaluate_positions( reference_filename ,
+                                                    confusion_matrix ,
+                                                    score_card ,
+                                                    reference_ss ,
+                                                    test_ss ,
+                                                    fuzzy_flag = 'end' ,
+                                                    use_mapped_chars = \
+                                                        ignore_chars ,
+                                                    scorable_attributes = \
+                                                        args.scorable_attributes ,
+                                                    scorable_engines = \
+                                                        args.scorable_engines ,
+                                                    norm_synonyms =\
+                                                        args.normalization_synonyms )
+            elif( 'doc-property' in args.fuzzy_flags ):
+                scoring_metrics.evaluate_doc_properties( reference_filename ,
+                                                         confusion_matrix ,
+                                                         score_card ,
+                                                         reference_ss ,
+                                                         test_ss ,
+                                                         patterns = reference_patterns ,
+                                                         fuzzy_flag = 'doc-property' ,
+                                                         scorable_attributes = \
+                                                             args.scorable_attributes ,
+                                                         scorable_engines = \
+                                                             args.scorable_engines ,
+                                                         norm_synonyms =\
+                                                             args.normalization_synonyms )
+            else:
+                for fuzzy_flag in args.fuzzy_flags:
+                    scoring_metrics.evaluate_positions( reference_filename ,
+                                                        confusion_matrix ,
+                                                        score_card ,
+                                                        reference_ss ,
+                                                        test_ss ,
+                                                        fuzzy_flag = fuzzy_flag ,
+                                                        use_mapped_chars = \
+                                                            ignore_chars ,
+                                                        scorable_attributes = \
+                                                            args.scorable_attributes ,
+                                                        scorable_engines = \
+                                                            args.scorable_engines ,
+                                                        norm_synonyms =\
+                                                            args.normalization_synonyms )
         except UnboundLocalError as e:
             log.error( 'UnboundLocalError exception in evaluate_positions:  {}'.format( e ) )
         except NameError as e:
@@ -432,6 +489,9 @@ def score_ref_set( reference_ns , reference_dd , reference_patterns , reference_
         except ValueError as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             log.error( 'TypeError in evaluate_positions ({}):  {}'.format( exc_tb.tb_lineno , e ) )
+        except KeyboardInterrupt as e:
+            log.error( 'KeyboardInterrupt in extract_annotations:  {}'.format( e ) )
+            sys.exit( 0 )
         except:
             e = sys.exc_info()[0]
             log.error( 'Uncaught exception in evaluate_positions:  {}'.format( e ) )
@@ -602,6 +662,10 @@ if __name__ == "__main__":
                                                score_values = args.score_values ,
                                                collapse_all_patterns = args.collapse_all_patterns ,
                                                verbose = args.verbose )
+        except args_and_configs.configparser.NoOptionError as e:
+            log.error( 'NoOptionError in process_config for reference config:  {}'.format( e ) )
+        except NameError as e:
+            log.error( 'NameError in process_config for reference config:  {}'.format( e ) )
         except:
             e = sys.exc_info()[0]
             log.error( 'Uncaught exception in process_config for reference config:  {}'.format( e ) )
@@ -616,6 +680,8 @@ if __name__ == "__main__":
                                                score_values = args.score_values ,
                                                collapse_all_patterns = args.collapse_all_patterns ,
                                                verbose = args.verbose )
+        except args_and_configs.configparser.NoOptionError as e:
+            log.error( 'NoOptionError in process_config for system output config:  {}'.format( e ) )
         except NameError as e:
             log.error( 'NameError in process_config for system output config:  {}'.format( e ) )
         except:

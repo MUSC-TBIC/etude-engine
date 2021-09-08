@@ -342,7 +342,8 @@ def test_union_patterns_exact_match():
                                        score_key = 'Short Name' ,
                                        score_values = score_values )
     ref_patterns , test_patterns = \
-      args_and_configs.align_patterns( ref_patterns , test_patterns )
+      args_and_configs.align_patterns( ref_patterns , test_patterns ,
+                                       collapse_all_patterns = False )
     for ref_pattern in ref_patterns:
         match_flag = False
         for test_pattern in test_patterns:
@@ -376,7 +377,8 @@ def test_union_patterns_more_in_ref():
                                        score_key = 'Short Name' ,
                                        score_values = score_values )
     ref_patterns , test_patterns = \
-      args_and_configs.align_patterns( ref_patterns , test_patterns )
+      args_and_configs.align_patterns( ref_patterns , test_patterns ,
+                                       collapse_all_patterns = False )
     for ref_pattern in ref_patterns:
         match_flag = False
         for test_pattern in test_patterns:
@@ -410,7 +412,8 @@ def test_union_patterns_more_in_test():
                                        score_key = 'Short Name' ,
                                        score_values = score_values )
     ref_patterns , test_patterns = \
-      args_and_configs.align_patterns( ref_patterns , test_patterns )
+      args_and_configs.align_patterns( ref_patterns , test_patterns ,
+                                       collapse_all_patterns = False )
     for ref_pattern in ref_patterns:
         match_flag = False
         for test_pattern in test_patterns:
@@ -444,7 +447,8 @@ def test_union_patterns_venn_diagram():
                                        score_key = 'Short Name' ,
                                        score_values = score_values )
     ref_patterns , test_patterns = \
-      args_and_configs.align_patterns( ref_patterns , test_patterns )
+      args_and_configs.align_patterns( ref_patterns , test_patterns ,
+                                       collapse_all_patterns = False )
     for ref_pattern in ref_patterns:
         match_flag = False
         for test_pattern in test_patterns:
@@ -478,7 +482,8 @@ def test_union_patterns_empty_ref():
                                        score_key = 'Short Name' ,
                                        score_values = score_values )
     ref_patterns , test_patterns = \
-      args_and_configs.align_patterns( ref_patterns , test_patterns )
+      args_and_configs.align_patterns( ref_patterns , test_patterns ,
+                                       collapse_all_patterns = False )
     for ref_pattern in ref_patterns:
         match_flag = False
         for test_pattern in test_patterns:
@@ -512,7 +517,8 @@ def test_union_patterns_empty_test():
                                        score_key = 'Short Name' ,
                                        score_values = score_values )
     ref_patterns , test_patterns = \
-      args_and_configs.align_patterns( ref_patterns , test_patterns )
+      args_and_configs.align_patterns( ref_patterns , test_patterns ,
+                                       collapse_all_patterns = False )
     for ref_pattern in ref_patterns:
         match_flag = False
         for test_pattern in test_patterns:
