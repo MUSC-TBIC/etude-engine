@@ -1,4 +1,12 @@
 
+.. image:: https://github.com/MUSC-TBIC/etude-engine/actions/workflows/python-app.yml/badge.svg
+   :target: https://github.com/MUSC-TBIC/etude-engine/actions/workflows/python-app.yml
+   :alt: pytest Status
+
+.. image:: https://readthedocs.org/projects/etude-engine/badge/?version=latest
+   :target: https://etude-engine.readthedocs.io/en/latest/?badge=latest
+   :alt: Documentation Status
+
 Documentation
 ================================
 
