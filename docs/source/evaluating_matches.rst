@@ -1,5 +1,22 @@
-Evaluating Matches (`--fuzzy-match-flag`)
-=========================================
+Evaluating Matches
+==================
+
+Relevant command line arguments:
+
+.. sourcecode:: bash
+
+   --fuzzy-match-flags exact
+   --fuzzy-match-flags partial
+   --fuzzy-match-flags fully-contained
+   --fuzzy-match-flags exact partial fully-contained
+
+   --fuzzy-match-flags [start|end|doc-property]
+
+   --ignore-whitespace
+   --skip-chars [regex of characters to skip]
+
+   --heed-whitespace
+
 
 Exact Match
 -----------
