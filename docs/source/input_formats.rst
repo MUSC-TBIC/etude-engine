@@ -13,7 +13,22 @@ Local sample configuration files (under `config/`):
 
   
 Structured Plain Text (e.g., csv)
---------------------------------
+---------------------------------
+
+
+CSV with Start, End, and Negation Columns
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* `csv_diagnoses.conf`
+
+If the configuration file includes a key/value pair for `Opt Col`,
+then we forcibly include the following three available values for this
+column:
+
+* affirmed
+* negated
+* possible
+
 
 brat Annotation
 ~~~~~~~~~~~~~~~
