@@ -531,11 +531,14 @@ def partial_comparison_runner( reference_filename , confusion_matrix , score_car
         if( ( ( reference_start == 'SOF' or
                 reference_start <= test_start ) and
               ( reference_end == 'EOF' or
+                test_start == 'SOF' or
                 reference_end > test_start ) ) or
             ( ( reference_start == 'SOF' or
+                test_end == 'EOF' or
                 reference_start < test_end ) and
               ( reference_end == 'EOF' or
-                reference_end >= test_end ) ) ):
+                ( test_end != 'EOF' and
+                  reference_end >= test_end ) ) ) ):
             matched_flag = True
             update_confusion_matrix( confusion_matrix , fuzzy_flag , reference_type , test_type )
             ## If the types match...

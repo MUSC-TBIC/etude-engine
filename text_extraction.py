@@ -525,6 +525,10 @@ def extract_annotations_csv( csv_file ,
     with open( csv_file , 'r' ) as fp:
         csv_dict_reader = DictReader( fp )
         for cols in csv_dict_reader:
+            ## TODO - the begin column and end column are
+            ## hard-coded. These should be extracted from the
+            ## configurable values of: pattern_entry[ 'begin_attr' ],
+            ## pattern_entry[ 'end_attr' ]
             begin_pos = cols[ 'START' ]
             begin_pos_mapped = begin_pos
             end_pos = cols[ 'END' ]
