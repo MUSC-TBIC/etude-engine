@@ -19,6 +19,8 @@ Welcome to ETUDE Engine's documentation!
    config_files
    input_formats
    evaluating_matches
+   evaluating_normalization
+   evaluating_context_attributes
    output_formats
 
 
